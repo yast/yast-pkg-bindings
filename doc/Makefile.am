@@ -1,17 +1,42 @@
-# Makefile.am for pkg-bindings/doc
+#
+# Makefile.am for core/libycp/doc
+#
 
-SUBDIRS =
+htmldir = $(docdir)
 
-htmldir = $(docdir)/pkg
+builtin = $(wildcard $(srcdir)/../src/PkgModule*.cc)
+builtinxml := $(builtin:%.cc=%.xml)
+xmlfiles := $(foreach xml,$(builtinxml),$(notdir $(xml)))
+htmlfiles = $(wildcard html/*.html)
 
-html_DATA = YCP-builtins-pkg.html packager.html
 
-CLEANFILES = YCP-builtins-pkg.html
+html_DATA =			\
+	html/yast2docs.css	\
+	html/index.html		\
+	$(htmlfiles)
 
-builtin_pkg = $(srcdir)/../src/PkgModule*.cc
+html/index.html:  $(xmlfiles) builtins.xml
+	XML_CATALOG_FILES=@XML_CATALOG@\
+	@XSLTPROC@ --xinclude \
+	@STYLESHEET_HTML@ builtins.xml
 
-YCP-builtins-pkg.html: $(builtin_pkg)
-	`pkg-config --variable=ybindir yast2-devtools`/makebuiltindocs -t "Pkg:: built-in functions" $^ > $@.new
-	mv $@.new $@
+$(xmlfiles) : %.xml: ../src/%.cc
+	`pkg-config --variable=ybindir yast2-devtools`/ydoc2 -o $@.tmp $<
+	@XSLTPROC@ @STYLESHEET_YDOC@ $@.tmp > $@
+	`pkg-config --variable=ybindir yast2-devtools`/replace_entities $@
+	rm $@.tmp
 
-EXTRA_DIST = $(html_DATA)
+html/yast2docs.css: html/index.html
+	cp @STYLESHEET_CSS@ html
+	cp -a $(ydatadir)/docbook/images html
+
+EXTRA_DIST =  builtins.xml
+
+CLEANFILES = $(xmlfiles)
+
+clean-local:
+	rm -rf html
+
+install-data-local:
+	mkdir -p $(DESTDIR)$(htmldir)
+	cp -a $(srcdir)/html/images $(DESTDIR)$(htmldir)

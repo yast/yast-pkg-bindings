@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "/usr/share/xml/docbook/schema/dtd/4.2/docbookx.dtd">
-
 <section id="package-bindings">
     <title>Using the package manager</title>
     
@@ -11,7 +9,7 @@
 This is a short introduction into using the package manager
 interface from within YCP code.</para>
 <para>
-It describes the required <emphasis>Pkg::</emphasis> calls and how to use them
+It describes the required <emphasis>Pkg</emphasis> calls and how to use them
 in actual code.</para>
 </section>
 <section>
@@ -47,7 +45,7 @@ makes it important to set up appropriate callbacks.</para>
 <section><title>Checking an installed package</title>
 
     <para>
-Pkg::IsProvided checks if a rpm tag (a
+<link linkend="PkgModuleFunctionsPackage_IsProvided">Pkg::IsProvided</link> checks if a rpm tag (a
 package name or any other symbolic name provided by a package) is
 installed.</para>
 <para>
@@ -59,7 +57,7 @@ It does a '<command>rpm -q</command>' and if this fails a '<command>rpm -q
     <title>Checking the installation sources</title>
 
     <para>
-Pkg::IsAvailable checks if a rpm package
+<link linkend="PkgModuleFunctionsPackage_IsAvailable">Pkg::IsAvailable</link> checks if a rpm package
 is available for installation.
 (It currently does not check for other tags provided, this will be
 implemented in a future version.)</para>
@@ -73,26 +71,26 @@ structures.</para>
 <section>
     <title>Deleting a package</title>
     <para>
-Pkg::PkgDelete marks an installed package
+<link linkend="PkgModuleFunctionsPackage_PkgDelete">Pkg::PkgDelete</link> marks an installed package
 for deletion. It does <emphasis>not</emphasis> immediately run '<emphasis>rpm -e</emphasis>'
 but just sets the internal status of the package in the package
 manager.</para>
 <para>
 The actual deletion must be triggered with
-<emphasis>Pkg::PkgCommit().</emphasis></para>
+<link linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link>().</para>
 
 </section>
 <section>
 
 <title>Installing a package</title>
 <para>
-<emphasis>Pkg::PkgInstall</emphasis> marks an available
+<link linkend="PkgModuleFunctionsPackage_PkgInstall">Pkg::PkgInstall</link> marks an available
 package for installation. It does <emphasis>not</emphasis> immediately run
 '<emphasis>rpm -Uhv</emphasis>' but just sets the internal status of the
 package in the package manager.</para>
 <para>
 The actual installation must be triggered with
-<emphasis>Pkg::PkgCommit()</emphasis>.</para>
+<link linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link>().</para>
 
 </section>
 <section>
@@ -100,7 +98,7 @@ The actual installation must be triggered with
 <title>Solving dependencies</title>
 <para>
 
-<emphasis>Pkg::PkgSolve()</emphasis> tries to solve open package
+<link linkend="PkgModuleFunctionsPackage_PkgSolve">Pkg::PkgSolve</link>() tries to solve open package
 dependencies and marks other (dependant) packages for
 installation/deletion.</para>
 <para>
@@ -112,7 +110,7 @@ Callbacks for user interaction will be added later.)</para>
 <title>Committing the changes</title>
 
 <para>
-<emphasis> Pkg::PkgCommit</emphasis> does the '<emphasis>rpm</emphasis>'
+<link linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link> does the '<emphasis>rpm</emphasis>'
 calls needed to install or delete packages.</para>
 <para>
 It sorts the packages according to their pre-requires and their
@@ -126,9 +124,9 @@ user actions (i.e. media change).</para>
 The module <emphasis>PackageCallbacks</emphasis> from
 <emphasis>yast2-packager.rpm</emphasis> defined default callbacks for all these
 actions and should be imported by any code using
-<emphasis>Pkg::PkgCommit(0)</emphasis>.</para>
+<link linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link>(0).</para>
 <para>
-The integer parameter given to <emphasis>Pkg::PkgCommit(0)</emphasis> must be
+The integer parameter given to <link linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link>(0) must be
 zero for the normal usage. Non-zero values are only allowed during
 system installation when no media change is possible.</para>
 </section>
@@ -143,19 +141,19 @@ system installation when no media change is possible.</para>
 
     // installing netscape and cups
 
-    Pkg::PkgInstall ("netscape");
-    Pkg::PkgInstall ("cups");
+    <link linkend="PkgModuleFunctionsPackage_PkgInstall">Pkg::PkgInstall</link> ("netscape");
+    <link linkend="PkgModuleFunctionsPackage_PkgInstall">Pkg::PkgInstall</link> ("cups");
 
     // deleting lprng if it is installed
 
-    if (Pkg::IsProvided ("lprng"))
-        Pkg::PkgDelete ("lprng");
+    if (<link linkend="PkgModuleFunctionsPackage_IsProvided">Pkg::IsProvided</link> ("lprng"))
+        <link linkend="PkgModuleFunctionsPackage_PkgDelete">Pkg::PkgDelete</link> ("lprng");
 
     // fill open dependencies
-    Pkg::PkgSolve();
+    <link linkend="PkgModuleFunctionsPackage_PkgSolve">Pkg::PkgSolve</link>();
 
     // do the rpm calls
-    Pkg::PkgCommit();
+    <link linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link>();
 
 }
 </programlisting>
