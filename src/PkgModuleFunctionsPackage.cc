@@ -1270,23 +1270,57 @@ PkgModuleFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_na
  *
  * This function does not solve dependencies
  *
- * @param boolean delete_unmaintained
- * @return list<integer>
+ * Symbols and integer values returned:
  *
+ * <b>ProblemListSze</b>: Number of taboo and dropped packages found.
+ *
+ * <b>DeleteUnmaintained</b>: Whether delete_unmaintained arg was true or false.
+ * Dependent on this, <b>SumDropped</b> below either denotes packages to delete
+ * (if true) or packages to keep (if false).
+ *
+ * <b>SumProcessed</b>: TOTAL number of installed packages we processed.
+ *
+ * <b>SumToInstall</b>: TOTAL number of packages now tagged as to install.
+ * Summs <b>Ipreselected</b>, <b>Iupdate</b>, <b>Idowngrade</b>, <b>Ireplaced</b>.
+ *
+ * <b>Ipreselected</b>: Packages which were already taged to install.
+ *
+ * <b>Iupdate</b>: Packages set to install as update to a newer version.
+ *
+ * <b>Idowngrade</b>: Packages set to install performing a version downgrade.
+ *
+ * <b>Ireplaced</b>: Packages set to install as they replace an installed package.
+ *
+ * <b>SumToDelete</b>: TOTAL number of packages now tagged as to delete.
+ * Summs <b>Dpreselected</b>, <b>SumDropped</b> if <b>DeleteUnmaintained</b>
+ * was set.
+ *
+ * <b>Dpreselected</b>: Packages which were already taged to delete.
+ *
+ * <b>SumToKeep</b>: TOTAL number of packages which remain unchanged.
+ * Summs <b>Ktaboo</b>, <b>Knewer</b>, <b>Ksame</b>, <b>SumDropped</b>
+ * if <b>DeleteUnmaintained</b> was not set.
+ *
+ * <b>Ktaboo</b>: Packages which are set taboo.
+ *
+ * <b>Knewer</b>: Packages kept because only older versions are available.
+ *
+ * <b>Ksame</b>: Packages kept because they are up to date.
+ *
+ * <b>SumDropped</b>: TOTAL number of dropped packages found. Dependent
+ * on the delete_unmaintained arg, they are either tagged as to delete or
+ * remain unchanged.
+ *
+ * @return map<symbol,integer>
  */
 
-YCPValue
+YCPMap
 PkgModuleFunctions::PkgUpdateAll (const YCPBoolean& del)
 {
     PMUpdateStats stats;
     stats.delete_unmaintained = del->value();
     _y2pm.packageManager().doUpdate (stats);
 
-    YCPList ret;
-    ret->add (YCPInteger ((long long)stats.totalToInstall()));
-    ret->add (YCPInteger ((long long)_y2pm.packageManager().updateSize()));
-
-#if 0
     YCPMap data;
     // formerly 2nd list arg
     data->add( YCPSymbol("ProblemListSze"),
@@ -1314,13 +1348,12 @@ PkgModuleFunctions::PkgUpdateAll (const YCPBoolean& del)
     // option set for doUpdate, dropped packages count as ToDelete
     // or ToKeep.
     data->add( YCPSymbol("SumDropped"),   YCPInteger( stats.chk_dropped ) );
-    data->add( YCPSymbol("deleteDropped"),YCPInteger( stats.delete_unmaintained ) );
+    data->add( YCPSymbol("DeleteUnmaintained"),YCPInteger( stats.delete_unmaintained ) );
 
     // Total mumber of installed packages processed
     data->add( YCPSymbol("SumProcessed"), YCPInteger( stats.chk_installed_total ) );
-#endif
 
-    return ret;
+    return data;
 }
 
 

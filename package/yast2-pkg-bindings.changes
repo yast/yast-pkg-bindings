@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Feb 15 14:44:35 CET 2005 - ma@suse.de
+
+- Extended statistics returned from Pkg::PkgUpdateAll. The builtin
+  now returns map<symbol,integer>. (#37073)
+- 2.11.6
+
+-------------------------------------------------------------------
 Tue Feb  8 18:01:35 CET 2005 - nashif@suse.de
 
 - Fixed neededforbuild: added sgml-skel
