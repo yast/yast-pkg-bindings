@@ -6,7 +6,7 @@ AM_CXXFLAGS = -DY2LOG=\"wfm\" -DSUSEVERSION=\"${SUSEVERSION}\"	\
 	-DLOCALEDIR=\"${localedir}\"  -fno-inline
 
 # to look for the packagemanager in the prefix first (really first?)
-AM_LDFLAGS = -L${libdir}
+# AM_LDFLAGS = -L${libdir}
 
 plugin_LTLIBRARIES = libpy2Pkg.la
 

@@ -667,8 +667,29 @@ namespace Y2PMRecipients {
     virtual bool isSet() {
       return _control._ycpcb.isSet( YCPCallbacks::CB_MediaChange );
     }
+    virtual string changeMedia( constInstSrcDescrPtr descr,
+				const Url & currentUrl,
+				int expectedMedianr,
+				PMError error ) {
+      CB callback( ycpcb( YCPCallbacks::CB_MediaChange ) );
+       if ( callback._set ) {
+	 /*
+	callback.addStr( error.asString() );
+	callback.addStr( currenturl.asString() );
+	callback.addStr( descr->label() );
+	callback.addInt( 0 );
+	callback.addStr( "" );
+	callback.addInt( expectedMedianr );
+	callback.addStr( descr->media_label( expectedMedianr )() );
+	callback.addBool( descr->media_doublesided() );
+	 */
+	return callback.evaluateStr();
+      }
+       return MediaChangeCallback::changeMedia( descr, currentUrl,
+						expectedMedianr, error );
+    }
     /**
-     *
+     *DEPRECATED OLD STYLE CALLBACK (used by InstYou)
      **/
     virtual string changeMedia( const string & error,
 				const string & url,

@@ -256,11 +256,11 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
  *   return SourceGetCurrent( enabled_only );
  * </code>
  *
- * @param boolean enabled_only If true, make sure all InstSrces are enabled according to 
+ * @param boolean enabled_only If true, make sure all InstSrces are enabled according to
  * their default, and return the Ids of enabled InstSrces only. If false, return
  * the Ids of all known InstSrces.
  *
- * @return list<integer> list of SrcIds 
+ * @return list<integer> list of SrcIds
  **/
 YCPValue
 PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
@@ -314,7 +314,7 @@ PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 }
 
 /****************************************************************************************
- * @builtin SourceFinishAll 
+ * @builtin SourceFinishAll
  *
  * @short Disable all InstSrces.
  * @return boolean
@@ -345,7 +345,7 @@ PkgModuleFunctions::SourceFinishAll ()
  * @builtin SourceGeneralData
  *
  * @short Get general data about the source
- * @description 
+ * @description
  * Return general data about the source as a map:
  *
  * <code>
@@ -394,7 +394,7 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
  * @short Return media data about the source
  * @description
  * Return media data about the source as a map:
- * 
+ *
  * <code>
  * $["media_count": YCPInteger,
  * "media_id"	  : YCPString,
@@ -507,7 +507,7 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
   YCPList linguas;
   for ( InstSrcDescr::LinguasList::const_iterator it = descr->content_linguas().begin();
 	it != descr->content_linguas().end(); ++it ) {
-    linguas->add( YCPString( *it ) );
+    linguas->add( YCPString( it->code() ) );
   }
   data->add( YCPString("linguas"),		linguas );
 
@@ -516,11 +516,11 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
   YCPMap labelmap;
   for ( InstSrcDescr::LabelMap::const_iterator it = descr->content_labelmap().begin();
 	it != descr->content_labelmap().end(); ++it ) {
-    labelmap->add( YCPString( it->first ), YCPString( it->second ) );
+    labelmap->add( YCPString( it->first.code() ), YCPString( it->second ) );
   }
   data->add( YCPString("labelmap"),		labelmap );
 
-  data->add( YCPString("language"),		YCPString( descr->content_language() ) );
+  data->add( YCPString("language"),		YCPString( descr->content_language().code() ) );
   data->add( YCPString("timezone"),		YCPString( descr->content_timezone() ) );
   data->add( YCPString("descrdir"),		YCPString( descr->content_descrdir().asString() ) );
   data->add( YCPString("datadir"),		YCPString( descr->content_datadir().asString() ) );

@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Jan 21 13:49:58 CET 2005 - ma@suse.de
+
+- Updated media change callback to allow to provide more
+  information via callback.
+- 2.11.2
+
+-------------------------------------------------------------------
 Fri Oct 29 16:01:19 CEST 2004 - mvidner@suse.cz
 
 - Added pkgconfig support.
