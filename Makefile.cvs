@@ -2,7 +2,7 @@
 # Makefile.cvs for libycp
 #
 configure: all
-	./configure --libdir=/usr/$(LIB)
+	./configure 
 
 all:
 	y2tool y2autoconf
