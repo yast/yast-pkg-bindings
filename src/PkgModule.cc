@@ -20,20 +20,7 @@
 /-*/
 
 
-#include <ycp/y2log.h>
 #include <PkgModule.h>
-
-#include <y2util/Url.h>
-#include <y2pm/InstData.h>
-
-#include <ycp/YCPVoid.h>
-#include <ycp/YCPBoolean.h>
-#include <ycp/YCPSymbol.h>
-#include <ycp/YCPString.h>
-#include <ycp/YCPList.h>
-#include <ycp/YCPMap.h>
-
-using std::string;
 
 PkgModule* PkgModule::current_pkg = NULL;
 
