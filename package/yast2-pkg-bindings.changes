@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Feb  8 18:01:35 CET 2005 - nashif@suse.de
+
+- Fixed neededforbuild: added sgml-skel
+
+-------------------------------------------------------------------
 Sat Feb  5 21:15:23 CET 2005 - ma@suse.de
 
 - Base selctions are mutual exclusive. If a new base selection
