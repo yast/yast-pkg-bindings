@@ -173,11 +173,11 @@ static SelQueryResult queryProvides( PMSelectablePtr sel_r, const string & tag_r
  *  - string name: The package name
  *
  *  - symbol instance: Specifies which instance of the package contains a match.
- *  
+ *
  *      'NONE no match
- *      
+ *
  *      'INST the installed package
- *      
+ *
  *      'CAND the candidate package
  *
  *      'BOTH both packages
@@ -186,14 +186,14 @@ static SelQueryResult queryProvides( PMSelectablePtr sel_r, const string & tag_r
  *    on the system, if PkgCommit was called right now. That way you're able to
  *    tell whether the tag will be available on the system after PkgCommit.
  *    (e.g. if onSystem != 'NONE && ( onSystem == instance || instance == 'BOTH ))
- *    
+ *
  *      'NONE stays uninstalled or is deleted
- *      
+ *
  *      'INST the installed one remains untouched
- *      
+ *
  *      'CAND the candidate package will be installed
  *
- *  @param string tag 
+ *  @param string tag
  *  @return list of all package instances providing 'tag'.
  *  @usage Pkg::PkgQueryProvides( string tag ) -> [ [string, symbol, symbol], [string, symbol, symbol], ...]
  */
@@ -386,7 +386,7 @@ PkgModuleFunctions::PkgMediaNames ()
  *  @short Return size of packages to be installed
  *  @description
  *  return cumulated sizes (in bytes !) to be installed from different sources and media
- *  
+ *
  *  Returns the install size, not the archivesize !!
  *
  *  @return list<list<integer>>
@@ -590,7 +590,7 @@ PkgModuleFunctions::PkgMediaCount()
  *  @builtin IsProvided
  *
  *  @short returns  'true' if the tag is provided in the installed system
- *  @description  
+ *  @description
  *  tag can be a package name, a string from requires/provides
  *  or a file name (since a package implictly provides all its files)
  *
@@ -625,7 +625,7 @@ PkgModuleFunctions::IsProvided (const YCPString& tag)
  *
  *  tag can be a package name, a string from requires/provides
  *  or a file name (since a package implictly provides all its files)
- *  @param string tag 
+ *  @param string tag
  *  @return boolean
  *  @usage Pkg::IsSelected ("yast2") -> true
 */
@@ -661,7 +661,7 @@ PkgModuleFunctions::IsSelected (const YCPString& tag)
  *  tag can be a package name, a string from requires/provides
  *  or a file name (since a package implictly provides all its files)
  *
- *  @param string tag 
+ *  @param string tag
  *  @return boolean
  *  @usage Pkg::IsAvailable ("yast2") -> true
 */
@@ -738,7 +738,7 @@ PkgModuleFunctions::DoProvideString (std::string name)
 /**
    @builtin DoProvide
    @short Install a list of tags to the system
-   @description 
+   @description
    Provides (read: installs) a list of tags to the system
 
    tag can be a package name, a string from requires/provides
@@ -752,7 +752,7 @@ PkgModuleFunctions::DoProvideString (std::string name)
    conflicts), the tag is listed as a key and the value describes
    the reason for the failure (as an already translated string).
    @param list tags
-   @return map 
+   @return map
 */
 YCPValue
 PkgModuleFunctions::DoProvide (const YCPList& tags)
@@ -794,7 +794,7 @@ PkgModuleFunctions::DoRemoveString (std::string name)
    @builtin DoRemove
 
    @short Removes a list of tags from the system
-   @description 
+   @description
    tag can be a package name, a string from requires/provides
    or a file name (since a package implictly provides all its files)
 
@@ -836,7 +836,7 @@ PkgModuleFunctions::DoRemove (const YCPList& tags)
    @builtin PkgSummary
 
    @short Get summary (aka label) of a package
-   @param string package 
+   @param string package
    @return string Summary
    @usage Pkg::PkgSummary (string package) -> "This is a nice package"
 
@@ -883,7 +883,7 @@ PkgModuleFunctions::PkgVersion (const YCPString& p)
 
    @short Get (installed) size of a package
    @param string package
-   @return integer 
+   @return integer
    @usage Pkg::PkgSize (string package) -> 12345678
 
 */
@@ -905,7 +905,7 @@ PkgModuleFunctions::PkgSize (const YCPString& p)
 
    @short Get rpm group of a package
    @param string package
-   @return string 
+   @return string
    @usage Pkg::PkgGroup (string package) -> string
 
 */
@@ -924,8 +924,8 @@ PkgModuleFunctions::PkgGroup (const YCPString& p)
 // ------------------------
 /**
  * @builtin PkgProperties
- * @short Return information about a package 
- * @description 
+ * @short Return information about a package
+ * @description
  * Return Data about package location, source and which
  *  media contains the package
  *
@@ -1285,6 +1285,41 @@ PkgModuleFunctions::PkgUpdateAll (const YCPBoolean& del)
     YCPList ret;
     ret->add (YCPInteger ((long long)stats.totalToInstall()));
     ret->add (YCPInteger ((long long)_y2pm.packageManager().updateSize()));
+
+#if 0
+    YCPMap data;
+    // formerly 2nd list arg
+    data->add( YCPSymbol("ProblemListSze"),
+	       YCPInteger( _y2pm.packageManager().updateSize() ) );
+
+    // packages to install; sum and details
+    data->add( YCPSymbol("SumToInstall"), YCPInteger( stats.totalToInstall() ) );
+    data->add( YCPSymbol("Ipreselected"), YCPInteger( stats.chk_already_toins ) );
+    data->add( YCPSymbol("Iupdate"),      YCPInteger( stats.chk_to_update ) );
+    data->add( YCPSymbol("Idowngrade"),   YCPInteger( stats.chk_to_downgrade ) );
+    data->add( YCPSymbol("Ireplaced"),    YCPInteger( stats.chk_replaced
+						      + stats.chk_replaced_guessed
+						      + stats.chk_add_split ) );
+    // packages to delete; sum and details (! see dropped packages)
+    data->add( YCPSymbol("SumToDelete"),  YCPInteger( stats.totalToDelete() ) );
+    data->add( YCPSymbol("Dpreselected"), YCPInteger( stats.chk_already_todel ) );
+
+    // packages to delete; sum and details (! see dropped packages)
+    data->add( YCPSymbol("SumToKeep"),    YCPInteger( stats.totalToKeep() ) );
+    data->add( YCPSymbol("Ktaboo"),       YCPInteger( stats.chk_is_taboo ) );
+    data->add( YCPSymbol("Knewer"),       YCPInteger( stats.chk_to_keep_downgrade ) );
+    data->add( YCPSymbol("Ksame"),        YCPInteger( stats.chk_to_keep_installed  ) );
+
+    // dropped packages; dependent on the delete_unmaintained
+    // option set for doUpdate, dropped packages count as ToDelete
+    // or ToKeep.
+    data->add( YCPSymbol("SumDropped"),   YCPInteger( stats.chk_dropped ) );
+    data->add( YCPSymbol("deleteDropped"),YCPInteger( stats.delete_unmaintained ) );
+
+    // Total mumber of installed packages processed
+    data->add( YCPSymbol("SumProcessed"), YCPInteger( stats.chk_installed_total ) );
+#endif
+
     return ret;
 }
 
@@ -1292,7 +1327,7 @@ PkgModuleFunctions::PkgUpdateAll (const YCPBoolean& del)
 /**
    @builtin PkgInstall
    @short Select package for installation
-   @param string package 
+   @param string package
    @return boolean
 
 */
@@ -1626,7 +1661,7 @@ YCPString PkgModuleFunctions::PkgGetLicenseToConfirm( const YCPString & package 
 }
 
 /**
-   @builtin PkgGetLicensesToConfirm 
+   @builtin PkgGetLicensesToConfirm
 
    @short Return Licence Text of several packages
    @description
