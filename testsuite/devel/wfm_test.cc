@@ -138,7 +138,8 @@ ostream & dumpSelWhatIf( ostream & str, bool all = false  )
   str << "+++[dumpSelWhatIf]+++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
   for ( PMManager::PMSelectableVec::const_iterator it = SMGR.begin(); it != SMGR.end(); ++it ) {
     if ( all || (*it)->to_modify() ) {
-      (*it)->dumpStateOn( str ) << endl;
+      char tag = ( PMSelectionPtr( (*it)->theObject() )->isBase() ? '*' : ' ' );
+      (*it)->dumpStateOn( str << tag ) << endl;
     }
   }
   str << "---[dumpSelWhatIf]---------------------------------------------------" << endl;
@@ -307,6 +308,16 @@ struct WFM {
     OUT << " --> " << ret << endl;
   }
 
+  void SetSelection( const string & name_r ) {
+    YCPList args;
+    YCPString name( name_r );
+    args->add( name );
+    OUT << "SetSelection" << args;
+    YCPValue ret = _pkgmod->SetSelection( name );
+    OUT << " --> " << ret << endl;
+
+  }
+
 };
 
 static WFM wfm;
@@ -318,20 +329,11 @@ void WFMtest() {
   wfm.SourceStartCache( true );
   Y2PM::instTargetInit("/");
 
+  dumpSelWhatIf( INT, true );
 
+  wfm.SetSelection( "default-Gnome" );
 
-  for ( PMManager::PMSelectableVec::const_iterator it = PMGR.begin(); it != PMGR.end(); ++it ) {
-      (*it)->auto_set_install();
-      (*it)->set_source_install( true );
-  }
-
-  //dumpPkgWhatIf( SEC );
-
-  wfm.PkgMediaNames();
-  wfm.PkgMediaSizes();
-  wfm.PkgMediaCount();
-
-  wfm.PkgCommit();
+  dumpSelWhatIf( INT );
 
   INT << "WFM STOP" << endl;
   wfm.close();

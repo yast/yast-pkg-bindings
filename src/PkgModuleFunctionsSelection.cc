@@ -174,7 +174,7 @@ tiny_helper_no1 (YCPMap* m, const char* k, const PMSolvable::PkgRelList_type& l)
    @description
 
    Return information about selection
-   
+
    <code>
   	->	$["summary" : "This is a nice selection",
   		"category" : "Network",
@@ -257,7 +257,7 @@ PkgModuleFunctions::SelectionData (const YCPString& sel)
    @builtin SelectionContent
    @short Get list of packages listed in a selection
    @param string selection name of selection
-   @param boolean to_delete if false, return packages to be installed 
+   @param boolean to_delete if false, return packages to be installed
    if true, return packages to be deleted
    @param string language if "" (empty), return only non-language specific packages
    else return only packages machting the language
@@ -324,7 +324,8 @@ PkgModuleFunctions::SetSelectionString (std::string name, bool recursive)
 	    if (!recursive
 		&& selection->isBase())
 	    {
-		y2milestone ("Changing base selection, re-setting manager");
+		y2milestone ("New base selection '%s'. Resetting manager.",
+			      name.c_str() );
 		_y2pm.selectionManager().setNothingSelected();
 		_y2pm.packageManager().setNothingSelected();
 	    }
@@ -346,7 +347,19 @@ PkgModuleFunctions::SetSelectionString (std::string name, bool recursive)
 
 	if (selection->isBase())
 	{
-	    y2milestone ("Base ! Selecting all required and recommends");
+	    y2milestone ("Base selection '%s': Selecting requires and recommends.",
+			  name.c_str() );
+	    for ( PMPackageManager::PMSelectableVec::const_iterator it = _y2pm.selectionManager().begin();
+		  it != _y2pm.selectionManager().end(); ++it )
+	    {
+	        if ( PMSelectionPtr( (*it)->theObject() )->isBase() && (*it) != selectable )
+		{
+		   if ( (*it)->is_onSystem() ) {
+		     y2milestone ("Deselect old base selection '%s'.", (*it)->name()->c_str() );
+		     (*it)->user_set_offSystem();
+		   }
+		}
+	    }
 	    const std::list<std::string> recommends = selection->recommends();
 	    for (std::list<std::string>::const_iterator it = recommends.begin();
 		 it != recommends.end(); ++it)
@@ -362,13 +375,15 @@ PkgModuleFunctions::SetSelectionString (std::string name, bool recursive)
 	{
 	    std::ofstream out ("/var/log/YaST2/badselections");
 	    out << bad.size() << " selections failed" << std::endl;
+
 	    for (PkgDep::ErrorResultList::const_iterator p = bad.begin();
 		 p != bad.end(); ++p )
 	    {
 		out << *p << std::endl;
 	    }
 
-	    y2error ("%zd selections failed", bad.size());
+	    y2error ("Solver: %zd selections failed (see /var/log/YaST2/badselections)",
+		      bad.size());
 	    return false;
 	}
 	return true;

@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Feb  5 21:15:23 CET 2005 - ma@suse.de
+
+- Base selctions are mutual exclusive. If a new base selection
+  is set to install, take care the old one gets deleted. (#46998)
+- 2.11.4
+
+-------------------------------------------------------------------
 Mon Jan 24 17:43:30 CET 2005 - ma@suse.de
 
 - Code cleanup. Explicit casts removed.
