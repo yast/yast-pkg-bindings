@@ -1,0 +1,23 @@
+@HEADER-COMMENT@
+# neededforbuild gpp libgpp libpng openslp libxcrypt libxcrypt-devel yast2-devtools liby2util liby2util-devel yast2-packagemanager yast2-packagemanager-devel rpm rpm-devel popt popt-devel curl yast2-core yast2-core-devel doxygen
+
+@HEADER@
+Summary:	-
+
+%description
+-
+
+@PREP@
+
+@BUILD@
+
+@INSTALL@
+
+@CLEAN@
+
+%files
+%defattr(-,root,root)
+@plugindir@/libpy2Pkg.so.*
+@plugindir@/libpy2Pkg.so
+@plugindir@/libpy2Pkg.la
+%doc @docdir@
