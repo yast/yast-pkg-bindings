@@ -1,4 +1,3 @@
 Makefile
 Makefile.in
-pkg-bindings.html
-
+YCP-builtins-pkg.html
