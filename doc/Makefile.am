@@ -2,7 +2,7 @@
 # Makefile.am for core/libycp/doc
 #
 
-htmldir = $(docdir)
+htmldir = $(docdir)/html
 
 builtin = $(wildcard $(srcdir)/../src/PkgModule*.cc)
 builtinxml := $(builtin:%.cc=%.xml)
@@ -30,7 +30,7 @@ html/yast2docs.css: html/index.html
 	cp @STYLESHEET_CSS@ html
 	cp -a $(ydatadir)/docbook/images html
 
-EXTRA_DIST =  builtins.xml
+EXTRA_DIST =  builtins.xml pkg-bindings-section.xml
 
 CLEANFILES = $(xmlfiles)
 
