@@ -1,5 +1,5 @@
 @HEADER-COMMENT@
-# neededforbuild gpp libgpp libpng openslp libxcrypt libxcrypt-devel yast2-devtools liby2util liby2util-devel yast2-packagemanager yast2-packagemanager-devel rpm rpm-devel popt popt-devel curl yast2-core yast2-core-devel doxygen
+# neededforbuild gpp libgpp libpng openslp openslp-devel libxcrypt libxcrypt-devel yast2-devtools liby2util liby2util-devel yast2-packagemanager yast2-packagemanager-devel rpm rpm-devel popt popt-devel curl yast2-core yast2-core-devel doxygen
 
 @HEADER@
 Summary:	-
