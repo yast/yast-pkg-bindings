@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"/usr/share/xml/docbook/schema/dtd/4.2/docbookx.dtd"[
+
+<!ENTITY PkgModuleCallbacks    SYSTEM "PkgModuleCallbacks.xml">
+<!ENTITY PkgModule    SYSTEM "PkgModule.xml">
+<!ENTITY PkgModuleError    SYSTEM "PkgModuleError.xml">
+<!ENTITY PkgModuleFunctions    SYSTEM "PkgModuleFunctions.xml">
+<!ENTITY PkgModuleFunctionsPackage    SYSTEM "PkgModuleFunctionsPackage.xml">
+<!ENTITY PkgModuleFunctionsPatch    SYSTEM "PkgModuleFunctionsPatch.xml">
+<!ENTITY PkgModuleFunctionsSelection    SYSTEM "PkgModuleFunctionsSelection.xml">
+<!ENTITY PkgModuleFunctionsSource    SYSTEM "PkgModuleFunctionsSource.xml">
+<!ENTITY PkgModuleFunctionsTarget    SYSTEM "PkgModuleFunctionsTarget.xml">
+<!ENTITY pkgbindingssection    SYSTEM "pkg-bindings-section.xml">
+]>
+<book>
+    <bookinfo>
+        <title>YaST2 Package Manager</title>
+        <subtitle>Package-Manager Builtins</subtitle>
+        <authorgroup>
+            <author>
+                <firstname>YaST2</firstname>
+                <surname>Team</surname>
+                <affiliation>
+                    <orgname> SUSE Linux AG</orgname>
+                </affiliation>
+            </author>
+        </authorgroup>
+        <corpauthor>SUSE Linux AG</corpauthor>
+        <copyright>
+            <year>2004</year>
+            <holder> SUSE Linux AG</holder>
+        </copyright>
+    </bookinfo>
+
+
+    <toc>
+    </toc>
+    <chapter>
+        <title>Package Manager</title>
+        &pkgbindingssection;
+    </chapter>
+
+    &PkgModuleFunctionsSource;
+    &PkgModuleFunctions;
+    &PkgModuleFunctionsSelection;
+    &PkgModuleFunctionsPackage;
+    &PkgModuleFunctionsTarget;
+    &PkgModuleFunctionsPatch;
+
+</book>

@@ -1,0 +1,48 @@
+-------------------------------------------------------------------
+Tue Feb 15 14:44:35 CET 2005 - ma@suse.de
+
+- Extended statistics returned from Pkg::PkgUpdateAll. The builtin
+  now returns map<symbol,integer>. (#37073)
+- 2.11.6
+
+-------------------------------------------------------------------
+Tue Feb  8 18:01:35 CET 2005 - nashif@suse.de
+
+- Fixed neededforbuild: added sgml-skel
+
+-------------------------------------------------------------------
+Sat Feb  5 21:15:23 CET 2005 - ma@suse.de
+
+- Base selctions are mutual exclusive. If a new base selection
+  is set to install, take care the old one gets deleted. (#46998)
+- 2.11.4
+
+-------------------------------------------------------------------
+Mon Jan 24 17:43:30 CET 2005 - ma@suse.de
+
+- Code cleanup. Explicit casts removed.
+- 2.11.3
+
+-------------------------------------------------------------------
+Fri Jan 21 16:51:19 CET 2005 - nashif@suse.de
+
+- Fixed packages needed for build
+
+-------------------------------------------------------------------
+Fri Jan 21 13:49:58 CET 2005 - ma@suse.de
+
+- Updated media change callback to allow to provide more
+  information via callback.
+- 2.11.2
+
+-------------------------------------------------------------------
+Fri Oct 29 16:01:19 CEST 2004 - mvidner@suse.cz
+
+- Added pkgconfig support.
+- 2.11.1
+
+-------------------------------------------------------------------
+Wed Oct 13 13:34:19 2004 - visnov@suse.de
+
+- Initial version
+
