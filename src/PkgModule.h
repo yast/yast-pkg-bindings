@@ -23,12 +23,7 @@
 #ifndef PkgModule_h
 #define PkgModule_h
 
-#include <string>
-
 #include <PkgModuleFunctions.h>
-
-#include <ycp/YCPValue.h>
-#include <ycp/YCPList.h>
 
 /**
  * A simple class for package management access
