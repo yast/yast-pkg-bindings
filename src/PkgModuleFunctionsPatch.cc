@@ -67,6 +67,7 @@ PkgModuleFunctions::getPatchSelectable (const std::string& name)
 //-------------------------------------------------------------
 /**   
    @builtin YouStatus
+
    @short get map with status information
    @return map
 

@@ -8,5 +8,7 @@
 @YAST2-CHECKS-COMMON@
 @YAST2-CHECKS-PROGRAM@
 
+
+AX_CHECK_DOCBOOK
 ## and generate the output
 @YAST2-OUTPUT@
