@@ -229,7 +229,7 @@ PkgModuleFunctions::SetLocale (const YCPString &locale)
 YCPValue
 PkgModuleFunctions::GetLocale ()
 {
-    return YCPString ((const std::string &)(_y2pm.getPreferredLocale()));
+    return YCPString (_y2pm.getPreferredLocale().code());
 }
 
 
@@ -278,7 +278,7 @@ PkgModuleFunctions::GetAdditionalLocales ()
     for (Y2PM::LocaleSet::const_iterator it = langcodelist.begin();
 	 it != langcodelist.end(); ++it)
     {
-	langycplist->add (YCPString ((const std::string &)(*it)));
+      langycplist->add (YCPString (it->code()));
     }
     return langycplist;
 }
@@ -351,23 +351,25 @@ PkgModuleFunctions::Descr2Map (constInstSrcDescrPtr descr)
 {
     YCPMap map;
 
-    map->add (YCPString ("product"), YCPString ((const std::string &)(descr->content_product().asPkgNameEd().name) + " " + descr->content_product().asPkgNameEd().edition.version()));
+    map->add (YCPString ("product"),  YCPString (descr->content_product().asPkgNameEd().name.asString()
+						  + " "
+						  + descr->content_product().asPkgNameEd().edition.version()));
     map->add (YCPString ("vendor"), YCPString (descr->content_vendor()));
     map->add (YCPString ("requires"), YCPString (descr->content_requires().asString()));
 
     // for installation/modules/Product.ycp
-    map->add (YCPString ("name"), YCPString ((const std::string &)(descr->content_product().asPkgNameEd().name)));
+    map->add (YCPString ("name"),        YCPString (descr->content_product().asPkgNameEd().name));
     map->add (YCPString ("version"), YCPString (descr->content_product().asPkgNameEd().edition.version()));
     map->add (YCPString ("flags"), YCPString (descr->content_flags()));
     map->add (YCPString ("relnotesurl"), YCPString (descr->content_relnotesurl()));
 
     // vendor already in map
 
-    map->add (YCPString ("distproduct"), YCPString ((const std::string &)(descr->content_distproduct().name)));
-    map->add (YCPString ("distversion"), YCPString ((const std::string &)(descr->content_distproduct().edition.version())));
+    map->add (YCPString ("distproduct"), YCPString (descr->content_distproduct().name));
+    map->add (YCPString ("distversion"), YCPString (descr->content_distproduct().edition.version()));
 
-    map->add (YCPString ("baseproduct"), YCPString ((const std::string &)(descr->content_baseproduct().asPkgNameEd().name)));
-    map->add (YCPString ("baseversion"), YCPString ((const std::string &)(descr->content_baseproduct().asPkgNameEd().edition.version())));
+    map->add (YCPString ("baseproduct"), YCPString (descr->content_baseproduct().asPkgNameEd().name));
+    map->add (YCPString ("baseversion"), YCPString (descr->content_baseproduct().asPkgNameEd().edition.version()));
 
     map->add (YCPString ("defaultbase"), YCPString (descr->content_defaultbase()));
 

@@ -346,7 +346,7 @@ getTheObject (PMSelectablePtr selectable)
         package = selectable->theObject();
         if (!package)
         {
-            y2error ("Package '%s' not found", ((const std::string&)(selectable->name())).c_str());
+            y2error ("Package '%s' not found", selectable->name()->c_str());
         }
     }
     return package;
@@ -373,7 +373,7 @@ PkgModuleFunctions::PkgMediaNames ()
 
     for (InstSrcManager::ISrcIdList::const_iterator it = inst_order.begin(); it != inst_order.end(); ++it)
     {
-	ycpnames->add (YCPString ((const std::string &)((*it)->descr()->content_product().asPkgNameEd().name)));
+	ycpnames->add (YCPString ((*it)->descr()->content_product().asPkgNameEd().name));
     }
     return ycpnames;
 }
@@ -431,7 +431,7 @@ PkgModuleFunctions::PkgMediaSizes ()
       map <unsigned int, pair <InstSrcManager::ISrcId, vector<FSize> > >::iterator mediapair = mediasizes.find (package->instSrcRank());
       if (mediapair == mediasizes.end())
       {
-	y2error ("Unknown rank %d for '%s'", package->instSrcRank(), ((std::string)(*pkg)->name()).c_str());
+	y2error ("Unknown rank %d for '%s'", package->instSrcRank(), (*pkg)->name()->c_str() );
 	continue;
       }
 
@@ -532,7 +532,7 @@ PkgModuleFunctions::PkgMediaCount()
       map <unsigned int, pair <InstSrcManager::ISrcId, vector<int> > >::iterator mediapair = media_counts.find (package->instSrcRank());
       if (mediapair == media_counts.end())
       {
-	y2error ("Unknown rank %d for '%s'", package->instSrcRank(), ((std::string)(*pkg)->name()).c_str());
+	y2error ("Unknown rank %d for '%s'", package->instSrcRank(), (*pkg)->name()->c_str());
 	continue;
       }
 
@@ -1138,7 +1138,7 @@ pgk2list (YCPList &list, const PMObjectPtr& package, bool names_only)
 	string fullname = package->name();
 	fullname += (" " + package->version());
 	fullname += (" " + package->release());
-	fullname += (" " + (const std::string &)(package->arch()));
+	fullname += (" " + package->arch().asString());
 	list->add (YCPString (fullname));
     }
     return;

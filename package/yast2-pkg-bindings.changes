@@ -1,7 +1,13 @@
 -------------------------------------------------------------------
+Mon Jan 24 17:43:30 CET 2005 - ma@suse.de
+
+- Code cleanup. Explicit casts removed.
+- 2.11.3
+
+-------------------------------------------------------------------
 Fri Jan 21 16:51:19 CET 2005 - nashif@suse.de
 
-- Fixed packages needed for build 
+- Fixed packages needed for build
 
 -------------------------------------------------------------------
 Fri Jan 21 13:49:58 CET 2005 - ma@suse.de
