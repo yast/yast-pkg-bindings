@@ -15,8 +15,9 @@
    Author:	Klaus Kaempf <kkaempf@suse.de>
 		Stanislav Visnovsky <visnov@suse.cz>
    Maintainer:  Klaus Kaempf <kkaempf@suse.de>
+   Namespace:    Pkg
+   Summary:	PkgModuleFunctions constructor, destructor and call handling
 
-   Purpose:	PkgModuleFunctions constructor, destructor and call handling
 /-*/
 
 
@@ -189,15 +190,11 @@ YCPValue PkgModuleFunctions::pkgError( PMError err_r, const YCPValue & ret_r )
 // general
 
 /**
- * @builtin Pkg::InstSysMode () -> void
- *
- * Set packagemanager to "inst-sys" mode
- * - dont use local caches (ramdisk!)
- *
- * !!!!!!!!!! CAUTION !!!!!!!!!!!
- * Can only be called ONCE
- * MUST be called before any other function
- * !!!!!!!!!! CAUTION !!!!!!!!!!!
+ * @builtin InstSysMode
+ * @short Set packagemanager to "inst-sys" mode
+ * @description Set packagemanager to "inst-sys" mode - dont use local caches (ramdisk!)
+ * <b>CAUTION</b>:Can only be called ONCE  MUST be called before any other function
+ * @return void
  */
 YCPValue
 PkgModuleFunctions::InstSysMode ()
@@ -208,9 +205,12 @@ PkgModuleFunctions::InstSysMode ()
 
 
 /**
- * @builtin Pkg::SetLocale (string locale) -> void
- *
+ * @builtin SetLocale 
+ * @short Set Prefered Locale
+ * @description
  * set the given locale as the "preferred" locale
+ * @param string locale Locale
+ * @return void
  */
 YCPValue
 PkgModuleFunctions::SetLocale (const YCPString &locale)
@@ -221,9 +221,10 @@ PkgModuleFunctions::SetLocale (const YCPString &locale)
 }
 
 /**
- * @builtin Pkg::GetLocale () -> string locale
- *
- * get the currently preferred locale
+ * @builtin GetLocale
+ * @short get the currently preferred locale
+ * @return string locale
+ * @usage Pkg::GetLocale () -> "en_US"
  */
 YCPValue
 PkgModuleFunctions::GetLocale ()
@@ -233,9 +234,12 @@ PkgModuleFunctions::GetLocale ()
 
 
 /**
- * @builtin Pkg::SetAdditionalLocales (list <string>) -> void
+ * @builtin SetAdditionalLocales
  *
- * set list of
+ * @short set list of additional locales
+ * @param list<string> locales List of additional locales
+ * @return void
+ * @usage Pkg::SetAdditionalLocales([de_DE]);
  */
 YCPValue
 PkgModuleFunctions::SetAdditionalLocales (YCPList langycplist)
@@ -259,9 +263,12 @@ PkgModuleFunctions::SetAdditionalLocales (YCPList langycplist)
 }
 
 /**
- * @builtin Pkg::GetAdditionalLocales -> list <string>
+ * @builtin GetAdditionalLocales
  *
- * return list of additional locales
+ * @short return list of additional locales
+ * @return list<string> 
+ * @usage Pkg::GetAdditionalLocales() -> ["de_DE"];
+ * 
  */
 YCPValue
 PkgModuleFunctions::GetAdditionalLocales ()
@@ -278,9 +285,10 @@ PkgModuleFunctions::GetAdditionalLocales ()
 
 
 /**
- * @builtin Pkg::LastError
+ * @builtin LastError
  *
- * get current error as string
+ * @short get current error as string
+ * @return string
  */
 YCPValue
 PkgModuleFunctions::LastError ()
@@ -289,9 +297,10 @@ PkgModuleFunctions::LastError ()
 }
 
 /**
- * @builtin Pkg::LastErrorDetails
+ * @builtin LastErrorDetails
  *
- * get current error details as string
+ * @short get current error details as string
+ * @return string Error Details
  */
 YCPValue
 PkgModuleFunctions::LastErrorDetails ()
@@ -300,9 +309,9 @@ PkgModuleFunctions::LastErrorDetails ()
 }
 
 /**
- * @builtin Pkg::LastErrorId
- *
- * get current error as id string
+ * @builtin LastErrorId
+ * @short get current error as id string
+ * @return string
  */
 YCPValue
 PkgModuleFunctions::LastErrorId ()

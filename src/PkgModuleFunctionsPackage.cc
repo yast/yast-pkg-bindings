@@ -14,9 +14,10 @@
 
    Author:	Klaus Kaempf <kkaempf@suse.de>
    Maintainer:  Klaus Kaempf <kkaempf@suse.de>
+   Namespace:   Pkg
 
-   Purpose:	Access to packagemanager
-		Handles package related Pkg::function (list_of_arguments) calls
+   Summary:	Access to packagemanager
+   Purpose:     Handles package related Pkg::function (list_of_arguments) calls
 		from WFMInterpreter.
 /-*/
 
@@ -164,27 +165,37 @@ static SelQueryResult queryProvides( PMSelectablePtr sel_r, const string & tag_r
 
 // ------------------------
 /**
- *  @builtin Pkg::PkgQueryProvides( string tag ) -> [ [string, symbol, symbol], [string, symbol, symbol], ...]
- *
- *  @return list of all package instances providing 'tag'.
- *
+ *  @builtin PkgQueryProvides
+ *  @short List all package instances providing 'tag'
+ *  @description
  *  A package instance is itself a list of three items:
  *
  *  - string name: The package name
  *
  *  - symbol instance: Specifies which instance of the package contains a match.
+ *  
  *      'NONE no match
+ *      
  *      'INST the installed package
+ *      
  *      'CAND the candidate package
+ *
  *      'BOTH both packages
  *
  *  - symbol onSystem: Tells which instance of the package would be available
  *    on the system, if PkgCommit was called right now. That way you're able to
  *    tell whether the tag will be available on the system after PkgCommit.
  *    (e.g. if onSystem != 'NONE && ( onSystem == instance || instance == 'BOTH ))
+ *    
  *      'NONE stays uninstalled or is deleted
+ *      
  *      'INST the installed one remains untouched
+ *      
  *      'CAND the candidate package will be installed
+ *
+ *  @param string tag 
+ *  @return list of all package instances providing 'tag'.
+ *  @usage Pkg::PkgQueryProvides( string tag ) -> [ [string, symbol, symbol], [string, symbol, symbol], ...]
  */
 YCPList
 PkgModuleFunctions::PkgQueryProvides( const YCPString& tag )
@@ -347,9 +358,10 @@ getTheObject (PMSelectablePtr selectable)
 
 // ------------------------
 /**
- *  @builtin Pkg::PkgMediaNames () -> [ "source_1_name", "source_2_name", ...]
- *    return names of sources in installation order
- *  list<string>
+ *  @builtin PkgMediaNames
+ *  @short Return names of sources in installation order
+ *  @return list<string> Names of Sources
+ *  @usage Pkg::PkgMediaNames () -> [ "source_1_name", "source_2_name", ...]
  */
 YCPValue
 PkgModuleFunctions::PkgMediaNames ()
@@ -370,12 +382,15 @@ PkgModuleFunctions::PkgMediaNames ()
 
 // ------------------------
 /**
- *  @builtin Pkg::PkgMediaSizes () ->
- *    [ [src1_media_1_size, src1_media_2_size, ...], [src2_media_1_size, src2_media_2_size, ...], ...]
- *    return cumulated sizes (in bytes !) to be installed from different sources and media
+ *  @builtin PkgMediaSizes
+ *  @short Return size of packages to be installed
+ *  @description
+ *  return cumulated sizes (in bytes !) to be installed from different sources and media
+ *  
+ *  Returns the install size, not the archivesize !!
  *
- *   Returns the install size, not the archivesize !!
- *  list <list <integer> >
+ *  @return list<list<integer>>
+ *  @usage Pkg::PkgMediaSizes () -> [ [src1_media_1_size, src1_media_2_size, ...], ..]
  */
 YCPValue
 PkgModuleFunctions::PkgMediaSizes ()
@@ -471,11 +486,13 @@ PkgModuleFunctions::PkgMediaSizes ()
 
 // ------------------------
 /**
- *  @builtin Pkg::PkgMediaCount() ->
- *    [ [src1_media_1_count, src1_media_2_count, ...], [src2_media_1_count, src2_media_2_count, ...], ...]
+ *  @builtin PkgMediaCount
+ *  @short Return number of packages to be installed
+ *  @description
  *    return number of packages to be installed from different sources and media
  *
- *  list <list <integer> >
+ *  @return list<list<integer>>
+ *  @usage Pkg::PkgMediaCount() -> [ [src1_media_1_count, src1_media_2_count, ...], ...]
  */
 YCPValue
 PkgModuleFunctions::PkgMediaCount()
@@ -570,12 +587,16 @@ PkgModuleFunctions::PkgMediaCount()
 
 // ------------------------
 /**
-   @builtin Pkg::IsProvided (string tag) -> boolean
-
-   returns a 'true' if the tag is provided in the installed system
-
-   tag can be a package name, a string from requires/provides
-   or a file name (since a package implictly provides all its files)
+ *  @builtin IsProvided
+ *
+ *  @short returns  'true' if the tag is provided in the installed system
+ *  @description  
+ *  tag can be a package name, a string from requires/provides
+ *  or a file name (since a package implictly provides all its files)
+ *
+ *  @param string tag
+ *  @return boolean
+ *  @usage Pkg::IsProvided ("glibc") -> true
 */
 YCPValue
 PkgModuleFunctions::IsProvided (const YCPString& tag)
@@ -598,12 +619,15 @@ PkgModuleFunctions::IsProvided (const YCPString& tag)
 
 // ------------------------
 /**
-   @builtin Pkg::IsSelected (string tag) -> boolean
-
-   returns a 'true' if the tag is selected for installation
-
-   tag can be a package name, a string from requires/provides
-   or a file name (since a package implictly provides all its files)
+ *  @builtin IsSelected
+ *  @short  returns a 'true' if the tag is selected for installation
+ *  @description
+ *
+ *  tag can be a package name, a string from requires/provides
+ *  or a file name (since a package implictly provides all its files)
+ *  @param string tag 
+ *  @return boolean
+ *  @usage Pkg::IsSelected ("yast2") -> true
 */
 YCPValue
 PkgModuleFunctions::IsSelected (const YCPString& tag)
@@ -628,13 +652,18 @@ PkgModuleFunctions::IsSelected (const YCPString& tag)
 
 // ------------------------
 /**
-   @builtin Pkg::IsAvailable (string tag) -> boolean
+ *  @builtin IsAvailable
+ *  @short Check if package (tag) is available
+ *  @description
+ *  returns a 'true' if the tag is available on any of the currently
+ *  active installation sources. (i.e. it is installable)
 
-   returns a 'true' if the tag is available on any of the currently
-   active installation sources. (i.e. it is installable)
-
-   tag can be a package name, a string from requires/provides
-   or a file name (since a package implictly provides all its files)
+ *  tag can be a package name, a string from requires/provides
+ *  or a file name (since a package implictly provides all its files)
+ *
+ *  @param string tag 
+ *  @return boolean
+ *  @usage Pkg::IsAvailable ("yast2") -> true
 */
 YCPValue
 PkgModuleFunctions::IsAvailable (const YCPString& tag)
@@ -707,8 +736,9 @@ PkgModuleFunctions::DoProvideString (std::string name)
 
 // ------------------------
 /**
-   @builtin Pkg::DoProvide (list tags) -> $["failed1":"reason", ...]
-
+   @builtin DoProvide
+   @short Install a list of tags to the system
+   @description 
    Provides (read: installs) a list of tags to the system
 
    tag can be a package name, a string from requires/provides
@@ -717,9 +747,12 @@ PkgModuleFunctions::DoProvideString (std::string name)
    returns a map of tag,reason pairs if tags could not be provided.
    Usually this map should be empty (all required packages are
    installed)
+
    If tags could not be provided (due to package install failures or
    conflicts), the tag is listed as a key and the value describes
    the reason for the failure (as an already translated string).
+   @param list tags
+   @return map 
 */
 YCPValue
 PkgModuleFunctions::DoProvide (const YCPList& tags)
@@ -758,19 +791,22 @@ PkgModuleFunctions::DoRemoveString (std::string name)
 
 // ------------------------
 /**
-   @builtin Pkg::DoRemove (list tags) -> ["failed1", ...]
+   @builtin DoRemove
 
-   Removes a list of tags from the system
-
+   @short Removes a list of tags from the system
+   @description 
    tag can be a package name, a string from requires/provides
    or a file name (since a package implictly provides all its files)
 
    returns a map of tag,reason pairs if tags could not be removed.
    Usually this map should be empty (all required packages are
    removed)
+
    If a tag could not be removed (because other packages still
    require it), the tag is listed as a key and the value describes
    the reason for the failure (as an already translated string).
+   @param list tags
+   @return list Result
 */
 YCPValue
 PkgModuleFunctions::DoRemove (const YCPList& tags)
@@ -797,9 +833,12 @@ PkgModuleFunctions::DoRemove (const YCPList& tags)
 
 // ------------------------
 /**
-   @builtin Pkg::PkgSummary (string package) -> "This is a nice package"
+   @builtin PkgSummary
 
-   Get summary (aka label) of a package
+   @short Get summary (aka label) of a package
+   @param string package 
+   @return string Summary
+   @usage Pkg::PkgSummary (string package) -> "This is a nice package"
 
 */
 YCPValue
@@ -817,9 +856,12 @@ PkgModuleFunctions::PkgSummary (const YCPString& p)
 
 // ------------------------
 /**
-   @builtin Pkg::PkgVersion (string package) -> "1.42-39"
+   @builtin PkgVersion
 
-   Get version (better: edition) of a package
+   @short Get version (better: edition) of a package
+   @param string package
+   @return string
+   @usage Pkg::PkgVersion (string package) -> "1.42-39"
 
 */
 YCPValue
@@ -837,9 +879,12 @@ PkgModuleFunctions::PkgVersion (const YCPString& p)
 
 // ------------------------
 /**
-   @builtin Pkg::PkgSize (string package) -> 12345678
+   @builtin PkgSize
 
-   Get (installed) size of a package
+   @short Get (installed) size of a package
+   @param string package
+   @return integer 
+   @usage Pkg::PkgSize (string package) -> 12345678
 
 */
 YCPValue
@@ -856,9 +901,12 @@ PkgModuleFunctions::PkgSize (const YCPString& p)
 
 // ------------------------
 /**
-   @builtin Pkg::PkgGroup (string package) -> string
+   @builtin PkgGroup
 
-   Get rpm group of a package
+   @short Get rpm group of a package
+   @param string package
+   @return string 
+   @usage Pkg::PkgGroup (string package) -> string
 
 */
 YCPValue
@@ -875,20 +923,22 @@ PkgModuleFunctions::PkgGroup (const YCPString& p)
 
 // ------------------------
 /**
- * @builtin Pkg::PkgProperties (string package) -> map
- * @param package name
- *
- * @return Data about package location, source and which
+ * @builtin PkgProperties
+ * @short Return information about a package 
+ * @description 
+ * Return Data about package location, source and which
  *  media contains the package
  *
- * <TABLE>
- * <TR><TD>$[<TD>"srcid"  <TD>: YCPInteger
- * <TR><TD>,<TD>"location"  <TD>: YCPString
- * <TR><TD>,<TD>"medianr"  <TD>: YCPInteger
- * <TR><TD>,<TD>"arch"       <TD>: YCPString
- * <TR><TD>];
- * </TABLE>
- *
+ * <code>
+ * $["srcid"    : YCPInteger,
+ *   "location" : YCPString
+ *   "medianr"  : YCPInteger
+ *   "arch"     : YCPString
+ *   ]
+ * </code>
+ * @param package name
+ * @return map
+ * @usage Pkg::PkgProperties (string package) -> map
  */
 YCPValue
 PkgModuleFunctions::PkgProperties (const YCPString& p)
@@ -912,9 +962,12 @@ PkgModuleFunctions::PkgProperties (const YCPString& p)
 
 // ------------------------
 /**
-   @builtin Pkg::PkgLocation (string package) -> string
+   @builtin PkgLocation
 
-   Get file location of a package in the source
+   @short Get file location of a package in the source
+   @param string package
+   @return string Package Location
+   @usage Pkg::PkgLocation (string package) -> string
 
 */
 YCPValue
@@ -933,14 +986,21 @@ PkgModuleFunctions::PkgLocation (const YCPString& p)
 
 
 /**
- *  @builtin Pkg::PkgGetFilelist(string name, symbol which) -> list<string>
- *
+ *  @builtin PkgGetFilelist
+ *  @short Get File List of a package
+ *  @description
  *  Return, if available, the filelist of package 'name'. Symbol 'which'
  *  specifies the package instance to query:
  *
+ *  <code>
  *  `installed	query the installed package
  *  `candidate	query the candidate package
  *  `any	query the candidate or the installed package (dependent on what's available)
+ *  </code>
+ *
+ *  @param string name Package Name
+ *  @param symbol which Which packages
+ *  @return list file list
  *
  **/
 YCPList PkgModuleFunctions::PkgGetFilelist( const YCPString & package, const YCPSymbol & which )
@@ -954,10 +1014,14 @@ YCPList PkgModuleFunctions::PkgGetFilelist( const YCPString & package, const YCP
 
 // ------------------------
 /**
-   @builtin Pkg::SaveState() -> bool
-
+   @builtin SaveState
+   @short Save the current selection state
+   @description
    save the current package selection status for later
    retrieval via Pkg::RestoreState()
+
+   @return boolean
+   @see Pkg::RestoreState
 
 */
 YCPValue
@@ -969,15 +1033,19 @@ PkgModuleFunctions::SaveState ()
 
 // ------------------------
 /**
-   @builtin Pkg::RestoreState(bool check_only = false) -> bool
+   @builtin RestoreState
 
+   @short Restore Saved state
+   @description
    restore the package selection status from a former
    call to Pkg::SaveState()
-   Returns false if there is no saved state (no Pkg::SaveState()
-   called before)
 
    If called with argument (true), it only checks the saved
    against the current status and returns true if they differ.
+   @param boolean check_only
+   @return boolean Returns false if there is no saved state (no Pkg::SaveState()
+   called before)
+   @see Pkg::SaveState
 
 */
 YCPValue
@@ -992,9 +1060,10 @@ PkgModuleFunctions::RestoreState (const YCPBoolean& ch)
 
 // ------------------------
 /**
-   @builtin Pkg::ClearSaveState() -> bool
+   @builtin ClearSaveState
 
-   clear a saved state (to reduce memory consumption)
+   @short clear a saved state (to reduce memory consumption)
+   @return boolean
 
 */
 YCPValue
@@ -1006,10 +1075,13 @@ PkgModuleFunctions::ClearSaveState ()
 
 // ------------------------
 /**
-   @builtin Pkg::IsManualSelection () -> bool
+   @builtin IsManualSelection
 
+   @short Check Status of Selections and if they have changed
+   @description
    return true if the original list of packages (since the
    last Pkg::SetSelection()) was changed.
+   @return boolean
 
 */
 YCPValue
@@ -1021,9 +1093,12 @@ PkgModuleFunctions::IsManualSelection ()
 
 // ------------------------
 /**
-   @builtin Pkg::PkgAnyToDelete () -> bool
+   @builtin PkgAnyToDelete
 
+   @short Check if there are any package to be deleted
+   @description
    return true if any packages are to be deleted
+   @return boolean
 
 */
 YCPValue
@@ -1034,9 +1109,12 @@ PkgModuleFunctions::PkgAnyToDelete ()
 
 // ------------------------
 /**
-   @builtin Pkg::AnyToInstall () -> bool
+   @builtin AnyToInstall
 
+   @short Check if there are any package to be installed
+   @description
    return true if any packages are to be installed
+   @return boolean
 
 */
 YCPValue
@@ -1068,16 +1146,18 @@ pgk2list (YCPList &list, const PMObjectPtr& package, bool names_only)
 
 
 /**
-   @builtin Pkg::FilterPackages(bool byAuto, bool byApp, bool byUser,  bool names_only) -> list of strings
+   @builtin FilterPackages
 
+   @short Get list of packages depending on how they were selected
+   @description
    return list of filtered packages (["pkg1", "pkg2", ...] if names_only==true,
     ["pkg1 version release arch", "pkg1 version release arch", ... if
     names_only == false]
 
-	if one of the first 3 parameters is set to true, it returns:
-	byAuto:  packages you get by dependencies,
-	byApp:   packages you get by selections,
-	byUser:  packages the user explicitly requested.
+    @param boolean byAuto packages you get by dependencies
+    @param boolean byApp packages you get by selections
+    @param boolean byUser packages the user explicitly requested
+    @return list<string>
 
 
 */
@@ -1115,17 +1195,19 @@ PkgModuleFunctions::FilterPackages(const YCPBoolean& y_byAuto, const YCPBoolean&
 }
 
 /**
-   @builtin Pkg::GetPackages(symbol which, bool names_only) -> list of strings
+   @builtin GetPackages
 
+   @short Get list of packages (installed, selected, available)
+   @description
    return list of packages (["pkg1", "pkg2", ...] if names_only==true,
-    ["pkg1 version release arch", "pkg1 version release arch", ... if
-    names_only == false]
+   ["pkg1 version release arch", "pkg1 version release arch", ... if
+   names_only == false]
 
-   'which' defines which packages are returned:
-
-   `installed	all installed packages
-   `selected	all selected but not yet installed packages
-   `available	all available packages (from the installation source)
+   @param symbol 'which' defines which packages are returned: `installed all installed packages,
+   `selected returns all selected but not yet installed packages, `available returns all
+   available packages (from the installation source)
+   @param boolean names_only If true, return package names only
+   @return list<string>
 
 */
 
@@ -1177,17 +1259,20 @@ PkgModuleFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_na
 
 
 /**
- * @builtin PkgUpdateAll (bool delete_unmaintained) -> [ integer affected, integer unknown ]
- *
+ * @builtin PkgUpdateAll
+ * @short Update Packages marked for installation
+ * @description
  * mark all packages for installation which are installed and have
  * an available candidate.
- *
- * @return [ integer affected, integer unknown ]
  *
  * This will mark packages for installation *and* for deletion (if a
  * package provides/obsoletes another package)
  *
- * !!! DOES NOT SOLVE !!
+ * This function does not solve dependencies
+ *
+ * @param boolean delete_unmaintained
+ * @return list<integer>
+ *
  */
 
 YCPValue
@@ -1205,9 +1290,10 @@ PkgModuleFunctions::PkgUpdateAll (const YCPBoolean& del)
 
 
 /**
-   @builtin Pkg::PkgInstall (string package) -> boolean
-
-   Select package for installation
+   @builtin PkgInstall
+   @short Select package for installation
+   @param string package 
+   @return boolean
 
 */
 YCPValue
@@ -1224,9 +1310,11 @@ PkgModuleFunctions::PkgInstall (const YCPString& p)
 
 
 /**
-   @builtin Pkg::PkgSrcInstall (string package) -> boolean
+   @builtin PkgSrcInstall
 
-   Select source of package for installation
+   @short Select source of package for installation
+   @param string package
+   @return boolean
 
 */
 YCPValue
@@ -1243,9 +1331,11 @@ PkgModuleFunctions::PkgSrcInstall (const YCPString& p)
 
 
 /**
-   @builtin Pkg::PkgDelete (string package) -> boolean
+   @builtin PkgDelete
 
-   Select package for deletion
+   @short Select package for deletion
+   @param string package
+   @return boolean
 
 */
 YCPValue
@@ -1261,9 +1351,11 @@ PkgModuleFunctions::PkgDelete (const YCPString& p)
 
 
 /**
-   @builtin Pkg::PkgTaboo (string package) -> boolean
+   @builtin PkgTaboo
 
-   Set package to taboo
+   @short Set package to taboo
+   @param string package
+   @return boolean
 
 */
 YCPValue
@@ -1278,9 +1370,11 @@ PkgModuleFunctions::PkgTaboo (const YCPString& p)
 }
 
 /**
-   @builtin Pkg::PkgNeutral (string package) -> boolean
+   @builtin PkgNeutral
 
-   Set package to neutral (drop install/delete flags)
+   @short Set package to neutral (drop install/delete flags)
+   @param string package
+   @return boolean
 
 */
 YCPValue
@@ -1297,9 +1391,11 @@ PkgModuleFunctions::PkgNeutral (const YCPString& p)
 
 
 /**
- * @builtin Pkg::Reset () -> boolean
+ * @builtin Reset
  *
- * Reset most internal stuff on the package manager.
+ * @short Reset most internal stuff on the package manager.
+   @param string package
+   @return boolean
  */
 YCPValue
 PkgModuleFunctions::PkgReset ()
@@ -1314,11 +1410,11 @@ PkgModuleFunctions::PkgReset ()
 
 
 /**
-   @builtin Pkg::PkgSolve () -> boolean
-   Optional: Pkg::PkgSolve (true) to filter all conflicts with installed packages
-	(installed packages will be preferred)
-
-   Solve current package dependencies
+   @builtin PkgSolve
+   @short Solve current package dependencies
+   @optarg booean filter  filter all conflicts with installed packages
+   (installed packages will be preferred)
+   @return boolean
 
 */
 YCPBoolean
@@ -1355,11 +1451,15 @@ PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
 
 
 /**
-   @builtin Pkg::PkgSolveCheckTargetOnly () -> boolean
+   @builtin PkgSolveCheckTargetOnly
 
+   @short Solve packages currently installed on target system.
+   @description
    Solve packages currently installed on target system. Packages status
    remains unchanged, i.e. does not select/deselect any packages to
    resolve failed dependencies.
+
+   @return boolean
 */
 YCPBoolean
 PkgModuleFunctions::PkgSolveCheckTargetOnly()
@@ -1386,9 +1486,13 @@ PkgModuleFunctions::PkgSolveCheckTargetOnly()
 
 
 /**
-   @builtin Pkg::PkgSolveErrors() -> integer
+   @builtin PkgSolveErrors
+   @short Returns number of fails
+   @description
    only valid after a call of PkgSolve/PkgSolveCheckTargetOnly that returned false
    return number of fails
+
+   @return integer
 */
 YCPValue
 PkgModuleFunctions::PkgSolveErrors()
@@ -1397,14 +1501,18 @@ PkgModuleFunctions::PkgSolveErrors()
 }
 
 /**
-   @builtin Pkg::PkgCommit (integer medianr) -> [ int successful, list failed, list remaining, list srcremaining ]
+   @builtin PkgCommit
 
-   Commit package changes (actually install/delete packages)
-
-   the 'successful' value will be negative, if installation was aborted !
+   @short Commit package changes (actually install/delete packages)
+   @description
 
    if medianr == 0, all packages regardless of media are installed
+
    if medianr > 0, only packages from this media are installed
+
+   @param integer medianr Media Number
+   @return list [ int successful, list failed, list remaining, list srcremaining ]
+   The 'successful' value will be negative, if installation was aborted !
 
 */
 YCPValue
@@ -1447,9 +1555,10 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 }
 
 /**
-   @builtin Pkg::GetBackupPath () -> string
+   @builtin GetBackupPath
 
-   get current path for update backup of rpm config files
+   @short get current path for update backup of rpm config files
+   @return string Path to backup
 */
 
 YCPValue
@@ -1459,9 +1568,11 @@ PkgModuleFunctions::GetBackupPath ()
 }
 
 /**
-   @builtin Pkg::SetBackupPath (string path) -> void
+   @builtin SetBackupPath
+   @short set current path for update backup of rpm config files
+   @param string path
+   @return void
 
-   set current path for update backup of rpm config files
 */
 YCPValue
 PkgModuleFunctions::SetBackupPath (const YCPString& p)
@@ -1473,9 +1584,10 @@ PkgModuleFunctions::SetBackupPath (const YCPString& p)
 
 
 /**
-   @builtin Pkg::CreateBackups  (boolean flag) -> void
-
-   whether to create package backups during install or removal
+   @builtin CreateBackups
+   @short whether to create package backups during install or removal
+   @param boolean flag
+   @return void
 */
 YCPValue
 PkgModuleFunctions::CreateBackups (const YCPBoolean& flag)
@@ -1486,10 +1598,14 @@ PkgModuleFunctions::CreateBackups (const YCPBoolean& flag)
 
 
 /**
-   @builtin Pkg::PkgGetLicenseToConfirm  (string package) -> string
+   @builtin PkgGetLicenseToConfirm
 
+   @short Return Licence Text
+   @description
    Return the candidate packages license text. Returns an empty string if
    package is unknown or has no license.
+   @param string package
+   @return string
 */
 YCPString PkgModuleFunctions::PkgGetLicenseToConfirm( const YCPString & package )
 {
@@ -1510,10 +1626,14 @@ YCPString PkgModuleFunctions::PkgGetLicenseToConfirm( const YCPString & package 
 }
 
 /**
-   @builtin Pkg::PkgGetLicensesToConfirm  (list<string> packages) -> map<string,string>
+   @builtin PkgGetLicensesToConfirm 
 
+   @short Return Licence Text of several packages
+   @description
    Return a map<package,license> for all candidate packages in list, which do have a
    license. Unknown packages and those without license text are not returned.
+   @param list<string> packages
+   @return map<string,string>
 
 */
 YCPMap PkgModuleFunctions::PkgGetLicensesToConfirm( const YCPList & packages )
@@ -1552,9 +1672,10 @@ YCPBoolean PkgModuleFunctions::PkgMarkLicenseConfirmed (const YCPString & packag
 }
 
 /****************************************************************************************
- * @builtin Pkg::RpmChecksig( string filename ) -> boolean
- *
- * @return True if filename is a rpm package with valid signature.
+ * @builtin RpmChecksig
+ * @short Check signature of RPM
+ * @param string filename
+ * @return boolean True if filename is a rpm package with valid signature.
  **/
 YCPBoolean PkgModuleFunctions::RpmChecksig( const YCPString & filename )
 {

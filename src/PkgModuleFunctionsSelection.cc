@@ -14,6 +14,8 @@
 
    Author:	Klaus Kaempf <kkaempf@suse.de>
    Maintainer:  Klaus Kaempf <kkaempf@suse.de>
+   Summary:     Access to Package Selection Manager
+   Namespace:   Pkg
 
    Purpose:	Access to PMSelectionManager
 		Handles selection related Pkg::function (list_of_arguments) calls
@@ -61,19 +63,28 @@ PkgModuleFunctions::getSelectionSelectable (const std::string& name)
 
 // ------------------------
 /**
-   @builtin Pkg::GetSelections (symbol status, string category) -> ["sel1", "sel2", ...]
+   @builtin GetSelections
 
+   @short Return list of selections matching given status
+   @description
    returns a list of selection names matching the status symbol
      and the category.
+
    If category == "base", base selections are returned
+
    If category == "", addon selections are returned
    else selections matching the given category are returned
 
-   status can be:<br>
+   status can be:
+   <code>
    `all		: all known selections<br>
    `available	: available selections<br>
    `selected	: selected but not yet installed selections<br>
    `installed	: installed selection<br>
+   </code>
+   @param symbol status `all,`selected or `installed
+   @param string category base or empty string for addons
+   @return list<string>
 
 */
 YCPValue
@@ -157,7 +168,14 @@ tiny_helper_no1 (YCPMap* m, const char* k, const PMSolvable::PkgRelList_type& l)
 
 // ------------------------
 /**
-   @builtin Pkg::SelectionData (string selection) -> map
+   @builtin SelectionData
+
+   @short Get Selection Data
+   @description
+
+   Return information about selection
+   
+   <code>
   	->	$["summary" : "This is a nice selection",
   		"category" : "Network",
   		"visible" : true,
@@ -170,10 +188,13 @@ tiny_helper_no1 (YCPMap* m, const char* k, const PMSolvable::PkgRelList_type& l)
 		"provides" : ["d"],
 		"obsoletes" : ["e", "f"],
 		]
+   </code>
 
    Get summary (aka label), category, visible, recommends, suggests, archivesize,
-  	order attributes of a selection, requires, conflicts, provides and obsoletes.
-   Returns an empty list if no selection found
+   order attributes of a selection, requires, conflicts, provides and obsoletes.
+
+   @param string selection
+   @return map Returns an empty map if no selection found and
    Returns nil if called with wrong arguments
 
 */
@@ -233,18 +254,14 @@ PkgModuleFunctions::SelectionData (const YCPString& sel)
 
 // ------------------------
 /**
-   @builtin Pkg::SelectionContent (string selection, boolean to_delete, string language) -> list
-  	->	["aaa_base", "k_deflt", ... ]
-
-   Get list of packages listed in a selection
-
-   selection	= name of selection
-   to_delete	= if false, return packages to be installed
-		  if true, return packages to be deleted
-   language	= if "" (empty), return only non-language specific packages
-		  else return only packages machting the language
-
-   Returns an empty list if no matching selection found
+   @builtin SelectionContent
+   @short Get list of packages listed in a selection
+   @param string selection name of selection
+   @param boolean to_delete if false, return packages to be installed 
+   if true, return packages to be deleted
+   @param string language if "" (empty), return only non-language specific packages
+   else return only packages machting the language
+   @return list Returns an empty list if no matching selection found
    Returns nil if called with wrong arguments
 
 */
@@ -361,15 +378,16 @@ PkgModuleFunctions::SetSelectionString (std::string name, bool recursive)
 }
 
 /**
-   @builtin Pkg::SetSelection (string selection) -> bool
+   @builtin SetSelection
 
-   Set a new selection
-
+   @short Set a new selection
+   @description
    If the selection is a base selection,
    this effetively resets the current package selection to
    the packages of the newly selected base selection
    Usually returns true
-   Returns false if the given string does not match
+   @param string selection
+   @return boolean Returns false if the given string does not match
    a known selection.
 
 */
@@ -383,9 +401,11 @@ PkgModuleFunctions::SetSelection (const YCPString& selection)
 
 // ------------------------
 /**
-   @builtin Pkg::ClearSelection (string selection) -> bool
+   @builtin ClearSelection
 
-   Clear a selected selection
+   @short Clear a selected selection
+   @param string selection
+   @return boolean
 
 
 */
@@ -418,14 +438,16 @@ PkgModuleFunctions::ClearSelection (const YCPString& selection)
 
 // ------------------------
 /**
-   @builtin Pkg::ActivateSelections () -> bool
+   @builtin ActivateSelections
 
-   Activate all selected selections
-
+   @short Activate all selected selections
+   @description
    To be called when user is done with selections and wants
    to continue on the package level (or finish)
 
    This will transfer the selection status to package status
+
+   @return boolean
 */
 YCPBoolean
 PkgModuleFunctions::ActivateSelections ()

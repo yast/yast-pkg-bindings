@@ -14,7 +14,8 @@
 
    Author:	Klaus Kaempf <kkaempf@suse.de>
    Maintainer:  Klaus Kaempf <kkaempf@suse.de>
-
+   Summary:     Access to Installation Target
+   Namespace:      Pkg
    Purpose:	Access to InstTarget
 		Handles target related Pkg::function (list_of_arguments) calls
 		from WFMInterpreter.
@@ -46,10 +47,11 @@ using std::string;
 
 /** ------------------------
  *
- * @builtin Pkg::TargetInit(string root, bool new) -> bool
- *
- * initialized target system with root-directory
- * if new == true, initialize new rpm database
+ * @builtin TargetInit
+ * @short Initialize Target
+ * @param string root Root Directory
+ * @param boolean new If true, initialize new rpm database
+ * @return boolean
  */
 YCPValue
 PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& n)
@@ -95,9 +97,10 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& n)
 
 /** ------------------------
  *
- * @builtin Pkg::TargetFinish() -> bool
+ * @builtin TargetFinish
  *
- * finish target usage
+ * @short finish target usage
+ * @return boolean
  */
 YCPBoolean
 PkgModuleFunctions::TargetFinish ()
@@ -108,14 +111,16 @@ PkgModuleFunctions::TargetFinish ()
 
 /** ------------------------
  *
- * @builtin Pkg::TargetInstall(string filename) -> bool
+ * @builtin TargetInstall
  *
- * install rpm package by filename
+ * @short install rpm package by filename
+ * @description
  * the filename must be an absolute path to a file which can
  * be accessed by the package manager.
  *
- * !! uses callbacks !!
- * You should do an 'import "PackageCallbacks"' before !
+ * @note This builtin uses callbacks * You should do an 'import "PackageCallbacks"' before calling this.
+ * @param string filename
+ * @return boolean 
  */
 YCPBoolean
 PkgModuleFunctions::TargetInstall(const YCPString& filename)
@@ -127,11 +132,14 @@ PkgModuleFunctions::TargetInstall(const YCPString& filename)
 
 /** ------------------------
  *
- * @builtin Pkg::TargetRemove(string name) -> bool
+ * @builtin TargetRemove
  *
- * install package by name
- * !! uses callbacks !!
- * You should do an 'import "PackageCallbacks"' before !
+ * @short Install package by name
+ * @description
+ * Install package by name
+ * @note This builtin uses callbacks * You should do an 'import "PackageCallbacks"' before calling this.
+ * @param string name
+ * @return boolean
  */
 YCPBoolean
 PkgModuleFunctions::TargetRemove(const YCPString& name)
@@ -143,9 +151,10 @@ PkgModuleFunctions::TargetRemove(const YCPString& name)
 
 /** ------------------------
  *
- * @builtin Pkg::TargetLogfile (string name) -> bool
- *
- * init logfile for target
+ * @builtin TargetLogfile
+ * @short init logfile for target
+ * @param string name
+ * @return boolean
  */
 YCPBoolean
 PkgModuleFunctions::TargetLogfile (const YCPString& name)
@@ -177,9 +186,11 @@ get_disk_stats (const char *fs, long long *used, long long *size, long long *bsi
 
 /** ------------------------
  *
- * @builtin Pkg::TargetCapacity (string dir) -> integer
+ * @builtin TargetCapacity
  *
- * return capacity of partition at directory
+ * @short return capacity of partition at directory
+ * @param string directory
+ * @return integer
  */
 YCPInteger
 PkgModuleFunctions::TargetCapacity (const YCPString& dir)
@@ -192,9 +203,12 @@ PkgModuleFunctions::TargetCapacity (const YCPString& dir)
 
 /** ------------------------
  *
- * @builtin Pkg::TargetUsed (string dir) -> integer
+ * @builtin TargetUsed
  *
- * return usage of partition at directory
+ * @short Return usage of partition at directory
+ * @param string directory
+ * @return integer
+ * 
  */
 YCPInteger
 PkgModuleFunctions::TargetUsed (const YCPString& dir)
@@ -207,9 +221,12 @@ PkgModuleFunctions::TargetUsed (const YCPString& dir)
 
 /** ------------------------
  *
- * @builtin Pkg::TargetBlockSize (string dir) -> integer
+ * @builtin TargetBlockSize
  *
- * return block size of partition at directory
+ * @short Return block size of partition at directory
+ * @param string directory
+ * @return integer
+ *
  */
 YCPInteger
 PkgModuleFunctions::TargetBlockSize (const YCPString& dir)
@@ -222,12 +239,21 @@ PkgModuleFunctions::TargetBlockSize (const YCPString& dir)
 
 /** ------------------------
  *
- * @builtin Pkg::TargetUpdateInf (string filename) -> map
+ * @builtin TargetUpdateInf 
  *
- * return content of update.inf (usually <destdir>/var/lib/YaST/update.inf)
- * as $[ "basesystem" : "blah", "distname" : "foo", "distversion" : "bar",
+ * @short Return content of update.inf (usually <destdir>/var/lib/YaST/update.inf)
+ *
+ * @description
+ * Return content of update.inf (usually <destdir>/var/lib/YaST/update.inf)  as
+ * 
+ * <code>
+ *  $[ "basesystem" : "blah", "distname" : "foo", "distversion" : "bar",
  *   "distrelease" : "baz", "ftppatch" : "ftp.suse.com:/pub/suse/i386/update/8.0.99",
  *   "ftpsources" : [ "ftp.suse.com:/pub/suse/i386/current", ... ]]
+ *
+ *   </code>
+ * @param string filename
+ * @return map
  */
 YCPValue
 PkgModuleFunctions::TargetUpdateInf (const YCPString& filename)
@@ -258,10 +284,13 @@ PkgModuleFunctions::TargetUpdateInf (const YCPString& filename)
 
 /** ------------------------
  *
- * @builtin Pkg::TargetProducts () -> list
+ * @builtin TargetProducts 
  *
+ * @short Return list of maps of all installed products
+ * @description
  * return list of maps of all installed products in reverse
  * installation order (product installed last comes first)
+ * @return list
  */
 
 YCPList
@@ -279,9 +308,10 @@ PkgModuleFunctions::TargetProducts ()
 
 /** ------------------------
  *
- * @builtin Pkg::TargetRebuildDB () -> bool
+ * @builtin TargetRebuildDB
  *
- * call "rpm --rebuilddb"
+ * @short call "rpm --rebuilddb"
+ * @return boolean
  */
 
 YCPBoolean
@@ -294,13 +324,21 @@ PkgModuleFunctions::TargetRebuildDB ()
 
 /** ------------------------
  *
- * @builtin Pkg::TargetInitDU (list(map)) -> void
+ * @builtin TargetInitDU 
  *
+ * @short Initialize Disk Usage Calculation
+ * @description
  * init DU calculation for given directories
+ *
+ * <code>
  * parameter: [ $["name":"dir-without-leading-slash",
  *                "free":int_free,
  *		  "used":int_used,
  *		  "readonly":bool] ]
+ *
+ * </code>
+ * @param list<map> param
+ * @return void
  */
 YCPValue
 PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
@@ -388,14 +426,23 @@ PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
 
 /** ------------------------
  *
- * @builtin Pkg::TargetGetDU (void) -> map<string, list<integer> >
+ * @builtin TargetGetDU
  *
- * return current DU calculations
+ * @short return current DU calculations
+ * @description
+ * <code>
  * $[ "dir" : [ total, used, pkgusage, readonly ], .... ]
+ * </code>
+ * 
  * total == total size for this partition
+ * 
  * used == current used size on target
+ * 
  * pkgusage == future used size on target based on current package selection
+ * 
  * readonly == true/false telling whether the partition is mounted readonly
+ *
+ * @return map
  */
 YCPValue
 PkgModuleFunctions::TargetGetDU ()
@@ -419,9 +466,11 @@ PkgModuleFunctions::TargetGetDU ()
 
 
 /**
-   @builtin Pkg::TargetFileHasOwner  (string filepath) -> bool
+   @builtin TargetFileHasOwner
 
-   returns the (first) package
+   @short returns the (first) package
+   @param string filepath
+   @return boolean
 */
 
 YCPBoolean

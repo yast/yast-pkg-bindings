@@ -15,6 +15,8 @@
    Author:	Klaus Kaempf <kkaempf@suse.de>
    Maintainer:  Klaus Kaempf <kkaempf@suse.de>
 
+   Summary:     Access to Installation Sources
+   Namespace:   Pkg
    Purpose:	Access to InstSrc
 		Handles source related Pkg::function (list_of_arguments) calls
 		from WFMInterpreter.
@@ -175,10 +177,14 @@ inline bool YcpArgLoad::Value<YT_MAP, YCPMap>::assign( const YCPValue & arg_r )
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /****************************************************************************************
- * @builtin Pkg::SourceSetRamCache (boolean allow) -> true
- *
+ * @builtin SourceSetRamCache
+ * @short Allow/prevent InstSrces from caching package metadata on ramdisk
+ * @description
  * In InstSys: Allow/prevent InstSrces from caching package metadata on ramdisk.
  * If no cache is used the media cannot be unmounted, i.e. no CD change possible.
+ *
+ * @param boolean allow  If true, allow caching
+ * @return boolean
  **/
 YCPValue
 PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
@@ -201,18 +207,20 @@ PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceStartManager (boolean autoEnable = true) -> true
+ * @builtin SourceStartManager
  *
+ * @short Make sure the InstSrcManager is up and knows all available InstSrces.
+ * @description
  * Make sure the InstSrcManager is up and knows all available InstSrces.
  * Depending on the value of autoEnable, InstSources may be enabled on the
  * fly. It's safe to call this multiple times, and once the InstSources are
  * actually enabled, it's even cheap (enabling an InstSrc is expensive).
  *
- * @param autoEnable If true, all InstSrces are enabled according to their default.
+ * @param boolean autoEnable If true, all InstSrces are enabled according to their default.
  * If false, InstSrces will be created in disabled state, and remain unchanged if
  * the InstSrcManager is already up.
  *
- * @return true
+ * @return boolean
  **/
 YCPValue
 PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
@@ -236,20 +244,23 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceStartCache (boolean enabled_only = true) -> list of SrcIds (integer)
+ * @builtin SourceStartCache
  *
+ * @short Make sure the InstSrcManager is up, and return the list of SrcIds.
+ * @description
  * Make sure the InstSrcManager is up, and return the list of SrcIds.
  * In fact nothing more than:
- * <PRE>
+ *
+ * <code>
  *   SourceStartManager( enabled_only );
  *   return SourceGetCurrent( enabled_only );
- * </PRE>
+ * </code>
  *
- * @param enabled_only If true, make sure all InstSrces are enabled according to
+ * @param boolean enabled_only If true, make sure all InstSrces are enabled according to 
  * their default, and return the Ids of enabled InstSrces only. If false, return
  * the Ids of all known InstSrces.
  *
- * @return list of SrcIds (integer)
+ * @return list<integer> list of SrcIds 
  **/
 YCPValue
 PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
@@ -273,14 +284,14 @@ PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceGetCurrent (boolean enabled_only = true) -> list of SrcIds (integer)
+ * @builtin SourceGetCurrent
  *
- * Return the list of all enabled InstSrc Ids.
+ * @short Return the list of all enabled InstSrc Ids.
  *
- * @param enabled_only If true, or omitted, return the Ids of all enabled InstSrces.
+ * @param boolean enabled_only If true, or omitted, return the Ids of all enabled InstSrces.
  * If false, return the Ids of all known InstSrces.
  *
- * @return list of SrcIds (integer)
+ * @return list<integer> list of SrcIds (integer)
  **/
 YCPValue
 PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
@@ -303,11 +314,10 @@ PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceFinishAll () -> true
+ * @builtin SourceFinishAll 
  *
- * Disable all InstSrces.
- *
- * @return true
+ * @short Disable all InstSrces.
+ * @return boolean
  **/
 YCPValue
 PkgModuleFunctions::SourceFinishAll ()
@@ -332,18 +342,23 @@ PkgModuleFunctions::SourceFinishAll ()
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /****************************************************************************************
- * @builtin Pkg::SourceGeneralData (integer SrcId) -> map
+ * @builtin SourceGeneralData
  *
- * @param SrcId Specifies the InstSrc to query.
+ * @short Get general data about the source
+ * @description 
+ * Return general data about the source as a map:
  *
- * @return General data about the source as a map:
- * <TABLE>
- * <TR><TD>$[<TD>"enabled"	<TD>: YCPBoolean
- * <TR><TD>,<TD>"product_dir"	<TD>: YCPString
- * <TR><TD>,<TD>"type"		<TD>: YCPString
- * <TR><TD>,<TD>"url"		<TD>: YCPString
- * <TR><TD>];
- * </TABLE>
+ * <code>
+ * $[
+ * "enabled"	: YCPBoolean,
+ * "product_dir": YCPString,
+ * "type"	: YCPString,
+ * "url"	: YCPString
+ * ];
+ *
+ * </code>
+ * @param integer SrcId Specifies the InstSrc to query.
+ * @return map
  **/
 YCPValue
 PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
@@ -375,18 +390,21 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceMediaData (integer SrcId) -> map
+ * @builtin SourceMediaData
+ * @short Return media data about the source
+ * @description
+ * Return media data about the source as a map:
+ * 
+ * <code>
+ * $["media_count": YCPInteger,
+ * "media_id"	  : YCPString,
+ * "media_vendor" : YCPString,
+ * "url"	  : YCPString,
+ * ];
+ * </code>
  *
- * @param SrcId Specifies the InstSrc to query.
- *
- * @return Media data about the source as a map:
- * <TABLE>
- * <TR><TD>$[<TD>"media_count"	<TD>: YCPInteger
- * <TR><TD>,<TD>"media_id"	<TD>: YCPString
- * <TR><TD>,<TD>"media_vendor"	<TD>: YCPString
- * <TR><TD>,<TD>"url"		<TD>: YCPString
- * <TR><TD>];
- * </TABLE>
+ * @param integer SrcId Specifies the InstSrc to query.
+ * @return map
  **/
 YCPValue
 PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
@@ -418,29 +436,33 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceProductData (integer SrcId) -> map
+ * @builtin SourceProductData
+ * @short Return Product data about the source
+ * @param integer SrcId Specifies the InstSrc to query.
+ * @description
+ * Product data about the source as a map:
  *
- * @param SrcId Specifies the InstSrc to query.
+ * <code>
+ * $[
+ * "productname"	: YCPString,
+ * "productversion"	: YCPString,
+ * "baseproductname"	: YCPString,
+ * "baseproductversion"	: YCPString,
+ * "vendor"		: YCPString,
+ * "defaultbase"	: YCPString,
+ * "architectures"	: YCPList(YCPString),
+ * "requires"		: YCPString,
+ * "linguas"		: YCPList(YCPString),
+ * "label"		: YCPString,
+ * "labelmap"		: YCPMap(YCPString lang,YCPString label),
+ * "language"		: YCPString,
+ * "timezone"		: YCPString,
+ * "descrdir"		: YCPString,
+ * "datadir"		: YCPString
+ * ];
+ * </code>
  *
- * @return Product data about the source as a map:
- * <TABLE>
- * <TR><TD>$[<TD>"productname"		<TD>: YCPString
- * <TR><TD>,<TD>"productversion"	<TD>: YCPString
- * <TR><TD>,<TD>"baseproductname"	<TD>: YCPString
- * <TR><TD>,<TD>"baseproductversion"	<TD>: YCPString
- * <TR><TD>,<TD>"vendor"		<TD>: YCPString
- * <TR><TD>,<TD>"defaultbase"		<TD>: YCPString
- * <TR><TD>,<TD>"architectures"		<TD>: YCPList(YCPString)
- * <TR><TD>,<TD>"requires"		<TD>: YCPString
- * <TR><TD>,<TD>"linguas"		<TD>: YCPList(YCPString)
- * <TR><TD>,<TD>"label"			<TD>: YCPString
- * <TR><TD>,<TD>"labelmap"		<TD>: YCPMap(YCPString lang,YCPString label)
- * <TR><TD>,<TD>"language"		<TD>: YCPString
- * <TR><TD>,<TD>"timezone"		<TD>: YCPString
- * <TR><TD>,<TD>"descrdir"		<TD>: YCPString
- * <TR><TD>,<TD>"datadir"		<TD>: YCPString
- * <TR><TD>];
- * </TABLE>
+ * @return map
  **/
 YCPValue
 PkgModuleFunctions::SourceProductData (const YCPInteger& id)
@@ -506,11 +528,10 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceProduct (integer SrcId) -> map
- *
- * @param SrcId Specifies the InstSrc to query.
- *
- * @return Product info as a map. See @ref Descr2Map
+ * @builtin SourceProduct
+ * @short Get Product info
+ * @param integer SrcId Specifies the InstSrc to query.
+ * @return map Product info as a map
  **/
 YCPValue
 PkgModuleFunctions::SourceProduct (const YCPInteger& id)
@@ -535,17 +556,17 @@ PkgModuleFunctions::SourceProduct (const YCPInteger& id)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceProvideFile (integer SrcId, integer medianr, string file) -> string path
+ * @builtin SourceProvideFile
  *
+ * @short Make a file available at the local filesystem
+ * @description
  * Let an InstSrc provide some file (make it available at the local filesystem).
  *
- * @param SrcId	Specifies the InstSrc .
+ * @param integer SrcId	Specifies the InstSrc .
+ * @param integer medianr Number of the media the file is located on ('1' for the 1st media).
+ * @param string file Filename relative to the media root.
  *
- * @param medianr Number of the media the file is located on ('1' for the 1st media).
- *
- * @param file Filename relative to the media root.
- *
- * @return local path as string
+ * @return string local path as string
  **/
 YCPValue
 PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
@@ -580,18 +601,16 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceProvideDir (integer SrcId, integer medianr, string dir) -> string path
- *
+ * @builtin SourceProvideDir
+ * @short make a directory available at the local filesystem
+ * @description
  * Let an InstSrc provide some directory (make it available at the local filesystem) and
  * all the files within it (non recursive).
  *
- * @param SrcId	Specifies the InstSrc .
- *
- * @param medianr Number of the media the file is located on ('1' for the 1st media).
- *
- * @param dir Directoryname relative to the media root.
- *
- * @return local path as string
+ * @param integer SrcId	Specifies the InstSrc .
+ * @param integer medianr Number of the media the file is located on ('1' for the 1st media).
+ * @param string dir Directoryname relative to the media root.
+ * @return string local path as string
  */
 YCPValue
 PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mid, const YCPString& d)
@@ -626,16 +645,14 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceChangeUrl (integer SrcId, string url ) -> true
- *
+ * @builtin SourceChangeUrl
+ * @short Change Source URL
+ * @description
  * Change url of an InstSrc. Used primarely when re-starting during installation
  * and a cd-device changed from hdX to srX since ide-scsi was activated.
- *
- * @param SrcId Specifies the InstSrc.
- *
- * @param url The new url to use.
- *
- * @return true
+ * @param integer SrcId Specifies the InstSrc.
+ * @param string url The new url to use.
+ * @return boolean
  **/
 YCPValue
 PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
@@ -667,14 +684,12 @@ PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceInstallOrder (map order_map) -> true
+ * @builtin SourceInstallOrder
  *
- * Explicitly set an install order.
- *
- * @param order_map A map of 'int order : int source_id'. source_ids are expected to
+ * @short Explicitly set an install order.
+ * @param map order_map A map of 'int order : int source_id'. source_ids are expected to
  * denote known and enabled sources.
- *
- * @return true
+ * @return boolean
  **/
 YCPValue
 PkgModuleFunctions::SourceInstallOrder (const YCPMap& ord)
@@ -735,14 +750,15 @@ PkgModuleFunctions::SourceInstallOrder (const YCPMap& ord)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceCacheCopyTo (string dir) -> true
+ * @builtin SourceCacheCopyTo
  *
+ * @short Copy cache data of all installation sources to the target
+ * @description
  * Copy cache data of all installation sources to the target located below 'dir'.
  * To be called at end of initial installation.
  *
- * @param dir Root directory of target.
- *
- * @return true
+ * @param string dir Root directory of target.
+ * @return boolean
  **/
 YCPValue
 PkgModuleFunctions::SourceCacheCopyTo (const YCPString& dir)
@@ -781,8 +797,9 @@ PkgModuleFunctions::SourceCacheCopyTo (const YCPString& dir)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceScan (string media_url [, string product_dir]) -> list of SrcIds (integer)
- *
+ * @builtin SourceScan
+ * @short Scan a Source Media
+ * @description
  * Load all InstSrces found at media_url, i.e. all sources mentioned in /media.1/products.
  * If no /media.1/products is available, InstSrc is expected to be located directly
  * below media_url (product_dir: /).
@@ -793,11 +810,10 @@ PkgModuleFunctions::SourceCacheCopyTo (const YCPString& dir)
  * but not enabled (packages and selections are not provided to the PackageManager),
  * and the SrcIds of <b>all</b> InstSrces found are returned.
  *
- * @param url The media to scan.
+ * @param string url The media to scan.
+ * @optarg string product_dir Restrict scan to a certain InstSrc located in media_url/product_dir.
  *
- * @param product_dir Restrict scan to a certain InstSrc located in media_url/product_dir.
- *
- * @return list of SrcIds (integer).
+ * @return list<integer> list of SrcIds (integer).
  **/
 YCPValue
 PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
@@ -841,8 +857,10 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceCreate (string media_url [, string product_dir]) -> integer
+ * @builtin SourceCreate
  *
+ * @short Create a Source
+ * @description
  * Load and enable all InstSrces found at media_url, i.e. all sources mentioned in /media.1/products.
  * If no /media.1/products is available, InstSrc is expected to be located directly below
  * media_url (product_dir: /).
@@ -850,11 +868,10 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
  * If a product_dir is provided, only the InstSrc located at media_url/product_dir is loaded
  * and enabled.
  *
- * @param url The media to scan.
+ * @param string url The media to scan.
+ * @optarg string product_dir Restrict scan to a certain InstSrc located in media_url/product_dir.
  *
- * @param product_dir Restrict scan to a certain InstSrc located in media_url/product_dir.
- *
- * @return The source_id of the first InstSrc found on the media.
+ * @return integer The source_id of the first InstSrc found on the media.
  **/
 YCPValue
 PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
@@ -903,15 +920,13 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceSetEnabled (integer SrcId, boolean enabled) -> bool
+ * @builtin SourceSetEnabled
  *
- * Set the default activation state of an InsrSrc.
+ * @short Set the default activation state of an InsrSrc.
+ * @param integer SrcId Specifies the InstSrc.
+ * @param boolean enabled Default activation state of source.
  *
- * @param SrcId Specifies the InstSrc.
- *
- * @param enabled Default activation state of source.
- *
- * @return bool
+ * @return boolean
  **/
 YCPValue
 PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
@@ -942,13 +957,10 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceFinish (integer SrcId) -> bool
- *
- * Disable an InsrSrc.
- *
- * @param SrcId Specifies the InstSrc.
- *
- * @return bool
+ * @builtin SourceFinish
+ * @short Disable an Installation Source
+ * @param integer SrcId Specifies the InstSrc.
+ * @return boolean
  **/
 YCPValue
 PkgModuleFunctions::SourceFinish (const YCPInteger& id)
@@ -977,14 +989,15 @@ PkgModuleFunctions::SourceFinish (const YCPInteger& id)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceDelete (integer SrcId) -> bool
- *
+ * @builtin SourceDelete
+ * @short Delete a Source
+ * @description
  * Delete an InsrSrc. The InsrSrc together with all metadata cached on disk
  * is removed. The SrcId passed becomes invalid (other SrcIds stay valid).
  *
- * @param SrcId Specifies the InstSrc.
+ * @param integer SrcId Specifies the InstSrc.
  *
- * @return bool
+ * @return boolean
  **/
 YCPValue
 PkgModuleFunctions::SourceDelete (const YCPInteger& id)
@@ -1013,17 +1026,18 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceEditGet () -> list of source states (map)
+ * @builtin SourceEditGet
  *
+ * @short Get state of Sources
+ * @description
  * Return a list of states for all known InstSources sorted according to the
  * source priority (highest first). A source state is a map:
- * <TABLE>
- * <TR><TD>$[<TD>"SrcId"	<TD>: YCPInteger
- * <TR><TD>,<TD>"enabled"	<TD>: YCPBoolean
- * <TR><TD>];
- * </TABLE>
+ * $[
+ * "SrcId"	: YCPInteger,
+ * "enabled"	: YCPBoolean
+ * ];
  *
- * @return list of source states (map)
+ * @return list<map> list of source states (map)
  **/
 YCPValue
 PkgModuleFunctions::SourceEditGet ()
@@ -1041,16 +1055,18 @@ PkgModuleFunctions::SourceEditGet ()
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceEditSet ( list source_states ) -> true
+ * @builtin SourceEditSet
  *
+ * @short Rearange known InstSrces rank and default state
+ * @description
  * Rearange known InstSrces rank and default state according to source_states
  * (highest priority first). Known InstSrces not mentioned in source_states
  * are deleted.
  *
- * @param source_states List of source states. Same format as returned by
- * @ref SourceEditGet.
+ * @param list source_states List of source states. Same format as returned by
+ * @see SourceEditGet.
  *
- * @return true
+ * @return boolean
  **/
 YCPValue
 PkgModuleFunctions::SourceEditSet (const YCPList& states)
@@ -1082,7 +1098,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /****************************************************************************************
- * @builtin Pkg::SourceRaisePriority (integer SrcId) -> bool
+ * Pkg::SourceRaisePriority (integer SrcId) -> bool
  *
  * Raise priority of source.
  *
@@ -1117,7 +1133,7 @@ PkgModuleFunctions::SourceRaisePriority (const YCPInteger& id)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceLowerPriority (integer SrcId) -> void
+ * Pkg::SourceLowerPriority (integer SrcId) -> void
  *
  * Lower priority of source.
  *
@@ -1152,7 +1168,7 @@ PkgModuleFunctions::SourceLowerPriority (const YCPInteger& id)
 }
 
 /****************************************************************************************
- * @builtin Pkg::SourceSaveRanks () -> boolean
+ * Pkg::SourceSaveRanks () -> boolean
  *
  * Save ranks to disk. Return true on success, false on error.
  **/

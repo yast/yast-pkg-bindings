@@ -14,7 +14,8 @@
 
    Author:	Klaus Kaempf <kkaempf@suse.de>
    Maintainer:  Klaus Kaempf <kkaempf@suse.de>
-
+   Summary:     Access to Patch Manager
+   Namespace:   Pkg
    Purpose:	Access to PMPatchManager
 		Handles YOU related Pkg::function (list_of_arguments) calls
 		from WFMInterpreter.
@@ -65,9 +66,9 @@ PkgModuleFunctions::getPatchSelectable (const std::string& name)
 
 //-------------------------------------------------------------
 /**   
-   @builtin Pkg::YouStatus() -> map
-
-   get map with status information
+   @builtin YouStatus
+   @short get map with status information
+   @return map
 
 */
 YCPMap
@@ -97,14 +98,14 @@ PkgModuleFunctions::YouStatus ()
 }
 
 /**
-   @builtin Pkg::YouSetServer()
+   @builtin YouSetServer
 
-   Set server to be used for getting patches.
-
+   @short Set server to be used for getting patches.
    @param map  you server map as returned from YouGetServers.
-
-   @return ""      success
+   @return string ""      success
+   
            "args"  wrong arguments
+
            "error" other error
 */
 YCPValue
@@ -121,12 +122,10 @@ PkgModuleFunctions::YouSetServer (const YCPMap& servers)
 
 
 /**
-   @builtin Pkg::YouGetUserPassword()
+   @builtin YouGetUserPassword
 
-   Get username and password needed for access to server.
-
-   @return map "username" success
-               "password" password
+   @short Get username and password needed for access to server.
+   @return map "username" success, "password" password
 */
 YCPValue
 PkgModuleFunctions::YouGetUserPassword ()
@@ -146,17 +145,13 @@ PkgModuleFunctions::YouGetUserPassword ()
 }
 
 /**
-   @builtin Pkg::YouSetUserPassword()
+   @builtin YouSetUserPassword
 
-   Set username and password needed for access to server.
-
+   @short Set username and password needed for access to server.
    @param string  username
    @param string  password
-   @param boolean true, if username/password should be saved to disk
-
-   @return ""      success
-           "args"  wrong arguments
-           "error" other error
+   @param boolean save  true, if username/password should be saved to disk
+   @return string success if empty, "args"  wrong arguments, "error" other error
 */
 YCPValue
 PkgModuleFunctions::YouSetUserPassword (const YCPString& user, const YCPString& passwd, const YCPBoolean& p)
@@ -179,22 +174,15 @@ PkgModuleFunctions::YouSetUserPassword (const YCPString& user, const YCPString& 
 
 // ------------------------
 /**
-   @builtin Pkg::YouGetServers() -> error string
+   @builtin YouGetServers
 
-   get urls of patch servers
+   @short get urls of patch servers
 
-   @param list(map)  list of maps where results are stored. The maps have the following fields
-                     set:
-
-                       "url"        URL of server.
-                       "name"       Descriptive name of server.
-                       "directory"  Directory file used to get list of patches.
-
-   @return ""      success
-           "args"  bad args
-           "get"   error getting file from server
-           "write" error writing file to disk
-           "read"  error reading file after download
+   @param list<map>  list of maps where results are stored. The maps have the following fields
+                     set: "url" -> URL of server. "name" -> Descriptive name of server.  
+                     "directory" -> Directory file used to get list of patches.
+   @return string empty for success, "args"  bad args, "get"  error getting file from server
+           "write" error writing file to disk and "read"  error reading file after download
 */
 YCPString
 PkgModuleFunctions::YouGetServers (YCPReference strings)
@@ -252,14 +240,12 @@ PkgModuleFunctions::convertServerObject( const YCPMap &serverMap )
 
 
 /**
-  @builtin Pkg::YouGetDirectory() -> error string
+  @builtin YouGetDirectory
 
-  retrieve directory file listing all available patches
+  @short retrieve directory file listing all available patches
 
-  @return ""       success
-          "url"    url not valid
-          "login"  login failed
-          "error"  other error
+  @return string empty string for success, "url" ->  url not valid, "login" -> login failed
+          "error"-> other error
 */
 YCPValue
 PkgModuleFunctions::YouGetDirectory ()
@@ -276,20 +262,15 @@ PkgModuleFunctions::YouGetDirectory ()
 }
 
 /**   
-  @builtin Pkg::YouRetrievePatchInfo( boolean download_again, boolean check_signatures ) -> error string
+  @builtin YouRetrievePatchInfo
 
-  retrieve patches
+  @short retrieve patches
+  @param boolean download_again   true if patches should be downloaded again
+  @param boolean check_signatures  true if signatures should be checked.
   
-  @param bool    true if patches should be downloaded again
-  @param bool    true if signatures should be checked.
-  
-  @return ""      success
-          "args"  bad args
-          "media" media error
-          "sig"   signature check failed 
-          "abort" user aborted operation
-          "url"   url not valid
-          "login" login failed
+  @return string empty string for success, "args" for  bad args, "media" for media error
+          "sig" for  signature check failed, "abort" for user aborted operation, 
+          "url" for  url not valid and "login" for login failed
 */
 YCPValue
 PkgModuleFunctions::YouRetrievePatchInfo (const YCPBoolean& download, const YCPBoolean& sig)
@@ -315,9 +296,9 @@ PkgModuleFunctions::YouRetrievePatchInfo (const YCPBoolean& download, const YCPB
 }
 
 /**   
-   @builtin Pkg::YouProcessPatches () -> bool
-
-   Download and install patches.
+   @builtin YouProcessPatches
+   @short Download and install patches.
+   @return boolean
 
 */
 YCPValue
@@ -329,9 +310,10 @@ PkgModuleFunctions::YouProcessPatches ()
 }
 
 /**   
-   @builtin Pkg::YouSelectPatches () -> void
+   @builtin YouSelectPatches
 
-   select patches based on types.
+   @short select patches based on types.
+   @return void
 
 */
 YCPValue
@@ -371,9 +353,10 @@ PkgModuleFunctions::YouPatch( const PMYouPatchPtr &patch )
 }
 
 /**
-   @builtin Pkg::YouRemovePackages () -> bool
+   @builtin YouRemovePackages
 
-   remove downloaded packages.
+   @short remove downloaded packages.
+   @return boolean
 */
 YCPValue
 PkgModuleFunctions::YouRemovePackages ()
