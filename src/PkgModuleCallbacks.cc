@@ -30,6 +30,7 @@
 
 #include <y2pm/Y2PMCallbacks.h>
 #include <y2pm/InstSrcManager.h>
+#include <y2pm/InstSrcDescr.h>
 
 #include <y2pm/PMPackage.h>
 #include <y2pm/PMYouPatchManager.h>
@@ -673,16 +674,14 @@ namespace Y2PMRecipients {
 				PMError error ) {
       CB callback( ycpcb( YCPCallbacks::CB_MediaChange ) );
        if ( callback._set ) {
-	 /*
 	callback.addStr( error.asString() );
-	callback.addStr( currenturl.asString() );
+	callback.addStr( currentUrl.asString() );
 	callback.addStr( descr->label() );
 	callback.addInt( 0 );
-	callback.addStr( "" );
+	callback.addStr( string() );
 	callback.addInt( expectedMedianr );
 	callback.addStr( descr->media_label( expectedMedianr )() );
 	callback.addBool( descr->media_doublesided() );
-	 */
 	return callback.evaluateStr();
       }
        return MediaChangeCallback::changeMedia( descr, currentUrl,
