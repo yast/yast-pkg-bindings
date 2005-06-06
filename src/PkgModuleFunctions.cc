@@ -51,6 +51,7 @@ public:
     bool finishParameters ();
     YCPValue evaluateCall ();
     bool reset ();
+    string name () const;
 };
 
 
@@ -130,6 +131,11 @@ public:
 	m_param4 = YCPNull ();
 
 	return true;
+    }
+
+    string Y2PkgFunction::name () const
+    {
+	    return m_instance->name();
     }
 
 /**
