@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jun 10 11:08:40 CEST 2005 - ma@suse.de
+
+- Adapt to changes in base classes we use from liby2.
+- 2.11.7
+
+-------------------------------------------------------------------
 Tue Feb 15 14:44:35 CET 2005 - ma@suse.de
 
 - Extended statistics returned from Pkg::PkgUpdateAll. The builtin

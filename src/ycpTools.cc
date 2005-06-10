@@ -132,6 +132,7 @@ string asString( YCPValueType obj )
     ENUMOUT( YT_BREAK );
     ENUMOUT( YT_ENTRY );
     ENUMOUT( YT_REFERENCE );
+    ENUMOUT( YT_EXTERNAL );
 #undef ENUMOUT
   }
   return stringutil::form( "YCPValueType(%d)", obj );
@@ -175,6 +176,7 @@ std::string asString( const YCPValue & obj )
     case YT_BREAK: return "Break" ; break;
     ENUMOUT( ENTRY, Entry );
     ENUMOUT( REFERENCE, Reference );
+    ENUMOUT( EXTERNAL, External );
 #undef ENUMOUT
   }
   return stringutil::form( "YCPValue(%s)", asString( obj->valuetype() ).c_str() );
