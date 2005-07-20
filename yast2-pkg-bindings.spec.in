@@ -1,5 +1,5 @@
 @HEADER-COMMENT@
-# neededforbuild gpp libgpp libpng openslp openslp-devel libxcrypt libxcrypt-devel yast2-devtools liby2util liby2util-devel yast2-packagemanager yast2-packagemanager-devel rpm rpm-devel popt popt-devel curl yast2-core yast2-core-devel doxygen pkgconfig libxml2 libxslt docbook-xsl-stylesheets docbook_4 perl-XML-Writer libgcrypt libgcrypt-devel libgpg-error libgpg-error-devel sgml-skel pcre pcre-devel blocxx blocxx-devel
+# neededforbuild gpp libgpp libpng openslp openslp-devel libxcrypt libxcrypt-devel yast2-devtools liby2util liby2util-devel yast2-packagemanager yast2-packagemanager-devel rpm rpm-devel popt popt-devel curl libxml2 libxml2-devel yast2-core yast2-core-devel doxygen pkgconfig libxml2 libxslt docbook-xsl-stylesheets docbook_4 perl-XML-Writer libgcrypt libgcrypt-devel libgpg-error libgpg-error-devel sgml-skel pcre pcre-devel blocxx blocxx-devel
 
 @HEADER@
 Summary:	-
