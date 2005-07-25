@@ -2,7 +2,8 @@
 Mon Jul 25 14:03:11 CEST 2005 - ma@suse.de
 
 - Provide new installation source attribute 'autorefresh' in
-  PKG::SourceEditGet/SourceEditSet
+  PKG::SourceEditGet/SourceEditSet.
+- New builtin PKG::SourceRefreshNow.
 - 2.12.3
 
 -------------------------------------------------------------------

@@ -1037,6 +1037,43 @@ PkgModuleFunctions::SourceFinish (const YCPInteger& id)
 }
 
 /****************************************************************************************
+ * @builtin SourceRefreshNow
+ * @short Attempt to immediately refresh a Source
+ * @description
+ * The InsrSrc will be encouraged to check and refresh all metadata
+ * cached on disk.
+ *
+ * @param integer SrcId Specifies the InstSrc.
+ *
+ * @return boolean
+ **/
+YCPValue
+PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
+{
+  YCPList args;
+  args->add (id);
+
+  //-------------------------------------------------------------------------------------//
+  YcpArgLoad decl(__FUNCTION__);
+
+  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
+
+  if ( ! decl.load( args ) ) {
+    return pkgError_bad_args;
+  }
+  //-------------------------------------------------------------------------------------//
+
+  if ( ! source_id )
+    return pkgError( InstSrcError::E_bad_id );
+
+  PMError err =_y2pm.instSrcManager().refreshSource( source_id );
+  if ( err )
+    return pkgError( err, YCPBoolean( false ) );
+
+  return YCPBoolean( true );
+}
+
+/****************************************************************************************
  * @builtin SourceDelete
  * @short Delete a Source
  * @description

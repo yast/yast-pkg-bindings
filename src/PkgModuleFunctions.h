@@ -221,6 +221,8 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: boolean(integer,boolean)*/
         YCPValue SourceSetAutorefresh (const YCPInteger&, const YCPBoolean&);
 	/* TYPEINFO: boolean(integer)*/
+        YCPValue SourceRefreshNow (const YCPInteger&);
+	/* TYPEINFO: boolean(integer)*/
         YCPValue SourceDelete (const YCPInteger&);
 	/* TYPEINFO: void(integer)*/
         YCPValue SourceRaisePriority (const YCPInteger&);
