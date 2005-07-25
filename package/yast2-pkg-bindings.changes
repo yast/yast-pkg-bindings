@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Jul 25 14:03:11 CEST 2005 - ma@suse.de
+
+- Provide new installation source attribute 'autorefresh' in
+  PKG::SourceEditGet/SourceEditSet
+- 2.12.3
+
+-------------------------------------------------------------------
 Wed Jul 20 10:46:53 CEST 2005 - ma@suse.de
 
 - Adapt build requirements for libxml2
