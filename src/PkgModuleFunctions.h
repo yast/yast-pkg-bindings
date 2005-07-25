@@ -218,6 +218,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue SourceProduct (const YCPInteger&);
 	/* TYPEINFO: boolean(integer,boolean)*/
         YCPValue SourceSetEnabled (const YCPInteger&, const YCPBoolean&);
+	/* TYPEINFO: boolean(integer,boolean)*/
+        YCPValue SourceSetAutorefresh (const YCPInteger&, const YCPBoolean&);
 	/* TYPEINFO: boolean(integer)*/
         YCPValue SourceDelete (const YCPInteger&);
 	/* TYPEINFO: void(integer)*/

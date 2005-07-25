@@ -102,8 +102,9 @@ inline YCPList asYCPList( const InstSrcManager::SrcStateVector & states_r )
   YCPList ret;
   for ( InstSrcManager::SrcStateVector::const_iterator it = states_r.begin(); it != states_r.end(); ++it ) {
     YCPMap el;
-    el->add( YCPString("SrcId"),	YCPInteger( it->first ) );
-    el->add( YCPString("enabled"),	YCPBoolean( it->second ) );
+    el->add( YCPString("SrcId"),	YCPInteger( it->_id ) );
+    el->add( YCPString("enabled"),	YCPBoolean( it->_autoenable ) );
+    el->add( YCPString("autorefresh"),	YCPBoolean( it->_autorefresh ) );
     ret->add( el );
   }
   return ret;
@@ -119,6 +120,7 @@ inline bool YcpArgLoad::Value<YT_LIST, InstSrcManager::SrcStateVector>::assign( 
   bool valid = true;
   YCPString tag_SrcId( "SrcId" );
   YCPString tag_enabled( "enabled" );
+  YCPString tag_autorefresh( "autorefresh" );
 
   for ( unsigned i = 0; i < unsigned(l->size()); ++i ) {
     YCPValue el = l->value(i);
@@ -127,7 +129,7 @@ inline bool YcpArgLoad::Value<YT_LIST, InstSrcManager::SrcStateVector>::assign( 
       InstSrcManager::SrcState state;
 
       if ( (el = m->value( tag_SrcId ))->isInteger() ) {
-	state.first = el->asInteger()->value();
+	state._id = el->asInteger()->value();
       } else {
 	y2warning( "List entry %d: MAP[SrcId]: INTEGER expected but got '%s'", i, asString( el ).c_str() );
 	valid = false;
@@ -135,9 +137,17 @@ inline bool YcpArgLoad::Value<YT_LIST, InstSrcManager::SrcStateVector>::assign( 
       }
 
       if ( (el = m->value( tag_enabled ))->isBoolean() ) {
-	state.second = el->asBoolean()->value();
+	state._autoenable = el->asBoolean()->value();
       } else {
 	y2warning( "List entry %d: MAP[enabled]: BOOLEAN expected but got '%s'", i, asString( el ).c_str() );
+	valid = false;
+	break;
+      }
+
+      if ( (el = m->value( tag_autorefresh ))->isBoolean() ) {
+	state._autorefresh = el->asBoolean()->value();
+      } else {
+	y2warning( "List entry %d: MAP[autorefresh]: BOOLEAN expected but got '%s'", i, asString( el ).c_str() );
 	valid = false;
 	break;
       }
@@ -957,6 +967,44 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 }
 
 /****************************************************************************************
+ * @builtin SourceSetAutorefresh
+ *
+ * @short Set whether this source should automaticaly refresh it's
+ * meta data when it gets enabled. (default true, if not CD/DVD)
+ * @param integer SrcId Specifies the InstSrc.
+ * @param boolean enabled Whether autorefresh should be turned on or off.
+ *
+ * @return boolean
+ **/
+YCPValue
+PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean& e)
+{
+  YCPList args;
+  args->add (id);
+  args->add (e);
+
+  //-------------------------------------------------------------------------------------//
+  YcpArgLoad decl(__FUNCTION__);
+
+  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
+  bool &                   enabled  ( decl.arg<YT_BOOLEAN, bool>() );
+
+  if ( ! decl.load( args ) ) {
+    return pkgError_bad_args;
+  }
+  //-------------------------------------------------------------------------------------//
+
+  if ( ! source_id )
+    return pkgError( InstSrcError::E_bad_id );
+
+  PMError err = _y2pm.instSrcManager().setAutorefresh( source_id, enabled );
+  if ( err )
+    return pkgError( err, YCPBoolean( false ) );
+
+  return YCPBoolean( true );
+}
+
+/****************************************************************************************
  * @builtin SourceFinish
  * @short Disable an Installation Source
  * @param integer SrcId Specifies the InstSrc.
@@ -1035,6 +1083,7 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
  * $[
  * "SrcId"	: YCPInteger,
  * "enabled"	: YCPBoolean
+ * "autorefresh": YCPBoolean
  * ];
  *
  * @return list<map> list of source states (map)

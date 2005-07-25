@@ -20,3 +20,6 @@ ltmain.sh
 missing
 mkinstalldirs
 stamp-h*
+autodocs-ycp.ami
+OUTPUT
+OUTPUT2
