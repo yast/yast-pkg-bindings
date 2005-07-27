@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Jul 27 22:13:12 CEST 2005 - ma@suse.de
+
+- Fixed conversion from YCPMap to InstSrcManager::SrcStateVector.
+- 2.12.4
+
+-------------------------------------------------------------------
 Mon Jul 25 14:03:11 CEST 2005 - ma@suse.de
 
 - Provide new installation source attribute 'autorefresh' in

@@ -124,33 +124,40 @@ inline bool YcpArgLoad::Value<YT_LIST, InstSrcManager::SrcStateVector>::assign( 
 
   for ( unsigned i = 0; i < unsigned(l->size()); ++i ) {
     YCPValue el = l->value(i);
-    if ( el->isMap() ) {
+    if ( ! el.isNull() && el->isMap() ) {
       YCPMap m = el->asMap();
       InstSrcManager::SrcState state;
 
-      if ( (el = m->value( tag_SrcId ))->isInteger() ) {
-	state._id = el->asInteger()->value();
+      // SrcId is mandatory
+      if ( ! (el = m->value( tag_SrcId )).isNull() && el->isInteger() ) {
+        state._id = el->asInteger()->value();
       } else {
-	y2warning( "List entry %d: MAP[SrcId]: INTEGER expected but got '%s'", i, asString( el ).c_str() );
-	valid = false;
-	break;
+        y2warning( "List entry %d: MAP[SrcId]: INTEGER expected but got '%s'", i, asString( el ).c_str() );
+        valid = false;
+        break;
       }
 
-      if ( (el = m->value( tag_enabled ))->isBoolean() ) {
-	state._autoenable = el->asBoolean()->value();
-      } else {
-	y2warning( "List entry %d: MAP[enabled]: BOOLEAN expected but got '%s'", i, asString( el ).c_str() );
-	valid = false;
-	break;
-      }
+      if ( ! (el = m->value( tag_enabled )).isNull() )
+        {
+          if ( el->isBoolean() ) {
+            state._autoenable = el->asBoolean()->value();
+          } else {
+            y2warning( "List entry %d: MAP[enabled]: BOOLEAN expected but got '%s'", i, asString( el ).c_str() );
+            valid = false;
+            break;
+          }
+        }
 
-      if ( (el = m->value( tag_autorefresh ))->isBoolean() ) {
-	state._autorefresh = el->asBoolean()->value();
-      } else {
-	y2warning( "List entry %d: MAP[autorefresh]: BOOLEAN expected but got '%s'", i, asString( el ).c_str() );
-	valid = false;
-	break;
-      }
+      if ( ! (el = m->value( tag_autorefresh )).isNull() )
+        {
+          if ( el->isBoolean() ) {
+            state._autorefresh = el->asBoolean()->value();
+          } else {
+            y2warning( "List entry %d: MAP[autorefresh]: BOOLEAN expected but got '%s'", i, asString( el ).c_str() );
+            valid = false;
+            break;
+          }
+        }
 
       // store state in vector
       _value.push_back( state );
