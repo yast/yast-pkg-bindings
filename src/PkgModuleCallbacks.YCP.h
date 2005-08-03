@@ -74,6 +74,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_StartProvide, CB_ProgressProvide, CB_DoneProvide,
       CB_StartPackage, CB_ProgressPackage, CB_DonePackage,
       CB_StartDownload, CB_ProgressDownload, CB_DoneDownload,
+      CB_StartSourceRefresh, CB_ErrorSourceRefresh, CB_DoneSourceRefresh,
       CB_MediaChange,
       CB_SourceChange,
       CB_YouProgress,
@@ -110,6 +111,9 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( StartDownload );
 	ENUM_OUT( ProgressDownload );
 	ENUM_OUT( DoneDownload );
+        ENUM_OUT( StartSourceRefresh );
+        ENUM_OUT( ErrorSourceRefresh );
+        ENUM_OUT( DoneSourceRefresh );
 	ENUM_OUT( MediaChange );
 	ENUM_OUT( SourceChange );
 	ENUM_OUT( YouProgress );
@@ -257,7 +261,6 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 
   public:
 
-#warning Free interface for YCPCallback sending is ok, but a functional one is desired too.
     /**
      * @short Convenience base class for YCPCallback sender
      *
@@ -301,6 +304,8 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 
 	  CB & addBool( bool arg ) { if (_func != NULL) _func->appendParameter( YCPBoolean( arg ) ); return *this; }
 
+	  CB & addMap( YCPMap arg ) { if (_func != NULL) _func->appendParameter( arg ); return *this; }
+
 	  bool isStr() const { return _result->isString(); }
 	  bool isInt() const { return _result->isInteger(); }
 	  bool isBool() const { return _result->isBoolean(); }
@@ -330,6 +335,10 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 
 	  string evaluateStr( const string & def_r = "" ) {
 	    return evaluate( YT_STRING ) ? _result->asString()->value() : def_r;
+	  }
+
+	  string evaluateSymbol( const string & def_r = "" ) {
+	    return evaluate( YT_SYMBOL ) ? _result->asSymbol()->symbol() : def_r;
 	  }
 
 	  long long evaluateInt( const long long & def_r = 0 ) {

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Aug  4 00:42:42 CEST 2005 - ma@suse.de
+
+- Added YCP {Start,Error,Done}SourceRefresh callbacks.
+- 2.12.5
+
+-------------------------------------------------------------------
 Wed Jul 27 22:13:12 CEST 2005 - ma@suse.de
 
 - Fixed conversion from YCPMap to InstSrcManager::SrcStateVector.

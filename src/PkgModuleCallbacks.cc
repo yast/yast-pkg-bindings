@@ -656,6 +656,69 @@ namespace Y2PMRecipients {
   };
 
   ///////////////////////////////////////////////////////////////////
+  // InstSrcManagerCallbacks::SourceRefreshCallback
+  ///////////////////////////////////////////////////////////////////
+  struct SourceRefreshReceive : public Recipient, public InstSrcManagerCallbacks::SourceRefreshCallback
+  {
+    SourceRefreshReceive( RecipientCtl & construct_r )
+    : Recipient( construct_r )
+    {}
+
+    virtual void
+    start( constInstSrcDescrPtr descr_r )
+    {
+      CB callback( ycpcb( YCPCallbacks::CB_StartSourceRefresh ) );
+      if ( callback._set )
+        {
+          YCPMap arg;
+          arg->add( YCPString("url"),		YCPString( descr_r->url().asString() ) );
+          arg->add( YCPString("product_dir"),	YCPString( descr_r->product_dir().asString() ) );
+          arg->add( YCPString("label"),		YCPString( descr_r->content_label() ) );
+          callback.addMap( arg ),
+          callback.evaluate();
+        }
+    }
+
+    virtual Result
+    error( Error error_r, const std::string & detail )
+    {
+      CB callback( ycpcb( YCPCallbacks::CB_ErrorSourceRefresh ) );
+      if ( callback._set )
+        {
+          YCPMap arg;
+          arg->add( YCPString( "error" ),	YCPSymbol( asString( error_r ) ) );
+          arg->add( YCPString( "detail" ),	YCPString( detail ) );
+          callback.addMap( arg );
+          string result = callback.evaluateSymbol();
+#define IF_MATCH_RETURN(X) if ( result == asString( X ) ) return X
+          IF_MATCH_RETURN( RERTY );
+          IF_MATCH_RETURN( SKIP_REFRESH );
+          IF_MATCH_RETURN( DISABLE_SOURCE );
+#undef IF_MATCH_RETURN
+          // still here?
+          INT << "Unexpected Symbol '" << result << "' returned from callback." << endl;
+          // return default
+        }
+      return SourceRefreshCallback::error( error_r, detail ); // return default implementation
+    }
+
+    virtual void
+    stop( Result result_r, Cause cause_r, const std::string & detail )
+    {
+      CB callback( ycpcb( YCPCallbacks::CB_DoneSourceRefresh ) );
+      if ( callback._set )
+        {
+          YCPMap arg;
+          arg->add( YCPString( "result" ),	YCPSymbol( asString( result_r ) ) );
+          arg->add( YCPString( "cause" ),	YCPSymbol( asString( cause_r ) ) );
+          arg->add( YCPString( "detail" ),	YCPString( detail ) );
+          callback.addMap( arg ),
+          callback.evaluate();
+        }
+    }
+  };
+
+  ///////////////////////////////////////////////////////////////////
   // InstSrcManagerCallbacks::MediaChangeCallback
   ///////////////////////////////////////////////////////////////////
   struct MediaChangeReceive : public Recipient, public InstSrcManagerCallbacks::MediaChangeCallback
@@ -896,7 +959,8 @@ class PkgModuleFunctions::CallbackHandler::Y2PMReceive : public Y2PMRecipients::
     Y2PMRecipients::CommitRemoveReceive  _commitRemoveReceive;
 
     // InstSrcManagerCallbacks
-    Y2PMRecipients::MediaChangeReceive _mediaChangeReceive;
+    Y2PMRecipients::SourceRefreshReceive _sourceRefreshReceive;
+    Y2PMRecipients::MediaChangeReceive   _mediaChangeReceive;
 
     // MediaCallbacks
     Y2PMRecipients::DownloadProgressReceive _downloadProgressReceive;
@@ -921,6 +985,7 @@ class PkgModuleFunctions::CallbackHandler::Y2PMReceive : public Y2PMRecipients::
       , _commitProvideReceive( *this )
       , _commitInstallReceive( *this )
       , _commitRemoveReceive( *this )
+      , _sourceRefreshReceive( *this )
       , _mediaChangeReceive( *this )
       , _downloadProgressReceive( *this )
       , _youReceive( *this )
@@ -937,6 +1002,7 @@ class PkgModuleFunctions::CallbackHandler::Y2PMReceive : public Y2PMRecipients::
       Y2PMCallbacks::commitInstallReport.redirectTo( _commitInstallReceive );
       Y2PMCallbacks::commitRemoveReport.redirectTo( _commitRemoveReceive );
 
+      InstSrcManagerCallbacks::sourceRefreshReport.redirectTo( _sourceRefreshReceive );
       InstSrcManagerCallbacks::mediaChangeReport.redirectTo( _mediaChangeReceive );
 
       MediaCallbacks::downloadProgressReport.redirectTo( _downloadProgressReceive );
@@ -959,6 +1025,7 @@ class PkgModuleFunctions::CallbackHandler::Y2PMReceive : public Y2PMRecipients::
       Y2PMCallbacks::commitInstallReport.redirectTo( 0 );
       Y2PMCallbacks::commitRemoveReport.redirectTo( 0 );
 
+      InstSrcManagerCallbacks::sourceRefreshReport.redirectTo( 0 );
       InstSrcManagerCallbacks::mediaChangeReport.redirectTo( 0 );
 
       MediaCallbacks::downloadProgressReport.redirectTo( 0 );
@@ -1038,6 +1105,16 @@ YCPValue PkgModuleFunctions::CallbackProgressDownload( const YCPString& args ) {
 }
 YCPValue PkgModuleFunctions::CallbackDoneDownload( const YCPString& args ) {
   return SET_YCP_CB( CB_DoneDownload, args );
+}
+
+YCPValue PkgModuleFunctions::CallbackStartSourceRefresh( const YCPString& args ) {
+  return SET_YCP_CB( CB_StartSourceRefresh, args );
+}
+YCPValue PkgModuleFunctions::CallbackErrorSourceRefresh( const YCPString& args ) {
+  return SET_YCP_CB( CB_ErrorSourceRefresh, args );
+}
+YCPValue PkgModuleFunctions::CallbackDoneSourceRefresh( const YCPString& args ) {
+  return SET_YCP_CB( CB_DoneSourceRefresh, args );
 }
 
 YCPValue PkgModuleFunctions::CallbackMediaChange( const YCPString& args ) {

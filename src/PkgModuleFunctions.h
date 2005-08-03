@@ -151,6 +151,12 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackDoneDownload (const YCPString& func);
 	/* TYPEINFO: void(string) */
+        YCPValue CallbackStartSourceRefresh( const YCPString& func);
+	/* TYPEINFO: void(string) */
+        YCPValue CallbackErrorSourceRefresh( const YCPString& func);
+	/* TYPEINFO: void(string) */
+        YCPValue CallbackDoneSourceRefresh( const YCPString& func);
+	/* TYPEINFO: void(string) */
 	YCPValue CallbackMediaChange (const YCPString& func);
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackSourceChange (const YCPString& func);
