@@ -691,7 +691,7 @@ namespace Y2PMRecipients {
           callback.addMap( arg );
           string result = callback.evaluateSymbol();
 #define IF_MATCH_RETURN(X) if ( result == asString( X ) ) return X
-          IF_MATCH_RETURN( RERTY );
+          IF_MATCH_RETURN( RETRY );
           IF_MATCH_RETURN( SKIP_REFRESH );
           IF_MATCH_RETURN( DISABLE_SOURCE );
 #undef IF_MATCH_RETURN
