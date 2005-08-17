@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Aug 17 15:56:31 CEST 2005 - ma@suse.de
+
+- Removed obsolete 'TargetUpdateInf'. That's old YaST(1)
+  stuff.
+- 2.12.6
+
+-------------------------------------------------------------------
 Thu Aug  4 00:42:42 CEST 2005 - ma@suse.de
 
 - Added YCP {Start,Error,Done}SourceRefresh callbacks.

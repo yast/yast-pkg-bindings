@@ -28,7 +28,6 @@
 
 #include <y2util/Url.h>
 #include <y2pm/InstTarget.h>
-#include <y2pm/UpdateInfParser.h>
 #include <y2pm/PMPackageManager.h>
 #include <y2pm/PMError.h>
 
@@ -54,38 +53,16 @@ using std::string;
  * @return boolean
  */
 YCPValue
-PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& n)
+PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& /*unused*/ )
 {
-#warning TargetInit: newdb flag is obsolete! Check!
-    bool newdb = n->value();		// used again below
-
     Pathname newRoot = root->value();
 
-    if (newdb)
-    {
-#if 0
-        // create empty rpmdb
-        _last_error = _y2pm.instTarget().init (Pathname (args->value(0)->asString()->value()), newdb);
-#endif
-        // Initialize target. If package/selecion manager do already exist
-        // data are loaded, otherwise when the manager is created.
-        _last_error = _y2pm.instTargetInit( newRoot );
-    }
-    else
-    {
-#if 0
-        _last_error = PMError::E_ok;
-        // use existing rpmdb (and seldb !)
-        _y2pm.instTarget(true, Pathname (args->value(0)->asString()->value()));
-#endif
-        // initialize target
-        _last_error = _y2pm.instTargetInit( newRoot );
+    // initialize target
+    _last_error = _y2pm.instTargetInit( newRoot );
 
-        if ( !_last_error ) {
-          // assert package/selecion managers exist and are up to date.
-          _last_error = _y2pm.instTargetUpdate();
-        }
-
+    if ( !_last_error ) {
+      // assert package/selecion managers exist and are up to date.
+      _last_error = _y2pm.instTargetUpdate();
     }
 
     if (_last_error)
@@ -120,7 +97,7 @@ PkgModuleFunctions::TargetFinish ()
  *
  * @note This builtin uses callbacks * You should do an 'import "PackageCallbacks"' before calling this.
  * @param string filename
- * @return boolean 
+ * @return boolean
  */
 YCPBoolean
 PkgModuleFunctions::TargetInstall(const YCPString& filename)
@@ -175,7 +152,7 @@ get_disk_stats (const char *fs, long long *used, long long *size, long long *bsi
     struct statvfs sb;
     if (statvfs (fs, &sb) < 0)
     {
-	*used = *size = -1;
+	*used = *size = *bsize = -1;
 	return;
     }
     *bsize = sb.f_frsize ? : sb.f_bsize;		// block size
@@ -208,7 +185,7 @@ PkgModuleFunctions::TargetCapacity (const YCPString& dir)
  * @short Return usage of partition at directory
  * @param string directory
  * @return integer
- * 
+ *
  */
 YCPInteger
 PkgModuleFunctions::TargetUsed (const YCPString& dir)
@@ -239,52 +216,7 @@ PkgModuleFunctions::TargetBlockSize (const YCPString& dir)
 
 /** ------------------------
  *
- * @builtin TargetUpdateInf 
- *
- * @short Return content of update.inf (usually <destdir>/var/lib/YaST/update.inf)
- *
- * @description
- * Return content of update.inf (usually <destdir>/var/lib/YaST/update.inf)  as
- * 
- * <code>
- *  $[ "basesystem" : "blah", "distname" : "foo", "distversion" : "bar",
- *   "distrelease" : "baz", "ftppatch" : "ftp.suse.com:/pub/suse/i386/update/8.0.99",
- *   "ftpsources" : [ "ftp.suse.com:/pub/suse/i386/current", ... ]]
- *
- *   </code>
- * @param string filename
- * @return map
- */
-YCPValue
-PkgModuleFunctions::TargetUpdateInf (const YCPString& filename)
-{
-    UpdateInfParser parser;
-
-    if (parser.fromPath (Pathname (filename->value())))
-    {
-	return YCPVoid();			// return nil on error
-    }
-
-    YCPMap retmap;
-    retmap->add (YCPString ("basesystem"), YCPString (parser.basesystem()));
-    retmap->add (YCPString ("distname"), YCPString (parser.distname()));
-    retmap->add (YCPString ("distversion"), YCPString (parser.distversion()));
-    retmap->add (YCPString ("distrelease"), YCPString (parser.distrelease()));
-    retmap->add (YCPString ("ftppatch"), YCPString (parser.ftppatch()));
-    YCPList ftplist;
-    std::list<std::string> sources = parser.ftpsources();
-    for (std::list<std::string>::iterator it = sources.begin();
-	 it != sources.end(); ++it)
-    {
-	ftplist->add (YCPString(*it));
-    }
-    retmap->add (YCPString ("ftpsources"), ftplist);
-    return retmap;
-}
-
-/** ------------------------
- *
- * @builtin TargetProducts 
+ * @builtin TargetProducts
  *
  * @short Return list of maps of all installed products
  * @description
@@ -324,7 +256,7 @@ PkgModuleFunctions::TargetRebuildDB ()
 
 /** ------------------------
  *
- * @builtin TargetInitDU 
+ * @builtin TargetInitDU
  *
  * @short Initialize Disk Usage Calculation
  * @description
@@ -433,13 +365,13 @@ PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
  * <code>
  * $[ "dir" : [ total, used, pkgusage, readonly ], .... ]
  * </code>
- * 
+ *
  * total == total size for this partition
- * 
+ *
  * used == current used size on target
- * 
+ *
  * pkgusage == future used size on target based on current package selection
- * 
+ *
  * readonly == true/false telling whether the partition is mounted readonly
  *
  * @return map

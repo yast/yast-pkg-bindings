@@ -260,8 +260,6 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPInteger TargetUsed (const YCPString&);
 	/* TYPEINFO: integer(string)*/
 	YCPInteger TargetBlockSize (const YCPString&);
-	/* TYPEINFO: map<string,string>(string)*/
-	YCPValue TargetUpdateInf (const YCPString&);
 	/* TYPEINFO: boolean(string)*/
 	YCPBoolean TargetInstall (const YCPString&);
 	/* TYPEINFO: boolean(string)*/
