@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Aug 19 15:33:10 CEST 2005 - ma@suse.de
+
+- Provide installation source attribute 'autorefresh' in
+  PKG::SourceGeneralData.
+- 2.12.7
+
+-------------------------------------------------------------------
 Wed Aug 17 15:56:31 CEST 2005 - ma@suse.de
 
 - Removed obsolete 'TargetUpdateInf'. That's old YaST(1)

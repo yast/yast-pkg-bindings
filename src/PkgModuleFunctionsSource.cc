@@ -368,6 +368,7 @@ PkgModuleFunctions::SourceFinishAll ()
  * <code>
  * $[
  * "enabled"	: YCPBoolean,
+ * "autorefresh": YCPBoolean,
  * "product_dir": YCPString,
  * "type"	: YCPString,
  * "url"	: YCPString
@@ -400,6 +401,7 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 
   YCPMap data;
   data->add( YCPString("enabled"),	YCPBoolean( descr->default_activate() ) );
+  data->add( YCPString("autorefresh"),	YCPBoolean( descr->default_refresh() ) );
   data->add( YCPString("product_dir"),	YCPString( descr->product_dir().asString() ) );
   data->add( YCPString("type"),		YCPString( InstSrc::toString( descr->type() ) ) );
   data->add( YCPString("url"),		YCPString( descr->url().asString() ) );
