@@ -390,16 +390,17 @@ namespace Y2PMRecipients {
       }
       virtual void start( const Url & url_r, const Pathname & localpath_r ) {
       }
-      virtual void progress( const ProgressData & prg ) {
+      virtual bool progress( const ProgressData & prg ) {
 	CB callback( ycpcb( YCPCallbacks::CB_ProgressProvide ) );
 	if ( callback._set ) {
 	  _pc = prg;
 	  if ( _pc.updateIfNewPercent() ) {
 	    // report changed values
 	    callback.addInt( _pc.percent() );
-	    callback.evaluate();
+	    return callback.evaluateBool( true ); // default == continue
 	  }
 	}
+        return DownloadProgressCallback::progress( prg );
       }
       virtual void stop( PMError error ) {
       }
@@ -802,7 +803,7 @@ namespace Y2PMRecipients {
 	callback.evaluate();
       }
     }
-    virtual void progress( const ProgressData & prg ) {
+    virtual bool progress( const ProgressData & prg ) {
       CB callback( ycpcb( YCPCallbacks::CB_ProgressDownload ) );
       if ( callback._set ) {
 	_pc = prg;
@@ -810,9 +811,10 @@ namespace Y2PMRecipients {
 	  // report changed values
 	  callback.addInt( _pc.percent() );
 	  callback.addInt( _pc.max() );
-	  callback.evaluate();
+	  return callback.evaluateBool( true ); // default == continue
 	}
       }
+      return DownloadProgressCallback::progress( prg );
     }
     virtual void stop( PMError error ) {
       CB callback( ycpcb( YCPCallbacks::CB_DoneDownload ) );

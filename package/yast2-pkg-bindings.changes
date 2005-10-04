@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Oct  4 15:16:26 CEST 2005 - ma@suse.de
+
+- Changed signature of ProgressProvide and ProgressDownload callbacks.
+  Both are now expected to return YCPBoolean. Iff the callback returns
+  YCPBoolean(FALSE), current download is aborted. (#115534)
+- 2.13.0
+
+-------------------------------------------------------------------
 Fri Aug 19 15:33:10 CEST 2005 - ma@suse.de
 
 - Provide installation source attribute 'autorefresh' in
