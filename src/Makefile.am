@@ -6,7 +6,7 @@ AM_CXXFLAGS = -DY2LOG=\"wfm\" -DSUSEVERSION=\"${SUSEVERSION}\"	\
 	-DLOCALEDIR=\"${localedir}\"  -fno-inline
 
 # to look for the packagemanager in the prefix first (really first?)
-# AM_LDFLAGS = -L${libdir}
+AM_LDFLAGS = -L${libdir}
 
 plugin_LTLIBRARIES = libpy2Pkg.la
 
@@ -39,11 +39,10 @@ INCLUDES = -I$(includedir)
 
 BUILT_SOURCES = PkgBuiltinTable.h PkgBuiltinCalls.h
 
-PkgBuiltinTable.h : PkgModuleFunctions.h
-	y2tool generateYCPWrappers PkgModuleFunctions.h PkgBuiltinCalls.h PkgBuiltinTable.h
-
-PkgBuiltinCalls.h : PkgModuleFunctions.h
-	y2tool generateYCPWrappers PkgModuleFunctions.h PkgBuiltinCalls.h PkgBuiltinTable.h
+# "foo bar: baz" is wrong
+# see "info '(automake)Multiple Outputs'"
+%BuiltinCalls.h %BuiltinTable.h : %ModuleFunctions.h
+	${ydatadir}/devtools/bin/generateYCPWrappers $< $*BuiltinCalls.h $*BuiltinTable.h
 
 CLEANFILES = $(BUILT_SOURCES)
 
