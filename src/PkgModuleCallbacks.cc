@@ -661,9 +661,18 @@ namespace Y2PMRecipients {
   ///////////////////////////////////////////////////////////////////
   struct SourceRefreshReceive : public Recipient, public InstSrcManagerCallbacks::SourceRefreshCallback
   {
+    YCPMap startArgs;
+
     SourceRefreshReceive( RecipientCtl & construct_r )
     : Recipient( construct_r )
     {}
+
+    virtual void reportbegin() {
+      startArgs = YCPMap();
+    }
+    virtual void reportend()   {
+      startArgs = YCPMap();
+    }
 
     virtual void
     start( constInstSrcDescrPtr descr_r )
@@ -675,7 +684,8 @@ namespace Y2PMRecipients {
           arg->add( YCPString("url"),		YCPString( descr_r->url().asString() ) );
           arg->add( YCPString("product_dir"),	YCPString( descr_r->product_dir().asString() ) );
           arg->add( YCPString("label"),		YCPString( descr_r->content_label() ) );
-          callback.addMap( arg ),
+          callback.addMap( arg );
+          startArgs = arg; //remember
           callback.evaluate();
         }
     }
@@ -686,7 +696,7 @@ namespace Y2PMRecipients {
       CB callback( ycpcb( YCPCallbacks::CB_ErrorSourceRefresh ) );
       if ( callback._set )
         {
-          YCPMap arg;
+          YCPMap arg = startArgs;
           arg->add( YCPString( "error" ),	YCPSymbol( asString( error_r ) ) );
           arg->add( YCPString( "detail" ),	YCPString( detail ) );
           callback.addMap( arg );
@@ -709,7 +719,7 @@ namespace Y2PMRecipients {
       CB callback( ycpcb( YCPCallbacks::CB_DoneSourceRefresh ) );
       if ( callback._set )
         {
-          YCPMap arg;
+          YCPMap arg = startArgs;
           arg->add( YCPString( "result" ),	YCPSymbol( asString( result_r ) ) );
           arg->add( YCPString( "cause" ),	YCPSymbol( asString( cause_r ) ) );
           arg->add( YCPString( "detail" ),	YCPString( detail ) );

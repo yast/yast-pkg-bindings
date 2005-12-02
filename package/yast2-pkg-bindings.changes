@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Dec  2 11:59:47 CET 2005 - ma@suse.de
+
+- Remember values sent on CB_StartSourceRefresh, and repeat them
+  in subsequent SourceRefresh callbacks. (#133811)
+- 2.13.1
+
+-------------------------------------------------------------------
 Tue Oct  4 15:16:26 CEST 2005 - ma@suse.de
 
 - Changed signature of ProgressProvide and ProgressDownload callbacks.
