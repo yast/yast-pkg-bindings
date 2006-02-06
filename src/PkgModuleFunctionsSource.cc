@@ -372,48 +372,26 @@ PkgModuleFunctions::SourceProduct (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
-    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+    try {
+	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+    } catch(...) {
+	y2error ("Source ID not found: %d", id->asInteger()->value());
+	return YCPVoid();
+    }
 
     zypp::filesystem::Pathname path;
   
     try {
     	path = src.provideFile(f->value(), mid->asInteger()->value());
     } catch(...) {
+
+#warning report proper error
+
 	y2milestone ("File not found: %s", f->value_cstr());
 	return YCPVoid();
     }
 
     return YCPString(path.asString());
-
-// TODO error handling
-
-/*YCPList args;
-  args->add (id);
-  args->add (mid);
-  args->add (f);
-
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
-  int &                    medianr  ( decl.arg<YT_INTEGER, int>() );
-  Pathname &               file     ( decl.arg<YT_STRING,  Pathname>() );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  if ( ! source_id )
-    return pkgError( InstSrcError::E_bad_id );
-
-  Pathname localpath;
-  PMError err = source_id->provideFile( medianr, file, localpath );
-
-  if ( err )
-    return pkgError( err );
-
-  return YCPString( localpath.asString() );*/
 }
 
 /****************************************************************************************
@@ -715,6 +693,8 @@ YCPValue
 PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 {
     y2debug("Creating source...");
+
+#warning Create all sources from the given media
     
     zypp::Url url(media->value());
     zypp::filesystem::Pathname pn(pd->value());
@@ -724,6 +704,8 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
     try
     {
 	ret = zypp::SourceManager::sourceManager()->addSource(url, pn);
+	
+	zypp::SourceManager::sourceManager()->enable(ret);
     
 	zypp_ptr->addResolvables (zypp::SourceManager::sourceManager()->findSource(ret).resolvables());
     }
@@ -734,49 +716,6 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
     }
 
     return YCPInteger(ret);
-
-/*
-  YCPList args;
-  args->add (media);
-  if( ! pd.isNull ())
-    args->add (pd);
-
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  Url &      media_url  ( decl.arg<YT_STRING, Url>() );
-  Pathname & product_dir( decl.arg<YT_STRING, Pathname>( Pathname() ) ); // optional
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  PMError err;
-  InstSrcManager::ISrcIdList nids;
-
-  if ( product_dir.empty() ) {
-    // scan all sources
-    err = _y2pm.instSrcManager().scanMedia( nids, media_url );
-  } else {
-    // scan at product_dir
-    InstSrcManager::ISrcId nid;
-    err = _y2pm.instSrcManager().scanMedia( nid, media_url, product_dir );
-    if ( nid ) {
-      nids.push_back( nid );
-    }
-  }
-
-  if ( nids.empty() )
-    return pkgError( err );
-
-  // enable the sources
-  for ( InstSrcManager::ISrcIdList::const_iterator it = nids.begin(); it != nids.end(); ++it ) {
-    _y2pm.instSrcManager().enableSource( *it );
-  }
-
-  // return 1st source_id
-  return asYCPInteger( *nids.begin() );*/
 }
 
 /****************************************************************************************
