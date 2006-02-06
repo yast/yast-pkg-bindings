@@ -235,6 +235,7 @@ PkgModuleFunctions::SelectionData (const YCPString& sel)
 	data->add (YCPString ("category"), YCPString (selection->category()));
 	data->add (YCPString ("visible"), YCPBoolean (selection->visible()));
 	data->add (YCPString ("order"), YCPString (selection->order()));
+#warning Report also requires, provides, conflicts and obsoletes
     }
     else
     {
@@ -264,6 +265,8 @@ PkgModuleFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to
 {
     YCPList data;
     string name = sel->value();
+
+#warning Pkg::SelectionContent not ported yet
 
     /* TODO FIXME
     PMSelectablePtr selectable = _y2pm.selectionManager().getItem(name);
@@ -298,6 +301,8 @@ PkgModuleFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to
 	    paclist->add (YCPString (*pacIt));
     }
 */
+
+    ycpinternal ("Pkg::SelectionContents not ported yet");
     return paclist;
 }
 
@@ -338,30 +343,8 @@ PkgModuleFunctions::SetSelection (const YCPString& selection)
 YCPValue
 PkgModuleFunctions::ClearSelection (const YCPString& selection)
 {
-    y2internal("ClearSelection");
-
-    string name = selection->value();
-
-    /* TODO FIXME
-    PMSelectablePtr selectable = _y2pm.selectionManager().getItem(name);
-    if (selectable)
-    {
-	// if base selection -> clear everything
-	// only happens during install, no change of base selection during runtime
-	PMSelectionPtr candidate = selectable->candidateObj();
-	if (candidate
-	    && candidate->isBase())
-	{
-	    _y2pm.selectionManager().setNothingSelected();
-	    _y2pm.packageManager().setNothingSelected();
-	}
-
-	bool ret = selectable->user_unset();
-
-	return YCPBoolean (ret);
-    }*/
-    return YCPBoolean(true);
-    //return YCPError ("No selectable found", YCPBoolean (false));
+    ycpwarning( "Pkg::ClearSelection does not reset add-on selections anymore");
+    return YCPBoolean(DoRemoveString(selection->value()));
 }
 
 
