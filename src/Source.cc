@@ -385,7 +385,7 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
     zypp::filesystem::Pathname path;
   
     try {
-    	path = src.provideFile(f->value(), id->asInteger()->value());
+    	path = src.provideFile(f->value(), mid->asInteger()->value());
     } catch(...) {
 
 #warning report proper error
