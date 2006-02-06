@@ -860,7 +860,6 @@ namespace ZyppRecipients {
         ) {}
 
         virtual void startProbe(zypp::Url url) {
-	    y2internal ("Probing for source creation started");
 	    _silent_probing = true;
 	}
 
