@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Feb  6 10:00:44 CET 2006 - visnov@suse.cz
+
+- Adapt for new libzypp 
+- 2.13.1.5
+
+-------------------------------------------------------------------
 Fri Feb  3 10:38:13 CET 2006 - visnov@suse.cz
 
 - Fix build for YaST modules using Pkg
