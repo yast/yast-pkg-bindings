@@ -2,6 +2,11 @@
 Mon Feb  6 14:33:59 CET 2006 - visnov@suse.cz
 
 - Renamed files 
+- MediaChange callback fixes
+- RPM install problem callback
+- PkgQueryProvides
+- Selection interface cleaned up
+- 2.13.1.6
 
 -------------------------------------------------------------------
 Mon Feb  6 10:00:44 CET 2006 - visnov@suse.cz
