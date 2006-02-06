@@ -4,7 +4,7 @@
 
 htmldir = $(docdir)/html
 
-builtin = $(wildcard $(srcdir)/../src/PkgModule*.cc)
+builtin = $(wildcard $(srcdir)/../src/*.cc)
 builtinxml := $(builtin:%.cc=%.xml)
 xmlfiles := $(foreach xml,$(builtinxml),$(notdir $(xml)))
 htmlfiles = $(wildcard html/*.html)
