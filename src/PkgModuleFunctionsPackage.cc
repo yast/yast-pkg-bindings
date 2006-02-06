@@ -28,18 +28,6 @@
 #include <ycp/y2log.h>
 #include <PkgModuleFunctions.h>
 
-#include <y2util/Url.h>
-#include <y2util/FSize.h>
-#include <y2pm/InstData.h>
-#include <y2pm/InstSrcDescr.h>
-#include <y2pm/InstTarget.h>
-#include <y2pm/PMObject.h>
-#include <y2pm/PMSelectable.h>
-#include <y2pm/PMPackageManager.h>
-#include <y2pm/PMSelectionManager.h>
-#include <y2pm/InstSrcManager.h>
-#include <y2pm/RpmHeader.h>
-
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPInteger.h>
@@ -48,118 +36,21 @@
 #include <ycp/YCPList.h>
 #include <ycp/YCPMap.h>
 
+
+#include <zypp/ResStore.h>
+#include <zypp/ResObject.h>
+
+// ??
+#include <zypp/base/Iterator.h>
+
+#include <zypp/ResFilters.h>
+#include <zypp/ResPool.h>
+#include <zypp/Package.h>
+#include <zypp/SourceManager.h>
+#include <zypp/Resolver.h>
+#include <zypp/UpgradeStatistics.h>
+
 using std::string;
-
-///////////////////////////////////////////////////////////////////
-//
-//	CLASS NAME : SelQueryResult
-/**
- *
- **/
-struct SelQueryResult {
-  enum Instance {
-    NONE = 0x00,
-    INST = 0x01,
-    CAND = 0x02,
-    BOTH = (INST|CAND)
-  };
-
-  PMSelectablePtr _sel;
-  Instance        _match;
-
-  bool setMatchBit( Instance bit_r, const bool & val_r ) {
-    if ( val_r ) {
-      _match = Instance( _match | bit_r );
-    } else {
-      _match = Instance( _match & ~bit_r );
-    }
-    return val_r;
-  }
-
-  SelQueryResult( PMSelectablePtr sel_r = 0 )
-    : _sel( sel_r )
-    , _match( NONE )
-  {}
-
-  bool setInstMatch( const bool & val_r ) {
-    return setMatchBit( INST, val_r );
-  }
-  bool setCandMatch( const bool & val_r ) {
-    return setMatchBit( CAND, val_r );
-  }
-
-  Instance onSystem() const {
-    if ( _sel && _sel->is_onSystem() ) {
-      return( _sel->to_install() ? CAND : INST );
-    }
-    return NONE;
-  }
-};
-
-inline YCPSymbol asYCPSymbol( const SelQueryResult::Instance & obj_r ) {
-  switch ( obj_r ) {
-  case SelQueryResult::NONE: return YCPSymbol( "NONE" );
-  case SelQueryResult::INST: return YCPSymbol( "INST" );
-  case SelQueryResult::CAND: return YCPSymbol( "CAND" );
-  case SelQueryResult::BOTH: return YCPSymbol( "BOTH" );
-  };
-  return YCPSymbol( "NONE" );
-};
-
-inline YCPList asYCPList( const SelQueryResult & obj_r ) {
-  YCPList ret;
-  ret->add( YCPString( obj_r._sel ? obj_r._sel->name()->c_str() : "" ) );
-  ret->add( asYCPSymbol( obj_r._match ) );
-  ret->add( asYCPSymbol( obj_r.onSystem() ) );
-  return ret;
-}
-
-inline YCPList asYCPList( const list<SelQueryResult> & obj_r ) {
-  YCPList ret;
-  for ( list<SelQueryResult>::const_iterator it = obj_r.begin(); it != obj_r.end(); ++it ) {
-    ret->add( asYCPList( *it ) );
-  }
-  return ret;
-}
-
-///////////////////////////////////////////////////////////////////
-
-typedef SelQueryResult (*queryStringFnc)( PMSelectablePtr sel_r, const string & tag_r );
-
-inline list<SelQueryResult> queryString( queryStringFnc query_r, const string & tag_r ) {
-  list<SelQueryResult> ret;
-  for ( PMPackageManager::PMSelectableVec::const_iterator sel = Y2PM::packageManager().begin();
-	sel != Y2PM::packageManager().end(); ++sel ) {
-    SelQueryResult res = query_r( *sel, tag_r );
-    if ( res._match ) {
-      ret.push_back( res );
-    }
-  }
-  return ret;
-}
-
-///////////////////////////////////////////////////////////////////
-
-/**
- * Test whether a certain tag is provided by the selectables
- * installed or candidate object, and return the query result.
- **/
-static SelQueryResult queryProvides( PMSelectablePtr sel_r, const string & tag_r ) {
-  SelQueryResult ret( sel_r );
-  if ( sel_r ) {
-    PkgName tag( tag_r );
-    if ( sel_r->name() == tag_r ) {
-      ret._match = SelQueryResult::BOTH;
-    } else {
-      PkgRelation rel( tag );
-      ret.setInstMatch( sel_r->has_installed()
-  		        && sel_r->installedObj()->doesProvide( rel ) );
-      ret.setCandMatch( sel_r->has_candidate()
-  		        && sel_r->candidateObj()->doesProvide( rel ) );
-    }
-  }
-  return ret;
-}
 
 ///////////////////////////////////////////////////////////////////
 
@@ -200,7 +91,8 @@ static SelQueryResult queryProvides( PMSelectablePtr sel_r, const string & tag_r
 YCPList
 PkgModuleFunctions::PkgQueryProvides( const YCPString& tag )
 {
-  return asYCPList( queryString( queryProvides, tag->value() ) );
+  // TODO FIXME return asYCPList( queryString( queryProvides, tag->value() ) );
+  return YCPList();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -211,10 +103,10 @@ PkgModuleFunctions::PkgQueryProvides( const YCPString& tag )
 **	FUNCTION NAME : join
 **	FUNCTION TYPE : string
 */
-inline string join( const list<string> & lines_r, const string & sep_r = "\n" )
+inline std::string join( const std::list<std::string> & lines_r, const std::string & sep_r = "\n" )
 {
-  string ret;
-  list<string>::const_iterator it = lines_r.begin();
+  std::string ret;
+  std::list<std::string>::const_iterator it = lines_r.begin();
 
   if ( it != lines_r.end() ) {
     ret = *it;
@@ -225,135 +117,6 @@ inline string join( const list<string> & lines_r, const string & sep_r = "\n" )
 
   return ret;
 }
-
-/******************************************************************
-**
-**
-**	FUNCTION NAME : lookupSelectable
-**	FUNCTION TYPE : PMSelectablePtr
-*/
-inline PMSelectablePtr lookupSelectable( const string & name_r )
-{
-  return Y2PM::packageManager()[name_r];
-}
-inline PMSelectablePtr lookupSelectable( const YCPString & name_r )
-{
-  return lookupSelectable( name_r->value() );
-}
-
-/******************************************************************
-**
-**
-**	FUNCTION NAME : lookupInstalledPackage
-**	FUNCTION TYPE : PMPackagePtr
-*/
-inline PMPackagePtr lookupInstalledPackage( const string & name_r )
-{
-  PMSelectablePtr sel( lookupSelectable( name_r ) );
-  if ( sel ) {
-    return sel->installedObj();
-  }
-  return 0;
-}
-inline PMPackagePtr lookupInstalledPackage( const YCPString & name_r )
-{
-  return lookupInstalledPackage( name_r->value() );
-}
-
-/******************************************************************
-**
-**
-**	FUNCTION NAME : lookupCandidatePackage
-**	FUNCTION TYPE : PMPackagePtr
-*/
-inline PMPackagePtr lookupCandidatePackage( const string & name_r )
-{
-  PMSelectablePtr sel( lookupSelectable( name_r ) );
-  if ( sel ) {
-    return sel->candidateObj();
-  }
-  return 0;
-}
-inline PMPackagePtr lookupCandidatePackage( const YCPString & name_r )
-{
-  return lookupCandidatePackage( name_r->value() );
-}
-
-/******************************************************************
-**
-**
-**	FUNCTION NAME : lookupPackage
-**	FUNCTION TYPE : PMPackagePtr
-*/
-inline PMPackagePtr lookupPackage( const string & name_r )
-{
-  PMSelectablePtr sel( lookupSelectable( name_r ) );
-  if ( sel ) {
-    return sel->theObject();
-  }
-  return 0;
-}
-inline PMPackagePtr lookupPackage( const YCPString & name_r )
-{
-  return lookupPackage( name_r->value() );
-}
-
-/******************************************************************
-**
-**
-**	FUNCTION NAME : lookupPackage
-**	FUNCTION TYPE : PMPackagePtr
-*/
-inline PMPackagePtr lookupPackage( const YCPString & name_r, const YCPSymbol & which_r )
-{
-  string which = which_r->symbol();
-  if (        which == "installed" ) {
-    return lookupInstalledPackage( name_r );
-  } else if ( which == "candidate" ) {
-    return lookupCandidatePackage( name_r );
-  } else if ( which == "any" ) {
-    return lookupPackage( name_r );
-  } else {
-    y2error( "Unknown YCPSymbol '%s'", which.c_str() );
-  }
-  return 0;
-}
-
-/**
- * helper function, get selectable by name
- */
-
-PMSelectablePtr
-PkgModuleFunctions::getPackageSelectable (const std::string& name)
-{
-    PMSelectablePtr selectable;
-    if (!name.empty())
-        selectable = _y2pm.packageManager().getItem(name);
-    return selectable;
-}
-
-
-/**
- * helper function, get the current object of a selectable
- */
-
-static PMPackagePtr
-getTheObject (PMSelectablePtr selectable)
-{
-    PMPackagePtr package;
-    if (selectable)
-    {
-        package = selectable->theObject();
-        if (!package)
-        {
-            y2error ("Package '%s' not found", selectable->name()->c_str());
-        }
-    }
-    return package;
-}
-
-
-
 
 
 // ------------------------
@@ -367,14 +130,16 @@ YCPValue
 PkgModuleFunctions::PkgMediaNames ()
 {
     // get sources in installation order
-    InstSrcManager::ISrcIdList inst_order( _y2pm.instSrcManager().instOrderSources() );
+// FIXME    InstSrcManager::ISrcIdList inst_order( _y2pm.instSrcManager().instOrderSources() );
 
     YCPList ycpnames;
 
+/* TODO FIXME
     for (InstSrcManager::ISrcIdList::const_iterator it = inst_order.begin(); it != inst_order.end(); ++it)
     {
 	ycpnames->add (YCPString ((*it)->descr()->content_product().asPkgNameEd().name));
     }
+*/
     return ycpnames;
 }
 
@@ -395,6 +160,7 @@ PkgModuleFunctions::PkgMediaNames ()
 YCPValue
 PkgModuleFunctions::PkgMediaSizes ()
 {
+/* TODO FIXME
     // get sources in installation order
     InstSrcManager::ISrcIdList inst_order( _y2pm.instSrcManager().instOrderSources() );
 
@@ -457,11 +223,11 @@ PkgModuleFunctions::PkgMediaSizes ()
 	mediapair->second.second[medianr-1] += size;
       }
     }
-
+*/
     // now convert back to list of lists in installation order
 
     YCPList ycpsizes;
-
+/*
     for (InstSrcManager::ISrcIdList::const_iterator it = inst_order.begin(); it != inst_order.end(); ++it)
     {
         for (map <unsigned int, pair <InstSrcManager::ISrcId, vector<FSize> > >::iterator mediapair = mediasizes.begin();
@@ -479,7 +245,7 @@ PkgModuleFunctions::PkgMediaSizes ()
             }
         }
     }
-
+*/
     return ycpsizes;
 }
 
@@ -497,6 +263,7 @@ PkgModuleFunctions::PkgMediaSizes ()
 YCPValue
 PkgModuleFunctions::PkgMediaCount()
 {
+/* TODO FIXME
     // get sources in installation order
     InstSrcManager::ISrcIdList inst_order( _y2pm.instSrcManager().instOrderSources() );
 
@@ -558,11 +325,12 @@ PkgModuleFunctions::PkgMediaCount()
 	mediapair->second.second[medianr-1] += 1;
       }
     }
-
+*/
     // now convert back to list of lists in installation order
 
     YCPList ycpsizes;
 
+/*
     for (InstSrcManager::ISrcIdList::const_iterator it = inst_order.begin(); it != inst_order.end(); ++it)
     {
         for (map <unsigned int, pair <InstSrcManager::ISrcId, vector<int> > >::iterator mediapair = media_counts.begin();
@@ -580,10 +348,10 @@ PkgModuleFunctions::PkgMediaCount()
             }
         }
     }
+*/
 
     return ycpsizes;
 }
-
 
 // ------------------------
 /**
@@ -605,15 +373,16 @@ PkgModuleFunctions::IsProvided (const YCPString& tag)
     if (name.empty())
 	return YCPBoolean (false);
 
-    // check package name first, then tag, then file
-    if (!_y2pm.instTarget().hasPackage (PkgName (name)))		// package
-    {
-	if (!_y2pm.instTarget().hasProvides (name))			// provided tag
-	{
-	    return YCPBoolean (_y2pm.instTarget().hasFile (name));	// file name
-	}
-    }
-    return YCPBoolean (true);
+    y2milestone("IsProvided called");
+
+    // TODO support tags, not package only
+    zypp::ResPool::byName_iterator it = std::find_if (
+	zypp_ptr->pool().byNameBegin(name)
+	, zypp_ptr->pool().byNameEnd(name)
+	, zypp::resfilter::ByInstalled()
+    );
+
+    return YCPBoolean( it != zypp_ptr->pool().byNameEnd(name) );
 }
 
 
@@ -636,18 +405,15 @@ PkgModuleFunctions::IsSelected (const YCPString& tag)
     if (name.empty())
 	return YCPBoolean (false);
 
-    PMSelectablePtr selectable = getPackageSelectable (name);
-    if (!selectable)
-    {
-	selectable = PkgModuleFunctions::WhoProvidesString (name);
-	if (!selectable)
-	    return YCPBoolean (false);
-    }
-    if (selectable->to_install())
-    {
-	return YCPBoolean (true);
-    }
-    return YCPBoolean (false);
+    // TODO support tags, not package only
+    zypp::ResPool::byName_iterator it = std::find_if (
+	zypp_ptr->pool().byNameBegin(name)
+	, zypp_ptr->pool().byNameEnd(name)
+	, zypp::functor::true_c()
+    );
+
+    return YCPBoolean( (it != zypp_ptr->pool().byNameEnd(name)) 
+	&& it->status().isToBeInstalled() );
 }
 
 // ------------------------
@@ -668,28 +434,27 @@ PkgModuleFunctions::IsSelected (const YCPString& tag)
 YCPValue
 PkgModuleFunctions::IsAvailable (const YCPString& tag)
 {
+    y2milestone("IsAvailable called");
     std::string name = tag->value ();
     if (name.empty())
 	return YCPBoolean (false);
 
-    PMSelectablePtr selectable = getPackageSelectable (name);
-    if (!selectable)
-    {
-        selectable = PkgModuleFunctions::WhoProvidesString (name);
-        if (!selectable)
-            return YCPBoolean (false);
-    }
-    if (selectable->candidateObj() == 0)
-        return YCPBoolean (false);
-    return YCPBoolean (true);
+    // TODO: search for tags as well, we do package name only
+    zypp::ResPool::byName_iterator it = std::find_if (
+	zypp_ptr->pool().byNameBegin(name)
+	, zypp_ptr->pool().byNameEnd(name)
+	, zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+    );
+
+    return YCPBoolean( it != zypp_ptr->pool().byNameEnd(name) ); 
 }
 
 
-/**
+/* TODO: REMOVE
  * helper function, find a package which provides tag (as a
  *   provided tag or a provided file)
  *
- */
+
 
 PMSelectablePtr
 PkgModuleFunctions::WhoProvidesString (std::string tag)
@@ -712,25 +477,53 @@ PkgModuleFunctions::WhoProvidesString (std::string tag)
 }
 
 
-/**
+**
  * helper function, install a package which provides tag (as a
  *   package name, a provided tag, or a provided file
  *
- */
+ *
+*/
 
 bool
 PkgModuleFunctions::DoProvideString (std::string name)
 {
-    PMSelectablePtr selectable = getPackageSelectable (name);		// by name
-    if (!selectable)
-    {
-	selectable = WhoProvidesString (name);				// by tag
-	if (!selectable)
-	{
-	    return false;						// no package found
-	}
-    }
-    selectable->appl_set_install();
+    // TODO support tags, not package only
+    zypp::ResPool::byName_iterator it = std::find_if (
+	zypp_ptr->pool().byNameBegin(name)
+	, zypp_ptr->pool().byNameEnd(name)
+	, zypp::functor::true_c()
+    );
+		
+    if 	(it == zypp_ptr->pool().byNameEnd(name)) 
+	return false;
+	
+    it->status().setStatus(zypp::ResStatus::toBeInstalled);
+    
+    return true;
+}
+
+/**
+ * helper function, deinstall a package which provides tag (as a
+ *   package name, a provided tag, or a provided file
+ *
+ *
+*/
+
+bool
+PkgModuleFunctions::DoRemoveString (std::string name)
+{
+    // TODO support tags, not package only
+    zypp::ResPool::byName_iterator it = std::find_if (
+	zypp_ptr->pool().byNameBegin(name)
+	, zypp_ptr->pool().byNameEnd(name)
+	, zypp::functor::true_c()
+    );
+		
+    if 	(it == zypp_ptr->pool().byNameEnd(name)) 
+	return false;
+	
+    it->status().setStatus(zypp::ResStatus::toBeUninstalled);
+    
     return true;
 }
 
@@ -775,19 +568,6 @@ PkgModuleFunctions::DoProvide (const YCPList& tags)
     return ret;
 }
 
-// internal
-bool
-PkgModuleFunctions::DoRemoveString (std::string name)
-{
-    PMSelectablePtr selectable = getPackageSelectable(name);
-    if (!selectable)
-    {
-	y2error ("Remove: package '%s' not found", name.c_str());
-	return false;
-    }
-    selectable->appl_set_delete();
-    return true;
-}
 
 // ------------------------
 /**
@@ -811,8 +591,6 @@ PkgModuleFunctions::DoRemoveString (std::string name)
 YCPValue
 PkgModuleFunctions::DoRemove (const YCPList& tags)
 {
-    _y2pm.packageManager ();
-
     YCPMap ret;
     if (tags->size() > 0)
     {
@@ -844,14 +622,20 @@ PkgModuleFunctions::DoRemove (const YCPList& tags)
 YCPValue
 PkgModuleFunctions::PkgSummary (const YCPString& p)
 {
-    PMPackagePtr package = getTheObject (getPackageSelectable (p->value ()));
-    if (!package)
+    std::string name = p->value();
+
+    zypp::ResPool::byName_iterator it = std::find_if (
+	zypp_ptr->pool().byNameBegin(name)
+	, zypp_ptr->pool().byNameEnd(name)
+	, zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+    );
+
+    if (it == zypp_ptr->pool().byNameEnd(name))
     {
         return YCPVoid();
     }
 
-    return YCPString (package->summary());
-
+    return YCPString((*it)->summary());
 }
 
 // ------------------------
@@ -867,14 +651,21 @@ PkgModuleFunctions::PkgSummary (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgVersion (const YCPString& p)
 {
-    PMPackagePtr package = getTheObject (getPackageSelectable (p->value ()));
-    if (!package)
+    std::string name = p->value();
+
+    zypp::ResPool::byName_iterator it = std::find_if (
+	zypp_ptr->pool().byNameBegin(name)
+	, zypp_ptr->pool().byNameEnd(name)
+	, zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+    );
+
+    if (it == zypp_ptr->pool().byNameEnd(name))
     {
         return YCPVoid();
     }
 
-    return YCPString (package->edition().asString());
-
+    // return edition (version-release)
+    return YCPString((*it)->edition().asString());
 }
 
 // ------------------------
@@ -890,13 +681,30 @@ PkgModuleFunctions::PkgVersion (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgSize (const YCPString& p)
 {
-    PMPackagePtr package = getTheObject (getPackageSelectable (p->value ()));
-    if (!package)
+    std::string pkgname = p->value();
+    zypp::ByteCount ret;
+
+    if (!pkgname.empty())
+    {
+	// find the package
+	zypp::ResPool::byName_iterator it = std::find_if (
+	    zypp_ptr->pool().byNameBegin(pkgname)
+	    , zypp_ptr->pool().byNameEnd(pkgname)
+	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+	);
+
+	if (it != zypp_ptr->pool().byNameEnd(pkgname))
+	{
+	    // size() returns unpacked size of the package
+	    ret = (*it)->size();
+	}
+    }
+    else
     {
 	return YCPVoid();
     }
 
-    return YCPInteger ((long long)(package->size()));
+    return YCPInteger (ret);
 }
 
 // ------------------------
@@ -912,13 +720,31 @@ PkgModuleFunctions::PkgSize (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgGroup (const YCPString& p)
 {
-    PMPackagePtr package = getTheObject (getPackageSelectable (p->value ()));
-    if (!package)
+    std::string pkgname = p->value();
+    zypp::PackageGroup ret;
+
+    if (!pkgname.empty())
+    {
+	// find the package
+	zypp::ResPool::byName_iterator it = std::find_if (
+	    zypp_ptr->pool().byNameBegin(pkgname)
+	    , zypp_ptr->pool().byNameEnd(pkgname)
+	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+	);
+
+	if (it != zypp_ptr->pool().byNameEnd(pkgname))
+	{
+	    // cast to Package object
+	    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
+	    ret = package->group();
+	}
+    }
+    else
     {
 	return YCPVoid();
     }
 
-    return YCPString (package->group());
+    return YCPString(ret);
 }
 
 // ------------------------
@@ -943,21 +769,67 @@ PkgModuleFunctions::PkgGroup (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgProperties (const YCPString& p)
 {
-    PMPackagePtr package = getTheObject (getPackageSelectable (p->value()));
-    if (!package)
-    {
-	return YCPVoid();
-    }
-
-    constInstSrcPtr source( package->source() );
-
+    std::string pkgname = p->value();
     YCPMap data;
-    data->add( YCPString("srcid"), YCPInteger(source->srcID() ));
-    data->add( YCPString("location"), YCPString (package->location() ));
-    data->add( YCPString("medianr"), YCPInteger (package->medianr() ));
-    data->add( YCPString("arch"), YCPString (package->arch() ));
 
-    return data;
+    if (!pkgname.empty())
+    {
+	// find the package
+	zypp::ResPool::byName_iterator it = std::find_if (
+	    zypp_ptr->pool().byNameBegin(pkgname)
+	    , zypp_ptr->pool().byNameEnd(pkgname)
+	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+	);
+
+	if (it != zypp_ptr->pool().byNameEnd(pkgname))
+	{
+	    // cast to Package object
+	    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
+
+	    data->add(YCPString("arch"), YCPString((*it)->arch().asString()));
+	    data->add( YCPString("medianr"), YCPInteger(package->mediaId()));
+    
+	    zypp::Source_Ref pkg_src = (*it)->source();
+	    unsigned int srcid = 0;
+	    bool found = false;
+
+	    // search source
+	    while(!found)
+	    {
+		zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(srcid);
+    
+		if (src)
+		{
+		    if (src == pkg_src)
+		    {
+			found = true;
+		    }
+		    else
+		    {
+			srcid++;
+		    }
+		}
+		else
+		{
+		    break;
+		}
+	    }
+
+	    if (found)
+	    {
+		// src has been found
+		data->add( YCPString("srcid"), YCPInteger(srcid));
+	    }
+    
+	    /* FIXME: not implemented in zypp yet
+	    data->add( YCPString("location"), YCPString(package->location()));
+	    */
+
+	    return data;
+	}
+    }
+    
+    return YCPVoid();
 }
 
 // ------------------------
@@ -973,13 +845,29 @@ PkgModuleFunctions::PkgProperties (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgLocation (const YCPString& p)
 {
-    PMPackagePtr package = getTheObject (getPackageSelectable (p->value()));
-    if (!package)
-    {
-       return YCPVoid();
-    }
+    std::string pkgname = p->value();
+    YCPMap data;
 
-    return YCPString (package->location());
+    if (!pkgname.empty())
+    {
+	// find the package
+	zypp::ResPool::byName_iterator it = std::find_if (
+	    zypp_ptr->pool().byNameBegin(pkgname)
+	    , zypp_ptr->pool().byNameEnd(pkgname)
+	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+	);
+
+	if (it != zypp_ptr->pool().byNameEnd(pkgname))
+	{
+	    // cast to Package object
+	    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
+
+	    // FIXME: not implemented in zypp yet
+	    return YCPString("package->location()");
+	}
+    }
+    
+    return YCPVoid();
 }
 
 
@@ -1005,11 +893,48 @@ PkgModuleFunctions::PkgLocation (const YCPString& p)
  **/
 YCPList PkgModuleFunctions::PkgGetFilelist( const YCPString & package, const YCPSymbol & which )
 {
-  constPMPackagePtr pkg = lookupPackage( package, which );
-  if ( pkg ) {
-    return asYCPList( pkg->filenames() );
-  }
-  return YCPList();
+    std::string pkgname = package->value();
+    std::string type = which->symbol();
+    YCPList ret;
+
+    if (type != "any" && type != "installed" && type != "candidate")
+    {
+	y2error("PkgGetFilelist: Unknown parameter, use `any, `installed or `candidate");
+	return ret;
+    }
+
+    if (!pkgname.empty())
+    {
+	for (zypp::ResPool::byName_iterator it = zypp_ptr->pool().byNameBegin(pkgname);
+	    it != zypp_ptr->pool().byNameEnd(pkgname); ++it)
+	{
+	    // is it a package?
+	    if (zypp::isKind<zypp::Package>(it->resolvable()))
+	    {
+		if (type == "any" ||
+		    (type == "installed" && it->status().wasInstalled()) ||
+		    (type == "candidate" && it->status().isToBeInstalled())
+		)
+		{
+		    // cast to Package object
+		    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
+		    std::list<std::string> files = package->filenames();
+
+		    // insert the file names
+		    for (std::list<string>::iterator it = files.begin(); it != files.end(); ++it)
+		    {
+			ret->add(YCPString(*it));
+		    }
+
+		    // finish the loop, we have found required package
+		    // TODO: for `any it has different semantic - the result depends on item order in the pool
+		    break;
+		}
+	    }
+	}
+    }
+  
+    return ret;
 }
 
 // ------------------------
@@ -1027,7 +952,7 @@ YCPList PkgModuleFunctions::PkgGetFilelist( const YCPString & package, const YCP
 YCPValue
 PkgModuleFunctions::SaveState ()
 {
-    _y2pm.packageSelectionSaveState();
+    // TODO FIXME _y2pm.packageSelectionSaveState();
     return YCPBoolean (true);
 }
 
@@ -1051,11 +976,12 @@ PkgModuleFunctions::SaveState ()
 YCPValue
 PkgModuleFunctions::RestoreState (const YCPBoolean& ch)
 {
+    // TODO FIXME 
     if (!ch.isNull () && ch->value () == true)
     {
-	return YCPBoolean (_y2pm.packageSelectionDiffState());
+	// return YCPBoolean (_y2pm.packageSelectionDiffState());
     }
-    return YCPBoolean (_y2pm.packageSelectionRestoreState());
+    return YCPBoolean(false /*_y2pm.packageSelectionRestoreState()*/);
 }
 
 // ------------------------
@@ -1069,7 +995,8 @@ PkgModuleFunctions::RestoreState (const YCPBoolean& ch)
 YCPValue
 PkgModuleFunctions::ClearSaveState ()
 {
-    _y2pm.packageSelectionClearSaveState();
+    // TODO FIXME 
+    // _y2pm.packageSelectionClearSaveState();
     return YCPBoolean (true);
 }
 
@@ -1087,8 +1014,9 @@ PkgModuleFunctions::ClearSaveState ()
 YCPValue
 PkgModuleFunctions::IsManualSelection ()
 {
-    return YCPBoolean (_y2pm.packageManager().anythingByUser()
-			|| _y2pm.selectionManager().anythingByUser());
+    // TODO FIXME
+    return YCPBoolean (false /*_y2pm.packageManager().anythingByUser()
+			|| _y2pm.selectionManager().anythingByUser()*/);
 }
 
 // ------------------------
@@ -1104,7 +1032,20 @@ PkgModuleFunctions::IsManualSelection ()
 YCPValue
 PkgModuleFunctions::PkgAnyToDelete ()
 {
-    return YCPBoolean (_y2pm.packageManager().anythingToDelete ());
+    bool ret = false;
+    
+    for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
+	it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Package>::kind);
+	++it)
+    {
+	if (it->status().isToBeUninstalled())
+	{
+	    ret = true;
+	    break;
+	}
+    }
+
+    return YCPBoolean(ret);
 }
 
 // ------------------------
@@ -1120,25 +1061,39 @@ PkgModuleFunctions::PkgAnyToDelete ()
 YCPValue
 PkgModuleFunctions::PkgAnyToInstall ()
 {
-    return YCPBoolean (_y2pm.packageManager().anythingToInstall ());
+    bool ret = false;
+    
+    for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
+	it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Package>::kind);
+	++it)
+    {
+	if (it->status().isToBeInstalled())
+	{
+	    ret = true;
+	    break;
+	}
+    }
+
+    return YCPBoolean(ret);
 }
 
 // ------------------------
 
-/* helper functions */
+
+/* helper function */ 
 static void
-pgk2list (YCPList &list, const PMObjectPtr& package, bool names_only)
+pkg2list (YCPList &list, const zypp::ResPool::byKind_iterator& it, bool names_only)
 {
     if (names_only)
     {
-	list->add (YCPString (package->name()));
+	list->add(YCPString((*it)->name()));
     }
     else
     {
-	string fullname = package->name();
-	fullname += (" " + package->version());
-	fullname += (" " + package->release());
-	fullname += (" " + package->arch().asString());
+	string fullname = (*it)->name();
+	fullname += (" " + (*it)->edition().version());
+	fullname += (" " + (*it)->edition().release());
+	fullname += (" " + (*it)->arch().asString());
 	list->add (YCPString (fullname));
     }
     return;
@@ -1161,8 +1116,6 @@ pgk2list (YCPList &list, const PMObjectPtr& package, bool names_only)
 
 
 */
-
-
 YCPValue
 PkgModuleFunctions::FilterPackages(const YCPBoolean& y_byAuto, const YCPBoolean& y_byApp, const YCPBoolean& y_byUser, const YCPBoolean& y_names_only)
 {
@@ -1172,26 +1125,24 @@ PkgModuleFunctions::FilterPackages(const YCPBoolean& y_byAuto, const YCPBoolean&
     bool names_only = y_names_only->value();
 
     YCPList packages;
-    PMManager::PMSelectableVec::const_iterator it = _y2pm.packageManager().begin();
 
-    while ( it != _y2pm.packageManager().end() )
+    for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
+	it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Package>::kind);
+	++it)
     {
-        PMSelectablePtr selectable = *it;
-
-        if ( selectable->to_modify() )
-        {
-            if ( selectable->by_auto() && byAuto ||
-                 selectable->by_appl() && byApp  ||
-                 selectable->by_user() && byUser   )
-            {
-				pgk2list (packages, selectable->theObject(), names_only);
-            }
-        }
-
-        ++it;
+	// check status and causer
+	if (it->status().isToBeInstalled() &&
+	    ((byAuto && it->status().isBySolver()) ||
+		// TODO: APPL_LOW and APPL_HIGH are treated as one level for now
+		(byApp && (it->status().isByApplHigh() || it->status().isByApplLow())) ||
+		byUser && it->status().isByUser()
+	    ))
+	    {
+		pkg2list(packages, it, names_only);
+	    }
     }
 
-	return packages;
+    return packages;
 }
 
 /**
@@ -1219,39 +1170,32 @@ PkgModuleFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_na
 
     YCPList packages;
 
-    for (PMManager::PMSelectableVec::const_iterator it = _y2pm.packageManager().begin();
-	 it != _y2pm.packageManager().end();
-	 ++it)
+    for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
+	it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Package>::kind);
+	++it)
     {
-	PMObjectPtr package;
 	if (which == "installed")
 	{
-	    package = (*it)->installedObj();
+	    if (it->status().wasInstalled())
+	    {
+		pkg2list(packages, it, names_only);
+	    }
 	}
 	else if (which == "selected")
 	{
-	    if (!((*it)->to_install()))
+	    if (it->status().isToBeInstalled())
 	    {
-		continue;
+		pkg2list(packages, it, names_only);
 	    }
-	    package = (*it)->candidateObj();
 	}
 	else if (which == "available")
 	{
-	    for (PMSelectable::PMObjectList::const_iterator ait = (*it)->av_begin();
-		 ait != (*it)->av_end(); ++ait)
-	    {
-		pgk2list (packages, (*ait), names_only);
-	    }
-	    continue;
+	    pkg2list(packages, it, names_only);
 	}
 	else
 	{
 	    return YCPError ("Wrong parameter for Pkg::GetPackages");
 	}
-
-	if (package)
-	    pgk2list (packages, package, names_only);
     }
 
     return packages;
@@ -1317,14 +1261,15 @@ PkgModuleFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_na
 YCPMap
 PkgModuleFunctions::PkgUpdateAll (const YCPBoolean& del)
 {
-    PMUpdateStats stats;
+    zypp::UpgradeStatistics stats;
     stats.delete_unmaintained = del->value();
-    _y2pm.packageManager().doUpdate (stats);
+
+    // solve upgrade, get statistics
+    zypp_ptr->resolver()->doUpgrade(stats);
 
     YCPMap data;
-    // formerly 2nd list arg
-    data->add( YCPSymbol("ProblemListSze"),
-	       YCPInteger( _y2pm.packageManager().updateSize() ) );
+
+    data->add( YCPSymbol("ProblemListSze"), YCPInteger(stats.chk_is_taboo + stats.chk_dropped));
 
     // packages to install; sum and details
     data->add( YCPSymbol("SumToInstall"), YCPInteger( stats.totalToInstall() ) );
@@ -1367,13 +1312,21 @@ PkgModuleFunctions::PkgUpdateAll (const YCPBoolean& del)
 YCPValue
 PkgModuleFunctions::PkgInstall (const YCPString& p)
 {
-    PMSelectablePtr selectable = getPackageSelectable (p->value ());
-
-    if (!selectable)
-    {
+    std::string name = p->value();
+    if (name.empty())
 	return YCPBoolean (false);
-    }
-    return YCPBoolean (selectable->user_set_install());
+
+    // find the package
+    zypp::ResPool::byName_iterator it = std::find_if (
+	zypp_ptr->pool().byNameBegin(name)
+	, zypp_ptr->pool().byNameEnd(name)
+	, zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+    );
+
+    // set the status to installed
+    return YCPBoolean( (it != zypp_ptr->pool().byNameEnd(name))
+	// set installed by user
+	&& it->status().setToBeInstalled(zypp::ResStatus::USER) );
 }
 
 
@@ -1388,6 +1341,7 @@ PkgModuleFunctions::PkgInstall (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgSrcInstall (const YCPString& p)
 {
+    /* TODO FIXME
     PMSelectablePtr selectable = getPackageSelectable (p->value ());
 
     if (!selectable)
@@ -1395,6 +1349,8 @@ PkgModuleFunctions::PkgSrcInstall (const YCPString& p)
 	return YCPBoolean (false);
     }
     return YCPBoolean (selectable->set_source_install(true));
+    */
+    return YCPBoolean(true);
 }
 
 
@@ -1409,12 +1365,22 @@ PkgModuleFunctions::PkgSrcInstall (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgDelete (const YCPString& p)
 {
-    PMSelectablePtr selectable = getPackageSelectable (p->value ());
-    if (!selectable)
-    {
+    std::string name = p->value();
+    if (name.empty())
 	return YCPBoolean (false);
-    }
-    return YCPBoolean (selectable->user_set_delete());
+
+    // find the package
+    zypp::ResPool::byName_iterator it = std::find_if (
+	zypp_ptr->pool().byNameBegin(name)
+	, zypp_ptr->pool().byNameEnd(name)
+	, zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+    );
+
+    
+    // set the status to uninstalled
+    return YCPBoolean( (it != zypp_ptr->pool().byNameEnd(name)) 
+	// set uninstalled by user
+	&& it->status().setToBeUninstalled(zypp::ResStatus::USER) );
 }
 
 
@@ -1429,12 +1395,15 @@ PkgModuleFunctions::PkgDelete (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgTaboo (const YCPString& p)
 {
+    /* TODO FIXME
     PMSelectablePtr selectable = getPackageSelectable (p->value ());
     if (!selectable)
     {
 	return YCPBoolean (false);
     }
     return YCPBoolean (selectable->user_set_taboo());
+    */
+    return YCPBoolean (true);
 }
 
 /**
@@ -1448,13 +1417,21 @@ PkgModuleFunctions::PkgTaboo (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgNeutral (const YCPString& p)
 {
-    PMSelectablePtr selectable = getPackageSelectable (p->value ());
-    if (!selectable)
-    {
+    std::string name = p->value();
+    if (name.empty())
 	return YCPBoolean (false);
-    }
-    selectable->setNothingSelected();
-    return YCPBoolean (true);
+
+    // find the package
+    zypp::ResPool::byName_iterator it = std::find_if (
+	zypp_ptr->pool().byNameBegin(name)
+	, zypp_ptr->pool().byNameEnd(name)
+	, zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+    );
+
+    // reset all transactions
+    return YCPBoolean( (it != zypp_ptr->pool().byNameEnd(name)) 
+	// set neutral by user
+	&& it->status().setNoTransact(zypp::ResStatus::USER) );
 }
 
 
@@ -1468,8 +1445,9 @@ PkgModuleFunctions::PkgNeutral (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgReset ()
 {
-    _y2pm.selectionManager().setNothingSelected();
-    _y2pm.packageManager().setNothingSelected();
+    // TODO FIXME
+    //_y2pm.selectionManager().setNothingSelected();
+    //_y2pm.packageManager().setNothingSelected();
 
     // FIXME also reset "conflict ignore list" in UI
 
@@ -1488,6 +1466,22 @@ PkgModuleFunctions::PkgReset ()
 YCPBoolean
 PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
 {
+    bool result = false;
+    
+    try
+    {
+	result = zypp_ptr->resolver()->resolvePool();
+    }
+    catch (...)
+    {
+	y2error("An error occurred during Pkg::PkgSolve.");
+    }
+
+    // FIXME: use filter
+
+    return YCPBoolean(result);
+
+    /* TODO FIXME 
     bool filter_conflicts_with_installed = false;
 
     if (! filter.isNull ())
@@ -1513,8 +1507,7 @@ PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
 	}
 
 	return YCPBoolean (false);
-    }
-    return YCPBoolean (true);
+    }*/
 }
 
 
@@ -1532,6 +1525,7 @@ PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
 YCPBoolean
 PkgModuleFunctions::PkgSolveCheckTargetOnly()
 {
+/* TODO FIXME
   PkgDep::ErrorResultList bad;
 
   if ( ! _y2pm.packageManager().solveConsistent( bad ) )
@@ -1549,6 +1543,7 @@ PkgModuleFunctions::PkgSolveCheckTargetOnly()
 
     return YCPBoolean (false);
   }
+  */
   return YCPBoolean (true);
 }
 
@@ -1596,10 +1591,19 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
     std::list<std::string> errors;
     std::list<std::string> remaining;
     std::list<std::string> srcremaining;
-    int count = _y2pm.commitPackages (medianr, errors, remaining, srcremaining );
+
+    try
+    {
+	zypp_ptr->target()->commit( zypp_ptr->pool() );
+    }
+    catch (...)
+    {
+	y2error("Pkg::Commit has failed");
+    }
+// FIXME    int count = _y2pm.commitPackages (medianr, errors, remaining, srcremaining );
 
     YCPList ret;
-    ret->add (YCPInteger (count));
+/*    ret->add (YCPInteger (count));
 
     YCPList errlist;
     for (std::list<std::string>::const_iterator it = errors.begin(); it != errors.end(); ++it)
@@ -1619,6 +1623,7 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 	srclist->add (YCPString (*it));
     }
     ret->add (srclist);
+    */
     return ret;
 }
 
@@ -1632,7 +1637,9 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 YCPValue
 PkgModuleFunctions::GetBackupPath ()
 {
-    return YCPString (_y2pm.instTarget().getBackupPath().asString());
+    // TODO FIXME
+    // return YCPString (_y2pm.instTarget().getBackupPath().asString());
+    return YCPString("/tmp/backup");
 }
 
 /**
@@ -1645,8 +1652,10 @@ PkgModuleFunctions::GetBackupPath ()
 YCPValue
 PkgModuleFunctions::SetBackupPath (const YCPString& p)
 {
+    /* TODO FIXME
     Pathname path (p->value());
     _y2pm.instTarget().setBackupPath (path);
+    */
     return YCPVoid();
 }
 
@@ -1660,7 +1669,7 @@ PkgModuleFunctions::SetBackupPath (const YCPString& p)
 YCPValue
 PkgModuleFunctions::CreateBackups (const YCPBoolean& flag)
 {
-    _y2pm.instTarget ().createPackageBackups (flag->value ());
+    // TODO FIXME _y2pm.instTarget ().createPackageBackups (flag->value ());
     return YCPVoid ();
 }
 
@@ -1677,20 +1686,36 @@ PkgModuleFunctions::CreateBackups (const YCPBoolean& flag)
 */
 YCPString PkgModuleFunctions::PkgGetLicenseToConfirm( const YCPString & package )
 {
-  PMSelectablePtr selectable = getPackageSelectable( package->value() );
+    std::string pkgname = package->value();
 
-  if ( ! ( selectable && selectable->candidateObj() ) ) {
-    // unknown or no candidate package
-    return YCPString("");
-  }
+    if (!pkgname.empty())
+    {
+	// find the package
+	zypp::ResPool::byName_iterator it = std::find_if (
+	    zypp_ptr->pool().byNameBegin(pkgname)
+	    , zypp_ptr->pool().byNameEnd(pkgname)
+	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+	);
 
-  if (! PMPackagePtr(selectable->candidateObj())->hasLicenseToConfirm ()) {
+	if (it != zypp_ptr->pool().byNameEnd(pkgname))
+	{
+	    // cast to Package object
+	    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
+
+	    zypp::License license = package->licenseToConfirm();
+
+	    return YCPString(license);
+	}
+    }
+  
+    // TODO FIXME - check whether the license has been already confirmed?
+/*  if (! PMPackagePtr(selectable->candidateObj())->hasLicenseToConfirm ()) {
     // license was confirmed before
     return YCPString ("");
   }
+  */
 
-  string text( join( PMPackagePtr(selectable->candidateObj())->licenseToConfirm() ) );
-  return YCPString( text );
+    return YCPString("");
 }
 
 /**
@@ -1706,27 +1731,41 @@ YCPString PkgModuleFunctions::PkgGetLicenseToConfirm( const YCPString & package 
 */
 YCPMap PkgModuleFunctions::PkgGetLicensesToConfirm( const YCPList & packages )
 {
-  YCPMap ret;
+    YCPMap ret;
 
-  for ( int i = 0; i < packages->size(); ++i ) {
-    PMSelectablePtr selectable = getPackageSelectable( packages->value(i)->asString()->value() );
+    for ( int i = 0; i < packages->size(); ++i ) {
+	std::string pkgname = packages->value(i)->asString()->value();
 
-    if ( ! ( selectable && selectable->candidateObj() ) ) {
-      // unknown or no candidate package
-      continue;
+	if (!pkgname.empty())
+	{
+	    // find the package
+	    zypp::ResPool::byName_iterator it = std::find_if (
+		zypp_ptr->pool().byNameBegin(pkgname)
+		, zypp_ptr->pool().byNameEnd(pkgname)
+		, zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+	    );
+
+	    if (it != zypp_ptr->pool().byNameEnd(pkgname))
+	    {
+		// cast to Package object
+		zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
+
+		// TODO FIXME - check whether the licenses have been already confirmed?
+		zypp::License license = package->licenseToConfirm();
+		if (!license.empty())
+		{
+		    ret->add(packages->value(i), YCPString(license));
+		}
+	    }
+	}
     }
 
-    string text( join( PMPackagePtr(selectable->candidateObj())->licenseToConfirm() ) );
-    if ( text.length() && PMPackagePtr(selectable->candidateObj())->hasLicenseToConfirm ()) {
-      ret->add( packages->value(i), YCPString( text ) );
-    }
-  }
-
-  return ret;
+    return ret;
 }
 
 YCPBoolean PkgModuleFunctions::PkgMarkLicenseConfirmed (const YCPString & package)
 {
+    /* TODO FIXME
   PMSelectablePtr selectable = getPackageSelectable( package->value() );
 
   if ( ! ( selectable && selectable->candidateObj() ) ) {
@@ -1735,6 +1774,7 @@ YCPBoolean PkgModuleFunctions::PkgMarkLicenseConfirmed (const YCPString & packag
   }
 
   PMPackagePtr(selectable->candidateObj())->markLicenseConfirmed ();
+*/
   return YCPBoolean( true );
 
 }
@@ -1747,5 +1787,9 @@ YCPBoolean PkgModuleFunctions::PkgMarkLicenseConfirmed (const YCPString & packag
  **/
 YCPBoolean PkgModuleFunctions::RpmChecksig( const YCPString & filename )
 {
+    /* TODO FIXME
   return YCPBoolean( RpmHeader::readPackage( filename->value(), RpmHeader::VERIFY ) );
+  */
+
+  return YCPBoolean(true);
 }

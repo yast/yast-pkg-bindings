@@ -27,171 +27,13 @@
 #include <iostream>
 #include <ycp/y2log.h>
 
-#include <y2util/Url.h>
-#include <y2util/Pathname.h>
-
-#include <y2pm/PMError.h>
-#include <y2pm/InstSrc.h>
-#include <y2pm/InstSrcPtr.h>
-#include <y2pm/InstSrcDescr.h>
-#include <y2pm/InstSrcDescrPtr.h>
-#include <y2pm/InstTarget.h>
-#include <y2pm/PMSelectionManager.h>
-#include <y2pm/InstSrcManager.h>
-
 #include <ycpTools.h>
 #include <PkgModule.h>
 #include <PkgModuleFunctions.h>
 
+#include <zypp/SourceManager.h>
+
 using namespace std;
-
-/////////////////////////////////////////////////////////////////////////////////////////
-//
-// Abbreviate some common pkgError calls:
-//
-/////////////////////////////////////////////////////////////////////////////////////////
-
-#define pkgError_bad_args pkgError( Error::E_bad_args, YCPError( string("Bad args to Pkg::")+__FUNCTION__ ) )
-
-/////////////////////////////////////////////////////////////////////////////////////////
-//
-// Tools convetring data from/to YCP
-//
-/////////////////////////////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////////////////////////////
-// InstSrcManager::ISrcId <-> YCPInteger
-/////////////////////////////////////////////////////////////////////////////////////////
-
-inline YCPInteger asYCPInteger( const InstSrcManager::ISrcId & id_r )
-{
-  return YCPInteger( id_r->srcID() );
-}
-
-template<>
-inline bool YcpArgLoad::Value<YT_INTEGER, InstSrcManager::ISrcId>::assign( const YCPValue & arg_r )
-{
-  InstSrc::UniqueID srcID = arg_r->asInteger()->value(); // YT_INTEGER asserted
-
-  _value = Y2PM::instSrcManager().getSourceByID( srcID );
-  if ( !_value ) {
-    y2warning( "Unknown InstSrc ID %u", srcID );
-  }
-  return _value;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-// InstSrcManager::ISrcIdList -> YCPList of YCPInteger
-/////////////////////////////////////////////////////////////////////////////////////////
-
-inline YCPList asYCPList( const InstSrcManager::ISrcIdList & ids_r )
-{
-  YCPList ret;
-  for ( InstSrcManager::ISrcIdList::const_iterator it = ids_r.begin(); it != ids_r.end(); ++it ) {
-    ret->add( asYCPInteger( *it ) );
-  }
-  return ret;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-// InstSrcManager::SrcStateVector <-> YCPList of YCPMap
-/////////////////////////////////////////////////////////////////////////////////////////
-
-inline YCPList asYCPList( const InstSrcManager::SrcStateVector & states_r )
-{
-  YCPList ret;
-  for ( InstSrcManager::SrcStateVector::const_iterator it = states_r.begin(); it != states_r.end(); ++it ) {
-    YCPMap el;
-    el->add( YCPString("SrcId"),	YCPInteger( it->_id ) );
-    el->add( YCPString("enabled"),	YCPBoolean( it->_autoenable ) );
-    el->add( YCPString("autorefresh"),	YCPBoolean( it->_autorefresh ) );
-    ret->add( el );
-  }
-  return ret;
-}
-
-template<>
-inline bool YcpArgLoad::Value<YT_LIST, InstSrcManager::SrcStateVector>::assign( const YCPValue & arg_r )
-{
-  YCPList l =  arg_r->asList(); // YT_LIST asserted
-  _value.clear();
-  _value.reserve( l->size() );
-
-  bool valid = true;
-  YCPString tag_SrcId( "SrcId" );
-  YCPString tag_enabled( "enabled" );
-  YCPString tag_autorefresh( "autorefresh" );
-
-  for ( unsigned i = 0; i < unsigned(l->size()); ++i ) {
-    YCPValue el = l->value(i);
-    if ( ! el.isNull() && el->isMap() ) {
-      YCPMap m = el->asMap();
-      InstSrcManager::SrcState state;
-
-      // SrcId is mandatory
-      if ( ! (el = m->value( tag_SrcId )).isNull() && el->isInteger() ) {
-        state._id = el->asInteger()->value();
-      } else {
-        y2warning( "List entry %d: MAP[SrcId]: INTEGER expected but got '%s'", i, asString( el ).c_str() );
-        valid = false;
-        break;
-      }
-
-      if ( ! (el = m->value( tag_enabled )).isNull() )
-        {
-          if ( el->isBoolean() ) {
-            state._autoenable = el->asBoolean()->value();
-          } else {
-            y2warning( "List entry %d: MAP[enabled]: BOOLEAN expected but got '%s'", i, asString( el ).c_str() );
-            valid = false;
-            break;
-          }
-        }
-
-      if ( ! (el = m->value( tag_autorefresh )).isNull() )
-        {
-          if ( el->isBoolean() ) {
-            state._autorefresh = el->asBoolean()->value();
-          } else {
-            y2warning( "List entry %d: MAP[autorefresh]: BOOLEAN expected but got '%s'", i, asString( el ).c_str() );
-            valid = false;
-            break;
-          }
-        }
-
-      // store state in vector
-      _value.push_back( state );
-
-    } else {
-      y2warning( "List entry %d: MAP expected but got '%s'", i, asString( el ).c_str() );
-      valid = false;
-      break;
-    }
-  }
-
-  if ( ! valid ) {
-    _value.clear();
-  }
-
-  return valid;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-// YCPMap <-> YCPMap
-/////////////////////////////////////////////////////////////////////////////////////////
-
-template<>
-inline bool YcpArgLoad::Value<YT_MAP, YCPMap>::assign( const YCPValue & arg_r )
-{
-  _value = arg_r->asMap(); // YT_MAP asserted
-  return true;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-//
-// YCP interface functions
-//
-/////////////////////////////////////////////////////////////////////////////////////////
 
 /****************************************************************************************
  * @builtin SourceSetRamCache
@@ -206,21 +48,8 @@ inline bool YcpArgLoad::Value<YT_MAP, YCPMap>::assign( const YCPValue & arg_r )
 YCPValue
 PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
 {
-  YCPList args;
-  args->add (a);
-
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  bool & allow( decl.arg<YT_BOOLEAN, bool>( true ) );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  _y2pm.setCacheToRamdisk( allow );
-  return YCPBoolean( true );
+    // TODO FIXME
+    return YCPBoolean( true );
 }
 
 /****************************************************************************************
@@ -242,22 +71,8 @@ PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
 YCPValue
 PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 {
-  YCPList args;
-  if( ! enable.isNull ())
-    args->add (enable);
-
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  bool & autoEnable( decl.arg<YT_BOOLEAN, bool>( true ) );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  sourceStartManager( autoEnable );
-  return YCPBoolean( true );
+    // TODO FIXME
+    return YCPBoolean( true );
 }
 
 /****************************************************************************************
@@ -282,22 +97,8 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 YCPValue
 PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
 {
-  YCPList args;
-  if( ! enabled.isNull ())
-      args->add (enabled);
-
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  bool & enabled_only( decl.arg<YT_BOOLEAN, bool>( true ) );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  sourceStartManager( enabled_only );
-  return asYCPList( _y2pm.instSrcManager().getSources( enabled_only ) );
+    // TODO FIXME
+    return YCPList();
 }
 
 /****************************************************************************************
@@ -313,21 +114,8 @@ PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
 YCPValue
 PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 {
-  YCPList args;
-  if( ! enabled.isNull ())
-      args->add (enabled);
-
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  bool & enabled_only( decl.arg<YT_BOOLEAN, bool>( true ) );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  return asYCPList( _y2pm.instSrcManager().getSources( enabled_only ) );
+    // TODO FIXME
+    return YCPList();
 }
 
 /****************************************************************************************
@@ -339,19 +127,17 @@ PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 YCPValue
 PkgModuleFunctions::SourceFinishAll ()
 {
-  YCPList args;
+    try
+    {
+	zypp::SourceManager::sourceManager()->disableAllSources ();
+    }
+    catch (...)
+    {
+	y2error("Pkg::SourceFinishAll has failed");
+	return YCPBoolean(false);
+    }
 
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  if ( _y2pm.hasInstSrcManager() ) {
-    _y2pm.instSrcManager().disableAllSources();
-  }
-  return YCPBoolean( true );
+    return YCPBoolean(true);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -381,31 +167,27 @@ PkgModuleFunctions::SourceFinishAll ()
 YCPValue
 PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 {
-  YCPList args;
-  args->add (id);
+    // TODO FIXME
+    YCPMap data;
 
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
+    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id->value());
 
-  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
+   if ( ! src )
+   {
+	y2error ("Source %lld not found", id->value());
+	return YCPVoid ();
+   }
 
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
+    data->add( YCPString("enabled"),		YCPBoolean(src.enabled()));
+// FIXME:    data->add( YCPString("autorefresh"),	YCPBoolean(false));
+// FIXME:    data->add( YCPString("product_dir"),	YCPString("descr->product_dir().asString()"));
+// FIXME:    data->add( YCPString("type"),		YCPString("InstSrc::toString( descr->type()))"));
 
-  if ( ! source_id )
-    return pkgError( InstSrcError::E_bad_id );
-
-  constInstSrcDescrPtr descr = source_id->descr();
-
-  YCPMap data;
-  data->add( YCPString("enabled"),	YCPBoolean( descr->default_activate() ) );
-  data->add( YCPString("autorefresh"),	YCPBoolean( descr->default_refresh() ) );
-  data->add( YCPString("product_dir"),	YCPString( descr->product_dir().asString() ) );
-  data->add( YCPString("type"),		YCPString( InstSrc::toString( descr->type() ) ) );
-  data->add( YCPString("url"),		YCPString( descr->url().asString() ) );
-  return data;
+    // TODO: URL::asString() returns URL without password!
+    // if password is required then use this parameter:
+    // asString(url::ViewOptions() + url::ViewOptions::WITH_PASSWORD);
+    data->add( YCPString("url"),		YCPString(src.url().asString()));
+    return data;
 }
 
 /****************************************************************************************
@@ -428,6 +210,7 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
 {
+    /* TODO FIXME
   YCPList args;
   args->add (id);
 
@@ -445,12 +228,23 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
     return pkgError( InstSrcError::E_bad_id );
 
   constInstSrcDescrPtr descr = source_id->descr();
+  */
 
-  YCPMap data;
-  data->add( YCPString("media_count"),		YCPInteger( descr->media_count() ) );
-  data->add( YCPString("media_id"),		YCPString( descr->media_id() ) );
-  data->add( YCPString("media_vendor"),		YCPString( descr->media_vendor() ) );
-  data->add( YCPString("url"),			YCPString( descr->url().asString() ) );
+    YCPMap data;
+
+    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id->value());
+
+    if (! src)
+    {
+	y2error ("Source %lld not found", id->value());
+	return YCPVoid ();
+    }
+
+    // TODO FIXME:
+  data->add( YCPString("media_count"),	YCPInteger((long long) 0));
+  data->add( YCPString("media_id"),	YCPString("descr->media_id()"));
+  data->add( YCPString("media_vendor"),	YCPString("descr->media_vendor()"));
+  data->add( YCPString("url"),		YCPString("descr->url().asString()"));
   return data;
 }
 
@@ -486,6 +280,7 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceProductData (const YCPInteger& id)
 {
+    /* TODO FIXME
   YCPList args;
   args->add (id);
 
@@ -504,8 +299,9 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
 
   constInstSrcDescrPtr descr = source_id->descr();
 
+*/
   YCPMap data;
-  data->add( YCPString("productname"),		YCPString( descr->content_product().asPkgNameEd().name ) );
+/*  data->add( YCPString("productname"),		YCPString( descr->content_product().asPkgNameEd().name ) );
   data->add( YCPString("productversion"),	YCPString( descr->content_product().asPkgNameEd().edition.version() ) );
   data->add( YCPString("baseproductname"),	YCPString( descr->content_baseproduct().asPkgNameEd().name ) );
   data->add( YCPString("baseproductversion"),	YCPString( descr->content_baseproduct().asPkgNameEd().edition.version() ) );
@@ -543,6 +339,7 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
   data->add( YCPString("timezone"),		YCPString( descr->content_timezone() ) );
   data->add( YCPString("descrdir"),		YCPString( descr->content_descrdir().asString() ) );
   data->add( YCPString("datadir"),		YCPString( descr->content_datadir().asString() ) );
+*/
   return data;
 }
 
@@ -555,23 +352,8 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceProduct (const YCPInteger& id)
 {
-  YCPList args;
-  args->add (id);
-
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  if ( ! source_id )
-    return pkgError( InstSrcError::E_bad_id );
-
-  return Descr2Map( source_id->descr() );
+    /* TODO FIXME */
+  return YCPMap();
 }
 
 /****************************************************************************************
@@ -590,7 +372,22 @@ PkgModuleFunctions::SourceProduct (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
-  YCPList args;
+    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+
+    zypp::filesystem::Pathname path;
+  
+    try {
+    	path = src.provideFile(f->value(), mid->asInteger()->value());
+    } catch(...) {
+	y2milestone ("File not found: %s", f->value_cstr());
+	return YCPVoid();
+    }
+
+    return YCPString(path.asString());
+
+// TODO error handling
+
+/*YCPList args;
   args->add (id);
   args->add (mid);
   args->add (f);
@@ -616,7 +413,7 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
   if ( err )
     return pkgError( err );
 
-  return YCPString( localpath.asString() );
+  return YCPString( localpath.asString() );*/
 }
 
 /****************************************************************************************
@@ -634,6 +431,21 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
 YCPValue
 PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mid, const YCPString& d)
 {
+    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+    zypp::filesystem::Pathname path;
+
+    try
+    {
+	path = src.provideDir(d->value(), mid->asInteger()->value());
+    }
+    catch(...)
+    {
+	y2milestone ("Directory not found: %s", d->value_cstr());
+	return YCPVoid();
+    }
+
+    return YCPString(path.asString());
+/*
   YCPList args;
   args->add (id);
   args->add (mid);
@@ -661,6 +473,7 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
     return pkgError( err );
 
   return YCPString( localpath.asString() );
+  */
 }
 
 /****************************************************************************************
@@ -676,6 +489,7 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
 YCPValue
 PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 {
+    /* TODO FIXME
   YCPList args;
   args->add (id);
   args->add (u);
@@ -698,7 +512,7 @@ PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 
   if ( err )
     return pkgError( err );
-
+*/
   return YCPBoolean( true );
 }
 
@@ -713,6 +527,7 @@ PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 YCPValue
 PkgModuleFunctions::SourceInstallOrder (const YCPMap& ord)
 {
+    /* TODO FIXME
   YCPList args;
   args->add (ord);
 
@@ -764,7 +579,7 @@ PkgModuleFunctions::SourceInstallOrder (const YCPMap& ord)
 
   // store new instorder
   _y2pm.instSrcManager().setInstOrder( order );
-
+*/
   return YCPBoolean( true );
 }
 
@@ -782,6 +597,7 @@ PkgModuleFunctions::SourceInstallOrder (const YCPMap& ord)
 YCPValue
 PkgModuleFunctions::SourceCacheCopyTo (const YCPString& dir)
 {
+    /* TODO FIXME
   YCPList args;
   args->add (dir);
 
@@ -811,7 +627,7 @@ PkgModuleFunctions::SourceCacheCopyTo (const YCPString& dir)
   // Actually there should be no need to do this here, as Y2PM::commitPackages
   // calls Y2PM::selectionManager().installOnTarget();
   Y2PM::selectionManager().installOnTarget();
-
+*/
   return YCPBoolean( true );
 }
 
@@ -837,6 +653,7 @@ PkgModuleFunctions::SourceCacheCopyTo (const YCPString& dir)
 YCPValue
 PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 {
+    /* TODO FIXME
   YCPList args;
   args->add (media);
   if( ! pd.isNull ())
@@ -871,8 +688,10 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
   if ( nids.empty() )
     return pkgError( err, YCPList() );
 
+*/
+
   // return source_ids
-  return asYCPList( nids );
+  return YCPList();
 }
 
 /****************************************************************************************
@@ -895,6 +714,28 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 YCPValue
 PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 {
+    y2debug("Creating source...");
+    
+    zypp::Url url(media->value());
+    zypp::filesystem::Pathname pn(pd->value());
+
+    unsigned int ret;
+    
+    try
+    {
+	ret = zypp::SourceManager::sourceManager()->addSource(url, pn);
+    
+	zypp_ptr->addResolvables (zypp::SourceManager::sourceManager()->findSource(ret).resolvables());
+    }
+    catch (...)
+    {
+	y2error("Pkg::SourceCreate has failed");
+	return YCPVoid();
+    }
+
+    return YCPInteger(ret);
+
+/*
   YCPList args;
   args->add (media);
   if( ! pd.isNull ())
@@ -935,7 +776,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
   }
 
   // return 1st source_id
-  return asYCPInteger( *nids.begin() );
+  return asYCPInteger( *nids.begin() );*/
 }
 
 /****************************************************************************************
@@ -950,6 +791,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 YCPValue
 PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 {
+    /* TODO FIXME
   YCPList args;
   args->add (id);
   args->add (e);
@@ -971,7 +813,7 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
   PMError err = _y2pm.instSrcManager().setAutoenable( source_id, enabled );
   if ( err )
     return pkgError( err, YCPBoolean( false ) );
-
+*/
   return YCPBoolean( true );
 }
 
@@ -988,6 +830,7 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 YCPValue
 PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean& e)
 {
+    /* TODO FIXME
   YCPList args;
   args->add (id);
   args->add (e);
@@ -1009,7 +852,7 @@ PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean
   PMError err = _y2pm.instSrcManager().setAutorefresh( source_id, enabled );
   if ( err )
     return pkgError( err, YCPBoolean( false ) );
-
+*/
   return YCPBoolean( true );
 }
 
@@ -1022,6 +865,7 @@ PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean
 YCPValue
 PkgModuleFunctions::SourceFinish (const YCPInteger& id)
 {
+    /* TODO FIXME
   YCPList args;
   args->add (id);
 
@@ -1041,7 +885,7 @@ PkgModuleFunctions::SourceFinish (const YCPInteger& id)
   PMError err = _y2pm.instSrcManager().disableSource( source_id );
   if ( err )
     return pkgError( err, YCPBoolean( false ) );
-
+*/
   return YCPBoolean( true );
 }
 
@@ -1059,6 +903,7 @@ PkgModuleFunctions::SourceFinish (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
 {
+    /* TODO FIXME
   YCPList args;
   args->add (id);
 
@@ -1078,7 +923,7 @@ PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
   PMError err =_y2pm.instSrcManager().refreshSource( source_id );
   if ( err )
     return pkgError( err, YCPBoolean( false ) );
-
+*/
   return YCPBoolean( true );
 }
 
@@ -1096,7 +941,22 @@ PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceDelete (const YCPInteger& id)
 {
-  YCPList args;
+    try
+    {
+	zypp_ptr->removeResolvables(
+	    zypp::SourceManager::sourceManager()->
+		findSource(id->asInteger()->value()).resolvables());
+
+	zypp::SourceManager::sourceManager()->removeSource(id->asInteger()->value());
+    }
+    catch (...)
+    {
+	y2error("Pkg::SourceDelete: Cannot remove source %lld", id->value());
+    }
+
+    return YCPVoid();
+      
+/*  YCPList args;
   args->add (id);
 
   //-------------------------------------------------------------------------------------//
@@ -1116,7 +976,7 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
   if ( err )
     return pkgError( err, YCPBoolean( false ) );
 
-  return YCPBoolean( true );
+  return YCPBoolean( true );*/
 }
 
 /****************************************************************************************
@@ -1137,6 +997,7 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceEditGet ()
 {
+    /* TODO FIXME
   YCPList args;
 
   //-------------------------------------------------------------------------------------//
@@ -1147,6 +1008,9 @@ PkgModuleFunctions::SourceEditGet ()
   //-------------------------------------------------------------------------------------//
 
   return asYCPList( _y2pm.instSrcManager().editGet() );
+  */
+
+  return YCPList();
 }
 
 /****************************************************************************************
@@ -1166,6 +1030,7 @@ PkgModuleFunctions::SourceEditGet ()
 YCPValue
 PkgModuleFunctions::SourceEditSet (const YCPList& states)
 {
+    /* TODO FIXME
   YCPList args;
   args->add (states);
 
@@ -1182,7 +1047,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
   PMError err = _y2pm.instSrcManager().editSet( source_states );
   if ( err )
     return pkgError( err, YCPBoolean( false ) );
-
+*/
   return YCPBoolean( true );
 }
 
@@ -1204,6 +1069,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 YCPValue
 PkgModuleFunctions::SourceRaisePriority (const YCPInteger& id)
 {
+    /* TODO FIXME
   YCPList args;
   args->add (id);
 
@@ -1223,7 +1089,7 @@ PkgModuleFunctions::SourceRaisePriority (const YCPInteger& id)
   PMError err = _y2pm.instSrcManager().rankUp( source_id );
   if ( err )
     return pkgError( err, YCPBoolean( false ) );
-
+*/
   return YCPBoolean( true );
 }
 
@@ -1239,6 +1105,7 @@ PkgModuleFunctions::SourceRaisePriority (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceLowerPriority (const YCPInteger& id)
 {
+    /* TODO FIXME
   YCPList args;
   args->add (id);
 
@@ -1258,7 +1125,7 @@ PkgModuleFunctions::SourceLowerPriority (const YCPInteger& id)
   PMError err = _y2pm.instSrcManager().rankDown( source_id );
   if ( err )
     return pkgError( err, YCPBoolean( false ) );
-
+*/
   return YCPBoolean( true );
 }
 
@@ -1270,6 +1137,7 @@ PkgModuleFunctions::SourceLowerPriority (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceSaveRanks ()
 {
+    /* TODO FIXME
   YCPList args;
 
   //-------------------------------------------------------------------------------------//
@@ -1282,29 +1150,9 @@ PkgModuleFunctions::SourceSaveRanks ()
   PMError err = _y2pm.instSrcManager().setNewRanks();
   if ( err )
     return pkgError( err, YCPBoolean( false ) );
-
+*/
   return YCPBoolean( true );
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-//
-// Helper functions
-//
-/////////////////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////
-//
-//
-//	METHOD NAME : PkgModuleFunctions::sourceStartManager
-//	METHOD TYPE : bool
-//
-bool PkgModuleFunctions::sourceStartManager( bool autoEnable )
-{
-  if ( autoEnable ) {
-    _y2pm.instSrcManager().enableDefaultSources();
-  } else {
-    _y2pm.noAutoInstSrcManager();
-  }
-  return true;
-}
 

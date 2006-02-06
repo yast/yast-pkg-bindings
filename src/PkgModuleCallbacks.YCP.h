@@ -269,7 +269,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
      * multiple recipients. Currently each recipient has to implememt correct
      * number and type of arguments, as well as the returned type. That's bad
      * if something changes. As soon as YCPCallbacks provides them (as const methods),
-     * Y2PMRecipients::Recipient should no longer inherit Send, but provide
+     * ZyppRecipients::Recipient should no longer inherit Send, but provide
      * an easy access to RecipientCtl::_ycpcb.
      **/
     class Send {

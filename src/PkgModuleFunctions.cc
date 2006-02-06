@@ -25,14 +25,18 @@
 #include <ycp/YExpression.h>
 #include <ycp/YBlock.h>
 #include "PkgModuleFunctions.h"
+
 #include "PkgModuleCallbacks.h"
 
-#include <y2pm/InstSrcDescr.h>
 #include <ycp/YCPInteger.h>
 #include <ycp/YCPString.h>
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPMap.h>
 #include <ycp/YCPVoid.h>
+
+#include <zypp/SourceManager.h>
+#include <zypp/ZYppFactory.h>
+#include <zypp/ResPool.h>
 
 class Y2PkgFunction: public Y2Function 
 {
@@ -42,9 +46,10 @@ class Y2PkgFunction: public Y2Function
     YCPValue m_param2;
     YCPValue m_param3;
     YCPValue m_param4;
+    string m_name;
 public:
 
-    Y2PkgFunction (PkgModuleFunctions* instance, unsigned int pos);    
+    Y2PkgFunction (string name, PkgModuleFunctions* instance, unsigned int pos);    
     bool attachParameter (const YCPValue& arg, const int position);
     constTypePtr wantedParameterType () const;
     bool appendParameter (const YCPValue& arg);
@@ -55,13 +60,14 @@ public:
 };
 
 
-    Y2PkgFunction::Y2PkgFunction (PkgModuleFunctions* instance, unsigned int pos) :
+    Y2PkgFunction::Y2PkgFunction (string name, PkgModuleFunctions* instance, unsigned int pos) :
 	m_position (pos)
 	, m_instance (instance)
 	, m_param1 ( YCPNull () )
 	, m_param2 ( YCPNull () )
 	, m_param3 ( YCPNull () )
 	, m_param4 ( YCPNull () )
+	, m_name (name)
     {
     };
     
@@ -116,6 +122,7 @@ public:
     
     YCPValue Y2PkgFunction::evaluateCall ()
     {
+	ycpmilestone ("Pkg Builtin called: %s", name().c_str() );
 	switch (m_position) {
 #include "PkgBuiltinCalls.h"
 	}
@@ -135,7 +142,7 @@ public:
 
     string Y2PkgFunction::name () const
     {
-	    return m_instance->name();
+	    return m_name;
     }
 
 /**
@@ -144,11 +151,10 @@ public:
 PkgModuleFunctions::PkgModuleFunctions ()
     : _callbackHandler( *new CallbackHandler( ) )
 {
-  // it's cheap to launch them
-  _y2pm.packageManager();
-  _y2pm.selectionManager();
-
   registerFunctions ();
+
+    // get ZYpp reference
+    zypp_ptr = zypp::ZYppFactory().letsTest();
 }
 
 /**
@@ -171,24 +177,12 @@ Y2Function* PkgModuleFunctions::createFunctionCall (const string name, constFunc
 	return NULL;
     }
     
-    return new Y2PkgFunction (this, it - _registered_functions.begin ());
+    return new Y2PkgFunction (name, this, it - _registered_functions.begin ());
 }
 
 void PkgModuleFunctions::registerFunctions()
 {
 #include "PkgBuiltinTable.h"
-}
-
-///////////////////////////////////////////////////////////////////
-//
-//
-//     METHOD NAME : PkgModuleFunctions::pkgError
-//     METHOD TYPE : YCPValue
-//
-YCPValue PkgModuleFunctions::pkgError( PMError err_r, const YCPValue & ret_r )
-{
-  _last_error = err_r;
-  return ret_r;
 }
 
 
@@ -199,13 +193,13 @@ YCPValue PkgModuleFunctions::pkgError( PMError err_r, const YCPValue & ret_r )
  * @builtin InstSysMode
  * @short Set packagemanager to "inst-sys" mode
  * @description Set packagemanager to "inst-sys" mode - dont use local caches (ramdisk!)
- * <b>CAUTION</b>:Can only be called ONCE  MUST be called before any other function
+ * FIXME ? <b>CAUTION</b>:Can only be called ONCE  MUST be called before any other function
  * @return void
  */
 YCPValue
 PkgModuleFunctions::InstSysMode ()
 {
-    _y2pm.setNotRunningFromSystem();
+    // TODO FIXME _y2pm.setNotRunningFromSystem();
     return YCPVoid();
 }
 
@@ -221,8 +215,8 @@ PkgModuleFunctions::InstSysMode ()
 YCPValue
 PkgModuleFunctions::SetLocale (const YCPString &locale)
 {
-    LangCode langcode(locale->value());
-    _y2pm.setPreferredLocale (langcode);
+// TODO FIXME	LangCode langcode(locale->value());
+//		_y2pm.setPreferredLocale (langcode);
     return YCPVoid();
 }
 
@@ -235,7 +229,9 @@ PkgModuleFunctions::SetLocale (const YCPString &locale)
 YCPValue
 PkgModuleFunctions::GetLocale ()
 {
-    return YCPString (_y2pm.getPreferredLocale().code());
+    // TODO FIXME
+    // return YCPString (_y2pm.getPreferredLocale().code());
+    return YCPString("en_US");
 }
 
 
@@ -250,6 +246,7 @@ PkgModuleFunctions::GetLocale ()
 YCPValue
 PkgModuleFunctions::SetAdditionalLocales (YCPList langycplist)
 {
+/*  TODO FIXME
     Y2PM::LocaleSet langcodelist;
     int i = 0;
     while (i < langycplist->size())
@@ -265,6 +262,7 @@ PkgModuleFunctions::SetAdditionalLocales (YCPList langycplist)
 	i++;
     }
     _y2pm.setRequestedLocales (langcodelist);
+*/
     return YCPVoid();
 }
 
@@ -280,12 +278,14 @@ YCPValue
 PkgModuleFunctions::GetAdditionalLocales ()
 {
     YCPList langycplist;
+/*  TODO FIXME
     const Y2PM::LocaleSet & langcodelist = _y2pm.getRequestedLocales();
     for (Y2PM::LocaleSet::const_iterator it = langcodelist.begin();
 	 it != langcodelist.end(); ++it)
     {
       langycplist->add (YCPString (it->code()));
     }
+*/
     return langycplist;
 }
 
@@ -299,7 +299,8 @@ PkgModuleFunctions::GetAdditionalLocales ()
 YCPValue
 PkgModuleFunctions::LastError ()
 {
-    return YCPString (_last_error.errstr());
+    // TODO FIXME
+    return YCPString("");
 }
 
 /**
@@ -311,7 +312,8 @@ PkgModuleFunctions::LastError ()
 YCPValue
 PkgModuleFunctions::LastErrorDetails ()
 {
-    return YCPString (_last_error.details());
+    // TODO FIXME
+    return YCPString ("");
 }
 
 /**
@@ -322,6 +324,8 @@ PkgModuleFunctions::LastErrorDetails ()
 YCPValue
 PkgModuleFunctions::LastErrorId ()
 {
+
+    /* TODO FIXME
     int errorId = _last_error;
     switch ( errorId ) {
         case PMError::E_ok:
@@ -331,6 +335,9 @@ PkgModuleFunctions::LastErrorId ()
         default:
             return YCPString( "error" );
     }
+    */
+
+    return YCPString( "ok" );
 }
 
 
@@ -350,7 +357,7 @@ PkgModuleFunctions::LastErrorId ()
  * <TR><TD>,<TD>"baseversion"          <TD>: YCPString
  * <TR><TD>];
  * </TABLE>
- */
+
 
 YCPMap
 PkgModuleFunctions::Descr2Map (constInstSrcDescrPtr descr)
@@ -381,5 +388,5 @@ PkgModuleFunctions::Descr2Map (constInstSrcDescrPtr descr)
 
     return map;
 }
-
+*/
 

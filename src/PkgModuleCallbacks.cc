@@ -24,28 +24,21 @@
 #include <y2util/Y2SLog.h>
 #include <y2util/stringutil.h>
 
-#include <PkgModuleFunctions.h>
-#include <PkgModuleCallbacks.h>
-#include <PkgModuleCallbacks.YCP.h> // PkgModuleFunctions::CallbackHandler::YCPCallbacks
+#include "PkgModuleFunctions.h"
+#include "PkgModuleCallbacks.h"
+#include "PkgModuleCallbacks.YCP.h" // PkgModuleFunctions::CallbackHandler::YCPCallbacks
 
-#include <y2pm/Y2PMCallbacks.h>
-#include <y2pm/InstSrcManager.h>
-#include <y2pm/InstSrcDescr.h>
+#include <zypp/ZYppCallbacks.h>
 
-#include <y2pm/PMPackage.h>
-#include <y2pm/PMYouPatchManager.h>
-#include <y2pm/InstYou.h>
-#include <y2pm/InstTarget.h>
-#include <y2pm/YouError.h>
 
 ///////////////////////////////////////////////////////////////////
-namespace Y2PMRecipients {
+namespace ZyppRecipients {
 ///////////////////////////////////////////////////////////////////
 
   typedef PkgModuleFunctions::CallbackHandler::YCPCallbacks YCPCallbacks;
 
   ///////////////////////////////////////////////////////////////////
-  // Data excange. Shared between Recipients, inherited by Y2PMReceive.
+  // Data excange. Shared between Recipients, inherited by ZyppReceive.
   ///////////////////////////////////////////////////////////////////
   struct RecipientCtl {
     const YCPCallbacks & _ycpcb;
@@ -70,232 +63,218 @@ namespace Y2PMRecipients {
       virtual ~Recipient() {}
   };
 
-  ///////////////////////////////////////////////////////////////////
-  // RpmDbCallbacks::ConvertDbCallback
-  ///////////////////////////////////////////////////////////////////
-  struct ConvertDbReceive : public Recipient, public RpmDbCallbacks::ConvertDbCallback
-  {
-    ConvertDbReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-    ProgressCounter _pc;
-    unsigned _lastFailed;
-    unsigned _lastIgnored;
-    unsigned _lastAlreadyInV4;
+    ///////////////////////////////////////////////////////////////////
+    // ConvertDbCallback
+    ///////////////////////////////////////////////////////////////////
+    struct ConvertDbReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::ConvertDBReport>
+    {
+	ConvertDbReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-    virtual void reportbegin() {
-      _pc.reset();
-      _lastFailed = _lastIgnored = _lastAlreadyInV4 = 0;
-    }
-    virtual void reportend()   {
-    }
-    virtual void start( const Pathname & v3db ) {
-      CB callback( ycpcb( YCPCallbacks::CB_StartConvertDb ) );
-      if ( callback._set ) {
-	callback.addStr( v3db );
-	callback.evaluate();
-      }
-    }
-    virtual void progress( const ProgressData & prg,
-			   unsigned failed, unsigned ignored, unsigned alreadyInV4 ) {
-      CB callback( ycpcb( YCPCallbacks::CB_ProgressConvertDb ) );
-      if ( callback._set ) {
-	_pc = prg;
-	if ( _pc.updateIfNewPercent( 5 )
-	     || failed != _lastFailed
-	     || ignored != _lastIgnored
-	     || alreadyInV4 != _lastAlreadyInV4 ) {
-	  _lastFailed      = failed;
-	  _lastIgnored     = ignored;
-	  _lastAlreadyInV4 = alreadyInV4;
-	  // report changed values
-	  callback.addInt( _pc.percent() );
-	  callback.addInt( _pc.max() );
-	  callback.addInt( failed );
-	  callback.addInt( ignored );
-	  callback.addInt( alreadyInV4 );
-	  callback.evaluate();
+	virtual void reportbegin()
+	{
 	}
-      }
-    }
-  virtual void dbInV4( const std::string & pkg ) {
-    static string type( "Nindb" );
-    CB callback( ycpcb( YCPCallbacks::CB_NotifyConvertDb ) );
-    if ( callback._set ) {
-      callback.addStr( type );
-      callback.addInt( -1 );
-      callback.addStr( pkg );
-      callback.evaluate();
-    }
-  }
-  virtual CBSuggest dbReadError( int offset ) {
-    static string type( "Eread" );
-    CB callback( ycpcb( YCPCallbacks::CB_NotifyConvertDb ) );
-    if ( callback._set ) {
-      callback.addStr( type );
-      callback.addInt( offset );
-      callback.addStr( string() );
-      return CBSuggest( callback.evaluateStr() );
-    }
-    return ConvertDbCallback::dbReadError( offset );
-  }
-  virtual void dbWriteError( const std::string & pkg ) {
-    static string type( "Ewrite" );
-    CB callback( ycpcb( YCPCallbacks::CB_NotifyConvertDb ) );
-    if ( callback._set ) {
-      callback.addStr( type );
-      callback.addInt( -1 );
-      callback.addStr( pkg );
-      callback.evaluate();
-    }
-  }
-    virtual void stop( PMError error ) {
-      CB callback( ycpcb( YCPCallbacks::CB_StopConvertDb ) );
-      if ( callback._set ) {
-	callback.addInt( error );
-	callback.addStr( error.errstr() );
-	callback.evaluate();
-      }
-    }
-  };
 
-  ///////////////////////////////////////////////////////////////////
-  // RpmDbCallbacks::RebuildDbCallback
-  ///////////////////////////////////////////////////////////////////
-  struct RebuildDbReceive : public Recipient, public RpmDbCallbacks::RebuildDbCallback
-  {
-    RebuildDbReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
-
-    ProgressCounter _pc;
-
-    virtual void reportbegin() {
-      _pc.reset();
-    }
-    virtual void reportend()   {
-    }
-    virtual void start() {
-      CB callback( ycpcb( YCPCallbacks::CB_StartRebuildDb ) );
-      if ( callback._set ) {
-	callback.evaluate();
-      }
-    }
-    virtual void progress( const ProgressData & prg ) {
-      CB callback( ycpcb( YCPCallbacks::CB_ProgressRebuildDb ) );
-      if ( callback._set ) {
-	_pc = prg;
-	if ( _pc.updateIfNewPercent() ) {
-	  // report changed values
-	  callback.addInt( _pc.percent() );
-	  callback.evaluate();
+	virtual void reportend()
+	{
 	}
-      }
-    }
-    virtual void notify( const std::string & msg ) {
-      CB callback( ycpcb( YCPCallbacks::CB_NotifyRebuildDb ) );
-      if ( callback._set ) {
-	callback.addStr( msg );
-	callback.evaluate();
-      }
-    }
-    virtual void stop( PMError error ) {
-      CB callback( ycpcb( YCPCallbacks::CB_StopRebuildDb ) );
-      if ( callback._set ) {
-	callback.addInt( error );
-	callback.addStr( error.errstr() );
-	callback.evaluate();
-      }
-    }
-  };
 
-  ///////////////////////////////////////////////////////////////////
-  // RpmDbCallbacks::InstallPkgCallback
-  ///////////////////////////////////////////////////////////////////
-  struct InstallPkgReceive : public Recipient, public RpmDbCallbacks::InstallPkgCallback
-  {
-    InstallPkgReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
-
-    ProgressCounter _pc;
-
-    virtual void reportbegin() {
-      _pc.reset();
-    }
-    virtual void reportend()   {
-    }
-    virtual void start( const Pathname & filename ) {
-      CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
-      if ( callback._set ) {
-	callback.addStr( filename );
-	callback.addStr( string() );
-	callback.addInt( -1 );
-	callback.addBool( /*is_delete*/false );
-	callback.evaluateBool(); // return value ignored by RpmDb
-      }
-    }
-    virtual void progress( const ProgressData & prg ) {
-      CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage ) );
-      if ( callback._set ) {
-	_pc = prg;
-	if ( _pc.updateIfNewPercent( 5 ) ) {
-	  // report changed values
-	  callback.addInt( _pc.percent() );
-	  callback.evaluate();
+	virtual void start(zypp::Pathname pname) {
+	    CB callback(ycpcb(YCPCallbacks::CB_StartConvertDb));
+	    if (callback._set) {
+		callback.addStr(pname.asString());
+		callback.evaluate();
+	    }
 	}
-      }
-    }
-    virtual void stop( PMError error ) {
-      CB callback( ycpcb( YCPCallbacks::CB_DonePackage ) );
-      if ( callback._set ) {
-	callback.addInt( error );
-	callback.addStr( error.errstr() );
-	callback.evaluateStr(); // return value ignored by RpmDb
-      }
-    }
-  };
 
-  ///////////////////////////////////////////////////////////////////
-  // RpmDbCallbacks::RemovePkgCallback
-  ///////////////////////////////////////////////////////////////////
-  struct RemovePkgReceive : public Recipient, public RpmDbCallbacks::RemovePkgCallback
-  {
-    RemovePkgReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+	virtual bool progress(int value, zypp::Pathname pth)
+	{		
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressConvertDb ) );
+	    if (callback._set) {
+		callback.addInt( value );
+		// TODO adapt callback typeinfo to zypp
+		callback.addInt( 100 /* TODO ?? _pc.max()*/ );
+		callback.addInt( 0 /*failed*/ );
+		callback.addInt( 0 /* ignored */ );
+		callback.addInt( 1 /*alreadyInV4*/ );
+		callback.evaluate();
+	    }
 
-    ProgressCounter _pc;
-
-    virtual void reportbegin() {
-      _pc.reset();
-    }
-    virtual void reportend()   {
-    }
-    virtual void start( const std::string & label ) {
-      CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
-      if ( callback._set ) {
-	callback.addStr( label );
-	callback.addStr( string() );
-	callback.addInt( -1 );
-	callback.addBool( /*is_delete*/true );
-	callback.evaluateBool(); // return value ignored by RpmDb
-      }
-    }
-    virtual void progress( const ProgressData & prg ) {
-      CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage ) );
-      if ( callback._set ) {
-	_pc = prg;
-	if ( _pc.updateIfNewPercent( 5 ) ) {
-	  // report changed values
-	  callback.addInt( _pc.percent() );
-	  callback.evaluate();
+	    // return default value from the parent class
+	    return zypp::target::rpm::ConvertDBReport::progress(value, pth);
 	}
-      }
-    }
-    virtual void stop( PMError error ) {
-      CB callback( ycpcb( YCPCallbacks::CB_DonePackage ) );
-      if ( callback._set ) {
-	callback.addInt( error );
-	callback.addStr( error.errstr() );
-	callback.evaluateStr(); // return value ignored by RpmDb
-      }
-    }
-  };
 
+	virtual void finish(Pathname path, Error error, std::string reason)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_StopConvertDb ) );
+	    if (callback._set) {
+		callback.addInt( error );
+		callback.addStr( reason );
+		callback.evaluateStr(); // return value ignored by RpmDb
+	    }
+	}
+    };
+
+
+
+    ///////////////////////////////////////////////////////////////////
+    // RebuildDbCallback
+    ///////////////////////////////////////////////////////////////////
+    struct RebuildDbReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::RebuildDBReport>
+    {
+	RebuildDbReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+        virtual void reportbegin()
+	{
+	}
+
+	virtual void reportend()
+	{
+	}
+
+	virtual void start(zypp::Pathname path)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_StartRebuildDb ) );
+	    if ( callback._set ) {
+		callback.evaluate();
+	    }
+	}
+
+	virtual bool progress(int value, zypp::Pathname pth)
+	{		
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressRebuildDb ) );
+	    if ( callback._set ) {
+		// report changed values
+		callback.addInt( value );
+		callback.evaluate();
+	    }
+
+	    // return default value from the parent class
+	    return zypp::target::rpm::RebuildDBReport::progress(value, pth);
+	}
+
+	virtual void finish(zypp::Pathname path, Error error, std::string reason)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_StopRebuildDb ) );
+	    if (callback._set) {
+		callback.addInt( error );
+		callback.addStr( reason );
+		callback.evaluateStr(); // return value ignored by RpmDb
+	    }
+	}
+    };
+
+    ///////////////////////////////////////////////////////////////////
+    // InstallPkgCallback
+    ///////////////////////////////////////////////////////////////////
+    struct InstallPkgReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::InstallResolvableReport>
+    {
+	InstallPkgReceive(RecipientCtl & construct_r) : Recipient(construct_r) 
+	{
+	}
+
+	virtual void reportbegin()
+	{
+	  //_pc.reset();
+	}
+
+	virtual void reportend()
+	{
+	}
+	
+	virtual void start(zypp::Resolvable::constPtr resolvable)
+	{
+	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
+	  if (callback._set) {
+	    callback.addStr(resolvable->name());
+	    callback.addStr(std::string());
+	    callback.addInt(-1);
+	    callback.addBool(false);	// is_delete = false (package installation)
+	    callback.evaluateBool();
+	  }
+	}
+				  
+	virtual bool progress(int value, zypp::Resolvable::constPtr resolvable)
+	{		
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
+	    if (callback._set) {
+		// TODO ?? if ( _pc.updateIfNewPercent( 5 ) ) {
+		// report changed values
+		callback.addInt( value );
+		callback.evaluate();
+		//}
+	    }
+
+	    // return default value from the parent class
+	    return zypp::target::rpm::InstallResolvableReport::progress(value, resolvable);
+	}
+
+	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, std::string reason)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
+	    if (callback._set) {
+		callback.addInt( error );
+		callback.addStr( reason );
+		callback.evaluateStr(); // return value ignored by RpmDb
+	    }
+	}
+    };
+
+
+    ///////////////////////////////////////////////////////////////////
+    // RemovePkgCallback
+    ///////////////////////////////////////////////////////////////////
+    struct RemovePkgReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::RemoveResolvableReport>
+    {
+	RemovePkgReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual void reportbegin()
+	{
+	}
+
+	virtual void reportend()
+	{
+	}
+
+	virtual void start(zypp::Resolvable::Ptr resolvable)
+	{
+	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
+	  if (callback._set) {
+	    callback.addStr(resolvable->name());
+	    callback.addStr(std::string());
+	    callback.addInt(-1);
+	    callback.addBool(false);	// is_delete = false (package installation)
+	    callback.evaluateBool();
+	  }
+	}
+				  
+	virtual bool progress(int value, zypp::Resolvable::Ptr resolvable)
+	{		
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
+	    if (callback._set) {
+		// TODO ?? if ( _pc.updateIfNewPercent( 5 ) ) {
+		// report changed values
+		callback.addInt( value );
+		callback.evaluate();
+		//}
+	    }
+
+	    // return default value from the parent class
+	    return zypp::target::rpm::RemoveResolvableReport::progress(value, resolvable);
+	}
+
+	virtual void finish(zypp::Resolvable::Ptr resolvable, Error error, std::string reason)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
+	    if (callback._set) {
+		callback.addInt( error );
+		callback.addStr( reason );
+		callback.evaluateStr(); // return value ignored by RpmDb
+	    }
+	}
+    };
+
+/*
   ///////////////////////////////////////////////////////////////////
   // InstTargetCallbacks::ScriptExecCallback
   ///////////////////////////////////////////////////////////////////
@@ -322,12 +301,12 @@ namespace Y2PMRecipients {
 	callback.evaluate();
       }
     }
-    /**
+    **
      * Execution time is unpredictable. ProgressData range will be set to
      * [0:0]. Aprox. every half second progress is reported with incrementing
      * counter value. If <CODE>false</CODE> is returned, execution is canceled.
      **/
-    virtual bool progress( const ProgressData & prg ) {
+/*  virtual bool progress( const ProgressData & prg ) {
       CB callback( ycpcb( YCPCallbacks::CB_YouScriptProgress ) );
       if ( callback._set ) {
 	callback.addInt( -1 );
@@ -359,7 +338,7 @@ namespace Y2PMRecipients {
       CB callback( ycpcb( YCPCallbacks::CB_SourceChange ) );
       if ( callback._set ) {
 	// Translate the (internal) InstSrcPtr to an (external) instOrder vector index
-	callback.addInt( Y2PM::instSrcManager().instOrderIndex( srcptr ) );
+	// FIXME callback.addInt( Y2PM::instSrcManager().instOrderIndex( srcptr ) );
 	callback.addInt( mediaNr );
 	callback.evaluate();
       }
@@ -547,7 +526,7 @@ namespace Y2PMRecipients {
 	callback.addStr( _name );
 	callback.addStr( _summary );
 	callback.addInt( _size );
-	callback.addBool( /*is_delete*/false );
+	callback.addBool( *is_delete* false );
 	bool res = callback.evaluateBool(); // CB_StartPackage is "true" to continue, "false" to cancel
 	return CBSuggest( res ? CBSuggest::PROCEED : CBSuggest::CANCEL );
       }
@@ -637,7 +616,7 @@ namespace Y2PMRecipients {
 	callback.addStr( _name );
 	callback.addStr( _summary );
 	callback.addInt( _size );
-	callback.addBool( /*is_delete*/true );
+	callback.addBool( *is_delete* true );
 	bool res = callback.evaluateBool(); // CB_StartPackage is "true" to continue, "false" to cancel
 	return CBSuggest( res ? CBSuggest::PROCEED : CBSuggest::CANCEL );
       }
@@ -655,187 +634,197 @@ namespace Y2PMRecipients {
     virtual void stop( PMError error ) {
     }
   };
+*/
 
-  ///////////////////////////////////////////////////////////////////
-  // InstSrcManagerCallbacks::SourceRefreshCallback
-  ///////////////////////////////////////////////////////////////////
-  struct SourceRefreshReceive : public Recipient, public InstSrcManagerCallbacks::SourceRefreshCallback
-  {
-    YCPMap startArgs;
-
-    SourceRefreshReceive( RecipientCtl & construct_r )
-    : Recipient( construct_r )
-    {}
-
-    virtual void reportbegin() {
-      startArgs = YCPMap();
-    }
-    virtual void reportend()   {
-      startArgs = YCPMap();
-    }
-
-    virtual void
-    start( constInstSrcDescrPtr descr_r )
+    ///////////////////////////////////////////////////////////////////
+    // SourceRefreshCallback
+    ///////////////////////////////////////////////////////////////////
+    struct SourceRefreshReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::RefreshSourceReport>
     {
-      CB callback( ycpcb( YCPCallbacks::CB_StartSourceRefresh ) );
-      if ( callback._set )
-        {
-          YCPMap arg;
-          arg->add( YCPString("url"),		YCPString( descr_r->url().asString() ) );
-          arg->add( YCPString("product_dir"),	YCPString( descr_r->product_dir().asString() ) );
-          arg->add( YCPString("label"),		YCPString( descr_r->content_label() ) );
-          callback.addMap( arg );
-          startArgs = arg; //remember
-          callback.evaluate();
-        }
-    }
+	YCPMap startArgs;
 
-    virtual Result
-    error( Error error_r, const std::string & detail )
-    {
-      CB callback( ycpcb( YCPCallbacks::CB_ErrorSourceRefresh ) );
-      if ( callback._set )
-        {
-          YCPMap arg = startArgs;
-          arg->add( YCPString( "error" ),	YCPSymbol( asString( error_r ) ) );
-          arg->add( YCPString( "detail" ),	YCPString( detail ) );
-          callback.addMap( arg );
-          string result = callback.evaluateSymbol();
-#define IF_MATCH_RETURN(X) if ( result == asString( X ) ) return X
-          IF_MATCH_RETURN( RETRY );
-          IF_MATCH_RETURN( SKIP_REFRESH );
-          IF_MATCH_RETURN( DISABLE_SOURCE );
-#undef IF_MATCH_RETURN
-          // still here?
-          INT << "Unexpected Symbol '" << result << "' returned from callback." << endl;
-          // return default
-        }
-      return SourceRefreshCallback::error( error_r, detail ); // return default implementation
-    }
+	SourceRefreshReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-    virtual void
-    stop( Result result_r, Cause cause_r, const std::string & detail )
-    {
-      CB callback( ycpcb( YCPCallbacks::CB_DoneSourceRefresh ) );
-      if ( callback._set )
-        {
-          YCPMap arg = startArgs;
-          arg->add( YCPString( "result" ),	YCPSymbol( asString( result_r ) ) );
-          arg->add( YCPString( "cause" ),	YCPSymbol( asString( cause_r ) ) );
-          arg->add( YCPString( "detail" ),	YCPString( detail ) );
-          callback.addMap( arg ),
-          callback.evaluate();
-        }
-    }
-  };
-
-  ///////////////////////////////////////////////////////////////////
-  // InstSrcManagerCallbacks::MediaChangeCallback
-  ///////////////////////////////////////////////////////////////////
-  struct MediaChangeReceive : public Recipient, public InstSrcManagerCallbacks::MediaChangeCallback
-  {
-    MediaChangeReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
-
-    /**
-     * Whether a recipient is set.
-     **/
-    virtual bool isSet() {
-      return _control._ycpcb.isSet( YCPCallbacks::CB_MediaChange );
-    }
-    virtual string changeMedia( constInstSrcDescrPtr descr,
-				const Url & currentUrl,
-				int expectedMedianr,
-				PMError error ) {
-      CB callback( ycpcb( YCPCallbacks::CB_MediaChange ) );
-       if ( callback._set ) {
-	callback.addStr( error.asString() );
-	callback.addStr( currentUrl.asString() );
-	callback.addStr( descr->label() );
-	callback.addInt( 0 );
-	callback.addStr( string() );
-	callback.addInt( expectedMedianr );
-	callback.addStr( descr->media_label( expectedMedianr )() );
-	callback.addBool( descr->media_doublesided() );
-	return callback.evaluateStr();
-      }
-       return MediaChangeCallback::changeMedia( descr, currentUrl,
-						expectedMedianr, error );
-    }
-    /**
-     *DEPRECATED OLD STYLE CALLBACK (used by InstYou)
-     **/
-    virtual string changeMedia( const string & error,
-				const string & url,
-				const string & product,
-				int current,
-				const std::string & currentLabel,
-				int expected,
-				const std::string & expectedLabel,
-                                bool doublesided ) {
-      CB callback( ycpcb( YCPCallbacks::CB_MediaChange ) );
-      if ( callback._set ) {
-	callback.addStr( error );
-	callback.addStr( url );
-	callback.addStr( product );
-	callback.addInt( current );
-	callback.addStr( currentLabel );
-	callback.addInt( expected );
-	callback.addStr( expectedLabel );
-	callback.addBool( doublesided );
-	return callback.evaluateStr();
-      }
-      return MediaChangeCallback::changeMedia( error, url, product,
-					       current, currentLabel,
-                                               expected, expectedLabel,
-					       doublesided );
-    }
-  };
-
-  ///////////////////////////////////////////////////////////////////
-  // MediaCallbacks::DownloadProgressCallback
-  ///////////////////////////////////////////////////////////////////
-  struct DownloadProgressReceive : public Recipient, public MediaCallbacks::DownloadProgressCallback
-  {
-    DownloadProgressReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
-
-    ProgressCounter _pc;
-
-    virtual void reportbegin() {
-      _pc.reset();
-    }
-    virtual void reportend()   {
-    }
-    virtual void start( const Url & url_r, const Pathname & localpath_r ) {
-      CB callback( ycpcb( YCPCallbacks::CB_StartDownload ) );
-      if ( callback._set ) {
-	callback.addStr( url_r );
-	callback.addStr( localpath_r );
-	callback.evaluate();
-      }
-    }
-    virtual bool progress( const ProgressData & prg ) {
-      CB callback( ycpcb( YCPCallbacks::CB_ProgressDownload ) );
-      if ( callback._set ) {
-	_pc = prg;
-	if ( _pc.updateIfNewPercent() ) {
-	  // report changed values
-	  callback.addInt( _pc.percent() );
-	  callback.addInt( _pc.max() );
-	  return callback.evaluateBool( true ); // default == continue
+	virtual void reportbegin() {
+	  startArgs = YCPMap();
 	}
-      }
-      return DownloadProgressCallback::progress( prg );
-    }
-    virtual void stop( PMError error ) {
-      CB callback( ycpcb( YCPCallbacks::CB_DoneDownload ) );
-      if ( callback._set ) {
-	callback.addInt( error );
-	callback.addStr( error.errstr() );
-	callback.evaluate();
-      }
-    }
-  };
+	virtual void reportend()   {
+	  startArgs = YCPMap();
+	}
 
+	virtual void start(zypp::Source_Ref source, zypp::Url url)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_StartSourceRefresh ) );
+	    if ( callback._set )
+	    {
+		YCPMap arg;
+		arg->add( YCPString("url"),		YCPString( url.asString() ) );
+/* TODO
+		arg->add( YCPString("product_dir"),	YCPString( descr_r->product_dir().asString() ) );
+		arg->add( YCPString("label"),		YCPString( descr_r->content_label() ) );
+*/
+		callback.addMap( arg );
+		startArgs = arg; //remember
+		callback.evaluate();
+	    }
+	}
+
+	virtual Action problem(zypp::Source_Ref source, Error error, std::string description)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ErrorSourceRefresh ) );
+	    if ( callback._set )
+	    {
+		YCPMap arg = startArgs;
+// TODO		arg->add( YCPString( "error" ),	YCPSymbol( asString( error_r ) ) );
+		arg->add( YCPString( "detail" ),	YCPString( description ) );
+		callback.addMap( arg );
+		string result = callback.evaluateSymbol();
+
+		if ( result == "RETRY" ) return RETRY;
+		if ( result == "SKIP_REFRESH" ) return IGNORE;
+		if ( result == "DISABLE_SOURCE" )
+		{
+		    source.disable();
+		    return IGNORE;
+		}
+
+		// still here?
+		INT << "Unexpected Symbol '" << result << "' returned from callback." << endl;
+		// return default
+	    }
+
+	    // return default implementation
+	    return zypp::source::RefreshSourceReport::problem(source, error, description);
+	}
+
+	virtual void finish(zypp::Source_Ref source, Error error, std::string reason)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_DoneSourceRefresh ) );
+	    if ( callback._set )
+	    {
+		YCPMap arg = startArgs;
+/* TODO
+		arg->add( YCPString( "result" ),	YCPSymbol( asString( result_r ) ) );
+		arg->add( YCPString( "cause" ),	YCPSymbol( asString( cause_r ) ) );
+*/
+		arg->add( YCPString( "detail" ),	YCPString( reason ) );
+		callback.addMap( arg ),
+		callback.evaluate();
+	    }
+	}
+    };
+
+    ///////////////////////////////////////////////////////////////////
+    // MediaChangeCallback
+    ///////////////////////////////////////////////////////////////////
+    struct MediaChangeReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::media::MediaChangeReport>
+    {
+	MediaChangeReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual Action requestMedia(zypp::Source_Ref source, unsigned mediumNr, Error error, std::string description)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_MediaChange ) );
+	    if ( callback._set )
+	    {
+		callback.addStr( description );
+		callback.addStr( source.url().asString() );	// current URL
+		// TODO FIXME
+		callback.addStr( string("descr->label()") );
+		callback.addInt( 0 );
+		callback.addStr( string() );
+		callback.addInt( mediumNr );
+		// TODO FIXME
+		callback.addStr( string("descr->media_label( expectedMedianr )()") );
+		callback.addBool( false /* TODO FIXME descr->media_doublesided()*/ );
+
+		std::string ret = callback.evaluateStr();
+
+		// "" =  retry
+		if (ret == "") return RETRY;
+
+		// "I" = ignore wrong media ID
+		if (ret == "I") return IGNORE_ID;
+
+		// "C" = cancel
+		if (ret == "C") return ABORT;
+
+		// "E" = eject media
+		if (ret == "E") return EJECT;
+		
+		// "S" = skip (ignore) this media
+		if (ret == "S") return IGNORE;
+
+		// otherwise change media URL
+		return CHANGE_URL;
+	    }
+	   
+	    // return default value from the parent class
+	    return zypp::media::MediaChangeReport::requestMedia(source, mediumNr, error, description);
+	}
+    };
+
+
+    ///////////////////////////////////////////////////////////////////
+    // DownloadProgressCallback
+    ///////////////////////////////////////////////////////////////////
+    struct DownloadProgressReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::DownloadFileReport>
+    {
+	DownloadProgressReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual void reportbegin()
+	{
+	}
+
+        virtual void reportend()
+	{
+	}
+
+	virtual void start( zypp::Source_Ref source, zypp::Url url)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_StartDownload ) );
+
+	    if ( callback._set )
+	    {
+		callback.addStr( url.asString() );
+		// TODO FIXME
+		callback.addStr( std::string("TODO: localpath_r") );
+		callback.evaluate();
+	    }
+	}
+
+	virtual bool progress(int value, zypp::Url url)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDownload ) );
+	    if ( callback._set )
+	    {
+		// TODO is any check needed?? if ( _pc.updateIfNewPercent() ) {
+		// report changed values
+		callback.addInt( value );
+		callback.addInt( 100 /*TODO FIXME _pc.max()*/ );
+		return callback.evaluateBool( true ); // default == continue
+	    }
+
+	    return zypp::source::DownloadFileReport::progress(value, url);
+	}
+
+	virtual Action problem( zypp::Url url, Error error, std::string description )
+	{
+	    return ABORT;
+	}
+
+	virtual void finish( zypp::Url url, Error error, std::string reason)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_DoneDownload ) );
+
+	    if ( callback._set ) {
+		callback.addInt( error );
+		callback.addStr( reason );
+		callback.evaluate();
+	    }
+	}
+    };
+
+/*
   ///////////////////////////////////////////////////////////////////
   // InstYou::Callbacks
   ///////////////////////////////////////////////////////////////////
@@ -902,7 +891,7 @@ namespace Y2PMRecipients {
         YCPList patchesArg;
         list<PMYouPatchPtr>::const_iterator it;
         for( it = patches.begin(); it != patches.end(); ++it ) {
-          YCPMap patch = PkgModuleFunctions::YouPatch( *it );
+          YCPMap patch; ///  = PkgModuleFunctions::YouPatch( *it );
           patchesArg.add( patch );
         }
 
@@ -939,111 +928,89 @@ namespace Y2PMRecipients {
     }
   };
   ///////////////////////////////////////////////////////////////////
-
+*/
 ///////////////////////////////////////////////////////////////////
-}; // namespace Y2PMRecipients
+}; // namespace ZyppRecipients
 ///////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////
 //
-//	CLASS NAME : PkgModuleFunctions::CallbackHandler::Y2PMReceive
+//	CLASS NAME : PkgModuleFunctions::CallbackHandler::ZyppReceive
 /**
  * @short Manages the Y2PMCallbacks we receive.
  *
  **/
-class PkgModuleFunctions::CallbackHandler::Y2PMReceive : public Y2PMRecipients::RecipientCtl {
+class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::RecipientCtl {
 
   private:
 
-    // RpmDbCallbacks
-    Y2PMRecipients::ConvertDbReceive  _convertDbReceive;
-    Y2PMRecipients::RebuildDbReceive  _rebuildDbReceive;
-    Y2PMRecipients::InstallPkgReceive _installPkgReceive;
-    Y2PMRecipients::RemovePkgReceive  _removePkgReceive;
+    // RRM DB callbacks
+    ZyppRecipients::ConvertDbReceive  _convertDbReceive;
+    ZyppRecipients::RebuildDbReceive  _rebuildDbReceive;
 
+    // package callbacks
+    ZyppRecipients::InstallPkgReceive _installPkgReceive;
+    ZyppRecipients::RemovePkgReceive  _removePkgReceive;
+
+    // media callback
+    ZyppRecipients::DownloadProgressReceive _downloadProgressReceive;
+    ZyppRecipients::MediaChangeReceive   _mediaChangeReceive;
+
+    // source manager callback
+    ZyppRecipients::SourceRefreshReceive _sourceRefreshReceive;
+
+/*
     // InstTargetCallbacks
-    Y2PMRecipients::ScriptExecReceive _scriptExecReceive;
+    ZyppRecipients::ScriptExecReceive _scriptExecReceive;
 
     // Y2PMCallbacks
-    Y2PMRecipients::CommitReceive        _commitReceive;
-    Y2PMRecipients::CommitProvideReceive _commitProvideReceive;
-    Y2PMRecipients::CommitInstallReceive _commitInstallReceive;
-    Y2PMRecipients::CommitRemoveReceive  _commitRemoveReceive;
-
-    // InstSrcManagerCallbacks
-    Y2PMRecipients::SourceRefreshReceive _sourceRefreshReceive;
-    Y2PMRecipients::MediaChangeReceive   _mediaChangeReceive;
-
-    // MediaCallbacks
-    Y2PMRecipients::DownloadProgressReceive _downloadProgressReceive;
+    ZyppRecipients::CommitReceive        _commitReceive;
+    ZyppRecipients::CommitProvideReceive _commitProvideReceive;
+    ZyppRecipients::CommitInstallReceive _commitInstallReceive;
+    ZyppRecipients::CommitRemoveReceive  _commitRemoveReceive;
 
     // YouCallbacks
-    Y2PMRecipients::YouReceive _youReceive;
-
-  protected:
-
-    // overloaded RecipientCtl calls
+    ZyppRecipients::YouReceive _youReceive;
+*/
 
   public:
 
-    Y2PMReceive( const YCPCallbacks & ycpcb_r )
+    ZyppReceive( const YCPCallbacks & ycpcb_r )
       : RecipientCtl( ycpcb_r )
       , _convertDbReceive( *this )
       , _rebuildDbReceive( *this )
       , _installPkgReceive( *this )
       , _removePkgReceive( *this )
-      , _scriptExecReceive( *this )
+      , _downloadProgressReceive( *this )
+      , _mediaChangeReceive( *this )
+      , _sourceRefreshReceive( *this )
+/*      , _scriptExecReceive( *this )
       , _commitReceive( *this )
       , _commitProvideReceive( *this )
       , _commitInstallReceive( *this )
       , _commitRemoveReceive( *this )
-      , _sourceRefreshReceive( *this )
-      , _mediaChangeReceive( *this )
-      , _downloadProgressReceive( *this )
-      , _youReceive( *this )
+      , _youReceive( *this )*/
     {
-      RpmDbCallbacks::convertDbReport.redirectTo( _convertDbReceive );
-      RpmDbCallbacks::rebuildDbReport.redirectTo( _rebuildDbReceive );
-      RpmDbCallbacks::installPkgReport.redirectTo( _installPkgReceive );
-      RpmDbCallbacks::removePkgReport.redirectTo( _removePkgReceive );
-
-      InstTargetCallbacks::scriptExecReport.redirectTo( _scriptExecReceive );
-
-      Y2PMCallbacks::commitReport.redirectTo( _commitReceive );
-      Y2PMCallbacks::commitProvideReport.redirectTo( _commitProvideReceive );
-      Y2PMCallbacks::commitInstallReport.redirectTo( _commitInstallReceive );
-      Y2PMCallbacks::commitRemoveReport.redirectTo( _commitRemoveReceive );
-
-      InstSrcManagerCallbacks::sourceRefreshReport.redirectTo( _sourceRefreshReceive );
-      InstSrcManagerCallbacks::mediaChangeReport.redirectTo( _mediaChangeReceive );
-
-      MediaCallbacks::downloadProgressReport.redirectTo( _downloadProgressReceive );
-
-      // YOU is still special. Does not trigger via Report.
-      InstYou::setCallbacks( &_youReceive );
+	// connect the receivers
+	_convertDbReceive.connect();
+	_rebuildDbReceive.connect();
+	_installPkgReceive.connect();
+	_removePkgReceive.connect();
+	_mediaChangeReceive.connect();
+	_downloadProgressReceive.connect();
+	_sourceRefreshReceive.connect();
     }
 
-    virtual ~Y2PMReceive()
+    virtual ~ZyppReceive()
     {
-      RpmDbCallbacks::convertDbReport.redirectTo( 0 );
-      RpmDbCallbacks::rebuildDbReport.redirectTo( 0 );
-      RpmDbCallbacks::installPkgReport.redirectTo( 0 );
-      RpmDbCallbacks::removePkgReport.redirectTo( 0 );
-
-      InstTargetCallbacks::scriptExecReport.redirectTo( 0 );
-
-      Y2PMCallbacks::commitReport.redirectTo( 0 );
-      Y2PMCallbacks::commitProvideReport.redirectTo( 0 );
-      Y2PMCallbacks::commitInstallReport.redirectTo( 0 );
-      Y2PMCallbacks::commitRemoveReport.redirectTo( 0 );
-
-      InstSrcManagerCallbacks::sourceRefreshReport.redirectTo( 0 );
-      InstSrcManagerCallbacks::mediaChangeReport.redirectTo( 0 );
-
-      MediaCallbacks::downloadProgressReport.redirectTo( 0 );
-
-      // YOU is still special. Does not Trigger via Report.
-      InstYou::setCallbacks( 0 );
+	// disconnect the receivers
+	_convertDbReceive.disconnect();
+	_rebuildDbReceive.disconnect();
+	_installPkgReceive.disconnect();
+	_removePkgReceive.disconnect();
+	_mediaChangeReceive.disconnect();
+	_downloadProgressReceive.disconnect();
+	_sourceRefreshReceive.disconnect();
     }
   public:
 
@@ -1063,7 +1030,7 @@ class PkgModuleFunctions::CallbackHandler::Y2PMReceive : public Y2PMRecipients::
 //
 PkgModuleFunctions::CallbackHandler::CallbackHandler(  )
     : _ycpCallbacks( *new YCPCallbacks() )
-    , _y2pmReceive( *new Y2PMReceive( _ycpCallbacks ) )
+    , _zyppReceive( *new ZyppReceive( _ycpCallbacks ) )
 {
 }
 
@@ -1075,7 +1042,7 @@ PkgModuleFunctions::CallbackHandler::CallbackHandler(  )
 //
 PkgModuleFunctions::CallbackHandler::~CallbackHandler()
 {
-  delete &_y2pmReceive;
+  delete &_zyppReceive;
   delete &_ycpCallbacks;
 }
 

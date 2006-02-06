@@ -25,9 +25,6 @@
 
 #include <string>
 #include <ycpTools.h>
-#include <PkgModuleError.h>
-
-#include <Y2PM.h>
 
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPValue.h>
@@ -41,10 +38,10 @@
 
 #include <y2/Y2Namespace.h>
 
-#include <y2pm/PMSelectablePtr.h>
-#include <y2pm/InstSrcDescrPtr.h>
-#include <y2pm/PMYouServers.h>
-#include <y2pm/PMYouPatchPtr.h>
+#include <zypp/ZYpp.h>
+#include <zypp/Pathname.h>
+#include <zypp/Url.h>
+
 
 /**
  * A simple class for package management access
@@ -54,51 +51,27 @@ class PkgModuleFunctions : public Y2Namespace
   public:
 
     /**
-     * default error class
-     **/
-    typedef PkgModuleError Error;
-
-    /**
      * Handler for YCPCallbacks received or triggered.
      * Needs access to WFM.
      **/
     class CallbackHandler;
 
   protected:
-       /**
-        * Access to packagemanager
-        **/
-       Y2PM _y2pm;
-
-        /**
-         * Remembered last error.
-         **/
-        PMError _last_error;
-
-        /**
-         * Return the provided YCPValue and on the fly remember _last_error.
-         **/
-        YCPValue pkgError( PMError err_r, const YCPValue & ret_r = YCPVoid() );
 
         int _solve_errors;
 
-    protected:
 
-        PMSelectablePtr getPackageSelectable (const std::string& name);
-        PMSelectablePtr getSelectionSelectable (const std::string& name);
-        PMSelectablePtr getPatchSelectable (const std::string& name);
+	/** 
+	 * ZYPP
+	 */
+	zypp::ZYpp::Ptr zypp_ptr;
 
-        bool SetSelectionString (std::string name, bool recursive = false);
-        PMSelectablePtr WhoProvidesString (std::string tag);
-        bool DoProvideString (std::string name);
-        bool DoRemoveString (std::string name);
-
-        YCPMap Descr2Map (constInstSrcDescrPtr descr);
 
     private: // source related
 
-      bool sourceStartManager( bool autoEnable );
-
+      bool DoProvideString(std::string);
+      bool DoRemoveString(std::string);
+      
       // builtin handling
       void registerFunctions ();
       vector<string> _registered_functions;
@@ -190,8 +163,6 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue CallbackNotifyConvertDb (const YCPString& func);
 	/* TYPEINFO: void(string) */
         YCPValue CallbackStopConvertDb (const YCPString& func);
-	void SetMediaCallback (PM::ISrcId source_id);
-
 
 	// source related
 	/* TYPEINFO: boolean(boolean)*/
@@ -437,11 +408,6 @@ class PkgModuleFunctions : public Y2Namespace
 	}
 
 	virtual Y2Function* createFunctionCall (const string name, constFunctionTypePtr type);
-
-        static YCPMap YouPatch( const PMYouPatchPtr &patch );
-
-    protected:
-	PMYouServer convertServerObject( const YCPMap &serverMap );
 
 };
 #endif // PkgModuleFunctions_h

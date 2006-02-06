@@ -28,10 +28,6 @@
 #include <PkgModule.h>
 #include <PkgModuleFunctions.h>
 
-#include <y2util/Url.h>
-#include <y2pm/InstData.h>
-#include <y2pm/PMSelectionManager.h>
-
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPInteger.h>
@@ -40,25 +36,12 @@
 #include <ycp/YCPList.h>
 #include <ycp/YCPMap.h>
 
+#include <zypp/ResPool.h>
+#include <zypp/Resolvable.h>
+#include <zypp/Selection.h>
+
 using std::string;
 
-
-/**
- * helper function, get selectable by name
- */
-
-PMSelectablePtr
-PkgModuleFunctions::getSelectionSelectable (const std::string& name)
-{
-    PMSelectablePtr selectable;
-    if (!name.empty())
-	selectable = _y2pm.selectionManager().getItem(name);
-    if (!selectable)
-    {
-	y2error ("Selection '%s' not found", name.c_str());
-    }
-    return selectable;
-}
 
 
 // ------------------------
@@ -93,31 +76,31 @@ PkgModuleFunctions::GetSelections (const YCPSymbol& stat, const YCPString& cat)
     string status = stat->symbol();
     string category = cat->value();
 
+    // FIXME: this should be done more nicely
+    if ( category == "base" ) 
+	category = "baseconf";
+
     YCPList selections;
 
-    for (PMManager::PMSelectableVec::const_iterator it = _y2pm.selectionManager().begin();
-	 it != _y2pm.selectionManager().end();
-	 ++it)
+    for (zypp::ResPool::byKind_iterator it 
+	= zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Selection>::kind);
+	it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Selection>::kind) ; ++it )
     {
-	PMSelectionPtr selection;
-	if (status == "all")
+	string selection;
+
+	if (status == "all" || status == "available")
 	{
-	    selection = (*it)->theObject();
-	}
-	else if (status == "available")
-	{
-	    selection = (*it)->candidateObj();
+	    selection = it->resolvable()->name();
 	}
 	else if (status == "selected")
 	{
-	    if ((*it)->to_install())
-	    {
-		selection = (*it)->candidateObj();
-	    }
+	    if( it->status().isToBeInstalled() )
+	        selection = it->resolvable()->name();
 	}
 	else if (status == "installed")
 	{
-	    selection = (*it)->installedObj();
+	    if( it->status().wasInstalled() )
+	        selection = it->resolvable()->name();
 	}
 	else
 	{
@@ -125,45 +108,31 @@ PkgModuleFunctions::GetSelections (const YCPSymbol& stat, const YCPString& cat)
 	    break;
 	}
 
-	if (!selection)
+	if (selection.empty())
 	{
 	    continue;
 	}
 
-	if (category == "base")
+	string selection_cat = zypp::dynamic_pointer_cast<const zypp::Selection>(it->resolvable())->category();
+	if (category != "")
 	{
-	    if (!selection->isBase())
-		continue;			// asked for base, not base
-	}
-	else if (category != "")
-	{
-	    if (selection->category() != category)
+	    if ( selection_cat != category)
 	    {
 		continue;			// asked for explicit category
 	    }
 	}
 	else	// category == ""
 	{
-	    if (selection->isBase())
+	    if (selection_cat == "baseconf")
 	    {
 		continue;			// asked for non-base
 	    }
 	}
-	selections->add (YCPString (selection->name()));
+	selections->add (YCPString (selection));
     }
     return selections;
 }
 
-
-static void
-tiny_helper_no1 (YCPMap* m, const char* k, const PMSolvable::PkgRelList_type& l)
-{
-    const list <string> t1 = PMSolvable::PkgRelList2StringList (l);
-    YCPList t2;
-    for (list <string>::const_iterator it = t1.begin (); it != t1.end (); it++)
-	t2->add (YCPString (*it));
-    m->add (YCPString (k), t2);
-}
 
 
 // ------------------------
@@ -205,6 +174,7 @@ PkgModuleFunctions::SelectionData (const YCPString& sel)
     YCPMap data;
     string name = sel->value();
 
+    /* TODO FIXME
     PMSelectablePtr selectable = _y2pm.selectionManager().getItem(name);
     if (!selectable)
     {
@@ -247,6 +217,25 @@ PkgModuleFunctions::SelectionData (const YCPString& sel)
     tiny_helper_no1 (&data, "conflicts", selection->conflicts ());
     tiny_helper_no1 (&data, "provides", selection->provides ());
     tiny_helper_no1 (&data, "obsoletes", selection->obsoletes ());
+    */
+
+   zypp::ResPool::byName_iterator it = std::find_if (
+        zypp_ptr->pool().byNameBegin(name)
+        , zypp_ptr->pool().byNameEnd(name)
+        , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Selection>::kind)
+    );
+
+    if ( it != zypp_ptr->pool().byNameEnd(name) )
+    {
+	zypp::Selection::constPtr selection = 
+	    zypp::dynamic_pointer_cast<const zypp::Selection>(it->resolvable ());
+
+	// selection found
+	data->add (YCPString ("summary"), YCPString (selection->summary()));
+	data->add (YCPString ("category"), YCPString (selection->category()));
+	data->add (YCPString ("visible"), YCPBoolean (selection->visible()));
+	data->add (YCPString ("order"), YCPString (selection->order()));
+    }
 
     return data;
 }
@@ -272,6 +261,7 @@ PkgModuleFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to
     YCPList data;
     string name = sel->value();
 
+    /* TODO FIXME
     PMSelectablePtr selectable = _y2pm.selectionManager().getItem(name);
     if (!selectable)
     {
@@ -284,8 +274,9 @@ PkgModuleFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to
     }
 
     std::list<std::string> pacnames;
+    */
     YCPList paclist;
-    LangCode locale (lang->value());
+/*    LangCode locale (lang->value());
 
     if (to_delete->value() == false)			// inspacks
     {
@@ -302,95 +293,13 @@ PkgModuleFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to
 	if (!((*pacIt).empty()))
 	    paclist->add (YCPString (*pacIt));
     }
-
+*/
     return paclist;
 }
 
 
 // ------------------------
 
-// internal
-// sel selection by string
-
-bool
-PkgModuleFunctions::SetSelectionString (std::string name, bool recursive)
-{
-    PMSelectablePtr selectable = _y2pm.selectionManager().getItem(name);
-    if (selectable)
-    {
-	PMSelectionPtr selection = selectable->theObject();
-	if (selection)
-	{
-	    if (!recursive
-		&& selection->isBase())
-	    {
-		y2milestone ("New base selection '%s'. Resetting manager.",
-			      name.c_str() );
-		_y2pm.selectionManager().setNothingSelected();
-		_y2pm.packageManager().setNothingSelected();
-	    }
-	    else if (selectable->to_install())
-	    {
-		// don't recurse if already selected
-		return true;
-	    }
-	}
-
-	if (!selectable->user_set_install())
-	{
-	    y2error ("Cant select %s", name.c_str());
-	    return false;
-	}
-
-	// RECURSION
-	// select all recommended selections of a base selection
-
-	if (selection->isBase())
-	{
-	    y2milestone ("Base selection '%s': Selecting requires and recommends.",
-			  name.c_str() );
-	    for ( PMPackageManager::PMSelectableVec::const_iterator it = _y2pm.selectionManager().begin();
-		  it != _y2pm.selectionManager().end(); ++it )
-	    {
-	        if ( PMSelectionPtr( (*it)->theObject() )->isBase() && (*it) != selectable )
-		{
-		   if ( (*it)->is_onSystem() ) {
-		     y2milestone ("Deselect old base selection '%s'.", (*it)->name()->c_str() );
-		     (*it)->user_set_offSystem();
-		   }
-		}
-	    }
-	    const std::list<std::string> recommends = selection->recommends();
-	    for (std::list<std::string>::const_iterator it = recommends.begin();
-		 it != recommends.end(); ++it)
-	    {
-		SetSelectionString (*it, true);
-	    }
-	}
-
-	PkgDep::ResultList good;
-	PkgDep::ErrorResultList bad;
-
-	if (!_y2pm.selectionManager().solveInstall(good, bad))
-	{
-	    std::ofstream out ("/var/log/YaST2/badselections");
-	    out << bad.size() << " selections failed" << std::endl;
-
-	    for (PkgDep::ErrorResultList::const_iterator p = bad.begin();
-		 p != bad.end(); ++p )
-	    {
-		out << *p << std::endl;
-	    }
-
-	    y2error ("Solver: %zd selections failed (see /var/log/YaST2/badselections)",
-		      bad.size());
-	    return false;
-	}
-	return true;
-    }
-    y2warning ("Unknown selection '%s'", name.c_str());
-    return false;
-}
 
 /**
    @builtin SetSelection
@@ -409,9 +318,7 @@ PkgModuleFunctions::SetSelectionString (std::string name, bool recursive)
 YCPBoolean
 PkgModuleFunctions::SetSelection (const YCPString& selection)
 {
-    string name = selection->value();
-
-    return YCPBoolean (SetSelectionString (name));
+    return DoProvideString(selection->value());
 }
 
 // ------------------------
@@ -430,6 +337,8 @@ PkgModuleFunctions::ClearSelection (const YCPString& selection)
     y2internal("ClearSelection");
 
     string name = selection->value();
+
+    /* TODO FIXME
     PMSelectablePtr selectable = _y2pm.selectionManager().getItem(name);
     if (selectable)
     {
@@ -446,8 +355,9 @@ PkgModuleFunctions::ClearSelection (const YCPString& selection)
 	bool ret = selectable->user_unset();
 
 	return YCPBoolean (ret);
-    }
-    return YCPError ("No selectable found", YCPBoolean (false));
+    }*/
+    return YCPBoolean(true);
+    //return YCPError ("No selectable found", YCPBoolean (false));
 }
 
 
@@ -463,11 +373,13 @@ PkgModuleFunctions::ClearSelection (const YCPString& selection)
    This will transfer the selection status to package status
 
    @return boolean
+   
+   @deprecated Use Pkg::PkgSolve instead, selections are solvable now
 */
 YCPBoolean
 PkgModuleFunctions::ActivateSelections ()
 {
-    _y2pm.selectionManager().activate (_y2pm.packageManager());
+    y2warning ("Pkg::ActivateSelections is obsolete. Use Pkg::PkgSolve instead");
 
     return YCPBoolean (true);
 }

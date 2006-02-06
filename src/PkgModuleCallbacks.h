@@ -15,7 +15,7 @@
   Author:     Michael Andres <ma@suse.de>
   Maintainer: Michael Andres <ma@suse.de>
 
-  Purpose: Handler for Callbacks from Y2PM to UI/WFM.
+  Purpose: Handler for Callbacks from ZYPP to UI/WFM.
 
 /-*/
 #ifndef PkgModuleCallbacks_h
@@ -31,7 +31,7 @@
 /**
  * @short Handler for Callbacks received or triggered. Needs access to WFM.
  *
- * <B>NOTE:</B> Public references to @ref YCPCallbacks and @ref Y2PMReceive are
+ * <B>NOTE:</B> Public references to @ref YCPCallbacks and @ref ZyppReceive are
  * intentionally not usable outside PkgModuleCallbacks.cc, because both class
  * definitions reside within the implementation file. They are public because
  * callback realated @ref PkgModuleFunctions methods are defined in the same file
@@ -50,20 +50,18 @@
  * <H5>How to introduce new recipient which triggers the YCP callbacks</H5>
  * <OL>
  * <LI>Consult PkgModuleCallbacks.cc
- * <LI>Within namespace Y2PMRecipients define the new recipient class, which is
+ * <LI>Within namespace ZyppRecipients define the new recipient class, which is
  *     usg. derived from Recipient and some calback interface class provided
- *     by Y2PM or some of it's components.
- * <LI>In class Y2PMReceive create an instance of your recipient, and adjust
- *     constructor and destructor to setup and clear the redirection of the
- *     Report (also provided by Y2PM or some of it's components) you want to
- *     receive.
+ *     by zypp::callback::ReceiveReport<>.
+ * <LI>In class ZyppReceive create an instance of your recipient, and adjust
+ *     constructor and destructor to setup and clear the connetion to the
+ *     Distributor you want to receive.
  * </OL>
  * Sounds more complicated than it actually is. Take an existing recipient as
- * example. Consider class RecipientCtl, which is inherited by Y2PMReceive and
+ * example. Consider class RecipientCtl, which is inherited by ZyppReceive and
  * shared among the recipient classes, if you need to exchage data or coordinate
  * different recipients.
  *
- * See also class @ref Report (in liby2util).
  **/
 class PkgModuleFunctions::CallbackHandler {
   CallbackHandler & operator=( const CallbackHandler & );
@@ -80,14 +78,14 @@ class PkgModuleFunctions::CallbackHandler {
     /**
      * Manages the Y2PMCallbacks we receive.
      **/
-    class Y2PMReceive;
-    Y2PMReceive & _y2pmReceive;
+    class ZyppReceive;
+    ZyppReceive & _zyppReceive;
 
   public:
 
     /**
      * Constructor. Setup handler and redirect Y2PMCallbacks
-     * to the Y2PMReceiver.
+     * to the ZyppReceiver.
      **/
     CallbackHandler();
 

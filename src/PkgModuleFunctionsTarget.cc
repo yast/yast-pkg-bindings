@@ -27,9 +27,6 @@
 #include <PkgModuleFunctions.h>
 
 #include <y2util/Url.h>
-#include <y2pm/InstTarget.h>
-#include <y2pm/PMPackageManager.h>
-#include <y2pm/PMError.h>
 
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
@@ -38,6 +35,7 @@
 #include <ycp/YCPString.h>
 #include <ycp/YCPList.h>
 #include <ycp/YCPMap.h>
+
 
 #include <unistd.h>
 #include <sys/statvfs.h>
@@ -55,8 +53,17 @@ using std::string;
 YCPValue
 PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& /*unused*/ )
 {
-    Pathname newRoot = root->value();
+    try
+    {
+	zypp_ptr->initTarget(root->value());
+    }
+    catch (...)
+    {
+	ycperror ("Target initialization has failed" );
+        return YCPBoolean (false);
+    }
 
+    /* TODO: error handling
     // initialize target
     _last_error = _y2pm.instTargetInit( newRoot );
 
@@ -67,7 +74,7 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& /*unuse
 
     if (_last_error)
         return YCPError (_last_error.errstr().c_str(), YCPBoolean (false));
-
+    */
 
     return YCPBoolean (true);
 }
@@ -82,8 +89,17 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& /*unuse
 YCPBoolean
 PkgModuleFunctions::TargetFinish ()
 {
-    _y2pm.instTargetClose();
-    return YCPBoolean (true);
+    try
+    {
+	zypp_ptr->finishTarget();
+    }
+    catch (...)
+    {
+        y2error("TargetFinish has failed");
+	YCPBoolean(false);
+    }
+
+    return YCPBoolean(true);
 }
 
 /** ------------------------
@@ -102,8 +118,11 @@ PkgModuleFunctions::TargetFinish ()
 YCPBoolean
 PkgModuleFunctions::TargetInstall(const YCPString& filename)
 {
+    /* TODO FIXME
     _last_error = _y2pm.installFile (Pathname (filename->value()));
     return YCPBoolean (!_last_error);
+    */
+    return YCPBoolean(true);
 }
 
 
@@ -121,7 +140,9 @@ PkgModuleFunctions::TargetInstall(const YCPString& filename)
 YCPBoolean
 PkgModuleFunctions::TargetRemove(const YCPString& name)
 {
+    /* TODO FIXME
     _y2pm.removePackage (name->value());
+    */
     return YCPBoolean (true);
 }
 
@@ -136,7 +157,10 @@ PkgModuleFunctions::TargetRemove(const YCPString& name)
 YCPBoolean
 PkgModuleFunctions::TargetLogfile (const YCPString& name)
 {
+    /* TODO FIXME
     return YCPBoolean (_y2pm.instTarget().setInstallationLogfile (name->value()));
+    */
+    return YCPBoolean (true);
 }
 
 
@@ -229,12 +253,15 @@ YCPList
 PkgModuleFunctions::TargetProducts ()
 {
     YCPList prdlist;
+
+    /* TODO FIXME
     std::list<constInstSrcDescrPtr> products = _y2pm.instTarget().getProducts();
     for (std::list<constInstSrcDescrPtr>::const_iterator it = products.begin();
 	 it != products.end(); ++it)
     {
 	prdlist->add(Descr2Map (*it));
     }
+    */
     return prdlist;
 }
 
@@ -249,7 +276,7 @@ PkgModuleFunctions::TargetProducts ()
 YCPBoolean
 PkgModuleFunctions::TargetRebuildDB ()
 {
-    _y2pm.instTarget().bringIntoCleanState();
+    // TODO FIXME _y2pm.instTarget().bringIntoCleanState();
     return YCPBoolean (true);
 }
 
@@ -275,6 +302,7 @@ PkgModuleFunctions::TargetRebuildDB ()
 YCPValue
 PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
 {
+    /*
     if (dirlist->size() == 0)
     {
 	return YCPError ("Bad args to Pkg::TargetInitDU");
@@ -351,7 +379,8 @@ PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
 	PkgDuMaster::MountPoint point (dname, FSize (4096), FSize (dirsize), FSize (dused), readonly);
 	mountpoints.insert (point);
     }
-    _y2pm.packageManager().setMountPoints(mountpoints);
+    // TODO FIXME    _y2pm.packageManager().setMountPoints(mountpoints);
+    */
     return YCPVoid();
 }
 
@@ -380,7 +409,8 @@ YCPValue
 PkgModuleFunctions::TargetGetDU ()
 {
     YCPMap dirmap;
-    std::set<PkgDuMaster::MountPoint> mountpoints = _y2pm.packageManager().updateDu().mountpoints();
+    /*
+    std::set<PkgDuMaster::MountPoint> mountpoints; // TODO FIXME = _y2pm.packageManager().updateDu().mountpoints();
 
     for (std::set<PkgDuMaster::MountPoint>::iterator it = mountpoints.begin();
 	 it != mountpoints.end(); ++it)
@@ -392,6 +422,7 @@ PkgModuleFunctions::TargetGetDU ()
 	sizelist->add (YCPInteger (it->readonly() ? 1 : 0));
 	dirmap->add (YCPString (it->_mountpoint), sizelist);
     }
+    */
     return dirmap;
 }
 
@@ -408,6 +439,6 @@ PkgModuleFunctions::TargetGetDU ()
 YCPBoolean
 PkgModuleFunctions::TargetFileHasOwner (const YCPString& filepath)
 {
-    return YCPBoolean (_y2pm.instTarget().hasFile(filepath->value()));
+    return YCPBoolean (true /*TODO FIXME _y2pm.instTarget().hasFile(filepath->value())*/);
 }
 

@@ -15,7 +15,6 @@ libpy2Pkg_la_SOURCES =				\
 	Y2CCPkg.cc Y2CCPkg.h			\
 	ycpTools.cc ycpTools.h			\
 	PkgModule.cc PkgModule.h		\
-	PkgModuleError.cc PkgModuleError.h	\
 	PkgModuleFunctions.h			\
 	PkgModuleFunctions.cc			\
 	PkgModuleFunctionsPackage.cc		\
@@ -32,8 +31,8 @@ libpy2Pkg_la_LDFLAGS = -version-info 2:0
 libpy2Pkg_la_LIBADD = \
 	-lycp		\
 	-ly2		\
-	-ly2pm 		\
-	-ly2util
+	-ly2util	\
+	-lzypp
 
 INCLUDES = -I$(includedir)
 

@@ -26,15 +26,6 @@
 #include <PkgModule.h>
 #include <PkgModuleFunctions.h>
 
-#include <y2util/Url.h>
-#include <y2util/Y2SLog.h>
-#include <y2pm/InstData.h>
-#include <y2pm/YouError.h>
-#include <y2pm/PMYouPatchManager.h>
-#include <y2pm/InstYou.h>
-#include <y2pm/PMPackage.h>
-#include <y2pm/PMYouProduct.h>
-
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPInteger.h>
@@ -46,22 +37,6 @@
 using std::string;
 using std::endl;
 
-/**
- * helper function, get selectable by name
- */
-
-PMSelectablePtr
-PkgModuleFunctions::getPatchSelectable (const std::string& name)
-{
-    PMSelectablePtr selectable;
-    if (!name.empty())
-	selectable = _y2pm.youPatchManager().getItem(name);
-    if (!selectable)
-    {
-	y2error ("Patch '%s' not found", name.c_str());
-    }
-    return selectable;
-}
 
 
 //-------------------------------------------------------------
@@ -77,6 +52,7 @@ PkgModuleFunctions::YouStatus ()
 {
     YCPMap result;
 
+    /* TODO FIXME
     result->add( YCPString( "error" ), YCPBoolean( false ) );
     
     InstYou &you = _y2pm.youPatchManager().instYou();
@@ -94,7 +70,7 @@ PkgModuleFunctions::YouStatus ()
     result->add( YCPString( "lastupdate" ), YCPInteger( you.lastUpdate() ) );
     result->add( YCPString( "installedpatches" ),
                  YCPInteger( you.installedPatches() ) );
-    
+    */
     return result;
 }
 
@@ -112,11 +88,13 @@ PkgModuleFunctions::YouStatus ()
 YCPValue
 PkgModuleFunctions::YouSetServer (const YCPMap& servers)
 {
+    /* TODO FIXME
     PMYouServer server = convertServerObject( servers );
 
     InstYou &you = _y2pm.youPatchManager().instYou();
 
     you.settings()->setPatchServer( server );
+    */
 
     return YCPString( "" );
 }
@@ -131,12 +109,13 @@ PkgModuleFunctions::YouSetServer (const YCPMap& servers)
 YCPValue
 PkgModuleFunctions::YouGetUserPassword ()
 {
+    /* TODO FIXME
     InstYou &you = _y2pm.youPatchManager().instYou();
 
     you.readUserPassword();
-
-    string username = you.username();
-    string password = you.password();
+    */
+    string username = "you.username()";
+    string password = "you.password()";
 
     YCPMap result;
     result->add( YCPString( "username" ), YCPString( username ) );
@@ -161,6 +140,7 @@ PkgModuleFunctions::YouSetUserPassword (const YCPString& user, const YCPString& 
     string password = passwd->value_cstr();
     bool persistent = p->value();
 
+    /* TODO FIXME
     _last_error =
         _y2pm.youPatchManager().instYou().setUserPassword( username,
                                                            password,
@@ -169,6 +149,7 @@ PkgModuleFunctions::YouSetUserPassword (const YCPString& user, const YCPString& 
     if ( _last_error ) {
         return YCPString( "error" );
     }
+    */
 
     return YCPString("");
 }
@@ -188,6 +169,7 @@ PkgModuleFunctions::YouSetUserPassword (const YCPString& user, const YCPString& 
 YCPString
 PkgModuleFunctions::YouGetServers (YCPReference strings)
 {
+    /* TODO FIXME
     std::list<PMYouServer> servers;
     _last_error = _y2pm.youPatchManager().instYou().servers( servers );
     if ( _last_error ) {
@@ -209,35 +191,12 @@ PkgModuleFunctions::YouGetServers (YCPReference strings)
     }
     
     strings->entry ()->setValue (result);
+*/
 
     return YCPString( "" );
 }
 
 
-PMYouServer
-PkgModuleFunctions::convertServerObject( const YCPMap &serverMap )
-{
-    string url;
-    string name;
-    string dir;
-    string typeStr;
-
-    YCPValue urlValue = serverMap->value( YCPString( "url" ) );
-    if ( !urlValue.isNull() ) url = urlValue->asString()->value();
-
-    YCPValue nameValue = serverMap->value( YCPString( "name" ) );
-    if ( !nameValue.isNull() ) name = nameValue->asString()->value();
-
-    YCPValue dirValue = serverMap->value( YCPString( "directory" ) );
-    if ( !dirValue.isNull() ) dir = dirValue->asString()->value();
-
-    YCPValue typeValue = serverMap->value( YCPString( "type" ) );
-    if ( !typeValue.isNull() ) typeStr = typeValue->asString()->value();
-    
-    PMYouServer::Type type = PMYouServer::typeFromString( typeStr );
-    
-    return PMYouServer( Url( url ), name, dir, type );
-}
 
 
 /**
@@ -251,6 +210,7 @@ PkgModuleFunctions::convertServerObject( const YCPMap &serverMap )
 YCPValue
 PkgModuleFunctions::YouGetDirectory ()
 {
+    /* TODO FIXME
     InstYou &you = _y2pm.youPatchManager().instYou();
 
     _last_error = you.retrievePatchDirectory();
@@ -258,6 +218,7 @@ PkgModuleFunctions::YouGetDirectory ()
       if ( _last_error == MediaError::E_login_failed ) return YCPString( "login" );
       return YCPString( "error" );
     }
+    */
 
     return YCPString( "" );
 }
@@ -279,6 +240,7 @@ PkgModuleFunctions::YouRetrievePatchInfo (const YCPBoolean& download, const YCPB
     bool reload = download->value();
     bool checkSig = sig->value();
 
+    /* TODO FIXME
     InstYou &you = _y2pm.youPatchManager().instYou();
 
     you.settings()->setReloadPatches( reload );
@@ -292,6 +254,7 @@ PkgModuleFunctions::YouRetrievePatchInfo (const YCPBoolean& download, const YCPB
       if ( _last_error == YouError::E_user_abort ) return YCPString( "abort" );
       return YCPString( _last_error.errstr() );
     }
+    */
 
     return YCPString( "" );
 }
@@ -305,8 +268,10 @@ PkgModuleFunctions::YouRetrievePatchInfo (const YCPBoolean& download, const YCPB
 YCPValue
 PkgModuleFunctions::YouProcessPatches ()
 {
+    /* TODO FIXME
     _last_error = _y2pm.youPatchManager().instYou().processPatches();
     if ( _last_error ) return YCPError( _last_error.errstr(), YCPBoolean( false ) );
+    */
     return YCPBoolean( true );
 }
 
@@ -320,17 +285,20 @@ PkgModuleFunctions::YouProcessPatches ()
 YCPValue
 PkgModuleFunctions::YouSelectPatches ()
 {
+    /* TODO FIXME
     int kinds = PMYouPatch::kind_security | PMYouPatch::kind_recommended |
                 PMYouPatch::kind_patchlevel;
 
     _y2pm.youPatchManager().instYou().selectPatches( kinds );
-    
+*/    
     return YCPVoid ();
 }
 
+/* TODO FIXME
 YCPMap
 PkgModuleFunctions::YouPatch( const PMYouPatchPtr &patch )
 {
+
     YCPMap result;
 
     result->add( YCPString( "kind" ), YCPString( patch->kindLabel( patch->kind() ) ) );
@@ -339,9 +307,7 @@ PkgModuleFunctions::YouPatch( const PMYouPatchPtr &patch )
     result->add( YCPString( "description" ), YCPString( patch->longDescription() ) );
     result->add( YCPString( "preinformation" ), YCPString( patch->preInformation() ) );
     result->add( YCPString( "postinformation" ), YCPString( patch->postInformation() ) );
-    
     YCPList packageList;
-    
     std::list<PMPackagePtr> packages = patch->packages();
     std::list<PMPackagePtr>::const_iterator itPkg;
     for ( itPkg = packages.begin(); itPkg != packages.end(); ++itPkg ) {
@@ -352,6 +318,7 @@ PkgModuleFunctions::YouPatch( const PMYouPatchPtr &patch )
 
     return result;
 }
+*/
 
 /**
    @builtin YouRemovePackages
@@ -362,7 +329,9 @@ PkgModuleFunctions::YouPatch( const PMYouPatchPtr &patch )
 YCPValue
 PkgModuleFunctions::YouRemovePackages ()
 {
+    /* TODO FIXME
     _last_error = _y2pm.youPatchManager().instYou().removePackages();
     if ( _last_error ) return YCPError( _last_error.errstr(), YCPBoolean( false ) );
+    */
     return YCPBoolean( true );
 }
