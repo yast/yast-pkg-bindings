@@ -211,11 +211,42 @@ namespace ZyppRecipients {
 	    return zypp::target::rpm::InstallResolvableReport::progress(value, resolvable);
 	}
 
-	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, std::string reason)
+        virtual Action problem(
+          zypp::Resolvable::constPtr resolvable
+          , Error error
+          , std::string description
+          , zypp::target::rpm::InstallResolvableReport::RpmLevel level
+        ) 
 	{
+	    if (level != zypp::target::rpm::InstallResolvableReport::RPM_NODEPS_FORCE)
+		return RETRY;
+ 
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
 		callback.addInt( error );
+		callback.addStr( description );
+
+                std::string ret = callback.evaluateStr();
+
+                // "R" =  retry
+                if (ret == "R") return RETRY;
+
+                // "C" = cancel
+                if (ret == "C") return ABORT;
+
+                // otherwise ignore
+                return IGNORE;
+	    }
+
+	    return zypp::target::rpm::InstallResolvableReport::problem
+		(resolvable, error, description, level);
+}
+
+	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, std::string reason, zypp::target::rpm::InstallResolvableReport::RpmLevel level)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
+	    if (callback._set) {
+		callback.addInt( level == zypp::target::rpm::InstallResolvableReport::RPM_NODEPS_FORCE ? error : NO_ERROR);
 		callback.addStr( reason );
 		callback.evaluateStr(); // return value ignored by RpmDb
 	    }
