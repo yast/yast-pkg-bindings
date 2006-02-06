@@ -36,8 +36,8 @@
 #include <y2/Y2Namespace.h>
 #include <y2/Y2Function.h>
 
-#include <ycpTools.h>
-#include <PkgModuleCallbacks.h>
+#include "ycpTools.h"
+#include "Callbacks.h"
 
 #include <ycp/y2log.h>
 
