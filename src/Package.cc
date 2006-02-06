@@ -91,8 +91,73 @@ using std::string;
 YCPList
 PkgModuleFunctions::PkgQueryProvides( const YCPString& tag )
 {
-  // TODO FIXME return asYCPList( queryString( queryProvides, tag->value() ) );
-  return YCPList();
+    YCPList ret;
+    std::string name = tag->value();
+
+    // 'it' is 'const struct std::pair<const std::string, std::pair<zypp::Capability, zypp::PoolItem> >'
+    for (zypp::ResPool::const_indexiterator it = zypp_ptr->pool().providesbegin(name);
+	it != zypp_ptr->pool().providesend(name);
+	++it)
+    {
+	// is it a package?
+	if (zypp::isKind<zypp::Package>(it->second.second.resolvable()))
+	{
+
+	    // cast to Package object
+	    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->second.second.resolvable());
+	    std::string pkgname = package->name();
+
+	    // get instance status
+	    bool installed = it->second.second.status().staysInstalled();
+	    bool tobeinstalled = it->second.second.status().isToBeInstalled();
+
+	    std::string instance;
+	    if (installed && !tobeinstalled)
+	    {
+		instance = "INST";
+	    }
+	    else if (!installed && tobeinstalled)
+	    {
+		instance = "CAND";
+	    }
+	    else if (installed && tobeinstalled)
+	    {
+		instance = "BOTH";
+	    }
+	    else
+	    {
+		instance = "NONE";
+	    }
+
+	    // get status on the system
+	    bool uninstalled = it->second.second.status().staysUninstalled() && it->second.second.status().isToBeUninstalled();
+	    std::string onSystem;
+
+	    if (uninstalled)
+	    {
+		onSystem = "NONE";
+	    }
+	    else if (tobeinstalled)
+	    {
+		onSystem = "CAND";
+	    }
+	    else
+	    {
+		onSystem = "INST";
+	    }
+    
+	    // create list item
+	    YCPList item;
+	    item->add(YCPString(pkgname));
+	    item->add(YCPSymbol(instance));
+	    item->add(YCPSymbol(onSystem));
+
+	    // add the item to the result
+	    ret->add(item);
+	}
+    }
+
+    return ret;
 }
 
 ///////////////////////////////////////////////////////////////////
