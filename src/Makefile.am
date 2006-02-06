@@ -17,14 +17,14 @@ libpy2Pkg_la_SOURCES =				\
 	PkgModule.cc PkgModule.h		\
 	PkgModuleFunctions.h			\
 	PkgModuleFunctions.cc			\
-	PkgModuleFunctionsPackage.cc		\
-	PkgModuleFunctionsPatch.cc		\
-	PkgModuleFunctionsSelection.cc		\
-	PkgModuleFunctionsTarget.cc		\
-	PkgModuleFunctionsSource.cc		\
-	PkgModuleCallbacks.h			\
-	PkgModuleCallbacks.YCP.h		\
-	PkgModuleCallbacks.cc
+	Package.cc				\
+	Patch.cc				\
+	Selection.cc				\
+	Target.cc				\
+	Source.cc				\
+	Callbacks.h				\
+	Callbacks.YCP.h				\
+	Callbacks.cc
 
 
 libpy2Pkg_la_LDFLAGS = -version-info 2:0

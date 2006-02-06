@@ -25,8 +25,8 @@
 #include <y2util/stringutil.h>
 
 #include "PkgModuleFunctions.h"
-#include "PkgModuleCallbacks.h"
-#include "PkgModuleCallbacks.YCP.h" // PkgModuleFunctions::CallbackHandler::YCPCallbacks
+#include "Callbacks.h"
+#include "Callbacks.YCP.h" // PkgModuleFunctions::CallbackHandler::YCPCallbacks
 
 #include <zypp/ZYppCallbacks.h>
 

@@ -26,7 +26,7 @@
 #include <ycp/YBlock.h>
 #include "PkgModuleFunctions.h"
 
-#include "PkgModuleCallbacks.h"
+#include "Callbacks.h"
 
 #include <ycp/YCPInteger.h>
 #include <ycp/YCPString.h>
