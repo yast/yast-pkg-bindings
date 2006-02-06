@@ -236,6 +236,10 @@ PkgModuleFunctions::SelectionData (const YCPString& sel)
 	data->add (YCPString ("visible"), YCPBoolean (selection->visible()));
 	data->add (YCPString ("order"), YCPString (selection->order()));
     }
+    else
+    {
+	ycperror("Selection '%s' not found", name.c_str());
+    }
 
     return data;
 }

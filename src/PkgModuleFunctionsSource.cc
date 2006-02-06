@@ -32,6 +32,7 @@
 #include <PkgModuleFunctions.h>
 
 #include <zypp/SourceManager.h>
+#include <zypp/Source.h>
 
 using namespace std;
 
@@ -372,17 +373,19 @@ PkgModuleFunctions::SourceProduct (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
+    zypp::Source_Ref src;
+
     try {
-	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+	src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
     } catch(...) {
-	y2error ("Source ID not found: %d", id->asInteger()->value());
+	y2error ("Source ID not found: %lld", id->asInteger()->value());
 	return YCPVoid();
     }
 
     zypp::filesystem::Pathname path;
   
     try {
-    	path = src.provideFile(f->value(), mid->asInteger()->value());
+    	path = src.provideFile(f->value(), id->asInteger()->value());
     } catch(...) {
 
 #warning report proper error
@@ -705,9 +708,11 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
     {
 	ret = zypp::SourceManager::sourceManager()->addSource(url, pn);
 	
-	zypp::SourceManager::sourceManager()->enable(ret);
+	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(ret);
+
+	src.enable(); 
     
-	zypp_ptr->addResolvables (zypp::SourceManager::sourceManager()->findSource(ret).resolvables());
+	zypp_ptr->addResolvables (src.resolvables());
     }
     catch (...)
     {
