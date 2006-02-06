@@ -21,7 +21,6 @@
 
 #include <iostream>
 
-#include <y2util/Y2SLog.h>
 #include <y2util/stringutil.h>
 
 #include "PkgModuleFunctions.h"
@@ -661,10 +660,22 @@ namespace ZyppRecipients {
 	    if ( callback._set )
 	    {
 		YCPMap arg;
-		arg->add( YCPString("url"),		YCPString( url.asString() ) );
+		arg->add( YCPString("url"), YCPString( url.asString() ) );
+
+		// search product
+		zypp::ResStore store = source.resolvables();
+		for (zypp::ResStore::const_iterator it = store.begin();
+		   it != store.end();
+		   it++)
+		{
+		    if (zypp::isKind<zypp::Product>(*it))
+		    {
+			arg->add( YCPString("label"), YCPString( (*it)->name() ) );
+		    }
+		}
+		
 /* TODO
 		arg->add( YCPString("product_dir"),	YCPString( descr_r->product_dir().asString() ) );
-		arg->add( YCPString("label"),		YCPString( descr_r->content_label() ) );
 */
 		callback.addMap( arg );
 		startArgs = arg; //remember
@@ -681,7 +692,7 @@ namespace ZyppRecipients {
 // TODO		arg->add( YCPString( "error" ),	YCPSymbol( asString( error_r ) ) );
 		arg->add( YCPString( "detail" ),	YCPString( description ) );
 		callback.addMap( arg );
-		string result = callback.evaluateSymbol();
+		std::string result = callback.evaluateSymbol();
 
 		if ( result == "RETRY" ) return RETRY;
 		if ( result == "SKIP_REFRESH" ) return IGNORE;
@@ -692,7 +703,7 @@ namespace ZyppRecipients {
 		}
 
 		// still here?
-		INT << "Unexpected Symbol '" << result << "' returned from callback." << endl;
+		y2error("Unexpected Symbol '%s' returned from callback.", result.c_str());
 		// return default
 	    }
 
@@ -792,8 +803,7 @@ namespace ZyppRecipients {
 	    if ( callback._set )
 	    {
 		callback.addStr( url.asString() );
-		// TODO FIXME
-		callback.addStr( std::string("TODO: localpath_r") );
+		callback.addStr( source.path() );
 		callback.evaluate();
 	    }
 	}

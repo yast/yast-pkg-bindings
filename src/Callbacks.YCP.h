@@ -24,12 +24,9 @@
 
 #include <stack>
 
-#include <y2util/Y2SLog.h>
 #include <y2util/stringutil.h>
 #include <y2util/Date.h>
 #include <y2util/FSize.h>
-#include <y2util/Url.h>
-#include <y2util/Pathname.h>
 
 #include <y2/Y2ComponentBroker.h>
 #include <y2/Y2Component.h>
@@ -297,8 +294,8 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	  }
 
 	  CB & addStr( const string & arg ) { if (_func != NULL) _func->appendParameter( YCPString( arg ) ); return *this; }
-	  CB & addStr( const Pathname & arg ) { return addStr( arg.asString() ); }
-	  CB & addStr( const Url & arg ) { return addStr( arg.asString() ); }
+	  CB & addStr( const zypp::Pathname & arg ) { return addStr( arg.asString() ); }
+	  CB & addStr( const zypp::Url & arg ) { return addStr( arg.asString() ); }
 
 	  CB & addInt( long long arg ) { if (_func != NULL) _func->appendParameter( YCPInteger( arg ) ); return *this; }
 
