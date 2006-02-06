@@ -30,6 +30,9 @@
 
 #include <zypp/ZYppCallbacks.h>
 
+// FIXME: do this nicer, source create use this to avoid user feedback
+// on probing of source type
+static bool _silent_probing;
 
 ///////////////////////////////////////////////////////////////////
 namespace ZyppRecipients {
@@ -723,6 +726,9 @@ namespace ZyppRecipients {
 
 	virtual Action requestMedia(zypp::Source_Ref source, unsigned mediumNr, Error error, std::string description)
 	{
+	    if ( _silent_probing) 
+		return ABORT;
+		
 	    CB callback( ycpcb( YCPCallbacks::CB_MediaChange ) );
 	    if ( callback._set )
 	    {
@@ -822,6 +828,50 @@ namespace ZyppRecipients {
 		callback.evaluate();
 	    }
 	}
+    };
+
+    ///////////////////////////////////////////////////////////////////
+    // CreateSourceReport
+    ///////////////////////////////////////////////////////////////////
+    struct CreateSourceReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::CreateSourceReport>
+    {
+	CreateSourceReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual void reportbegin()
+	{
+	}
+
+        virtual void reportend()
+	{
+	}
+
+        virtual void startData(
+          zypp::Url source_url
+        ) {}
+
+        virtual void startProbe(zypp::Url url) {
+	    y2internal ("Probing for source creation started");
+	    _silent_probing = true;
+	}
+
+        virtual void endProbe(zypp::Url url) {
+	    _silent_probing = false;
+	}
+
+        virtual bool progressData(int value, zypp::Url url)
+        { return zypp::source::CreateSourceReport::progressData(value, url); }
+
+        virtual Action problem(
+          zypp::Url url
+          , Error error
+          , std::string description
+        ) { return zypp::source::CreateSourceReport::problem(url, error, description); }
+
+        virtual void finishData(
+          zypp::Url url
+          , Error error
+          , std::string reason
+        ) {}
     };
 
 /*
@@ -958,6 +1008,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 
     // source manager callback
     ZyppRecipients::SourceRefreshReceive _sourceRefreshReceive;
+    ZyppRecipients::CreateSourceReceive _createSourceReceive;
 
 /*
     // InstTargetCallbacks
@@ -984,6 +1035,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
       , _downloadProgressReceive( *this )
       , _mediaChangeReceive( *this )
       , _sourceRefreshReceive( *this )
+      , _createSourceReceive( *this )
 /*      , _scriptExecReceive( *this )
       , _commitReceive( *this )
       , _commitProvideReceive( *this )
@@ -999,6 +1051,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_mediaChangeReceive.connect();
 	_downloadProgressReceive.connect();
 	_sourceRefreshReceive.connect();
+	_createSourceReceive.connect();
     }
 
     virtual ~ZyppReceive()
