@@ -2,15 +2,15 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "/usr/share/xml/docbook/schema/dtd/4.2/docbookx.dtd"[
 
-<!ENTITY PkgModuleCallbacks    SYSTEM "PkgModuleCallbacks.xml">
+<!ENTITY PkgModuleCallbacks    SYSTEM "Callbacks.xml">
 <!ENTITY PkgModule    SYSTEM "PkgModule.xml">
 <!ENTITY PkgModuleError    SYSTEM "PkgModuleError.xml">
 <!ENTITY PkgModuleFunctions    SYSTEM "PkgModuleFunctions.xml">
-<!ENTITY PkgModuleFunctionsPackage    SYSTEM "PkgModuleFunctionsPackage.xml">
-<!ENTITY PkgModuleFunctionsPatch    SYSTEM "PkgModuleFunctionsPatch.xml">
-<!ENTITY PkgModuleFunctionsSelection    SYSTEM "PkgModuleFunctionsSelection.xml">
-<!ENTITY PkgModuleFunctionsSource    SYSTEM "PkgModuleFunctionsSource.xml">
-<!ENTITY PkgModuleFunctionsTarget    SYSTEM "PkgModuleFunctionsTarget.xml">
+<!ENTITY PkgModuleFunctionsPackage    SYSTEM "Package.xml">
+<!ENTITY PkgModuleFunctionsPatch    SYSTEM "Patch.xml">
+<!ENTITY PkgModuleFunctionsSelection    SYSTEM "Selection.xml">
+<!ENTITY PkgModuleFunctionsSource    SYSTEM "Source.xml">
+<!ENTITY PkgModuleFunctionsTarget    SYSTEM "Target.xml">
 <!ENTITY pkgbindingssection    SYSTEM "pkg-bindings-section.xml">
 ]>
 <book>
