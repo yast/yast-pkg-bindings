@@ -273,7 +273,7 @@ namespace ZyppRecipients {
 	{
 	}
 
-	virtual void start(zypp::Resolvable::Ptr resolvable)
+	virtual void start(zypp::Resolvable::constPtr resolvable)
 	{
 	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
 	  if (callback._set) {
@@ -285,7 +285,7 @@ namespace ZyppRecipients {
 	  }
 	}
 				  
-	virtual bool progress(int value, zypp::Resolvable::Ptr resolvable)
+	virtual bool progress(int value, zypp::Resolvable::constPtr resolvable)
 	{		
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
 	    if (callback._set) {
@@ -300,7 +300,7 @@ namespace ZyppRecipients {
 	    return zypp::target::rpm::RemoveResolvableReport::progress(value, resolvable);
 	}
 
-	virtual void finish(zypp::Resolvable::Ptr resolvable, zypp::target::rpm::RemoveResolvableReport::Error error, std::string reason)
+	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::RemoveResolvableReport::Error error, std::string reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
@@ -337,7 +337,7 @@ namespace ZyppRecipients {
 	  }
 	}
 				  
-	virtual void finish(zypp::Resolvable::Ptr resolvable, zypp::source::DownloadResolvableReport::Error error, std::string reason)
+	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::source::DownloadResolvableReport::Error error, std::string reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
 	    if (callback._set) {
