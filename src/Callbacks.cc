@@ -28,6 +28,7 @@
 #include "Callbacks.YCP.h" // PkgModuleFunctions::CallbackHandler::YCPCallbacks
 
 #include <zypp/ZYppCallbacks.h>
+#include <zypp/Package.h>
 
 // FIXME: do this nicer, source create use this to avoid user feedback
 // on probing of source type
@@ -186,11 +187,14 @@ namespace ZyppRecipients {
 	
 	virtual void start(zypp::Resolvable::constPtr resolvable)
 	{
+#warning install non-package
+	  zypp::Package::constPtr res = 
+	    zypp::asKind<zypp::Package>(resolvable);
 	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
 	  if (callback._set) {
-	    callback.addStr(resolvable->name());
-	    callback.addStr(std::string());
-	    callback.addInt(-1);
+	    callback.addStr(res->name());
+	    callback.addStr(res->summary());
+	    callback.addInt(res->size());	// which size it is?
 	    callback.addBool(false);	// is_delete = false (package installation)
 	    callback.evaluateBool();
 	  }
