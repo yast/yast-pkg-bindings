@@ -72,7 +72,24 @@ PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
 YCPValue
 PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 {
-    // TODO FIXME
+    try {
+	zypp::SourceManager::sourceManager()->restore(_target_root);
+	
+	if( enable->value() )
+	{
+	    // go over all sources and get resolvables
+	    std::list<unsigned int> ids = zypp::SourceManager::sourceManager()->enabledSources();
+	    for( std::list<unsigned int>::iterator it = ids.begin(); it != ids.end(); ++it)
+	    {
+		zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(*it);
+		zypp_ptr->addResolvables (src.resolvables());
+	    }
+	}
+    }
+    catch(...)
+    {
+	// FIXME: assuming the sources are already initialized
+    }
     return YCPBoolean( true );
 }
 
@@ -98,8 +115,9 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 YCPValue
 PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
 {
-    // TODO FIXME
-    return YCPList();
+    SourceStartManager(enabled);
+    
+    return SourceGetCurrent(enabled);
 }
 
 /****************************************************************************************
@@ -115,8 +133,16 @@ PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
 YCPValue
 PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 {
-    // TODO FIXME
-    return YCPList();
+    std::list<unsigned int> ids = zypp::SourceManager::sourceManager()->enabledSources();
+    
+    YCPList res;
+    
+    for( std::list<unsigned int>::const_iterator it = ids.begin(); it != ids.end() ; ++it )
+    {
+	res->add( YCPInteger( *it ) );
+    }
+
+    return res;
 }
 
 /****************************************************************************************
@@ -130,13 +156,18 @@ PkgModuleFunctions::SourceFinishAll ()
 {
     try
     {
+	y2milestone( "Storing the source setup in %s", _target_root.asString().c_str()) ;
+	zypp::SourceManager::sourceManager()->store( _target_root );
+	y2milestone( "Disabling all sources") ;
 	zypp::SourceManager::sourceManager()->disableAllSources ();
     }
-    catch (...)
+    catch (zypp::Exception & excpt)
     {
-	y2error("Pkg::SourceFinishAll has failed");
+	y2error("Pkg::SourceFinishAll has failed: %s", excpt.msg().c_str() );
 	return YCPBoolean(false);
     }
+
+    y2milestone( "All sources finished");
 
     return YCPBoolean(true);
 }
@@ -706,7 +737,8 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
     
     try
     {
-	ret = zypp::SourceManager::sourceManager()->addSource(url, pn);
+	// create the source, use URL as the alias
+	ret = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString());
 	
 	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(ret);
 

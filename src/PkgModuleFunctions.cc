@@ -150,6 +150,7 @@ public:
  */
 PkgModuleFunctions::PkgModuleFunctions ()
     : _callbackHandler( *new CallbackHandler( ) )
+    , _target_root( "/" )
 {
   registerFunctions ();
 

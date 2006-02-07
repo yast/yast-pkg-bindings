@@ -192,7 +192,7 @@ namespace ZyppRecipients {
 	    zypp::asKind<zypp::Package>(resolvable);
 	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
 	  if (callback._set) {
-	    callback.addStr(res->name());
+	    callback.addStr(res->plainRpm());
 	    callback.addStr(res->summary());
 	    callback.addInt(res->size());	// which size it is?
 	    callback.addBool(false);	// is_delete = false (package installation)

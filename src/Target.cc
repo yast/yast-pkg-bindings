@@ -62,6 +62,8 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& /*unuse
 	ycperror ("Target initialization has failed" );
         return YCPBoolean (false);
     }
+    
+    _target_root = zypp::Pathname(root->value());
 
     /* TODO: error handling
     // initialize target
