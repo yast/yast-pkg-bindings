@@ -109,41 +109,33 @@ PkgModuleFunctions::PkgQueryProvides( const YCPString& tag )
 
 	    // get instance status
 	    bool installed = it->second.second.status().staysInstalled();
-	    bool tobeinstalled = it->second.second.status().isToBeInstalled();
-
 	    std::string instance;
-	    if (installed && !tobeinstalled)
-	    {
-		instance = "INST";
-	    }
-	    else if (!installed && tobeinstalled)
-	    {
-		instance = "CAND";
-	    }
-	    else if (installed && tobeinstalled)
+
+	    // TODO FIXME the other values??
+	    if (installed)
 	    {
 		instance = "BOTH";
 	    }
 	    else
 	    {
-		instance = "NONE";
+		instance = "CAND";
 	    }
 
 	    // get status on the system
-	    bool uninstalled = it->second.second.status().staysUninstalled() && it->second.second.status().isToBeUninstalled();
+	    bool uninstalled = it->second.second.status().staysUninstalled() || it->second.second.status().isToBeUninstalled();
 	    std::string onSystem;
 
 	    if (uninstalled)
 	    {
 		onSystem = "NONE";
 	    }
-	    else if (tobeinstalled)
+	    else if (installed)
 	    {
-		onSystem = "CAND";
+		onSystem = "INST";
 	    }
 	    else
 	    {
-		onSystem = "INST";
+		onSystem = "CAND";
 	    }
     
 	    // create list item
