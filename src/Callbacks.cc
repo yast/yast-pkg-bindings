@@ -107,7 +107,7 @@ namespace ZyppRecipients {
 	    return zypp::target::rpm::ConvertDBReport::progress(value, pth);
 	}
 
-	virtual void finish(Pathname path, Error error, std::string reason)
+	virtual void finish(zypp::Pathname path, Error error, std::string reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_StopConvertDb ) );
 	    if (callback._set) {

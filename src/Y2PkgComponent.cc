@@ -1,5 +1,4 @@
 
-#include <y2util/y2log.h>
 #include <y2/Y2Namespace.h>
 #include <y2/Y2Component.h>
 #include <y2/Y2ComponentCreator.h>

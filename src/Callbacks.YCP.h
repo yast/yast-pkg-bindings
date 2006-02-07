@@ -25,8 +25,8 @@
 #include <stack>
 
 #include <y2util/stringutil.h>
-#include <y2util/Date.h>
-#include <y2util/FSize.h>
+//#include <y2util/Date.h>
+//#include <y2util/FSize.h>
 
 #include <y2/Y2ComponentBroker.h>
 #include <y2/Y2Component.h>

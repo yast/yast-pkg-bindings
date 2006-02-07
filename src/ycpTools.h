@@ -28,8 +28,8 @@
 
 #include <YCP.h>
 
-#include <y2util/Pathname.h>
-#include <y2util/Url.h>
+#include <zypp/Pathname.h>
+#include <zypp/Url.h>
 
 ///////////////////////////////////////////////////////////////////
 // convenience functions
@@ -215,14 +215,14 @@ inline bool YcpArgLoad::Value<YT_STRING, std::string>::assign( const YCPValue & 
 }
 
 template<>
-inline bool YcpArgLoad::Value<YT_STRING, Pathname>::assign( const YCPValue & arg_r )
+inline bool YcpArgLoad::Value<YT_STRING, zypp::Pathname>::assign( const YCPValue & arg_r )
 {
   _value = arg_r->asString()->value();
   return true;
 }
 
 template<>
-inline bool YcpArgLoad::Value<YT_STRING, Url>::assign( const YCPValue & arg_r )
+inline bool YcpArgLoad::Value<YT_STRING, zypp::Url>::assign( const YCPValue & arg_r )
 {
   _value = arg_r->asString()->value();
   return true;
