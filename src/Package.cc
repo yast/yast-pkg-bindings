@@ -21,12 +21,8 @@
 		from WFMInterpreter.
 /-*/
 
-#include <iostream>
-#include <fstream>
-#include <utility>
-
 #include <ycp/y2log.h>
-#include <PkgModuleFunctions.h>
+#include "PkgModuleFunctions.h"
 
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
@@ -36,21 +32,11 @@
 #include <ycp/YCPList.h>
 #include <ycp/YCPMap.h>
 
-
-#include <zypp/ResStore.h>
-#include <zypp/ResObject.h>
-
-// ??
-#include <zypp/base/Iterator.h>
-
-#include <zypp/ResFilters.h>
 #include <zypp/ResPool.h>
 #include <zypp/Package.h>
 #include <zypp/SourceManager.h>
-#include <zypp/Resolver.h>
 #include <zypp/UpgradeStatistics.h>
 
-using std::string;
 
 ///////////////////////////////////////////////////////////////////
 
@@ -111,6 +97,7 @@ PkgModuleFunctions::PkgQueryProvides( const YCPString& tag )
 	    bool installed = it->second.second.status().staysInstalled();
 	    std::string instance;
 
+# warning Status `NONE and `INST is not supported
 	    // TODO FIXME the other values??
 	    if (installed)
 	    {
@@ -186,6 +173,7 @@ inline std::string join( const std::list<std::string> & lines_r, const std::stri
 YCPValue
 PkgModuleFunctions::PkgMediaNames ()
 {
+# warning PkgMediaNames is not implemented
     // get sources in installation order
 // FIXME    InstSrcManager::ISrcIdList inst_order( _y2pm.instSrcManager().instOrderSources() );
 
@@ -217,6 +205,7 @@ PkgModuleFunctions::PkgMediaNames ()
 YCPValue
 PkgModuleFunctions::PkgMediaSizes ()
 {
+# warning PkgMediaSizes is not implemented
 /* TODO FIXME
     // get sources in installation order
     InstSrcManager::ISrcIdList inst_order( _y2pm.instSrcManager().instOrderSources() );
@@ -320,6 +309,7 @@ PkgModuleFunctions::PkgMediaSizes ()
 YCPValue
 PkgModuleFunctions::PkgMediaCount()
 {
+# warning PkgMediaCount is not implemented
 /* TODO FIXME
     // get sources in installation order
     InstSrcManager::ISrcIdList inst_order( _y2pm.instSrcManager().instOrderSources() );
@@ -432,7 +422,7 @@ PkgModuleFunctions::IsProvided (const YCPString& tag)
 
     y2milestone("IsProvided called");
 
-    // TODO support tags, not package only
+# warning support tags, not package only
     zypp::ResPool::byName_iterator it = std::find_if (
 	zypp_ptr->pool().byNameBegin(name)
 	, zypp_ptr->pool().byNameEnd(name)
@@ -462,7 +452,7 @@ PkgModuleFunctions::IsSelected (const YCPString& tag)
     if (name.empty())
 	return YCPBoolean (false);
 
-    // TODO support tags, not package only
+# warning support tags, not package only
     zypp::ResPool::byName_iterator it = std::find_if (
 	zypp_ptr->pool().byNameBegin(name)
 	, zypp_ptr->pool().byNameEnd(name)
@@ -496,7 +486,7 @@ PkgModuleFunctions::IsAvailable (const YCPString& tag)
     if (name.empty())
 	return YCPBoolean (false);
 
-    // TODO: search for tags as well, we do package name only
+#warning search for tags as well, we do package name only
     zypp::ResPool::byName_iterator it = std::find_if (
 	zypp_ptr->pool().byNameBegin(name)
 	, zypp_ptr->pool().byNameEnd(name)
@@ -507,44 +497,14 @@ PkgModuleFunctions::IsAvailable (const YCPString& tag)
 }
 
 
-/* TODO: REMOVE
- * helper function, find a package which provides tag (as a
- *   provided tag or a provided file)
- *
-
-
-PMSelectablePtr
-PkgModuleFunctions::WhoProvidesString (std::string tag)
-{
-    for (PMPackageManager::PMSelectableVec::const_iterator sel = _y2pm.packageManager().begin();
-	 sel != _y2pm.packageManager().end(); ++sel)
-    {
-	if ((*sel)->has_installed()
-	    && (*sel)->installedObj()->doesProvide (PkgRelation (PkgName (tag))))
-	{
-	    return *sel;
-	}
-	else if ((*sel)->has_candidate()
-	    && (*sel)->candidateObj()->doesProvide (PkgRelation (PkgName (tag))))
-	{
-	    return *sel;
-	}
-    }
-    return 0;
-}
-
-
-**
+/**
  * helper function, install a package which provides tag (as a
  *   package name, a provided tag, or a provided file
- *
- *
 */
 
 bool
 PkgModuleFunctions::DoProvideString (std::string name)
 {
-    // TODO support tags, not package only
     zypp::ResPool::byName_iterator it = std::find_if (
 	zypp_ptr->pool().byNameBegin(name)
 	, zypp_ptr->pool().byNameEnd(name)
@@ -562,14 +522,12 @@ PkgModuleFunctions::DoProvideString (std::string name)
 /**
  * helper function, deinstall a package which provides tag (as a
  *   package name, a provided tag, or a provided file
- *
- *
 */
 
 bool
 PkgModuleFunctions::DoRemoveString (std::string name)
 {
-    // TODO support tags, not package only
+#warning support tags, not package only
     zypp::ResPool::byName_iterator it = std::find_if (
 	zypp_ptr->pool().byNameBegin(name)
 	, zypp_ptr->pool().byNameEnd(name)
@@ -919,7 +877,7 @@ PkgModuleFunctions::PkgLocation (const YCPString& p)
 	    // cast to Package object
 	    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
-	    // FIXME: not implemented in zypp yet
+#warning PkgLocation is not implemented yet
 	    return YCPString("package->location()");
 	}
     }
@@ -983,8 +941,8 @@ YCPList PkgModuleFunctions::PkgGetFilelist( const YCPString & package, const YCP
 			ret->add(YCPString(*it));
 		    }
 
+#warning PkgGetFilelist has different semantics for `any optinon - the result depends on item order in the pool, first found is returned
 		    // finish the loop, we have found required package
-		    // TODO: for `any it has different semantic - the result depends on item order in the pool
 		    break;
 		}
 	    }
@@ -1009,7 +967,7 @@ YCPList PkgModuleFunctions::PkgGetFilelist( const YCPString & package, const YCP
 YCPValue
 PkgModuleFunctions::SaveState ()
 {
-    // TODO FIXME _y2pm.packageSelectionSaveState();
+# warning SaveState is not implemented
     return YCPBoolean (true);
 }
 
@@ -1033,7 +991,7 @@ PkgModuleFunctions::SaveState ()
 YCPValue
 PkgModuleFunctions::RestoreState (const YCPBoolean& ch)
 {
-    // TODO FIXME 
+# warning RestoreState is not implemented
     if (!ch.isNull () && ch->value () == true)
     {
 	// return YCPBoolean (_y2pm.packageSelectionDiffState());
@@ -1052,8 +1010,7 @@ PkgModuleFunctions::RestoreState (const YCPBoolean& ch)
 YCPValue
 PkgModuleFunctions::ClearSaveState ()
 {
-    // TODO FIXME 
-    // _y2pm.packageSelectionClearSaveState();
+# warning ClearSaveState is not implemented
     return YCPBoolean (true);
 }
 
@@ -1398,6 +1355,7 @@ PkgModuleFunctions::PkgInstall (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgSrcInstall (const YCPString& p)
 {
+#warning PkgSrcInstall is not implemented
     /* TODO FIXME
     PMSelectablePtr selectable = getPackageSelectable (p->value ());
 
@@ -1452,6 +1410,7 @@ PkgModuleFunctions::PkgDelete (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgTaboo (const YCPString& p)
 {
+# warning PkgTaboo is not implemented
     /* TODO FIXME
     PMSelectablePtr selectable = getPackageSelectable (p->value ());
     if (!selectable)
@@ -1502,6 +1461,7 @@ PkgModuleFunctions::PkgNeutral (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgReset ()
 {
+# warning PkgReset is not implemented
     // TODO FIXME
     //_y2pm.selectionManager().setNothingSelected();
     //_y2pm.packageManager().setNothingSelected();
@@ -1538,6 +1498,7 @@ PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
 
     return YCPBoolean(result);
 
+#warning TODO: save unresolved problems into /var/log/YaST2/badlist
     /* TODO FIXME 
     bool filter_conflicts_with_installed = false;
 
@@ -1582,6 +1543,7 @@ PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
 YCPBoolean
 PkgModuleFunctions::PkgSolveCheckTargetOnly()
 {
+#warning PkgSolveCheckTargetOnly is not implemented
 /* TODO FIXME
   PkgDep::ErrorResultList bad;
 
@@ -1660,6 +1622,8 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 // FIXME    int count = _y2pm.commitPackages (medianr, errors, remaining, srcremaining );
 
     YCPList ret;
+
+#warning PkgCommit doesn't return list of failed packages
 /*    ret->add (YCPInteger (count));
 
     YCPList errlist;
@@ -1694,8 +1658,7 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 YCPValue
 PkgModuleFunctions::GetBackupPath ()
 {
-    // TODO FIXME
-    // return YCPString (_y2pm.instTarget().getBackupPath().asString());
+#warning GetBackupPath is not implemented
     return YCPString("/tmp/backup");
 }
 
@@ -1709,10 +1672,7 @@ PkgModuleFunctions::GetBackupPath ()
 YCPValue
 PkgModuleFunctions::SetBackupPath (const YCPString& p)
 {
-    /* TODO FIXME
-    Pathname path (p->value());
-    _y2pm.instTarget().setBackupPath (path);
-    */
+#warning SetBackupPath is not implemented
     return YCPVoid();
 }
 
@@ -1726,7 +1686,7 @@ PkgModuleFunctions::SetBackupPath (const YCPString& p)
 YCPValue
 PkgModuleFunctions::CreateBackups (const YCPBoolean& flag)
 {
-    // TODO FIXME _y2pm.instTarget ().createPackageBackups (flag->value ());
+#warning CreateBackups is not implemented
     return YCPVoid ();
 }
 
@@ -1765,6 +1725,7 @@ YCPString PkgModuleFunctions::PkgGetLicenseToConfirm( const YCPString & package 
 	}
     }
   
+# warning Has the license already been confirmed?
     // TODO FIXME - check whether the license has been already confirmed?
 /*  if (! PMPackagePtr(selectable->candidateObj())->hasLicenseToConfirm ()) {
     // license was confirmed before
@@ -1807,6 +1768,7 @@ YCPMap PkgModuleFunctions::PkgGetLicensesToConfirm( const YCPList & packages )
 		// cast to Package object
 		zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
+# warning Has the license already been confirmed?
 		// TODO FIXME - check whether the licenses have been already confirmed?
 		zypp::License license = package->licenseToConfirm();
 		if (!license.empty())
@@ -1822,18 +1784,8 @@ YCPMap PkgModuleFunctions::PkgGetLicensesToConfirm( const YCPList & packages )
 
 YCPBoolean PkgModuleFunctions::PkgMarkLicenseConfirmed (const YCPString & package)
 {
-    /* TODO FIXME
-  PMSelectablePtr selectable = getPackageSelectable( package->value() );
-
-  if ( ! ( selectable && selectable->candidateObj() ) ) {
-    // unknown or no candidate package
-    return YCPBoolean(false);
-  }
-
-  PMPackagePtr(selectable->candidateObj())->markLicenseConfirmed ();
-*/
+# warning PkgMarkLicenseConfirmed is not implemented
   return YCPBoolean( true );
-
 }
 
 /****************************************************************************************
@@ -1844,9 +1796,6 @@ YCPBoolean PkgModuleFunctions::PkgMarkLicenseConfirmed (const YCPString & packag
  **/
 YCPBoolean PkgModuleFunctions::RpmChecksig( const YCPString & filename )
 {
-    /* TODO FIXME
-  return YCPBoolean( RpmHeader::readPackage( filename->value(), RpmHeader::VERIFY ) );
-  */
-
+# warning RpmChecksig is not implemented
   return YCPBoolean(true);
 }
