@@ -149,13 +149,15 @@ public:
  * Constructor.
  */
 PkgModuleFunctions::PkgModuleFunctions ()
-    : _callbackHandler( *new CallbackHandler( ) )
+    : Y2Namespace()
+    ,_callbackHandler( *new CallbackHandler( ) )
     , _target_root( "/" )
 {
-  registerFunctions ();
+  zypp::ZYppFactory factory;
 
-    // get ZYpp reference
-    zypp_ptr = zypp::ZYppFactory().letsTest();
+  zypp_ptr = factory.getZYpp();
+
+  registerFunctions ();
 }
 
 /**

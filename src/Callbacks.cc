@@ -223,7 +223,10 @@ namespace ZyppRecipients {
         ) 
 	{
 	    if (level != zypp::target::rpm::InstallResolvableReport::RPM_NODEPS_FORCE)
-		return zypp::target::rpm::InstallResolvableReport::RETRY;
+	    {
+		y2milestone( "Retrying installation problem with too low severity (%d)", level);
+		return zypp::target::rpm::InstallResolvableReport::ABORT;
+	    }
  
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
