@@ -107,7 +107,7 @@ namespace ZyppRecipients {
 	    return zypp::target::rpm::ConvertDBReport::progress(value, pth);
 	}
 
-	virtual void finish(zypp::Pathname path, Error error, std::string reason)
+	virtual void finish(zypp::Pathname path, zypp::target::rpm::ConvertDBReport::Error error, std::string reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_StopConvertDb ) );
 	    if (callback._set) {
@@ -156,7 +156,7 @@ namespace ZyppRecipients {
 	    return zypp::target::rpm::RebuildDBReport::progress(value, pth);
 	}
 
-	virtual void finish(zypp::Pathname path, Error error, std::string reason)
+	virtual void finish(zypp::Pathname path, zypp::target::rpm::RebuildDBReport::Error error, std::string reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_StopRebuildDb ) );
 	    if (callback._set) {
@@ -217,13 +217,13 @@ namespace ZyppRecipients {
 
         virtual Action problem(
           zypp::Resolvable::constPtr resolvable
-          , Error error
+          , zypp::target::rpm::InstallResolvableReport::Error error
           , std::string description
           , zypp::target::rpm::InstallResolvableReport::RpmLevel level
         ) 
 	{
 	    if (level != zypp::target::rpm::InstallResolvableReport::RPM_NODEPS_FORCE)
-		return RETRY;
+		return zypp::target::rpm::InstallResolvableReport::RETRY;
  
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
@@ -233,18 +233,18 @@ namespace ZyppRecipients {
                 std::string ret = callback.evaluateStr();
 
                 // "R" =  retry
-                if (ret == "R") return RETRY;
+                if (ret == "R") return zypp::target::rpm::InstallResolvableReport::RETRY;
 
                 // "C" = cancel
-                if (ret == "C") return ABORT;
+                if (ret == "C") return zypp::target::rpm::InstallResolvableReport::ABORT;
 
                 // otherwise ignore
-                return IGNORE;
+                return zypp::target::rpm::InstallResolvableReport::IGNORE;
 	    }
 
 	    return zypp::target::rpm::InstallResolvableReport::problem
 		(resolvable, error, description, level);
-}
+	}
 
 	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, std::string reason, zypp::target::rpm::InstallResolvableReport::RpmLevel level)
 	{
@@ -300,7 +300,7 @@ namespace ZyppRecipients {
 	    return zypp::target::rpm::RemoveResolvableReport::progress(value, resolvable);
 	}
 
-	virtual void finish(zypp::Resolvable::Ptr resolvable, Error error, std::string reason)
+	virtual void finish(zypp::Resolvable::Ptr resolvable, zypp::target::rpm::RemoveResolvableReport::Error error, std::string reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
@@ -311,6 +311,120 @@ namespace ZyppRecipients {
 	}
     };
 
+    ///////////////////////////////////////////////////////////////////
+    // DownloadResolvableCallback
+    ///////////////////////////////////////////////////////////////////
+    struct DownloadResolvableReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::DownloadResolvableReport>
+    {
+	DownloadResolvableReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual void reportbegin()
+	{
+	}
+
+	virtual void reportend()
+	{
+	}
+
+	virtual void start( zypp::Resolvable::constPtr resolvable_ptr, zypp::Url url)
+	{
+	  CB callback( ycpcb( YCPCallbacks::CB_StartProvide ) );
+	  if (callback._set) {
+	    callback.addStr(resolvable_ptr->name());
+	    callback.addInt(-1 /* FIXME: size */);
+	    callback.addBool(true);	// is_remote = tru always
+	    callback.evaluateBool();
+	  }
+	}
+				  
+	virtual void finish(zypp::Resolvable::Ptr resolvable, zypp::source::DownloadResolvableReport::Error error, std::string reason)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
+	    if (callback._set) {
+		callback.addInt( error );
+		callback.addStr( reason );
+		callback.addStr( std::string() ); // FIXME: on error name, for OK, local path
+		callback.evaluateStr(); // return value ignored by RpmDb
+	    }
+	}
+    };
+
+/*
+  ///////////////////////////////////////////////////////////////////
+  // InstTargetCallbacks::ScriptExecCallback
+  ///////////////////////////////////////////////////////////////////
+  //
+#warning InstTargetCallbacks::ScriptExecCallback is actually YOU specific
+  // Actually a YouScriptProgress and the behaviour of percentage
+  // report is strange. Space for improvement (e.g. error reporting).
+  // Maybe provide a common YCP callback for ScriptExec and let
+  // YOU redirect it to YouScriptProgress, if this kind of report
+  // is desired.
+  //
+  struct ScriptExecReceive : public Recipient, public InstTargetCallbacks::ScriptExecCallback
+  {
+    ScriptExecReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+    virtual void reportbegin() {
+    }
+    virtual void reportend()   {
+    }
+    virtual void start( const Pathname & pkpath ) {
+      CB callback( ycpcb( YCPCallbacks::CB_YouScriptProgress ) );
+      if ( callback._set ) {
+	callback.addInt( 0 );
+	callback.evaluate();
+      }
+    }
+    **
+     * Execution time is unpredictable. ProgressData range will be set to
+     * [0:0]. Aprox. every half second progress is reported with incrementing
+     * counter value. If <CODE>false</CODE> is returned, execution is canceled.
+     **/
+/*  virtual bool progress( const ProgressData & prg ) {
+      CB callback( ycpcb( YCPCallbacks::CB_YouScriptProgress ) );
+      if ( callback._set ) {
+	callback.addInt( -1 );
+	return callback.evaluateBool();
+      }
+      return ScriptExecCallback::progress( prg ); // return default implementation
+    }
+    virtual void stop( PMError error ) {
+      CB callback( ycpcb( YCPCallbacks::CB_YouScriptProgress ) );
+      if ( callback._set ) {
+	callback.addInt( 100 );
+	callback.evaluate();
+      }
+    }
+  };
+
+  ///////////////////////////////////////////////////////////////////
+  // Y2PMCallbacks::CommitCallback
+  ///////////////////////////////////////////////////////////////////
+  struct CommitReceive : public Recipient, public Y2PMCallbacks::CommitCallback
+  {
+    CommitReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+    virtual void reportbegin() {
+    }
+    virtual void reportend()   {
+    }
+    virtual void advanceToMedia( constInstSrcPtr srcptr, unsigned mediaNr ) {
+      CB callback( ycpcb( YCPCallbacks::CB_SourceChange ) );
+      if ( callback._set ) {
+	// Translate the (internal) InstSrcPtr to an (external) instOrder vector index
+	// FIXME callback.addInt( Y2PM::instSrcManager().instOrderIndex( srcptr ) );
+	callback.addInt( mediaNr );
+	callback.evaluate();
+      }
+    }
+  };
+
+  ///////////////////////////////////////////////////////////////////
+  // Y2PMCallbacks::CommitProvideCallback
+  ///////////////////////////////////////////////////////////////////
+  struct CommitProvideReceive : public Recipient, public Y2PMCallbacks::CommitProvideCallback
+  {*/
     ///////////////////////////////////////////////////////////////////
     // SourceRefreshCallback
     ///////////////////////////////////////////////////////////////////
@@ -356,7 +470,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual Action problem(zypp::Source_Ref source, Error error, std::string description)
+	virtual Action problem(zypp::Source_Ref source, zypp::source::RefreshSourceReport::Error error, std::string description)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ErrorSourceRefresh ) );
 	    if ( callback._set )
@@ -367,12 +481,12 @@ namespace ZyppRecipients {
 		callback.addMap( arg );
 		std::string result = callback.evaluateSymbol();
 
-		if ( result == "RETRY" ) return RETRY;
-		if ( result == "SKIP_REFRESH" ) return IGNORE;
+		if ( result == "RETRY" ) return zypp::source::RefreshSourceReport::RETRY;
+		if ( result == "SKIP_REFRESH" ) return zypp::source::RefreshSourceReport::IGNORE;
 		if ( result == "DISABLE_SOURCE" )
 		{
 		    source.disable();
-		    return IGNORE;
+		    return zypp::source::RefreshSourceReport::IGNORE;
 		}
 
 		// still here?
@@ -384,7 +498,7 @@ namespace ZyppRecipients {
 	    return zypp::source::RefreshSourceReport::problem(source, error, description);
 	}
 
-	virtual void finish(zypp::Source_Ref source, Error error, std::string reason)
+	virtual void finish(zypp::Source_Ref source, zypp::source::RefreshSourceReport::Error error, std::string reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneSourceRefresh ) );
 	    if ( callback._set )
@@ -408,10 +522,10 @@ namespace ZyppRecipients {
     {
 	MediaChangeReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual Action requestMedia(zypp::Source_Ref source, unsigned mediumNr, Error error, std::string description)
+	virtual Action requestMedia(zypp::Source_Ref source, unsigned mediumNr, zypp::media::MediaChangeReport::Error error, std::string description)
 	{
 	    if ( _silent_probing) 
-		return ABORT;
+		return zypp::media::MediaChangeReport::ABORT;
 		
 	    CB callback( ycpcb( YCPCallbacks::CB_MediaChange ) );
 	    if ( callback._set )
@@ -430,22 +544,22 @@ namespace ZyppRecipients {
 		std::string ret = callback.evaluateStr();
 
 		// "" =  retry
-		if (ret == "") return RETRY;
+		if (ret == "") return zypp::media::MediaChangeReport::RETRY;
 
 		// "I" = ignore wrong media ID
-		if (ret == "I") return IGNORE_ID;
+		if (ret == "I") return zypp::media::MediaChangeReport::IGNORE_ID;
 
 		// "C" = cancel
-		if (ret == "C") return ABORT;
+		if (ret == "C") return zypp::media::MediaChangeReport::ABORT;
 
 		// "E" = eject media
-		if (ret == "E") return EJECT;
+		if (ret == "E") return zypp::media::MediaChangeReport::EJECT;
 		
 		// "S" = skip (ignore) this media
-		if (ret == "S") return IGNORE;
+		if (ret == "S") return zypp::media::MediaChangeReport::IGNORE;
 
 		// otherwise change media URL
-		return CHANGE_URL;
+		return zypp::media::MediaChangeReport::CHANGE_URL;
 	    }
 	   
 	    // return default value from the parent class
@@ -496,12 +610,12 @@ namespace ZyppRecipients {
 	    return zypp::source::DownloadFileReport::progress(value, url);
 	}
 
-	virtual Action problem( zypp::Url url, Error error, std::string description )
+	virtual Action problem( zypp::Url url, zypp::source::DownloadFileReport::Error error, std::string description )
 	{
-	    return ABORT;
+	    return zypp::source::DownloadFileReport::ABORT;
 	}
 
-	virtual void finish( zypp::Url url, Error error, std::string reason)
+	virtual void finish( zypp::Url url, zypp::source::DownloadFileReport::Error error, std::string reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneDownload ) );
 
@@ -545,13 +659,13 @@ namespace ZyppRecipients {
 
         virtual Action problem(
           zypp::Url url
-          , Error error
+          , zypp::source::CreateSourceReport::Error error
           , std::string description
         ) { return zypp::source::CreateSourceReport::problem(url, error, description); }
 
         virtual void finishData(
           zypp::Url url
-          , Error error
+          , zypp::source::CreateSourceReport::Error error
           , std::string reason
         ) {}
     };
@@ -578,6 +692,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
     // package callbacks
     ZyppRecipients::InstallPkgReceive _installPkgReceive;
     ZyppRecipients::RemovePkgReceive  _removePkgReceive;
+    ZyppRecipients::DownloadResolvableReceive _providePkgReceive;
 
     // media callback
     ZyppRecipients::DownloadProgressReceive _downloadProgressReceive;
@@ -595,6 +710,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
       , _rebuildDbReceive( *this )
       , _installPkgReceive( *this )
       , _removePkgReceive( *this )
+      , _providePkgReceive( *this )
       , _downloadProgressReceive( *this )
       , _mediaChangeReceive( *this )
       , _sourceRefreshReceive( *this )
@@ -605,6 +721,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_rebuildDbReceive.connect();
 	_installPkgReceive.connect();
 	_removePkgReceive.connect();
+	_providePkgReceive.connect();
 	_mediaChangeReceive.connect();
 	_downloadProgressReceive.connect();
 	_sourceRefreshReceive.connect();
