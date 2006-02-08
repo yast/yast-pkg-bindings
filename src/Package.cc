@@ -1447,7 +1447,7 @@ PkgModuleFunctions::PkgNeutral (const YCPString& p)
     // reset all transactions
     return YCPBoolean( (it != zypp_ptr->pool().byNameEnd(name)) 
 	// set neutral by user
-	&& it->status().setNoTransact(zypp::ResStatus::USER) );
+	&& it->status().setTransact(false, zypp::ResStatus::USER) );
 }
 
 
