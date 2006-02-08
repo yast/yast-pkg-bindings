@@ -150,8 +150,8 @@ public:
  */
 PkgModuleFunctions::PkgModuleFunctions ()
     : Y2Namespace()
-    ,_callbackHandler( *new CallbackHandler( ) )
     , _target_root( "/" )
+    ,_callbackHandler( *new CallbackHandler( ) )
 {
   zypp::ZYppFactory factory;
 

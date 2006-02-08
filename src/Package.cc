@@ -1607,9 +1607,9 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 	return YCPError ("Bad args to Pkg::PkgCommit");
     }
 
-    PoolItemList errors;
-    PoolItemList remaining;
-    PoolItemList srcremaining;
+    zypp::PoolItemList errors;
+    zypp::PoolItemList remaining;
+    zypp::PoolItemList srcremaining;
     int success = 0;
 
     try
@@ -1628,21 +1628,21 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
     ret->add(YCPInteger(success));
 
     YCPList errlist;
-    for (PoolItemList::const_iterator it = errors.begin(); it != errors.end(); ++it)
+    for (zypp::PoolItemList::const_iterator it = errors.begin(); it != errors.end(); ++it)
     {
 	errlist->add(YCPString(it->resolvable()->name()));
     }
     ret->add(errlist);
 
     YCPList remlist;
-    for (PoolItemList::const_iterator it = remaining.begin(); it != remaining.end(); ++it)
+    for (zypp::PoolItemList::const_iterator it = remaining.begin(); it != remaining.end(); ++it)
     {
 	remlist->add(YCPString(it->resolvable()->name()));
     }
     ret->add(remlist);
 
     YCPList srclist;
-    for (PoolItemList::const_iterator it = srcremaining.begin(); it != srcremaining.end(); ++it)
+    for (zypp::PoolItemList::const_iterator it = srcremaining.begin(); it != srcremaining.end(); ++it)
     {
 	srclist->add(YCPString(it->resolvable()->name()));
     }

@@ -58,8 +58,6 @@ class PkgModuleFunctions : public Y2Namespace
 
   protected:
 
-        int _solve_errors;
-	
 	zypp::Pathname _target_root;
 
 
