@@ -430,7 +430,7 @@ PkgModuleFunctions::TargetGetDU ()
 /**
    @builtin TargetFileHasOwner
 
-   @short returns the (first) package
+   @short returns true if the file is owned by a package
    @param string filepath
    @return boolean
 */
@@ -438,6 +438,6 @@ PkgModuleFunctions::TargetGetDU ()
 YCPBoolean
 PkgModuleFunctions::TargetFileHasOwner (const YCPString& filepath)
 {
-    return YCPBoolean (true /*TODO FIXME _y2pm.instTarget().hasFile(filepath->value())*/);
+    return YCPBoolean (zypp_ptr->target()->whoOwnsFile(filepath->value()));
 }
 

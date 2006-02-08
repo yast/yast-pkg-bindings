@@ -1579,7 +1579,7 @@ PkgModuleFunctions::PkgSolveCheckTargetOnly()
 YCPValue
 PkgModuleFunctions::PkgSolveErrors()
 {
-    return YCPInteger(zypp_ptr->resolver()->problems()->size());
+    return YCPInteger(zypp_ptr->resolver()->problems().size());
 }
 
 /**
@@ -1607,44 +1607,47 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 	return YCPError ("Bad args to Pkg::PkgCommit");
     }
 
-    std::list<std::string> errors;
-    std::list<std::string> remaining;
-    std::list<std::string> srcremaining;
+    PoolItemList errors;
+    PoolItemList remaining;
+    PoolItemList srcremaining;
+    int success = 0;
 
     try
     {
-	zypp_ptr->target()->commit( zypp_ptr->pool() );
+# warning PkgCommit: doesn't use returned value
+	// TODO success = ...
+	zypp_ptr->target()->commit(zypp_ptr->pool(), medianr, errors, remaining, srcremaining);
     }
     catch (...)
     {
 	y2error("Pkg::Commit has failed");
     }
-// FIXME    int count = _y2pm.commitPackages (medianr, errors, remaining, srcremaining );
 
     YCPList ret;
 
-#warning PkgCommit doesn't return list of failed packages
-/*    ret->add (YCPInteger (count));
+    ret->add(YCPInteger(success));
 
     YCPList errlist;
-    for (std::list<std::string>::const_iterator it = errors.begin(); it != errors.end(); ++it)
+    for (PoolItemList::const_iterator it = errors.begin(); it != errors.end(); ++it)
     {
-	errlist->add (YCPString (*it));
+	errlist->add(YCPString(it->resolvable()->name()));
     }
-    ret->add (errlist);
+    ret->add(errlist);
+
     YCPList remlist;
-    for (std::list<std::string>::const_iterator it = remaining.begin(); it != remaining.end(); ++it)
+    for (PoolItemList::const_iterator it = remaining.begin(); it != remaining.end(); ++it)
     {
-	remlist->add (YCPString (*it));
+	remlist->add(YCPString(it->resolvable()->name()));
     }
-    ret->add (remlist);
+    ret->add(remlist);
+
     YCPList srclist;
-    for (std::list<std::string>::const_iterator it = srcremaining.begin(); it != srcremaining.end(); ++it)
+    for (PoolItemList::const_iterator it = srcremaining.begin(); it != srcremaining.end(); ++it)
     {
-	srclist->add (YCPString (*it));
+	srclist->add(YCPString(it->resolvable()->name()));
     }
-    ret->add (srclist);
-    */
+    ret->add(srclist);
+
     return ret;
 }
 
