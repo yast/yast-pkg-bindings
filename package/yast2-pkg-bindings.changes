@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Feb  8 17:39:08 CET 2006 - kkaempf@suse.de
+
+- Qt UI adaptions
+- 2.13.1.8
+
+-------------------------------------------------------------------
 Tue Feb  7 19:38:43 CET 2006 - visnov@suse.cz
 
 - All callback handlers implemented
