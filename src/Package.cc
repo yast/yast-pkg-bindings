@@ -1579,7 +1579,7 @@ PkgModuleFunctions::PkgSolveCheckTargetOnly()
 YCPValue
 PkgModuleFunctions::PkgSolveErrors()
 {
-    return YCPInteger (_solve_errors);
+    return YCPInteger(zypp_ptr->resolver()->problems()->size());
 }
 
 /**
