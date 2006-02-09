@@ -49,7 +49,8 @@ using namespace std;
 YCPValue
 PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
 {
-    // TODO FIXME
+    bool cache = a->value();
+#warning SourceSetRamCache is not implemented
     return YCPBoolean( true );
 }
 
@@ -199,9 +200,7 @@ PkgModuleFunctions::SourceFinishAll ()
 YCPValue
 PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 {
-    // TODO FIXME
     YCPMap data;
-
     zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id->value());
 
    if ( ! src )
@@ -210,6 +209,7 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 	return YCPVoid ();
    }
 
+#warning SourceGeneralData doesn't return all data
     data->add( YCPString("enabled"),		YCPBoolean(src.enabled()));
 // FIXME:    data->add( YCPString("autorefresh"),	YCPBoolean(false));
 // FIXME:    data->add( YCPString("product_dir"),	YCPString("descr->product_dir().asString()"));
@@ -242,26 +242,6 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
 {
-    /* TODO FIXME
-  YCPList args;
-  args->add (id);
-
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  if ( ! source_id )
-    return pkgError( InstSrcError::E_bad_id );
-
-  constInstSrcDescrPtr descr = source_id->descr();
-  */
-
     YCPMap data;
 
     zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id->value());
@@ -272,10 +252,13 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
 	return YCPVoid ();
     }
 
-    // TODO FIXME:
+#warning SourceMediaData doesn't return all data
+/*
+  TODO FIXME:
   data->add( YCPString("media_count"),	YCPInteger((long long) 0));
   data->add( YCPString("media_id"),	YCPString("descr->media_id()"));
   data->add( YCPString("media_vendor"),	YCPString("descr->media_vendor()"));
+*/
 #warning SourceMediaData returns URL without password
   data->add( YCPString("url"),		YCPString(src.url().asString()));
   return data;
@@ -904,31 +887,10 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
     catch (...)
     {
 	y2error("Pkg::SourceDelete: Cannot remove source %lld", id->value());
+	return YCPBoolean(false);
     }
 
-    return YCPVoid();
-      
-/*  YCPList args;
-  args->add (id);
-
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  if ( ! source_id )
-    return pkgError( InstSrcError::E_bad_id );
-
-  PMError err =_y2pm.instSrcManager().deleteSource( source_id );
-  if ( err )
-    return pkgError( err, YCPBoolean( false ) );
-
-  return YCPBoolean( true );*/
+    return YCPBoolean(true);
 }
 
 /****************************************************************************************
