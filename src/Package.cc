@@ -513,8 +513,9 @@ PkgModuleFunctions::DoProvideString (std::string name)
 		
     if 	(it == zypp_ptr->pool().byNameEnd(name)) 
 	return false;
-	
-    it->status().setStatus(zypp::ResStatus::toBeInstalled);
+
+    // this might not be exact - it could be APPLICATION	
+    it->status().setToBeInstalled(zypp::ResStatus::USER);
     
     return true;
 }
@@ -537,7 +538,8 @@ PkgModuleFunctions::DoRemoveString (std::string name)
     if 	(it == zypp_ptr->pool().byNameEnd(name)) 
 	return false;
 	
-    it->status().setStatus(zypp::ResStatus::toBeUninstalled);
+    // this might not be exact - it could be APPLICATION	
+    it->status().setToBeUninstalled(zypp::ResStatus::USER);
     
     return true;
 }

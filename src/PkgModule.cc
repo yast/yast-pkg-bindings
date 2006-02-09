@@ -21,6 +21,9 @@
 
 
 #include <PkgModule.h>
+#include <y2util/y2log.h>
+#include <zypp/base/LogControl.h>
+#include <zypp/Pathname.h>
 
 PkgModule* PkgModule::current_pkg = NULL;
 
@@ -28,6 +31,17 @@ PkgModule* PkgModule::instance ()
 {
     if (current_pkg == NULL)
     {
+	std::string yast_log = get_log_filename();
+	
+	int pos = yast_log.rfind("y2log");
+
+	if( pos >= 0){	
+		yast_log = yast_log.erase(pos) + "zypp.log";
+		y2milestone( "Setting ZYPP log to: %s",  yast_log.c_str ());
+
+		zypp::base::LogControl::instance().logfile( zypp::Pathname(yast_log) );
+	}
+
 	current_pkg = new PkgModule ();
     }
     

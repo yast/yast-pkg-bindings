@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Feb  9 10:04:48 CET 2006 - visnov@suse.cz
+
+- redirect zypp.log to the location of YaST log
+- set pool entries to transact
+- 2.13.1.9
+
+-------------------------------------------------------------------
 Wed Feb  8 17:39:08 CET 2006 - kkaempf@suse.de
 
 - Qt UI adaptions
