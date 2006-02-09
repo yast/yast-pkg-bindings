@@ -69,8 +69,8 @@ class PkgModuleFunctions : public Y2Namespace
 
     private: // source related
 
-      bool DoProvideString(std::string);
-      bool DoRemoveString(std::string);
+      bool DoProvideNameKind( const std::string & name , zypp::Resolvable::Kind kind);
+      bool DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind);
       
       // builtin handling
       void registerFunctions ();

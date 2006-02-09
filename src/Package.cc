@@ -503,20 +503,20 @@ PkgModuleFunctions::IsAvailable (const YCPString& tag)
 */
 
 bool
-PkgModuleFunctions::DoProvideString (std::string name)
+PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind)
 {
     zypp::ResPool::byName_iterator it = std::find_if (
 	zypp_ptr->pool().byNameBegin(name)
 	, zypp_ptr->pool().byNameEnd(name)
-	, zypp::functor::true_c()
+	, zypp::resfilter::ByKind(kind)
     );
 		
-    if 	(it == zypp_ptr->pool().byNameEnd(name)) 
+    if (it == zypp_ptr->pool().byNameEnd(name)) 
 	return false;
 
-    // this might not be exact - it could be APPLICATION	
+    // this might not be exact - it could be APPLICATION
     it->status().setToBeInstalled(zypp::ResStatus::USER);
-    
+
     return true;
 }
 
@@ -526,13 +526,13 @@ PkgModuleFunctions::DoProvideString (std::string name)
 */
 
 bool
-PkgModuleFunctions::DoRemoveString (std::string name)
+PkgModuleFunctions::DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind)
 {
 #warning support tags, not package only
     zypp::ResPool::byName_iterator it = std::find_if (
 	zypp_ptr->pool().byNameBegin(name)
 	, zypp_ptr->pool().byNameEnd(name)
-	, zypp::functor::true_c()
+	, zypp::resfilter::ByKind(kind)
     );
 		
     if 	(it == zypp_ptr->pool().byNameEnd(name)) 
@@ -547,12 +547,11 @@ PkgModuleFunctions::DoRemoveString (std::string name)
 // ------------------------
 /**
    @builtin DoProvide
-   @short Install a list of tags to the system
+   @short Install a list of packages to the system
    @description
    Provides (read: installs) a list of tags to the system
 
-   tag can be a package name, a string from requires/provides
-   or a file name (since a package implictly provides all its files)
+   tag is a package name
 
    returns a map of tag,reason pairs if tags could not be provided.
    Usually this map should be empty (all required packages are
@@ -574,7 +573,7 @@ PkgModuleFunctions::DoProvide (const YCPList& tags)
         {
             if (tags->value(i)->isString())
             {
-                DoProvideString (tags->value(i)->asString()->value());
+                DoProvideNameKind (tags->value(i)->asString()->value(), zypp::ResTraits<zypp::Package>::kind);
             }
             else
             {
@@ -590,10 +589,9 @@ PkgModuleFunctions::DoProvide (const YCPList& tags)
 /**
    @builtin DoRemove
 
-   @short Removes a list of tags from the system
+   @short Removes a list of packges from the system
    @description
-   tag can be a package name, a string from requires/provides
-   or a file name (since a package implictly provides all its files)
+   tag is a package name
 
    returns a map of tag,reason pairs if tags could not be removed.
    Usually this map should be empty (all required packages are
@@ -615,7 +613,7 @@ PkgModuleFunctions::DoRemove (const YCPList& tags)
 	{
 	    if (tags->value(i)->isString())
 	    {
-		DoRemoveString (tags->value(i)->asString()->value());
+		DoRemoveNameKind( tags->value(i)->asString()->value(), zypp::ResTraits<zypp::Package>::kind);
 	    }
 	    else
 	    {
