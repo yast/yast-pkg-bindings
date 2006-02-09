@@ -533,16 +533,41 @@ namespace ZyppRecipients {
 	    CB callback( ycpcb( YCPCallbacks::CB_MediaChange ) );
 	    if ( callback._set )
 	    {
+		// error message
 		callback.addStr( description );
-		callback.addStr( source.url().asString() );	// current URL
-		// TODO FIXME
-		callback.addStr( string("descr->label()") );
+		// current URL
+		callback.addStr( source.url().asString() );
+
+		std::string product_name;
+
+		// get name of the product
+		for (zypp::ResStore::iterator it = source.resolvables().begin(); it != source.resolvables().end(); it++)
+		{
+		    // is it a product object?
+		    if (zypp::isKind<zypp::Product>(*it))
+		    {
+			product_name = (*it)->name();
+			break;
+		    }	
+		}
+		
+		// current product name
+		callback.addStr( product_name );
+
+		// current medium, -1 means enable [Ignore]
 		callback.addInt( 0 );
-		callback.addStr( string() );
+
+		// current label, not used now
+		callback.addStr( std::string() );
+
+		// requested medium
 		callback.addInt( mediumNr );
-		// TODO FIXME
-		callback.addStr( string("descr->media_label( expectedMedianr )()") );
-		callback.addBool( false /* TODO FIXME descr->media_doublesided()*/ );
+
+		// requested product, "" = use the current product
+		callback.addStr( std::string() );
+
+#warning Double sided media are not supported in MediaChangeCallback
+		callback.addBool( false );
 
 		std::string ret = callback.evaluateStr();
 
