@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Feb  9 11:42:06 CET 2006 - kkaempf@suse.de
+
+- honor kind when choosing resolvables
+- 2.13.1.10
+
+-------------------------------------------------------------------
 Thu Feb  9 10:04:48 CET 2006 - visnov@suse.cz
 
 - redirect zypp.log to the location of YaST log
