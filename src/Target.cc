@@ -37,6 +37,8 @@
 #include <unistd.h>
 #include <sys/statvfs.h>
 
+#include <zypp/target/rpm/RpmDb.h>
+
 using std::string;
 
 /** ------------------------
@@ -275,8 +277,16 @@ PkgModuleFunctions::TargetProducts ()
 YCPBoolean
 PkgModuleFunctions::TargetRebuildDB ()
 {
-    // TODO FIXME _y2pm.instTarget().bringIntoCleanState();
-    return YCPBoolean (true);
+    try
+    {
+	zypp_ptr->target()->rpmDb().rebuildDatabase();
+    }
+    catch (...)
+    {
+	return YCPBoolean(false);
+    }
+    
+    return YCPBoolean(true);
 }
 
 
