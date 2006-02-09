@@ -587,6 +587,8 @@ namespace ZyppRecipients {
 		if (ret == "S") return zypp::media::MediaChangeReport::IGNORE;
 
 		// otherwise change media URL
+		// FIXME: validate url
+		source.redirect( mediumNr, Url(ret) );
 		return zypp::media::MediaChangeReport::CHANGE_URL;
 	    }
 	   
