@@ -56,28 +56,15 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& /*unuse
     {
 	zypp_ptr->initTarget(root->value());
     }
-    catch (...)
+    catch (zypp::Exception & excpt)
     {
-	ycperror ("Target initialization has failed" );
-        return YCPBoolean (false);
+	ycperror("TargetInit has failed: %s", excpt.msg().c_str() );
+        return YCPError(excpt.msg().c_str(), YCPBoolean(false));
     }
     
     _target_root = zypp::Pathname(root->value());
 
-    /* TODO: error handling
-    // initialize target
-    _last_error = _y2pm.instTargetInit( newRoot );
-
-    if ( !_last_error ) {
-      // assert package/selecion managers exist and are up to date.
-      _last_error = _y2pm.instTargetUpdate();
-    }
-
-    if (_last_error)
-        return YCPError (_last_error.errstr().c_str(), YCPBoolean (false));
-    */
-
-    return YCPBoolean (true);
+    return YCPBoolean(true);
 }
 
 /** ------------------------
@@ -94,10 +81,10 @@ PkgModuleFunctions::TargetFinish ()
     {
 	zypp_ptr->finishTarget();
     }
-    catch (...)
+    catch (zypp::Exception & excpt)
     {
-        y2error("TargetFinish has failed");
-	YCPBoolean(false);
+	ycperror("TargetFinish has failed: %s", excpt.msg().c_str() );
+        return YCPBoolean(false);
     }
 
     return YCPBoolean(true);
@@ -254,7 +241,7 @@ YCPList
 PkgModuleFunctions::TargetProducts ()
 {
     YCPList prdlist;
-
+#warning TargetProducts is not implemented
     /* TODO FIXME
     std::list<constInstSrcDescrPtr> products = _y2pm.instTarget().getProducts();
     for (std::list<constInstSrcDescrPtr>::const_iterator it = products.begin();
@@ -281,11 +268,12 @@ PkgModuleFunctions::TargetRebuildDB ()
     {
 	zypp_ptr->target()->rpmDb().rebuildDatabase();
     }
-    catch (...)
+    catch (zypp::Exception & excpt)
     {
-	return YCPBoolean(false);
+	ycperror("TargetRebuildDB has failed: %s", excpt.msg().c_str() );
+        return YCPBoolean(false);
     }
-    
+
     return YCPBoolean(true);
 }
 
@@ -311,13 +299,14 @@ PkgModuleFunctions::TargetRebuildDB ()
 YCPValue
 PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
 {
-    /*
+
     if (dirlist->size() == 0)
     {
 	return YCPError ("Bad args to Pkg::TargetInitDU");
     }
 
-    std::set<PkgDuMaster::MountPoint> mountpoints;
+//    std::set<PkgDuMaster::MountPoint> mountpoints;
+#warning TargetInitDU doesn't pass DU list to zypp
 
     for (int i = 0; i < dirlist->size(); ++i)
     {
@@ -385,11 +374,11 @@ PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
 
 	long long dirsize = dfree + dused;
 
-	PkgDuMaster::MountPoint point (dname, FSize (4096), FSize (dirsize), FSize (dused), readonly);
-	mountpoints.insert (point);
+//	PkgDuMaster::MountPoint point (dname, FSize (4096), FSize (dirsize), FSize (dused), readonly);
+//	mountpoints.insert (point);
     }
     // TODO FIXME    _y2pm.packageManager().setMountPoints(mountpoints);
-    */
+
     return YCPVoid();
 }
 
@@ -418,6 +407,7 @@ YCPValue
 PkgModuleFunctions::TargetGetDU ()
 {
     YCPMap dirmap;
+# warning TargetGetDU is not implemented
     /*
     std::set<PkgDuMaster::MountPoint> mountpoints; // TODO FIXME = _y2pm.packageManager().updateDu().mountpoints();
 
