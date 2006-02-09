@@ -37,6 +37,7 @@
 #include <ycp/YCPMap.h>
 
 #include <zypp/ResPool.h>
+#include <zypp/ResTraits.h>
 #include <zypp/Resolvable.h>
 #include <zypp/Selection.h>
 
