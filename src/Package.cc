@@ -515,8 +515,8 @@ PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvabl
 	return false;
 
     // this might not be exact - it could be APPLICATION
-    it->status().setToBeInstalled(zypp::ResStatus::USER);
-
+    bool result = it->status().setToBeInstalled(zypp::ResStatus::USER);
+    y2milestone ("DoProvideNameKind %s -> %s\n", name.c_str(), (result ? "Ok" : "Bad"));
     return true;
 }
 
@@ -540,6 +540,7 @@ PkgModuleFunctions::DoRemoveNameKind( const std::string & name, zypp::Resolvable
 	
     // this might not be exact - it could be APPLICATION	
     it->status().setToBeUninstalled(zypp::ResStatus::USER);
+    y2milestone ("DoRemoveNameKind %s -> %s\n", name.c_str(), (result ? "Ok" : "Bad"));
     
     return true;
 }
