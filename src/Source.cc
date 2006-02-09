@@ -838,28 +838,7 @@ PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean
 YCPValue
 PkgModuleFunctions::SourceFinish (const YCPInteger& id)
 {
-    /* TODO FIXME
-  YCPList args;
-  args->add (id);
-
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  if ( ! source_id )
-    return pkgError( InstSrcError::E_bad_id );
-
-  PMError err = _y2pm.instSrcManager().disableSource( source_id );
-  if ( err )
-    return pkgError( err, YCPBoolean( false ) );
-*/
-  return YCPBoolean( true );
+    return SourceSetEnabled(id, false);
 }
 
 /****************************************************************************************
@@ -970,20 +949,22 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceEditGet ()
 {
-    /* TODO FIXME
-  YCPList args;
+    YCPList ret;
+    std::list<unsigned int> ids = zypp::SourceManager::sourceManager()->allSources();
+	    
+    for( std::list<unsigned int>::iterator it = ids.begin(); it != ids.end(); ++it)
+    {
+	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(*it);
+	YCPMap src_map;
 
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
+	src_map->add(YCPString("SrcId"), YCPInteger(*it));
+	src_map->add(YCPString("enabled"), YCPBoolean(src.enabled()));
+#warning SourceEditGet: "autorefresh" key is not returned
+	
+	ret->add(src_map);
+    }
 
-  return asYCPList( _y2pm.instSrcManager().editGet() );
-  */
-
-  return YCPList();
+    return ret;
 }
 
 /****************************************************************************************
@@ -1042,28 +1023,19 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 YCPValue
 PkgModuleFunctions::SourceRaisePriority (const YCPInteger& id)
 {
-    /* TODO FIXME
-  YCPList args;
-  args->add (id);
+    zypp::Source_Ref src;
 
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
+    try {
+	src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+    } catch(...) {
+	y2error ("Source ID not found: %lld", id->asInteger()->value());
+	return YCPBoolean(false);
+    }
 
-  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
+    // raise priority by one
+    src.setPriority(src.priority() + 1);
 
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  if ( ! source_id )
-    return pkgError( InstSrcError::E_bad_id );
-
-  PMError err = _y2pm.instSrcManager().rankUp( source_id );
-  if ( err )
-    return pkgError( err, YCPBoolean( false ) );
-*/
-  return YCPBoolean( true );
+    return YCPBoolean( true );
 }
 
 /****************************************************************************************
@@ -1078,28 +1050,19 @@ PkgModuleFunctions::SourceRaisePriority (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceLowerPriority (const YCPInteger& id)
 {
-    /* TODO FIXME
-  YCPList args;
-  args->add (id);
+    zypp::Source_Ref src;
 
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
+    try {
+	src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+    } catch(...) {
+	y2error ("Source ID not found: %lld", id->asInteger()->value());
+	return YCPBoolean(false);
+    }
 
-  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
+    // lower priority by one
+    src.setPriority(src.priority() - 1);
 
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  if ( ! source_id )
-    return pkgError( InstSrcError::E_bad_id );
-
-  PMError err = _y2pm.instSrcManager().rankDown( source_id );
-  if ( err )
-    return pkgError( err, YCPBoolean( false ) );
-*/
-  return YCPBoolean( true );
+    return YCPBoolean( true );
 }
 
 /****************************************************************************************

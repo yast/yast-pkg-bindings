@@ -1147,7 +1147,7 @@ PkgModuleFunctions::FilterPackages(const YCPBoolean& y_byAuto, const YCPBoolean&
 	// check status and causer
 	if (it->status().isToBeInstalled() &&
 	    ((byAuto && it->status().isBySolver()) ||
-		// TODO: APPL_LOW and APPL_HIGH are treated as one level for now
+#warning FilterPackages: APPL_LOW and APPL_HIGH are treated as one level for now
 		(byApp && (it->status().isByApplHigh() || it->status().isByApplLow())) ||
 		byUser && it->status().isByUser()
 	    ))
