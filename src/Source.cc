@@ -215,7 +215,7 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 // FIXME:    data->add( YCPString("product_dir"),	YCPString("descr->product_dir().asString()"));
 // FIXME:    data->add( YCPString("type"),		YCPString("InstSrc::toString( descr->type()))"));
 
-    // TODO: URL::asString() returns URL without password!
+#warning SourceGeneralData returns URL without password
     // if password is required then use this parameter:
     // asString(url::ViewOptions() + url::ViewOptions::WITH_PASSWORD);
     data->add( YCPString("url"),		YCPString(src.url().asString()));
@@ -276,7 +276,8 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
   data->add( YCPString("media_count"),	YCPInteger((long long) 0));
   data->add( YCPString("media_id"),	YCPString("descr->media_id()"));
   data->add( YCPString("media_vendor"),	YCPString("descr->media_vendor()"));
-  data->add( YCPString("url"),		YCPString("descr->url().asString()"));
+#warning SourceMediaData returns URL without password
+  data->add( YCPString("url"),		YCPString(src.url().asString()));
   return data;
 }
 
@@ -767,30 +768,26 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 YCPValue
 PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 {
-    /* TODO FIXME
-  YCPList args;
-  args->add (id);
-  args->add (e);
+    zypp::Source_Ref src;
+    bool enabled = e->value();
 
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
+    try {
+	src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+    } catch(...) {
+	y2error ("Source ID not found: %lld", id->asInteger()->value());
+	return YCPBoolean(false);
+    }
 
-  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
-  bool &                   enabled  ( decl.arg<YT_BOOLEAN, bool>() );
+    if (enabled)
+    {
+	src.enable();
+    }
+    else
+    {
+	src.disable();
+    }
 
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  if ( ! source_id )
-    return pkgError( InstSrcError::E_bad_id );
-
-  PMError err = _y2pm.instSrcManager().setAutoenable( source_id, enabled );
-  if ( err )
-    return pkgError( err, YCPBoolean( false ) );
-*/
-  return YCPBoolean( true );
+    return YCPBoolean(src.enabled() == enabled);
 }
 
 /****************************************************************************************
