@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Feb 10 14:37:19 CET 2006 - lslezak@suse.cz
+
+- enable storage in TargetInit (#149869)
+- TargetInstall, TargetRemove
+- TargetProducts
+- version 2.13.2
+
+-------------------------------------------------------------------
 Thu Feb  9 11:42:06 CET 2006 - kkaempf@suse.de
 
 - honor kind when choosing resolvables

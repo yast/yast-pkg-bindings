@@ -196,13 +196,13 @@ void PkgModuleFunctions::registerFunctions()
  * @builtin InstSysMode
  * @short Set packagemanager to "inst-sys" mode
  * @description Set packagemanager to "inst-sys" mode - dont use local caches (ramdisk!)
- * FIXME ? <b>CAUTION</b>:Can only be called ONCE  MUST be called before any other function
+ * OBSOLETED!
  * @return void
  */
 YCPValue
 PkgModuleFunctions::InstSysMode ()
 {
-    // TODO FIXME _y2pm.setNotRunningFromSystem();
+    y2warning("Pkg::InstSysMode() is obsoleted, it's not needed anymore");
     return YCPVoid();
 }
 
