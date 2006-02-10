@@ -1615,9 +1615,7 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 
     try
     {
-# warning PkgCommit: doesn't use returned value
-	// TODO success = ...
-	zypp_ptr->target()->commit(zypp_ptr->pool(), medianr, errors, remaining, srcremaining);
+	success = zypp_ptr->target()->commit(zypp_ptr->pool(), medianr, errors, remaining, srcremaining);
     }
     catch (...)
     {
