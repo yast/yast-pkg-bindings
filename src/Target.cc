@@ -52,9 +52,12 @@ using std::string;
 YCPValue
 PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& /*unused*/ )
 {
+    std::string r = root->value();
+
     try
     {
-	zypp_ptr->initTarget(root->value());
+	zypp_ptr->initTarget(r);
+	zypp_ptr->target()->enableStorage(r);
     }
     catch (zypp::Exception & excpt)
     {
