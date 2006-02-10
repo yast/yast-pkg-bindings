@@ -240,17 +240,27 @@ PkgModuleFunctions::TargetBlockSize (const YCPString& dir)
 YCPList
 PkgModuleFunctions::TargetProducts ()
 {
-    YCPList prdlist;
-#warning TargetProducts is not implemented
-    /* TODO FIXME
-    std::list<constInstSrcDescrPtr> products = _y2pm.instTarget().getProducts();
-    for (std::list<constInstSrcDescrPtr>::const_iterator it = products.begin();
-	 it != products.end(); ++it)
+    YCPList products;
+
+    zypp::ResStore store = zypp_ptr->target()->resolvables();
+
+    y2internal("store.size: %d", store.size());
+
+    for (zypp::ResStore::const_iterator it = store.begin();
+       it != store.end();
+       it++)
     {
-	prdlist->add(Descr2Map (*it));
+	YCPMap prod;
+
+	if (zypp::isKind<zypp::Product>(*it))
+	{
+#warning TargetProducts doesn't return all keys
+	    prod->add( YCPString("name"), YCPString( (*it)->name() ) );
+	    products->add(prod);
+	}
     }
-    */
-    return prdlist;
+
+    return products;
 }
 
 /** ------------------------
