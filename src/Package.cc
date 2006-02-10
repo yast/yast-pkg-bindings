@@ -38,6 +38,7 @@
 #include <zypp/UpgradeStatistics.h>
 #include <zypp/target/rpm/RpmDb.h>
 
+#include <fstream>
 
 ///////////////////////////////////////////////////////////////////
 
@@ -1496,38 +1497,36 @@ PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
 	y2error("An error occurred during Pkg::PkgSolve.");
     }
 
-    // FIXME: use filter
-
-    return YCPBoolean(result);
-
-#warning TODO: save unresolved problems into /var/log/YaST2/badlist
-    /* TODO FIXME 
-    bool filter_conflicts_with_installed = false;
-
-    if (! filter.isNull ())
+    // save information about failed dependencies to file
+    if (!result)
     {
-	filter_conflicts_with_installed = filter->value();
+# warning PkgSolve: filter option is not used
+/*	bool filter_conflicts_with_installed = false;
 
+	if (! filter.isNull())
+	{
+	    filter_conflicts_with_installed = filter->value();
+	}
+*/
+	zypp::ResolverProblemList problems = zypp_ptr->resolver()->problems();
+	int problem_size = problems.size();
+
+	if (problem_size > 0)
+	{
+	    y2error ("PkgSolve: %zd packages failed (see /var/log/YaST2/badlist)", problem_size);
+
+	    std::ofstream out ("/var/log/YaST2/badlist");
+
+	    out << problem_size << " packages failed" << std::endl;
+	    for(zypp::ResolverProblemList::const_iterator p = problems.begin();
+		 p != problems.end(); ++p )
+	    {
+		out << (*p)->description() << std::endl;
+	    }
+	}
     }
 
-    PkgDep::ResultList good;
-    PkgDep::ErrorResultList bad;
-
-    if (!_y2pm.packageManager().solveInstall(good, bad, filter_conflicts_with_installed))
-    {
-	_solve_errors = bad.size();
-	y2error ("Solve: %zd packages failed (see /var/log/YaST2/badlist)", bad.size());
-
-	std::ofstream out ("/var/log/YaST2/badlist");
-	out << bad.size() << " packages failed" << std::endl;
-	for( PkgDep::ErrorResultList::const_iterator p = bad.begin();
-	     p != bad.end(); ++p )
-	{
-	    out << *p << std::endl;
-	}
-
-	return YCPBoolean (false);
-    }*/
+    return YCPBoolean(result);
 }
 
 
