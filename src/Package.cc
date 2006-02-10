@@ -1800,6 +1800,5 @@ YCPBoolean PkgModuleFunctions::PkgMarkLicenseConfirmed (const YCPString & packag
  **/
 YCPBoolean PkgModuleFunctions::RpmChecksig( const YCPString & filename )
 {
-# warning RpmChecksig is not implemented
-  return YCPBoolean(true);
+    return YCPBoolean(zypp_ptr->target()->rpmDb().checkPackage(filename->value()) == 0);
 }
