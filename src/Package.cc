@@ -36,6 +36,7 @@
 #include <zypp/Package.h>
 #include <zypp/SourceManager.h>
 #include <zypp/UpgradeStatistics.h>
+#include <zypp/target/rpm/RpmDb.h>
 
 
 ///////////////////////////////////////////////////////////////////
@@ -1662,8 +1663,7 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 YCPValue
 PkgModuleFunctions::GetBackupPath ()
 {
-#warning GetBackupPath is not implemented
-    return YCPString("/tmp/backup");
+    return YCPString(zypp_ptr->target()->rpmDb().getBackupPath().asString());
 }
 
 /**
@@ -1676,7 +1676,7 @@ PkgModuleFunctions::GetBackupPath ()
 YCPValue
 PkgModuleFunctions::SetBackupPath (const YCPString& p)
 {
-#warning SetBackupPath is not implemented
+    zypp_ptr->target()->rpmDb().setBackupPath(p->value());
     return YCPVoid();
 }
 
@@ -1690,7 +1690,7 @@ PkgModuleFunctions::SetBackupPath (const YCPString& p)
 YCPValue
 PkgModuleFunctions::CreateBackups (const YCPBoolean& flag)
 {
-#warning CreateBackups is not implemented
+    zypp_ptr->target()->rpmDb().createPackageBackups(flag->value());
     return YCPVoid ();
 }
 
