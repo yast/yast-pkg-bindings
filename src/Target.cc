@@ -106,10 +106,16 @@ PkgModuleFunctions::TargetFinish ()
 YCPBoolean
 PkgModuleFunctions::TargetInstall(const YCPString& filename)
 {
-    /* TODO FIXME
-    _last_error = _y2pm.installFile (Pathname (filename->value()));
-    return YCPBoolean (!_last_error);
-    */
+    try
+    {
+	zypp_ptr->target()->rpmDb().installPackage(filename->value());
+    }
+    catch (zypp::Exception & excpt)
+    {
+	ycperror("TargetInstall has failed: %s", excpt.asString().c_str());
+        return YCPBoolean(false);
+    }
+
     return YCPBoolean(true);
 }
 
@@ -128,9 +134,16 @@ PkgModuleFunctions::TargetInstall(const YCPString& filename)
 YCPBoolean
 PkgModuleFunctions::TargetRemove(const YCPString& name)
 {
-    /* TODO FIXME
-    _y2pm.removePackage (name->value());
-    */
+    try
+    {
+	zypp_ptr->target()->rpmDb().removePackage(name->value());
+    }
+    catch (zypp::Exception & excpt)
+    {
+	ycperror("TargetRemove has failed: %s", excpt.asString().c_str());
+        return YCPBoolean(false);
+    }
+
     return YCPBoolean (true);
 }
 
