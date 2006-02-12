@@ -42,6 +42,11 @@
 
 ///////////////////////////////////////////////////////////////////
 
+namespace zypp {
+	typedef std::list<PoolItem> PoolItemList; 
+}
+
+
 // ------------------------
 /**
  *  @builtin PkgQueryProvides
