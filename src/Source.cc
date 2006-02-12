@@ -33,6 +33,7 @@
 
 #include <zypp/SourceManager.h>
 #include <zypp/Source.h>
+#include <zypp/Product.h>
 
 using namespace std;
 
@@ -296,32 +297,47 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceProductData (const YCPInteger& id)
 {
-    /* TODO FIXME
-  YCPList args;
-  args->add (id);
+  zypp::Source_Ref src;
 
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
+  try {
+	src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+  } catch(...) {
+	y2error ("Source ID not found: %lld", id->asInteger()->value());
+	return YCPVoid();
   }
-  //-------------------------------------------------------------------------------------//
 
-  if ( ! source_id )
-    return pkgError( InstSrcError::E_bad_id );
+#warning product category handling???
 
-  constInstSrcDescrPtr descr = source_id->descr();
+  zypp::Product::constPtr product;
 
-*/
+  // find a product for the given source
+  zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Product>::kind);
+
+  for( ; it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind)
+        ; ++it) {
+    product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
+
+    if( product->source() == src )
+ 	break; 
+  }
+
+  if( it == zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind) )
+  {
+	y2error ("Product for source '%lld' not found", id->asInteger()->value());
+	return YCPVoid();
+
+  }
+
   YCPMap data;
+
+  data->add( YCPString("label"),		YCPString( product->displayName() ) );
+  data->add( YCPString("vendor"),		YCPString( product->vendor() ) );
+
+#warning SourceProductData not finished 
 /*  data->add( YCPString("productname"),		YCPString( descr->content_product().asPkgNameEd().name ) );
   data->add( YCPString("productversion"),	YCPString( descr->content_product().asPkgNameEd().edition.version() ) );
   data->add( YCPString("baseproductname"),	YCPString( descr->content_baseproduct().asPkgNameEd().name ) );
   data->add( YCPString("baseproductversion"),	YCPString( descr->content_baseproduct().asPkgNameEd().edition.version() ) );
-  data->add( YCPString("vendor"),		YCPString( descr->content_vendor() ) );
   data->add( YCPString("defaultbase"),		YCPString( descr->content_defaultbase() ) );
 
   InstSrcDescr::ArchMap::const_iterator it1 = descr->content_archmap().find ( _y2pm.baseArch() );
@@ -342,9 +358,7 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
   }
   data->add( YCPString("linguas"),		linguas );
 
-  data->add( YCPString("label"),		YCPString( descr->content_label() ) );
-
-  YCPMap labelmap;
+ YCPMap labelmap;
   for ( InstSrcDescr::LabelMap::const_iterator it = descr->content_labelmap().begin();
 	it != descr->content_labelmap().end(); ++it ) {
     labelmap->add( YCPString( it->first.code() ), YCPString( it->second ) );
