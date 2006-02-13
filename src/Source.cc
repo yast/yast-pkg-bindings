@@ -317,8 +317,12 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
         ; ++it) {
     product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
 
+    y2debug ("Checking product: %s", product->displayName().c_str());
     if( product->source() == src )
+    {
+	y2debug ("Found");
  	break; 
+    }
   }
 
   if( it == zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind) )

@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Feb 13 17:15:45 CET 2006 - visnov@suse.cz
+
+- Pkg::SourceProductData basic support
+
+-------------------------------------------------------------------
 Mon Feb 13 11:32:26 CET 2006 - visnov@suse.cz
 
 - connect also for source data parser and avoid media callback 
