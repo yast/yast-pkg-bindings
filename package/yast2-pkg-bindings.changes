@@ -2,6 +2,8 @@
 Mon Feb 13 17:15:45 CET 2006 - visnov@suse.cz
 
 - Pkg::SourceProductData basic support
+- define LOGGROUP
+- 2.13.5
 
 -------------------------------------------------------------------
 Mon Feb 13 11:32:26 CET 2006 - visnov@suse.cz
