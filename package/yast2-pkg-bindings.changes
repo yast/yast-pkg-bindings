@@ -2,6 +2,7 @@
 Mon Feb 13 11:32:26 CET 2006 - visnov@suse.cz
 
 - connect also for source data parser and avoid media callback 
+- 2.13.4
 
 -------------------------------------------------------------------
 Sun Feb 12 19:00:02 CET 2006 - visnov@suse.cz
