@@ -2,8 +2,12 @@
 # Makefile.am for core/wfm/src
 #
 
-AM_CXXFLAGS = -DY2LOG=\"wfm\" -DSUSEVERSION=\"${SUSEVERSION}\"	\
-	-DLOCALEDIR=\"${localedir}\"  -fno-inline
+AM_CXXFLAGS = -DY2LOG=\"wfm\"			\
+	-DSUSEVERSION=\"${SUSEVERSION}\"	\
+	-DLOCALEDIR=\"${localedir}\"		\
+	-fno-inline				\
+	-DZYPP_BASE_LOGGER_LOGGROUP=\"pkgbindings\"
+
 
 # to look for the packagemanager in the prefix first (really first?)
 AM_LDFLAGS = -L${libdir}
