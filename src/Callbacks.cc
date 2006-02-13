@@ -674,7 +674,9 @@ namespace ZyppRecipients {
 
         virtual void startData(
           zypp::Url source_url
-        ) {}
+        ) {
+	    _silent_probing = true;
+	}
 
         virtual void startProbe(zypp::Url url) {
 	    _silent_probing = true;
@@ -697,7 +699,9 @@ namespace ZyppRecipients {
           zypp::Url url
           , zypp::source::CreateSourceReport::Error error
           , std::string reason
-        ) {}
+        ) {
+	    _silent_probing = false;
+	}
     };
 
 ///////////////////////////////////////////////////////////////////

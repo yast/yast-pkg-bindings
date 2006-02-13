@@ -744,7 +744,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
     
 	zypp_ptr->addResolvables (src.resolvables());
     }
-    catch (...)
+    catch ( const zypp::Exception& excpt)
     {
 	y2error("Pkg::SourceCreate has failed");
 	return YCPVoid();
