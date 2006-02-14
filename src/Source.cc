@@ -698,7 +698,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
   zypp::Pathname pn(pd->value ());
   
   YCPList ids;
-  unsigned int ret = -1;
+  int ret = -1;
   
   if ( pd->value().empty() ) {
     // scan all sources
