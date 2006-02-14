@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Feb 14 08:18:52 CET 2006 - visnov@suse.cz
+
+- use ZYpp linewriter to log into y2log (#149001)
+- Pkg::SourceProductData enhanced to return product name and 
+  version (#150209)
+- 2.13.6 
+
+-------------------------------------------------------------------
 Mon Feb 13 17:15:45 CET 2006 - visnov@suse.cz
 
 - Pkg::SourceProductData basic support
