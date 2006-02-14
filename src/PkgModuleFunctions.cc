@@ -218,8 +218,7 @@ PkgModuleFunctions::InstSysMode ()
 YCPValue
 PkgModuleFunctions::SetLocale (const YCPString &locale)
 {
-// TODO FIXME	LangCode langcode(locale->value());
-//		_y2pm.setPreferredLocale (langcode);
+    zypp_ptr->setTextLocale(zypp::Locale(locale->value()));
     return YCPVoid();
 }
 
@@ -232,9 +231,7 @@ PkgModuleFunctions::SetLocale (const YCPString &locale)
 YCPValue
 PkgModuleFunctions::GetLocale ()
 {
-    // TODO FIXME
-    // return YCPString (_y2pm.getPreferredLocale().code());
-    return YCPString("en_US");
+    return YCPString(zypp_ptr->getTextLocale().code());
 }
 
 
@@ -249,23 +246,24 @@ PkgModuleFunctions::GetLocale ()
 YCPValue
 PkgModuleFunctions::SetAdditionalLocales (YCPList langycplist)
 {
-/*  TODO FIXME
-    Y2PM::LocaleSet langcodelist;
+    zypp::ZYpp::LocaleSet lset;
+
     int i = 0;
     while (i < langycplist->size())
     {
-	if (langycplist->value (i)->isString())
+	if (langycplist->value(i)->isString())
 	{
-	    langcodelist.insert (LangCode (langycplist->value (i)->asString()->value()));
+	    lset.insert(zypp::Locale(langycplist->value(i)->asString()->value()));
 	}
 	else
 	{
-	    y2error ("Pkg::SetAdditionalLocales ([...,%s,...]) not string", langycplist->value (i)->toString().c_str());
+	    y2error("Pkg::SetAdditionalLocales ([...,%s,...]) not string", langycplist->value(i)->toString().c_str());
 	}
 	i++;
     }
-    _y2pm.setRequestedLocales (langcodelist);
-*/
+
+    zypp_ptr->setRequestedLocales(lset);
+
     return YCPVoid();
 }
 
@@ -281,14 +279,15 @@ YCPValue
 PkgModuleFunctions::GetAdditionalLocales ()
 {
     YCPList langycplist;
-/*  TODO FIXME
-    const Y2PM::LocaleSet & langcodelist = _y2pm.getRequestedLocales();
-    for (Y2PM::LocaleSet::const_iterator it = langcodelist.begin();
-	 it != langcodelist.end(); ++it)
+
+    zypp::ZYpp::LocaleSet lset = zypp_ptr->getRequestedLocales();
+
+    for (zypp::ZYpp::LocaleSet::const_iterator it = lset.begin();
+	 it != lset.end(); ++it)
     {
-      langycplist->add (YCPString (it->code()));
+      langycplist->add (YCPString(it->code()));
     }
-*/
+
     return langycplist;
 }
 
