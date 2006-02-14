@@ -51,8 +51,7 @@ using namespace std;
 YCPValue
 PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
 {
-    bool cache = a->value();
-#warning SourceSetRamCache is not implemented
+    y2warning( "Pkg::SourceSetRamCache is obsolete and does nothing");
     return YCPBoolean( true );
 }
 
@@ -211,11 +210,10 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 	return YCPVoid ();
    }
 
-#warning SourceGeneralData doesn't return all data
     data->add( YCPString("enabled"),		YCPBoolean(src.enabled()));
     data->add( YCPString("autorefresh"),	YCPBoolean(src.autorefresh()));
     data->add( YCPString("type"),		YCPString(src.type()));
-// FIXME:    data->add( YCPString("product_dir"),	YCPString("descr->product_dir().asString()"));
+    data->add( YCPString("product_dir"),	YCPString(src.path().asString()));
 
 #warning SourceGeneralData returns URL without password
     // if password is required then use this parameter:
@@ -254,13 +252,10 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
 	return YCPVoid ();
     }
 
-#warning SourceMediaData doesn't return all data
-/*
-  TODO FIXME:
-  data->add( YCPString("media_count"),	YCPInteger((long long) 0));
-  data->add( YCPString("media_id"),	YCPString("descr->media_id()"));
-  data->add( YCPString("media_vendor"),	YCPString("descr->media_vendor()"));
-*/
+  data->add( YCPString("media_count"),	YCPInteger(src.numberOfMedia()));
+  data->add( YCPString("media_id"),	YCPString(src.unique_id()));
+  data->add( YCPString("media_vendor"),	YCPString(src.vendor()));
+
 #warning SourceMediaData returns URL without password
   data->add( YCPString("url"),		YCPString(src.url().asString()));
   return data;
