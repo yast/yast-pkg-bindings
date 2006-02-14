@@ -105,7 +105,7 @@ PkgModuleFunctions::GetSelections (const YCPSymbol& stat, const YCPString& cat)
 	}
 	else
 	{
-	    y2warning (string ("Unknown status in Pkg::GetSelections("+status+", ...)").c_str());
+	    y2warning (string ("Unknown status in Pkg::GetSelections(" + status + ", ...)").c_str());
 	    break;
 	}
 
@@ -176,43 +176,8 @@ PkgModuleFunctions::SelectionData (const YCPString& sel)
     string name = sel->value();
 
     /* TODO FIXME
-    PMSelectablePtr selectable = _y2pm.selectionManager().getItem(name);
-    if (!selectable)
-    {
-	return YCPError ("Selection '"+name+"' not found", data);
-    }
-    PMSelectionPtr selection = selectable->theObject();
-    if (!selection)
-    {
-	return YCPError ("Selection '"+name+"' no object", data);
-    }
-
-    data->add (YCPString ("summary"), YCPString (selection->summary(_y2pm.getPreferredLocale())));
-    data->add (YCPString ("category"), YCPString (selection->category()));
-    data->add (YCPString ("visible"), YCPBoolean (selection->visible()));
-
-    std::list<std::string> recommends = selection->recommends();
-    YCPList recommendslist;
-    for (std::list<std::string>::iterator recIt = recommends.begin();
-	recIt != recommends.end(); ++recIt)
-    {
-	if (!((*recIt).empty()))
-	    recommendslist->add (YCPString (*recIt));
-    }
-    data->add (YCPString ("recommends"), recommendslist);
-
-    std::list<std::string> suggests = selection->suggests();
-    YCPList suggestslist;
-    for (std::list<std::string>::iterator sugIt = suggests.begin();
-	sugIt != suggests.end(); ++sugIt)
-    {
-	if (!((*sugIt).empty()))
-	    suggestslist->add (YCPString (*sugIt));
-    }
-    data->add (YCPString ("suggests"), suggestslist);
 
     data->add (YCPString ("archivesize"), YCPInteger ((long long) (selection->archivesize())));
-    data->add (YCPString ("order"), YCPString (selection->order()));
 
     tiny_helper_no1 (&data, "requires", selection->requires ());
     tiny_helper_no1 (&data, "conflicts", selection->conflicts ());
@@ -236,11 +201,39 @@ PkgModuleFunctions::SelectionData (const YCPString& sel)
 	data->add (YCPString ("category"), YCPString (selection->category()));
 	data->add (YCPString ("visible"), YCPBoolean (selection->visible()));
 	data->add (YCPString ("order"), YCPString (selection->order()));
-#warning Report also requires, provides, conflicts and obsoletes
+	data->add (YCPString ("description"), YCPString (selection->description()));
+
+	YCPList recommendslist;
+	std::set<std::string> recommends = selection->recommends();
+
+	for (std::set<std::string>::const_iterator rec = recommends.begin();
+	    rec != recommends.end(); rec++)
+	{
+	    if (!((*rec).empty()))
+	    {
+		recommendslist->add(YCPString(*rec));
+	    }
+	}
+	data->add (YCPString("recommends"), recommendslist);
+
+	YCPList suggestslist;
+	std::set<std::string> suggests = selection->suggests();
+
+	for (std::set<std::string>::const_iterator sug = suggests.begin();
+	    sug != suggests.end(); sug++)
+	{
+	    if (!((*sug).empty()))
+	    {
+		suggestslist->add(YCPString(*sug));
+	    }
+	}
+	data->add (YCPString("suggests"), recommendslist);
+
+#warning Report also archivesize, requires, provides, conflicts and obsoletes
     }
     else
     {
-	ycperror("Selection '%s' not found", name.c_str());
+	return YCPError ("Selection '" + name + "' not found", data);
     }
 
     return data;
@@ -264,47 +257,42 @@ PkgModuleFunctions::SelectionData (const YCPString& sel)
 YCPValue
 PkgModuleFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to_delete, const YCPString& lang)
 {
+#warning Pkg::SelectionContent to_delete is not supported
+
     YCPList data;
-    string name = sel->value();
+    std::string name = sel->value();
+    std::string locale = lang->value();
+    
+    zypp::ResPool::byName_iterator it = std::find_if (
+        zypp_ptr->pool().byNameBegin(name)
+        , zypp_ptr->pool().byNameEnd(name)
+        , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Selection>::kind)
+    );
 
-#warning Pkg::SelectionContent not ported yet
-
-    /* TODO FIXME
-    PMSelectablePtr selectable = _y2pm.selectionManager().getItem(name);
-    if (!selectable)
+    if ( it != zypp_ptr->pool().byNameEnd(name) )
     {
-	return YCPError ("Selection '"+name+"' not found", data);
-    }
-    PMSelectionPtr selection = selectable->theObject();
-    if (!selection)
-    {
-	return YCPError ("Selection '"+name+"' no object", data);
-    }
+	zypp::Selection::constPtr selection = 
+	    zypp::dynamic_pointer_cast<const zypp::Selection>(it->resolvable ());
 
-    std::list<std::string> pacnames;
-    */
-    YCPList paclist;
-/*    LangCode locale (lang->value());
+#warning implemented correctly?
+	// is it correct?
+	std::set<std::string> inst = selection->install_packages(zypp::Locale(locale));
 
-    if (to_delete->value() == false)			// inspacks
-    {
-	pacnames = selection->inspacks (locale);
+	for (std::set<std::string>::const_iterator inst_it = inst.begin();
+	    inst_it != inst.end(); inst_it++)
+	{
+	    if (!((*inst_it).empty()))
+	    {
+		data->add(YCPString(*inst_it));
+	    }
+	}
     }
     else
     {
-	pacnames = selection->delpacks (locale);
+	return YCPError ("Selection '" + name + "' not found", data);
     }
 
-    for (std::list<std::string>::iterator pacIt = pacnames.begin();
-	pacIt != pacnames.end(); ++pacIt)
-    {
-	if (!((*pacIt).empty()))
-	    paclist->add (YCPString (*pacIt));
-    }
-*/
-
-    ycpinternal ("Pkg::SelectionContents not ported yet");
-    return paclist;
+    return data;
 }
 
 

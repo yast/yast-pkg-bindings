@@ -330,7 +330,6 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
   {
 	y2error ("Product for source '%lld' not found", id->asInteger()->value());
 	return YCPVoid();
-
   }
 
   YCPMap data;
