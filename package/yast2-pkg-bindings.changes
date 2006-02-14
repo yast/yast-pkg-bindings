@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Feb 14 20:04:04 CET 2006 - visnov@suse.cz
+
+- compile fixes
+- SetLocale, GetLocale, SetAdditionalLocales, GetAdditionalLocales, 
+  updated SelectionContent, SelectionData 
+- 2.13.7
+
+-------------------------------------------------------------------
 Tue Feb 14 09:55:06 CET 2006 - visnov@suse.cz
 
 - Pkg::SourceScan, Pkg::SourceEditGet, Pkg::SourceGeneralData improvements
