@@ -27,20 +27,23 @@
 
 PkgModule* PkgModule::current_pkg = NULL;
 
+struct YaSTZyppLogger : public zypp::base::LogControl::LineWriter
+{
+  virtual void writeOut( const std::string & formated_r )
+  {
+    y2lograw((formated_r+"\n").c_str());
+  }
+};
+
+
 PkgModule* PkgModule::instance ()
 {
     if (current_pkg == NULL)
     {
-	std::string yast_log = get_log_filename();
-	
-	int pos = yast_log.rfind("y2log");
+	y2milestone("Redirecting ZYPP log to y2log");
 
-	if( pos >= 0){	
-		yast_log = yast_log.erase(pos) + "zypp.log";
-		y2milestone( "Setting ZYPP log to: %s",  yast_log.c_str ());
-
-		zypp::base::LogControl::instance().logfile( zypp::Pathname(yast_log) );
-	}
+        boost::shared_ptr<YaSTZyppLogger> myLogger( new YaSTZyppLogger );
+        zypp::base::LogControl::instance().setLineWriter( myLogger );
 
 	current_pkg = new PkgModule ();
     }
