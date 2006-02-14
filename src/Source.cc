@@ -336,38 +336,6 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
   
 #warning SourceProductData not finished 
 /*  
-  data->add( YCPString("baseproductname"),	YCPString( descr->content_baseproduct().asPkgNameEd().name ) );
-  data->add( YCPString("baseproductversion"),	YCPString( descr->content_baseproduct().asPkgNameEd().edition.version() ) );
-  data->add( YCPString("defaultbase"),		YCPString( descr->content_defaultbase() ) );
-
-  InstSrcDescr::ArchMap::const_iterator it1 = descr->content_archmap().find ( _y2pm.baseArch() );
-  if ( it1 != descr->content_archmap().end() ) {
-    YCPList architectures;
-    for ( std::list<PkgArch>::const_iterator it2 = it1->second.begin(); it2 != it1->second.end(); ++it2 ) {
-      architectures->add ( YCPString( *it2 ) );
-    }
-    data->add( YCPString("architectures"),	architectures );
-  }
-
-  data->add( YCPString("requires"),		YCPString( descr->content_requires().asString() ) );
-
-  YCPList linguas;
-  for ( InstSrcDescr::LinguasList::const_iterator it = descr->content_linguas().begin();
-	it != descr->content_linguas().end(); ++it ) {
-    linguas->add( YCPString( it->code() ) );
-  }
-  data->add( YCPString("linguas"),		linguas );
-
- YCPMap labelmap;
-  for ( InstSrcDescr::LabelMap::const_iterator it = descr->content_labelmap().begin();
-	it != descr->content_labelmap().end(); ++it ) {
-    labelmap->add( YCPString( it->first.code() ), YCPString( it->second ) );
-  }
-  data->add( YCPString("labelmap"),		labelmap );
-
-  data->add( YCPString("language"),		YCPString( descr->content_language().code() ) );
-  data->add( YCPString("timezone"),		YCPString( descr->content_timezone() ) );
-  data->add( YCPString("descrdir"),		YCPString( descr->content_descrdir().asString() ) );
   data->add( YCPString("datadir"),		YCPString( descr->content_datadir().asString() ) );
 */
   return data;
@@ -624,37 +592,8 @@ PkgModuleFunctions::SourceInstallOrder (const YCPMap& ord)
 YCPValue
 PkgModuleFunctions::SourceCacheCopyTo (const YCPString& dir)
 {
-    /* TODO FIXME
-  YCPList args;
-  args->add (dir);
+  y2warning( "Pkg::SourceCacheCopyTo is obsolete now, it does nothing" );
 
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  Pathname & nroot( decl.arg<YT_STRING, Pathname>() );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  // Install InstSrces metadata in system
-  PMError err = _y2pm.instSrcManager().cacheCopyTo( nroot );
-  if ( err )
-    return pkgError( err );
-
-  // Install product data of all open sources according to installation order
-#warning Review product data install here and in PM.
-  InstSrcManager::ISrcIdList inst_order( _y2pm.instSrcManager().instOrderSources() );
-
-  for ( InstSrcManager::ISrcIdList::const_iterator it = inst_order.begin(); it != inst_order.end(); ++it ) {
-    _y2pm.instTarget().installProduct( (*it)->descr() );
-  }
-
-  // Actually there should be no need to do this here, as Y2PM::commitPackages
-  // calls Y2PM::selectionManager().installOnTarget();
-  Y2PM::selectionManager().installOnTarget();
-*/
   return YCPBoolean( true );
 }
 
@@ -752,34 +691,74 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 YCPValue
 PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 {
+  y2debug("Creating source...");
+
+  zypp::SourceFactory factory;
+  zypp::Url url (media->value ());
+  zypp::Pathname pn(pd->value ());
+  
+  YCPList ids;
+  unsigned int ret = -1;
+  
+  if ( pd->value().empty() ) {
+    // scan all sources
+    
+    zypp::SourceFactory::ProductSet products;
+        
+    factory.listProducts( url, products );
+    
+    for( zypp::SourceFactory::ProductSet::const_iterator it = products.begin();
+	it != products.end() ; ++it )
+    {
+	try
+	{
+	    // create the source, use URL as the alias
+	    unsigned id = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString()+pn.asString());
+
+	    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(ret);
+
+	    src.enable(); 
+    
+    	    zypp_ptr->addResolvables (src.resolvables());
+
+	    // return the id of the first product
+	    if ( ret == -1 ) 
+		ret = id;
+
+	    y2milestone("Added source %d: %s", id, (url.asString()+pn.asString()).c_str() );  
+	}
+	catch ( const zypp::Exception& excpt)
+	{
+	    y2error("SourceCreate for '%s' product '%s' has failed"
+		, url.asString().c_str(), pn.asString().c_str());
+#warning Report the error
+	}
+    }
+  } else {
     y2debug("Creating source...");
 
-#warning Create all sources from the given media
-    
-    zypp::Url url(media->value());
-    zypp::filesystem::Pathname pn(pd->value());
-
-    unsigned int ret;
-    
     try
     {
 	// create the source, use URL as the alias
-	ret = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString());
-	
+	ret = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString()+pn.asString());
+
 	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(ret);
 
 	src.enable(); 
     
-	zypp_ptr->addResolvables (src.resolvables());
+    	zypp_ptr->addResolvables (src.resolvables());
     }
     catch ( const zypp::Exception& excpt)
     {
-	y2error("Pkg::SourceCreate has failed");
-	return YCPVoid();
+	y2error("SourceCreate for '%s' product '%s' has failed"
+	    , url.asString().c_str(), pn.asString().c_str());
+#warning Report the error
     }
+  }
 
-    return YCPInteger(ret);
+  return YCPInteger(ret);
 }
+
 
 /****************************************************************************************
  * @builtin SourceSetEnabled
