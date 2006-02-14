@@ -32,6 +32,7 @@
 #include <PkgModuleFunctions.h>
 
 #include <zypp/SourceManager.h>
+#include <zypp/SourceFactory.h>
 #include <zypp/Source.h>
 #include <zypp/Product.h>
 
@@ -212,9 +213,9 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 
 #warning SourceGeneralData doesn't return all data
     data->add( YCPString("enabled"),		YCPBoolean(src.enabled()));
-// FIXME:    data->add( YCPString("autorefresh"),	YCPBoolean(false));
+    data->add( YCPString("autorefresh"),	YCPBoolean(src.autorefresh()));
+    data->add( YCPString("type"),		YCPString(src.type()));
 // FIXME:    data->add( YCPString("product_dir"),	YCPString("descr->product_dir().asString()"));
-// FIXME:    data->add( YCPString("type"),		YCPString("InstSrc::toString( descr->type()))"));
 
 #warning SourceGeneralData returns URL without password
     // if password is required then use this parameter:
@@ -685,45 +686,56 @@ PkgModuleFunctions::SourceCacheCopyTo (const YCPString& dir)
 YCPValue
 PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 {
-    /* TODO FIXME
-  YCPList args;
-  args->add (media);
-  if( ! pd.isNull ())
-      args->add (pd);
-
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  Url &      media_url  ( decl.arg<YT_STRING, Url>() );
-  Pathname & product_dir( decl.arg<YT_STRING, Pathname>( Pathname() ) ); // optional
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  PMError err;
-  InstSrcManager::ISrcIdList nids;
-
-  if ( product_dir.empty() ) {
+  zypp::SourceFactory factory;
+  zypp::Url url (media->value ());
+  zypp::Pathname pn(pd->value ());
+  
+  YCPList ids;
+  unsigned int id;
+  
+  if ( pd->value().empty() ) {
     // scan all sources
-    err = _y2pm.instSrcManager().scanMedia( nids, media_url );
+    
+    zypp::SourceFactory::ProductSet products;
+        
+    factory.listProducts( url, products );
+    
+    for( zypp::SourceFactory::ProductSet::const_iterator it = products.begin();
+	it != products.end() ; ++it )
+    {
+	try
+	{
+	    // create the source, use URL as the alias
+	    id = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString()+pn.asString());
+	    ids->add( YCPInteger(id) );
+	    y2milestone("Added source %d: %s", id, (url.asString()+pn.asString()).c_str() );  
+	}
+	catch ( const zypp::Exception& excpt)
+	{
+	    y2error("SourceCreate for '%s' product '%s' has failed"
+		, url.asString().c_str(), pn.asString().c_str());
+#warning Report the error
+	}
+    }
   } else {
-    // scan at product_dir
-    InstSrcManager::ISrcId nid;
-    err = _y2pm.instSrcManager().scanMedia( nid, media_url, product_dir );
-    if ( nid ) {
-      nids.push_back( nid );
+    y2debug("Creating source...");
+
+    try
+    {
+	// create the source, use URL as the alias
+	id = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString()+pn.asString());
+	ids->add( YCPInteger(id) );
+    }
+    catch ( const zypp::Exception& excpt)
+    {
+	y2error("SourceCreate for '%s' product '%s' has failed"
+	    , url.asString().c_str(), pn.asString().c_str());
+#warning Report the error
     }
   }
 
-  if ( nids.empty() )
-    return pkgError( err, YCPList() );
-
-*/
-
-  // return source_ids
-  return YCPList();
+  y2milestone("Found sources: %s", ids->toString().c_str() );  
+  return ids;
 }
 
 /****************************************************************************************
@@ -957,7 +969,7 @@ PkgModuleFunctions::SourceEditGet ()
 
 	src_map->add(YCPString("SrcId"), YCPInteger(*it));
 	src_map->add(YCPString("enabled"), YCPBoolean(src.enabled()));
-#warning SourceEditGet: "autorefresh" key is not returned
+	src_map->add(YCPString("autorefresh"), YCPBoolean(src.autorefresh()));
 	
 	ret->add(src_map);
     }
