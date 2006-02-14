@@ -336,10 +336,11 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
 
   data->add( YCPString("label"),		YCPString( product->displayName() ) );
   data->add( YCPString("vendor"),		YCPString( product->vendor() ) );
-
+  data->add( YCPString("productname"),		YCPString( product->name() ) );
+  data->add( YCPString("productversion"),	YCPString( product->edition().version() ) );
+  
 #warning SourceProductData not finished 
-/*  data->add( YCPString("productname"),		YCPString( descr->content_product().asPkgNameEd().name ) );
-  data->add( YCPString("productversion"),	YCPString( descr->content_product().asPkgNameEd().edition.version() ) );
+/*  
   data->add( YCPString("baseproductname"),	YCPString( descr->content_baseproduct().asPkgNameEd().name ) );
   data->add( YCPString("baseproductversion"),	YCPString( descr->content_baseproduct().asPkgNameEd().edition.version() ) );
   data->add( YCPString("defaultbase"),		YCPString( descr->content_defaultbase() ) );
@@ -381,6 +382,23 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
  * @builtin SourceProduct
  * @short Get Product info
  * @param integer SrcId Specifies the InstSrc to query.
+ *
+ * <code>
+ * $[
+ *   "baseproduct":"",
+ *   "baseversion":"", 
+ *   "defaultbase":"i386", 
+ *   "distproduct":"SuSE-Linux-DVD", 
+ *   "distversion":"10.0", 
+ *   "flags":"update", 
+ *   "name":"SUSE LINUX", 
+ *   "product":"SUSE LINUX 10.0", 
+ *   "relnotesurl":"http://www.suse.com/relnotes/i386/SUSE-LINUX/10.0/release-notes.rpm",
+ *   "requires":"suse-release-10.0",
+ *   "vendor":"SUSE LINUX Products GmbH, Nuernberg, Germany", 
+ *   "version":"10.0"
+ * ] 
+ * </code>
  * @return map Product info as a map
  **/
 YCPValue
