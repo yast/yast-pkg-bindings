@@ -257,10 +257,20 @@ YCPList
 PkgModuleFunctions::TargetProducts ()
 {
     YCPList products;
+    zypp::ResStore store;
 
-    zypp::ResStore store = zypp_ptr->target()->resolvables();
+    try
+    {
+	store = zypp_ptr->target()->resolvables();
+    }
+    catch (...)
+    {
+	y2error("Pkg::TargetProducts: Target is not initialized!");
+	// return empty list
+	return products;
+    }
 
-    y2internal("store.size: %d", store.size());
+    y2debug("store.size: %d", store.size());
 
     for (zypp::ResStore::const_iterator it = store.begin();
        it != store.end();
