@@ -153,9 +153,7 @@ PkgModuleFunctions::PkgModuleFunctions ()
     , _target_root( "/" )
     ,_callbackHandler( *new CallbackHandler( ) )
 {
-  zypp::ZYppFactory factory;
-
-  zypp_ptr = factory.getZYpp();
+  zypp_ptr = zypp::getZYpp();
 
   registerFunctions ();
 }
