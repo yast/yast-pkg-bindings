@@ -807,29 +807,7 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 YCPValue
 PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean& e)
 {
-    /* TODO FIXME
-  YCPList args;
-  args->add (id);
-  args->add (e);
-
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
-  bool &                   enabled  ( decl.arg<YT_BOOLEAN, bool>() );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  if ( ! source_id )
-    return pkgError( InstSrcError::E_bad_id );
-
-  PMError err = _y2pm.instSrcManager().setAutorefresh( source_id, enabled );
-  if ( err )
-    return pkgError( err, YCPBoolean( false ) );
-*/
+  y2internal( "Pkg::SourceSetAutorefresh is not ported yet, please, report" );
   return YCPBoolean( true );
 }
 
@@ -859,27 +837,8 @@ PkgModuleFunctions::SourceFinish (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
 {
-    /* TODO FIXME
-  YCPList args;
-  args->add (id);
+#warning SourceRefreshNow not implemented yet
 
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  if ( ! source_id )
-    return pkgError( InstSrcError::E_bad_id );
-
-  PMError err =_y2pm.instSrcManager().refreshSource( source_id );
-  if ( err )
-    return pkgError( err, YCPBoolean( false ) );
-*/
   return YCPBoolean( true );
 }
 
@@ -967,24 +926,15 @@ PkgModuleFunctions::SourceEditGet ()
 YCPValue
 PkgModuleFunctions::SourceEditSet (const YCPList& states)
 {
-    /* TODO FIXME
-  YCPList args;
-  args->add (states);
 
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
+#warning SourceEditSet not implemented yet
 
-  InstSrcManager::SrcStateVector & source_states( decl.arg<YT_LIST, InstSrcManager::SrcStateVector>() );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
+/* TODO FIXME
   PMError err = _y2pm.instSrcManager().editSet( source_states );
   if ( err )
     return pkgError( err, YCPBoolean( false ) );
 */
+
   return YCPBoolean( true );
 }
 
@@ -1056,20 +1006,8 @@ PkgModuleFunctions::SourceLowerPriority (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceSaveRanks ()
 {
-    /* TODO FIXME
-  YCPList args;
+    y2internal( "SourceSaveRanks not implemented yet, please, report" );
 
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  PMError err = _y2pm.instSrcManager().setNewRanks();
-  if ( err )
-    return pkgError( err, YCPBoolean( false ) );
-*/
   return YCPBoolean( true );
 }
 
