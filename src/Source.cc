@@ -715,7 +715,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 	    // create the source, use URL as the alias
 	    unsigned id = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString()+pn.asString());
 
-	    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(ret);
+	    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id);
 
 	    src.enable(); 
     

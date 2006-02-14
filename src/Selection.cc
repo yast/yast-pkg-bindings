@@ -203,7 +203,7 @@ PkgModuleFunctions::SelectionData (const YCPString& sel)
 	data->add (YCPString ("order"), YCPString (selection->order()));
 	data->add (YCPString ("description"), YCPString (selection->description()));
 
-	YCPList recommendslist;
+/*	YCPList recommendslist;
 	std::set<std::string> recommends = selection->recommends();
 
 	for (std::set<std::string>::const_iterator rec = recommends.begin();
@@ -228,7 +228,7 @@ PkgModuleFunctions::SelectionData (const YCPString& sel)
 	    }
 	}
 	data->add (YCPString("suggests"), recommendslist);
-
+*/
 #warning Report also archivesize, requires, provides, conflicts and obsoletes
     }
     else
