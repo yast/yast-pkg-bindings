@@ -333,6 +333,7 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
   data->add( YCPString("vendor"),		YCPString( product->vendor() ) );
   data->add( YCPString("productname"),		YCPString( product->name() ) );
   data->add( YCPString("productversion"),	YCPString( product->edition().version() ) );
+  data->add( YCPString("relnotesurl"), 		YCPString( product->releaseNotesUrl().asString()));
   
 #warning SourceProductData not finished 
 /*  

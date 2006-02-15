@@ -194,7 +194,7 @@ namespace ZyppRecipients {
 	  if (callback._set) {
 	    callback.addStr(res->plainRpm());
 	    callback.addStr(res->summary());
-	    callback.addInt(res->size());	// which size it is?
+	    callback.addInt(res->size());
 	    callback.addBool(false);	// is_delete = false (package installation)
 	    callback.evaluateBool();
 	  }
@@ -331,11 +331,17 @@ namespace ZyppRecipients {
 
 	virtual void start( zypp::Resolvable::constPtr resolvable_ptr, zypp::Url url)
 	{
+	  unsigned size = 0;
+	  
+	  if ( zypp::isKind<zypp::Package> (resolvable_ptr) )
+	  {
+	    size = (zypp::asKind<zypp::Package>(resolvable_ptr))->archivesize();
+	  }
 	  CB callback( ycpcb( YCPCallbacks::CB_StartProvide ) );
 	  if (callback._set) {
 	    callback.addStr(resolvable_ptr->name());
-	    callback.addInt(-1 /* FIXME: size */);
-	    callback.addBool(true);	// is_remote = tru always
+	    callback.addInt( size );
+	    callback.addBool(true);	// is_remote = true always
 	    callback.evaluateBool();
 	  }
 	}

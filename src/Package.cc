@@ -34,6 +34,7 @@
 
 #include <zypp/ResPool.h>
 #include <zypp/Package.h>
+#include <zypp/Product.h>
 #include <zypp/SourceManager.h>
 #include <zypp/UpgradeStatistics.h>
 #include <zypp/target/rpm/RpmDb.h>
@@ -180,19 +181,48 @@ inline std::string join( const std::list<std::string> & lines_r, const std::stri
 YCPValue
 PkgModuleFunctions::PkgMediaNames ()
 {
-# warning PkgMediaNames is not implemented
-    // get sources in installation order
-// FIXME    InstSrcManager::ISrcIdList inst_order( _y2pm.instSrcManager().instOrderSources() );
+# warning No installation order
 
-    YCPList ycpnames;
+    std::list<unsigned> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
 
-/* TODO FIXME
-    for (InstSrcManager::ISrcIdList::const_iterator it = inst_order.begin(); it != inst_order.end(); ++it)
+    YCPList res;
+    
+    // initialize    
+    for( list<unsigned>::const_iterator sit = source_ids.begin();
+	sit != source_ids.end(); ++sit)
     {
-	ycpnames->add (YCPString ((*it)->descr()->content_product().asPkgNameEd().name));
+	unsigned id = *sit;
+	
+	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
+
+	// find a product for the given source
+	zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Product>::kind);
+
+	for( ; it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind)
+    	    ; ++it) {
+	    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
+
+	    y2debug ("Checking product: %s", product->displayName().c_str());
+	    if( product->source() == src )
+	    {
+		y2debug ("Found");
+		
+		res->add( YCPString ( product->displayName() ) );
+ 		break; 
+	    }
+	}
+
+	if( it == zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind) )
+	{
+	    y2error ("Product for source '%d' not found", id);
+	    
+	    res->add( YCPString( src.url().asString() ) );
+	}
     }
-*/
-    return ycpnames;
+
+    y2milestone( "Pkg::PkgMediaNames result: %s", res->toString().c_str());
+    
+    return res;
 }
 
 
@@ -212,94 +242,61 @@ PkgModuleFunctions::PkgMediaNames ()
 YCPValue
 PkgModuleFunctions::PkgMediaSizes ()
 {
-# warning PkgMediaSizes is not implemented
-/* TODO FIXME
-    // get sources in installation order
-    InstSrcManager::ISrcIdList inst_order( _y2pm.instSrcManager().instOrderSources() );
+# warning No installation order
 
-    // compute max number of media across all sources
-    // need a source rank map here since the package reveals the source rank as
-    // a nonambiguous id for its source.
-    // we will later re-map it back to the installation order. This is why InstSrcManager::ISrcId
-    // is included.
+    std::list<unsigned> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
+    
+    std::map<unsigned, std::vector<unsigned> > result;
+    
+    std::map<zypp::Source_Ref, unsigned> source_map;
 
-    // map of < source rank, < src id, vector of media sizes >
-
-    map <unsigned int, pair <InstSrcManager::ISrcId, vector<FSize> > > mediasizes;
-
-    for (InstSrcManager::ISrcIdList::const_iterator it = inst_order.begin(); it != inst_order.end(); ++it)
+    // initialize    
+    for( list<unsigned>::const_iterator sit = source_ids.begin();
+	sit != source_ids.end(); ++sit)
     {
-        vector<FSize> vf ((*it)->descr()->media_count(), FSize (0));
-        mediasizes[(*it)->descr()->default_rank()] = std::make_pair (*it, vf);
+	unsigned id = *sit;
+	
+	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
+	unsigned media = src.numberOfMedia();
+	
+	result[id] = std::vector<unsigned>(media,0);
+	
+	source_map[ src ] = id;
     }
-
-    // scan over all packages
-
-    for (PMPackageManager::PMSelectableVec::const_iterator pkg = _y2pm.packageManager().begin();
-         pkg != _y2pm.packageManager().end(); ++pkg)
+    
+    for( zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin<zypp::Package>()
+	; it != zypp_ptr->pool().byKindEnd<zypp::Package>()
+	; ++it )
     {
-      if ( ! ( (*pkg)->to_install() || (*pkg)->source_install() ) )
-	continue;
+	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
-      PMPackagePtr package = (*pkg)->candidateObj();
-      if (!package)
-      {
-	continue;
-      }
-
-      map <unsigned int, pair <InstSrcManager::ISrcId, vector<FSize> > >::iterator mediapair = mediasizes.find (package->instSrcRank());
-      if (mediapair == mediasizes.end())
-      {
-	y2error ("Unknown rank %d for '%s'", package->instSrcRank(), (*pkg)->name()->c_str() );
-	continue;
-      }
-
-      if ( (*pkg)->to_install() ) {
-	unsigned int medianr = package->medianr();
-	FSize size = package->size();
-	if (medianr > mediapair->second.second.size())
-        {
-	  y2error ("resize needed %d", medianr);
-	  mediapair->second.second.resize (medianr);
+	if( it->status().isToBeInstalled() )
+	{
+	    long long size = pkg->size();
+	    result[ source_map[pkg->source()] ]
+	      [pkg->mediaId()-1] += size ;	// media are numbered from 1
 	}
-	mediapair->second.second[medianr-1] += size;
-      }
-
-      if ( (*pkg)->source_install() ) {
-	unsigned int medianr = atoi( package->sourceloc().c_str() );
-	FSize size = package->sourcesize();
-	if (medianr > mediapair->second.second.size())
-        {
-	  y2error ("resize needed %d", medianr);
-	  mediapair->second.second.resize (medianr);
-	}
-	mediapair->second.second[medianr-1] += size;
-      }
     }
-*/
-    // now convert back to list of lists in installation order
-
-    YCPList ycpsizes;
-/*
-    for (InstSrcManager::ISrcIdList::const_iterator it = inst_order.begin(); it != inst_order.end(); ++it)
+    
+    YCPList res;
+    
+    for(std::map<unsigned, std::vector<unsigned> >::const_iterator it =
+	result.begin(); it != result.end() ; ++it)
     {
-        for (map <unsigned int, pair <InstSrcManager::ISrcId, vector<FSize> > >::iterator mediapair = mediasizes.begin();
-             mediapair != mediasizes.end(); ++mediapair)
-        {
-            if (mediapair->second.first == *it)
-            {
-                YCPList msizes;
-
-                for (unsigned int i = 0; i < mediapair->second.second.size(); ++i)
-                {
-                    msizes->add (YCPInteger (((long long)(mediapair->second.second[i]))));
-                }
-                ycpsizes->add (msizes);
-            }
-        }
+	std::vector<unsigned> values = it->second;
+	YCPList source;
+	
+	for( unsigned i = 0 ; i < values.size() ; i++ )
+	{
+	    source->add( YCPInteger( values[i] ) );
+	}
+	
+	res->add( source );
     }
-*/
-    return ycpsizes;
+    
+    y2milestone( "Pkg::PkgMediaSize result: %s", res->toString().c_str());
+    
+    return res;
 }
 
 
@@ -316,95 +313,58 @@ PkgModuleFunctions::PkgMediaSizes ()
 YCPValue
 PkgModuleFunctions::PkgMediaCount()
 {
-# warning PkgMediaCount is not implemented
-/* TODO FIXME
-    // get sources in installation order
-    InstSrcManager::ISrcIdList inst_order( _y2pm.instSrcManager().instOrderSources() );
+# warning No installation order
 
-    // compute max number of media across all sources
-    // need a source rank map here since the package reveals the source rank as
-    // a nonambiguous id for its source.
-    // we will later re-map it back to the installation order. This is why InstSrcManager::ISrcId
-    // is included.
+    std::list<unsigned> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
+    
+    std::map<unsigned, std::vector<unsigned> > result;
+    
+    std::map<zypp::Source_Ref, unsigned> source_map;
 
-    // map of < source rank, < src id, vector of package counts>
-
-    map <unsigned int, pair <InstSrcManager::ISrcId, vector<int> > > media_counts;
-
-    for (InstSrcManager::ISrcIdList::const_iterator it = inst_order.begin(); it != inst_order.end(); ++it)
+    // initialize    
+    for( list<unsigned>::const_iterator sit = source_ids.begin();
+	sit != source_ids.end(); ++sit)
     {
-        vector<int> vf ((*it)->descr()->media_count(), 0);
-        media_counts[(*it)->descr()->default_rank()] = std::make_pair (*it, vf);
+	unsigned id = *sit;
+	
+	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
+	unsigned media = src.numberOfMedia();
+	
+	result[id] = std::vector<unsigned>(media,0);
+	
+	source_map[ src ] = id;
     }
-
-    // scan over all packages
-
-    for (PMPackageManager::PMSelectableVec::const_iterator pkg = _y2pm.packageManager().begin();
-         pkg != _y2pm.packageManager().end(); ++pkg)
+    
+    for( zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin<zypp::Package>()
+	; it != zypp_ptr->pool().byKindEnd<zypp::Package>()
+	; ++it )
     {
-      if ( ! ( (*pkg)->to_install() || (*pkg)->source_install() ) )
-	continue;
+	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
-      PMPackagePtr package = (*pkg)->candidateObj();
-
-      if (!package)
-	continue;
-
-      map <unsigned int, pair <InstSrcManager::ISrcId, vector<int> > >::iterator mediapair = media_counts.find (package->instSrcRank());
-      if (mediapair == media_counts.end())
-      {
-	y2error ("Unknown rank %d for '%s'", package->instSrcRank(), (*pkg)->name()->c_str());
-	continue;
-      }
-
-      if ( (*pkg)->to_install() )
-      {
-	unsigned int medianr = package->medianr();
-	if (medianr > mediapair->second.second.size())
-        {
-	  y2error ("resize needed %d", medianr);
-	  mediapair->second.second.resize (medianr);
+	if( it->status().isToBeInstalled() )
+	    result[ source_map[pkg->source()] ]
+	      [pkg->mediaId()-1]++ ;	// media are numbered from 1
+    }
+    
+    YCPList res;
+    
+    for(std::map<unsigned, std::vector<unsigned> >::const_iterator it =
+	result.begin(); it != result.end() ; ++it)
+    {
+	std::vector<unsigned> values = it->second;
+	YCPList source;
+	
+	for( unsigned i = 0 ; i < values.size() ; i++ )
+	{
+	    source->add( YCPInteger( values[i] ) );
 	}
-	mediapair->second.second[medianr-1] += 1;
-      }
-
-      if ( (*pkg)->source_install() ) {
-	unsigned int medianr = atoi( package->sourceloc().c_str() );
-	FSize size = package->sourcesize();
-	if (medianr > mediapair->second.second.size())
-        {
-	  y2error ("resize needed %d", medianr);
-	  mediapair->second.second.resize (medianr);
-	}
-	mediapair->second.second[medianr-1] += 1;
-      }
+	
+	res->add( source );
     }
-*/
-    // now convert back to list of lists in installation order
-
-    YCPList ycpsizes;
-
-/*
-    for (InstSrcManager::ISrcIdList::const_iterator it = inst_order.begin(); it != inst_order.end(); ++it)
-    {
-        for (map <unsigned int, pair <InstSrcManager::ISrcId, vector<int> > >::iterator mediapair = media_counts.begin();
-             mediapair != media_counts.end(); ++mediapair)
-        {
-            if (mediapair->second.first == *it)
-            {
-                YCPList msizes;
-
-                for (unsigned int i = 0; i < mediapair->second.second.size(); ++i)
-                {
-                    msizes->add (YCPInteger (((long long)(mediapair->second.second[i]))));
-                }
-                ycpsizes->add (msizes);
-            }
-        }
-    }
-*/
-
-    return ycpsizes;
+    
+    y2milestone( "Pkg::PkgMediaCount result: %s", res->toString().c_str());
+    
+    return res;
 }
 
 // ------------------------
@@ -1518,7 +1478,7 @@ PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
 
 	if (problem_size > 0)
 	{
-	    y2error ("PkgSolve: %zd packages failed (see /var/log/YaST2/badlist)", problem_size);
+	    y2error ("PkgSolve: %d packages failed (see /var/log/YaST2/badlist)", problem_size);
 
 	    std::ofstream out ("/var/log/YaST2/badlist");
 
