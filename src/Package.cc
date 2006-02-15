@@ -804,9 +804,7 @@ PkgModuleFunctions::PkgProperties (const YCPString& p)
 		data->add( YCPString("srcid"), YCPInteger(srcid));
 	    }
     
-	    /* FIXME: not implemented in zypp yet
-	    data->add( YCPString("location"), YCPString(package->location()));
-	    */
+	    data->add( YCPString("location"), YCPString(package->location().asString()));
 
 	    return data;
 	}
@@ -845,8 +843,7 @@ PkgModuleFunctions::PkgLocation (const YCPString& p)
 	    // cast to Package object
 	    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
-#warning PkgLocation is not implemented yet
-	    return YCPString("package->location()");
+	    return YCPString(package->location().asString());
 	}
     }
     
