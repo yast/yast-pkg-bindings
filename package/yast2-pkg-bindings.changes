@@ -4,6 +4,7 @@ Wed Feb 15 09:32:02 CET 2006 - visnov@suse.cz
 - PkgMediaCount, PkgMediaSizes, PkgMediaNames
 - Callback size fixes
 - this makes the download progress behave nicely 
+- 2.13.8
 
 -------------------------------------------------------------------
 Tue Feb 14 20:04:04 CET 2006 - visnov@suse.cz
