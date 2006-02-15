@@ -335,3 +335,25 @@ PkgModuleFunctions::YouRemovePackages ()
     */
     return YCPBoolean( true );
 }
+        
+/**
+   @builtin DoProvideAllPatches
+
+   @short Select all available patches for installation. Used for on-line update during installation.
+   @return boolean true if all pathes have been successfuly marked
+*/
+YCPValue
+PkgModuleFunctions::DoProvideAllPatches ()
+{
+    bool result = true;
+
+    for( zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Patch>::kind)
+	; it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Patch>::kind)
+	; ++it)
+    {
+	result = result && it->status().setToBeInstalled(zypp::ResStatus::USER);
+	y2milestone("Pkg::DoProvideAllPatches: selected patch %s", (*it)->name().c_str());
+    }
+
+    return YCPBoolean(result);
+}

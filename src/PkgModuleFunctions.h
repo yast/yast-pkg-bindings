@@ -375,6 +375,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue YouSelectPatches ();
 	/* TYPEINFO: boolean()*/
         YCPValue YouRemovePackages ();
+	/* TYPEINFO: boolean()*/
+        YCPValue DoProvideAllPatches ();
 
 	/**
 	 * Constructor.
