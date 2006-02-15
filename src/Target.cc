@@ -38,6 +38,7 @@
 #include <sys/statvfs.h>
 
 #include <zypp/target/rpm/RpmDb.h>
+#include <zypp/Product.h>
 
 using std::string;
 
@@ -270,7 +271,7 @@ PkgModuleFunctions::TargetProducts ()
 	return products;
     }
 
-    y2debug("store.size: %d", store.size());
+    y2debug("store.size: %zd", store.size());
 
     for (zypp::ResStore::const_iterator it = store.begin();
        it != store.end();
@@ -280,8 +281,11 @@ PkgModuleFunctions::TargetProducts ()
 
 	if (zypp::isKind<zypp::Product>(*it))
 	{
+	    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(*it);
+	    
 #warning TargetProducts doesn't return all keys
-	    prod->add( YCPString("name"), YCPString( (*it)->name() ) );
+	    prod->add( YCPString("name"), YCPString( product->name() ) );
+	    prod->add( YCPString("relnotesurl"), YCPString( product->releaseNotesUrl().asString() ) );
 	    products->add(prod);
 	}
     }
