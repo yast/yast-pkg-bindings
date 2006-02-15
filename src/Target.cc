@@ -258,31 +258,16 @@ YCPList
 PkgModuleFunctions::TargetProducts ()
 {
     YCPList products;
-    zypp::ResStore store;
 
-    try
+    for(zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Product>::kind)
+	; it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind)
+	; ++it)
     {
-	store = zypp_ptr->target()->resolvables();
-    }
-    catch (...)
-    {
-	y2error("Pkg::TargetProducts: Target is not initialized!");
-	// return empty list
-	return products;
-    }
+	zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
 
-    y2debug("store.size: %zd", store.size());
-
-    for (zypp::ResStore::const_iterator it = store.begin();
-       it != store.end();
-       it++)
-    {
-	YCPMap prod;
-
-	if (zypp::isKind<zypp::Product>(*it))
+	if (it->status().isInstalled() )
 	{
-	    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(*it);
-	    
+	    YCPMap prod;
 #warning TargetProducts doesn't return all keys
 	    prod->add( YCPString("name"), YCPString( product->name() ) );
 	    prod->add( YCPString("relnotesurl"), YCPString( product->releaseNotesUrl().asString() ) );
