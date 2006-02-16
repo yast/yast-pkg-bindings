@@ -31,6 +31,7 @@
 #include <ycp/YCPList.h>
 #include <ycp/YCPMap.h>
 
+#include <zypp/SourceManager.h>
 
 ///////////////////////////////////////////////////////////////////
 
@@ -66,7 +67,7 @@ PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol&
     }
     else
     {
-	y2error("Pkg::ResolvableInstall: unknown symbol: %s", kind_r->toString().c_str());
+	y2error("Pkg::ResolvableInstall: unknown symbol: %s", req_kind.c_str());
 	return YCPBoolean(false);
     }
 
@@ -110,7 +111,7 @@ PkgModuleFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol&
     }
     else
     {
-	y2error("Pkg::ResolvableInstall: unknown symbol: %s", kind_r->toString().c_str());
+	y2error("Pkg::ResolvableRemove: unknown symbol: %s", req_kind.c_str());
 	return YCPBoolean(false);
     }
 
@@ -121,8 +122,10 @@ PkgModuleFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol&
     );
 }
 
+
+
 /*
-   @builtin GetPackages
+   @builtin ResolvableProperties
 
    @short Get list of packages (installed, selected, available)
    @description
@@ -137,44 +140,98 @@ PkgModuleFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol&
    @return list<string>
 
 */
-/*
+
 YCPValue
-PkgModuleFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_only)
+PkgModuleFunctions::ResolvableProperties(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version)
 {
-    string which = y_which->symbol();
-    bool names_only = y_names_only->value();
+    zypp::Resolvable::Kind kind;
+    std::string req_kind = kind_r->symbol ();
+    std::string nm = name->value();
+    std::string vers = version->value();
+    YCPList ret;
 
-    YCPList packages;
+    if( req_kind == "product" ) {
+	kind = zypp::ResTraits<zypp::Product>::kind;
+    }
+    else if ( req_kind == "patch" ) {
+    	kind = zypp::ResTraits<zypp::Patch>::kind;
+    }
+    else if ( req_kind == "package" ) {
+	kind = zypp::ResTraits<zypp::Package>::kind;
+    }
+    else if ( req_kind == "selection" ) {
+	kind = zypp::ResTraits<zypp::Selection>::kind;
+    }
+    else if ( req_kind == "pattern" ) {
+	kind = zypp::ResTraits<zypp::Pattern>::kind;
+    }
+    else
+    {
+	y2error("Pkg::ResolvableProperties: unknown symbol: %s", req_kind.c_str());
+	return ret;
+    }
 
-    for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
-	it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Package>::kind);
+    std::list<unsigned> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
+    
+    for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(kind);
+	it != zypp_ptr->pool().byKindEnd(kind);
 	++it)
     {
-	if (which == "installed")
+	if ((nm.empty() || nm == (*it)->name())
+	    && (vers.empty() || vers == (*it)->edition().asString()))
 	{
-	    if (it->status().wasInstalled())
+	    YCPMap info;
+
+	    info->add(YCPString("name"), YCPString((*it)->name()));
+	    info->add(YCPString("version"), YCPString((*it)->edition().asString()));
+	    info->add(YCPString("arch"), YCPString((*it)->arch().asString()));
+
+	    // status
+	    std::string stat;
+
+	    if (it->status().isInstalled())
 	    {
-		pkg2list(packages, it, names_only);
+		stat = "installed";
 	    }
-	}
-	else if (which == "selected")
-	{
-	    if (it->status().isToBeInstalled())
+	    else if (it->status().isToBeInstalled())
 	    {
-		pkg2list(packages, it, names_only);
+		stat = "selected";
 	    }
-	}
-	else if (which == "available")
-	{
-	    pkg2list(packages, it, names_only);
-	}
-	else
-	{
-	    return YCPError ("Wrong parameter for Pkg::GetPackages");
+	    else
+	    {
+		stat = "available";
+	    }
+
+	    info->add(YCPString("status"), YCPSymbol(stat));
+
+	    // source
+	    zypp::Source_Ref res_src = (*it)->source();
+	    unsigned src_index; 
+	    bool found = false;
+
+	    // find index of the source
+	    // TODO optimize it by using hash<Source, index>?
+	    for (std::list<unsigned>::const_iterator idxit = source_ids.begin()
+		; idxit != source_ids.end()
+		; idxit++)
+	    {
+		zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource((*idxit));
+		
+		if (src == res_src)
+		{
+		    found = true;
+		    src_index = (*idxit);
+		    break;
+		}
+	    }
+
+	    info->add(YCPString("source"), YCPInteger((found) ? src_index : -1LL));
+
+	    ret->add(info);
 	}
     }
 
-    return packages;
+    return ret;
 }
 
-*/
+
