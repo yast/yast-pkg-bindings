@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Feb 16 14:19:35 CET 2006 - lslezak@suse.cz
+
+- new builtins ResolvableInstall, ResolvableRemove,
+  ResolvableProperties
+- 2.13.9
+
+-------------------------------------------------------------------
 Thu Feb 16 09:53:41 CET 2006 - visnov@suse.cz
 
 - Don't report a package installation twice if it needs to
