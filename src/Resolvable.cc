@@ -124,21 +124,19 @@ PkgModuleFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol&
 
 
 
-/*
+/**
    @builtin ResolvableProperties
 
-   @short Get list of packages (installed, selected, available)
+   @short Return properties of resolvable
    @description
-   return list of packages (["pkg1", "pkg2", ...] if names_only==true,
-   ["pkg1 version release arch", "pkg1 version release arch", ... if
-   names_only == false]
+   return list of resolvables of selected kind with required name
+ 
+   @param name name of the resolvable, if empty returns all resolvables of the kind
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @param version version of the resolvable, if empty all versions are returned
 
-   @param symbol 'which' defines which packages are returned: `installed all installed packages,
-   `selected returns all selected but not yet installed packages, `available returns all
-   available packages (from the installation source)
-   @param boolean names_only If true, return package names only
-   @return list<string>
-
+   @return list<map<string,any>> list of $[ "name":string, "version":string, "arch":string, "source":integer, "status":symbol ] maps
+   status is `installed, `selected or `available, source is source ID or -1 if the resolvable is installed in the target
 */
 
 YCPValue
