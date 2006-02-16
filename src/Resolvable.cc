@@ -66,7 +66,7 @@ PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol&
     }
     else
     {
-	y2error("Pkg::ResolvableInstall: unknown symbol: %s", kind->toString().c_str());
+	y2error("Pkg::ResolvableInstall: unknown symbol: %s", kind_r->toString().c_str());
 	return YCPBoolean(false);
     }
 
@@ -110,7 +110,7 @@ PkgModuleFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol&
     }
     else
     {
-	y2error("Pkg::ResolvableInstall: unknown symbol: %s", kind->toString().c_str());
+	y2error("Pkg::ResolvableInstall: unknown symbol: %s", kind_r->toString().c_str());
 	return YCPBoolean(false);
     }
 
