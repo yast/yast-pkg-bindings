@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Feb 16 09:53:41 CET 2006 - visnov@suse.cz
+
+- Don't report a package installation twice if it needs to
+  use different rpm parameters
+- Callback cleanup 
+
+-------------------------------------------------------------------
 Wed Feb 15 09:32:02 CET 2006 - visnov@suse.cz
 
 - PkgMediaCount, PkgMediaSizes, PkgMediaNames
