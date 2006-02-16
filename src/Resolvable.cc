@@ -31,40 +31,16 @@
 #include <ycp/YCPList.h>
 #include <ycp/YCPMap.h>
 
-#include <zypp/ResPool.h>
-#include <zypp/Package.h>
-#include <zypp/Product.h>
-#include <zypp/SourceManager.h>
-#include <zypp/UpgradeStatistics.h>
-#include <zypp/target/rpm/RpmDb.h>
-
-#include <fstream>
 
 ///////////////////////////////////////////////////////////////////
 
-namespace zypp {
-	typedef std::list<PoolItem> PoolItemList; 
-}
-
-
 // ------------------------
 /**
-   @builtin DoProvide
-   @short Install a list of packages to the system
-   @description
-   Provides (read: installs) a list of tags to the system
-
-   tag is a package name
-
-   returns a map of tag,reason pairs if tags could not be provided.
-   Usually this map should be empty (all required packages are
-   installed)
-
-   If tags could not be provided (due to package install failures or
-   conflicts), the tag is listed as a key and the value describes
-   the reason for the failure (as an already translated string).
-   @param list tags
-   @return map
+   @builtin ResolvableInstall
+   @short Install all resolvables with selected name and kind
+   @param name_r name of the resolvable, if empty ("") install all resolvables of the kind 
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @return boolean false if failed
 */
 YCPValue
 PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r )
@@ -88,33 +64,27 @@ PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol&
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResTraits<zypp::Pattern>::kind;
     }
-
-    // FIXME: `any?
-
+    else
+    {
+	y2error("Pkg::ResolvableInstall: unknown symbol: %s", kind->toString().c_str());
+	return YCPBoolean(false);
+    }
 
     return YCPBoolean(
-	DoProvideNameKind (name_r->value(), kind)
+	(name_r->value().empty())
+	    ? DoProvideAllKind(kind)
+	    : DoProvideNameKind (name_r->value(), kind)
     );
 }
 
 
 // ------------------------
 /**
-   @builtin DoRemove
-
-   @short Removes a list of packges from the system
-   @description
-   tag is a package name
-
-   returns a map of tag,reason pairs if tags could not be removed.
-   Usually this map should be empty (all required packages are
-   removed)
-
-   If a tag could not be removed (because other packages still
-   require it), the tag is listed as a key and the value describes
-   the reason for the failure (as an already translated string).
-   @param list tags
-   @return list Result
+   @builtin ResolvableRemove
+   @short Removes all resolvables with selected name and kind
+   @param name_r name of the resolvable, if empty ("") remove all resolvables of the kind 
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @return boolean false if failed
 */
 YCPValue
 PkgModuleFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol& kind_r )
@@ -138,16 +108,20 @@ PkgModuleFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol&
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResTraits<zypp::Pattern>::kind;
     }
-
-    // FIXME: `any?
-
+    else
+    {
+	y2error("Pkg::ResolvableInstall: unknown symbol: %s", kind->toString().c_str());
+	return YCPBoolean(false);
+    }
 
     return YCPBoolean(
-	DoRemoveNameKind (name_r->value(), kind)
+	(name_r->value().empty())
+	    ? DoRemoveAllKind(kind)
+	    : DoRemoveNameKind (name_r->value(), kind)
     );
 }
 
-/**
+/*
    @builtin GetPackages
 
    @short Get list of packages (installed, selected, available)

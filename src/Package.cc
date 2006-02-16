@@ -487,6 +487,39 @@ PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvabl
     return true;
 }
 
+/*
+ * Helper function
+ */
+bool
+PkgModuleFunctions::DoAllKind(zypp::Resolvable::Kind kind, bool provide)
+{
+    bool ret = true;
+
+    for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(kind);
+	it != zypp_ptr->pool().byKindEnd(kind); ++it)
+    {
+	bool res = provide ? it->status().setToBeInstalled(zypp::ResStatus::USER)
+	    : it->status().setToBeUninstalled(zypp::ResStatus::USER);
+	
+	y2milestone ("%s %s -> %s\n", (provide ? "Install" : "Remove"), (*it)->name().c_str(), (res ? "Ok" : "Failed"));
+	ret = ret && res;
+    }
+
+    return ret;
+}
+
+bool
+PkgModuleFunctions::DoProvideAllKind(zypp::Resolvable::Kind kind)
+{
+    return DoAllKind(kind, true);
+}
+
+bool
+PkgModuleFunctions::DoRemoveAllKind(zypp::Resolvable::Kind kind)
+{
+    return DoAllKind(kind, false);
+}
+
 /**
  * helper function, deinstall a package which provides tag (as a
  *   package name, a provided tag, or a provided file

@@ -71,6 +71,9 @@ class PkgModuleFunctions : public Y2Namespace
 
       bool DoProvideNameKind( const std::string & name , zypp::Resolvable::Kind kind);
       bool DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind);
+      bool DoProvideAllKind(zypp::Resolvable::Kind kind);
+      bool DoRemoveAllKind(zypp::Resolvable::Kind kind);
+      bool DoAllKind(zypp::Resolvable::Kind kind, bool provide);
       
       // builtin handling
       void registerFunctions ();
@@ -375,8 +378,10 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue YouSelectPatches ();
 	/* TYPEINFO: boolean()*/
         YCPValue YouRemovePackages ();
-	/* TYPEINFO: boolean()*/
-        YCPValue DoProvideAllPatches ();
+	/* TYPEINFO: boolean(string,symbol)*/
+        YCPValue ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r );
+	/* TYPEINFO: boolean(string,symbol)*/
+        YCPValue ResolvableRemove( const YCPString& name_r, const YCPSymbol& kind_r );
 
 	/**
 	 * Constructor.
