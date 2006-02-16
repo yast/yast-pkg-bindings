@@ -29,6 +29,7 @@
 
 #include <zypp/ZYppCallbacks.h>
 #include <zypp/Package.h>
+#include <zypp/Product.h>
 
 // FIXME: do this nicer, source create use this to avoid user feedback
 // on probing of source type
@@ -96,7 +97,7 @@ namespace ZyppRecipients {
 	    if (callback._set) {
 		callback.addInt( value );
 		// TODO adapt callback typeinfo to zypp
-		callback.addInt( 100 /* TODO ?? _pc.max()*/ );
+		callback.addInt( 100 );
 		callback.addInt( 0 /*failed*/ );
 		callback.addInt( 0 /* ignored */ );
 		callback.addInt( 1 /*alreadyInV4*/ );
@@ -172,6 +173,8 @@ namespace ZyppRecipients {
     ///////////////////////////////////////////////////////////////////
     struct InstallPkgReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::InstallResolvableReport>
     {
+	zypp::Resolvable::constPtr _last;
+	
 	InstallPkgReceive(RecipientCtl & construct_r) : Recipient(construct_r) 
 	{
 	}
@@ -190,6 +193,11 @@ namespace ZyppRecipients {
 #warning install non-package
 	  zypp::Package::constPtr res = 
 	    zypp::asKind<zypp::Package>(resolvable);
+	    
+	  // if we have started this resolvable already, don't do it again
+	  if( _last == resolvable )
+	    return;
+	    
 	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
 	  if (callback._set) {
 	    callback.addStr(res->plainRpm());
@@ -198,17 +206,16 @@ namespace ZyppRecipients {
 	    callback.addBool(false);	// is_delete = false (package installation)
 	    callback.evaluateBool();
 	  }
+	  
+	  _last = resolvable;
 	}
 				  
 	virtual bool progress(int value, zypp::Resolvable::constPtr resolvable)
 	{		
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
 	    if (callback._set) {
-		// TODO ?? if ( _pc.updateIfNewPercent( 5 ) ) {
-		// report changed values
 		callback.addInt( value );
 		callback.evaluate();
-		//}
 	    }
 
 	    // return default value from the parent class
@@ -227,6 +234,8 @@ namespace ZyppRecipients {
 		y2milestone( "Retrying installation problem with too low severity (%d)", level);
 		return zypp::target::rpm::InstallResolvableReport::ABORT;
 	    }
+	    
+	    _last = zypp::Resolvable::constPtr();
  
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
@@ -283,7 +292,7 @@ namespace ZyppRecipients {
 	    callback.addStr(resolvable->name());
 	    callback.addStr(std::string());
 	    callback.addInt(-1);
-	    callback.addBool(false);	// is_delete = false (package installation)
+	    callback.addBool(true);	// is_delete = true
 	    callback.evaluateBool();
 	  }
 	}
@@ -292,8 +301,6 @@ namespace ZyppRecipients {
 	{		
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
 	    if (callback._set) {
-		// TODO ?? if ( _pc.updateIfNewPercent( 5 ) ) {
-		// report changed values
 		callback.addInt( value );
 		callback.evaluate();
 		//}
@@ -339,9 +346,11 @@ namespace ZyppRecipients {
 	  }
 	  CB callback( ycpcb( YCPCallbacks::CB_StartProvide ) );
 	  if (callback._set) {
+	    bool remote = url.getScheme() != "cd" && url.getScheme() != "dvd" 
+		&& url.getScheme() != "nfs";
 	    callback.addStr(resolvable_ptr->name());
 	    callback.addInt( size );
-	    callback.addBool(true);	// is_remote = true always
+	    callback.addBool(remote);
 	    callback.evaluateBool();
 	  }
 	}
@@ -406,34 +415,8 @@ namespace ZyppRecipients {
       }
     }
   };
+*/
 
-  ///////////////////////////////////////////////////////////////////
-  // Y2PMCallbacks::CommitCallback
-  ///////////////////////////////////////////////////////////////////
-  struct CommitReceive : public Recipient, public Y2PMCallbacks::CommitCallback
-  {
-    CommitReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
-
-    virtual void reportbegin() {
-    }
-    virtual void reportend()   {
-    }
-    virtual void advanceToMedia( constInstSrcPtr srcptr, unsigned mediaNr ) {
-      CB callback( ycpcb( YCPCallbacks::CB_SourceChange ) );
-      if ( callback._set ) {
-	// Translate the (internal) InstSrcPtr to an (external) instOrder vector index
-	// FIXME callback.addInt( Y2PM::instSrcManager().instOrderIndex( srcptr ) );
-	callback.addInt( mediaNr );
-	callback.evaluate();
-      }
-    }
-  };
-
-  ///////////////////////////////////////////////////////////////////
-  // Y2PMCallbacks::CommitProvideCallback
-  ///////////////////////////////////////////////////////////////////
-  struct CommitProvideReceive : public Recipient, public Y2PMCallbacks::CommitProvideCallback
-  {*/
     ///////////////////////////////////////////////////////////////////
     // SourceRefreshCallback
     ///////////////////////////////////////////////////////////////////
@@ -467,12 +450,11 @@ namespace ZyppRecipients {
 		    if (zypp::isKind<zypp::Product>(*it))
 		    {
 			arg->add( YCPString("label"), YCPString( (*it)->name() ) );
+			arg->add( YCPString("product_dir"), YCPString( source.path().asString() ) );
 		    }
 		}
 		
-/* TODO
-		arg->add( YCPString("product_dir"),	YCPString( descr_r->product_dir().asString() ) );
-*/
+
 		callback.addMap( arg );
 		startArgs = arg; //remember
 		callback.evaluate();
@@ -593,9 +575,17 @@ namespace ZyppRecipients {
 		if (ret == "S") return zypp::media::MediaChangeReport::IGNORE;
 
 		// otherwise change media URL
-		// FIXME: validate url
-		source.redirect( mediumNr, zypp::Url(ret) );
-		return zypp::media::MediaChangeReport::CHANGE_URL;
+		// try/catch to catch invalid URLs
+		try {
+		    zypp::Url ret_url (ret);
+		    source.redirect( mediumNr, ret_url );
+		    return zypp::media::MediaChangeReport::CHANGE_URL;
+		}
+		catch ( ... )
+		{
+		    // invalid URL, try again
+		    return zypp::media::MediaChangeReport::RETRY;
+		}
 	    }
 	   
 	    // return default value from the parent class
@@ -636,10 +626,9 @@ namespace ZyppRecipients {
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDownload ) );
 	    if ( callback._set )
 	    {
-		// TODO is any check needed?? if ( _pc.updateIfNewPercent() ) {
 		// report changed values
 		callback.addInt( value );
-		callback.addInt( 100 /*TODO FIXME _pc.max()*/ );
+		callback.addInt( 100  );
 		return callback.evaluateBool( true ); // default == continue
 	    }
 
