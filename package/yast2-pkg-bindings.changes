@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Feb 17 14:05:58 CET 2006 - visnov@suse.cz
+
+- adapt for new pool iterators 
+
+-------------------------------------------------------------------
 Thu Feb 16 14:19:35 CET 2006 - lslezak@suse.cz
 
 - new builtins ResolvableInstall, ResolvableRemove,

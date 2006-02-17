@@ -89,20 +89,20 @@ PkgModuleFunctions::PkgQueryProvides( const YCPString& tag )
     std::string name = tag->value();
 
     // 'it' is 'const struct std::pair<const std::string, std::pair<zypp::Capability, zypp::PoolItem> >'
-    for (zypp::ResPool::const_indexiterator it = zypp_ptr->pool().providesbegin(name);
-	it != zypp_ptr->pool().providesend(name);
+    for (zypp::ResPool::byCapabilityIndex_iterator it = zypp_ptr->pool().byCapabilityIndexBegin(name, zypp::Dep::PROVIDES);
+	it != zypp_ptr->pool().byCapabilityIndexEnd(name, zypp::Dep::PROVIDES);
 	++it)
     {
 	// is it a package?
-	if (zypp::isKind<zypp::Package>(it->second.second.resolvable()))
+	if (zypp::isKind<zypp::Package>(it->item.resolvable()))
 	{
 
 	    // cast to Package object
-	    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->second.second.resolvable());
+	    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->item.resolvable());
 	    std::string pkgname = package->name();
 
 	    // get instance status
-	    bool installed = it->second.second.status().staysInstalled();
+	    bool installed = it->item.status().staysInstalled();
 	    std::string instance;
 
 # warning Status `NONE and `INST is not supported
@@ -117,7 +117,7 @@ PkgModuleFunctions::PkgQueryProvides( const YCPString& tag )
 	    }
 
 	    // get status on the system
-	    bool uninstalled = it->second.second.status().staysUninstalled() || it->second.second.status().isToBeUninstalled();
+	    bool uninstalled = it->item.status().staysUninstalled() || it->item.status().isToBeUninstalled();
 	    std::string onSystem;
 
 	    if (uninstalled)
