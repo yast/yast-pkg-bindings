@@ -159,7 +159,7 @@ PkgModuleFunctions::SourceFinishAll ()
     try
     {
 	y2milestone( "Storing the source setup in %s", _target_root.asString().c_str()) ;
-	zypp::SourceManager::sourceManager()->store( _target_root );
+	zypp::SourceManager::sourceManager()->store( _target_root, true );
 	y2milestone( "Disabling all sources") ;
 	zypp::SourceManager::sourceManager()->disableAllSources ();
     }
