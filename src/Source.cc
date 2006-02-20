@@ -75,7 +75,12 @@ YCPValue
 PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 {
     try {
-	zypp::SourceManager::sourceManager()->restore(_target_root);
+	if( !zypp::SourceManager::sourceManager()->restore(_target_root) )
+	{
+	    ycperror( "Unable to restore all sources" );
+	    
+	    return YCPBoolean( false );
+	}
 	
 	if( enable->value() )
 	{
@@ -632,7 +637,17 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     
     zypp::SourceFactory::ProductSet products;
         
-    factory.listProducts( url, products );
+    try
+    {
+	factory.listProducts( url, products );
+    }
+    catch ( const zypp::Exception& excpt)
+    {
+	y2error("Scanning products for '%s' has failed"
+		, url.asString().c_str());
+#warning Report the error
+	return ids;
+    }
     
     for( zypp::SourceFactory::ProductSet::const_iterator it = products.begin();
 	it != products.end() ; ++it )
@@ -927,15 +942,56 @@ PkgModuleFunctions::SourceEditGet ()
 YCPValue
 PkgModuleFunctions::SourceEditSet (const YCPList& states)
 {
+  bool error = false;
+ 
+  for (int index = 0; index < states->size(); index++ )
+  {
+    if( ! states->value(index)->isMap() )
+    {
+	ycperror( "Pkg::SourceEditSet, entry not a map at index %d", index);
+	error = true;
+	continue;
+    }
+    
+    YCPMap descr = states->value(index)->asMap();
+    
+    if (descr->value( YCPString("SrcId") ).isNull() || !descr->value(YCPString("SrcId"))->isInteger())
+    {
+	ycperror( "Pkg::SourceEditSet, SrcId not defined for a source description at index %d", index);
+	error = true;
+	continue;
+    }
+    int id = descr->value( YCPString("SrcId") )->asInteger()->value();
+    
+    zypp::Source_Ref src;
+    try {
+	src = zypp::SourceManager::sourceManager()->findSource(id);
+    }
+    catch (...) {
+	ycperror( "Pkg::SourceEditSet, source %d not found", index);
+	error = true;
+	continue;
+    }
+    
+    // now, we have the source
+    if( ! descr->value( YCPString("enabled")).isNull() && descr->value(YCPString("enabled"))->isBoolean ())
+    {
+	bool enable = descr->value(YCPString("enabled"))->asBoolean ()->value();
+	
+	if( enable )
+	    src.enable();
+	else
+	    src.disable();
+    }
 
-#warning SourceEditSet not implemented yet
+    if( !descr->value(YCPString("autorefresh")).isNull() && descr->value(YCPString("autorefresh"))->isBoolean ())
+    {
+	src.setAutorefresh( descr->value(YCPString("autorefresh"))->asBoolean ()->value() );
+    }
 
-/* TODO FIXME
-  PMError err = _y2pm.instSrcManager().editSet( source_states );
-  if ( err )
-    return pkgError( err, YCPBoolean( false ) );
-*/
-
+#warning SourceEditSet ordering not implemented yet
+  }
+  
   return YCPBoolean( true );
 }
 
