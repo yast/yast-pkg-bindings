@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Feb 20 17:49:31 CET 2006 - lslezak@suse.cz
+
+- fixed package location in PkgLocation and in PkgProperties
+- new builtin PkgPath - returns package name with path relative
+  to source root directory
+- 2.13.12
+
+-------------------------------------------------------------------
 Sun Feb 19 20:44:14 CET 2006 - kkaempf@suse.de
 
 - adapt SourceManager::store() call

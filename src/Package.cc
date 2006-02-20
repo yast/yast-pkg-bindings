@@ -809,6 +809,7 @@ PkgModuleFunctions::PkgProperties (const YCPString& p)
 	    unsigned int srcid = 0;
 	    bool found = false;
 
+#warning TODO: iterate through std::list<unsigned> zypp::SourceManager::sourceManager()->enabledSources()
 	    // search source
 	    while(!found)
 	    {
@@ -837,9 +838,39 @@ PkgModuleFunctions::PkgProperties (const YCPString& p)
 		data->add( YCPString("srcid"), YCPInteger(srcid));
 	    }
     
-	    data->add( YCPString("location"), YCPString(package->location().asString()));
+	    data->add( YCPString("location"), YCPString(package->location().basename()));
+	    data->add( YCPString("path"), YCPString(package->location().asString()));
 
 	    return data;
+	}
+    }
+    
+    return YCPVoid();
+}
+
+/* helper function */
+YCPValue
+PkgModuleFunctions::GetPkgLocation (const YCPString& p, bool full_path)
+{
+    std::string pkgname = p->value();
+    YCPMap data;
+
+    if (!pkgname.empty())
+    {
+	// find the package
+	zypp::ResPool::byName_iterator it = std::find_if (
+	    zypp_ptr->pool().byNameBegin(pkgname)
+	    , zypp_ptr->pool().byNameEnd(pkgname)
+	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+	);
+
+	if (it != zypp_ptr->pool().byNameEnd(pkgname))
+	{
+	    // cast to Package object
+	    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
+
+	    return (full_path) ? YCPString(package->location().asString()) :
+		YCPString(package->location().basename());
 	}
     }
     
@@ -859,30 +890,25 @@ PkgModuleFunctions::PkgProperties (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgLocation (const YCPString& p)
 {
-    std::string pkgname = p->value();
-    YCPMap data;
-
-    if (!pkgname.empty())
-    {
-	// find the package
-	zypp::ResPool::byName_iterator it = std::find_if (
-	    zypp_ptr->pool().byNameBegin(pkgname)
-	    , zypp_ptr->pool().byNameEnd(pkgname)
-	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
-	);
-
-	if (it != zypp_ptr->pool().byNameEnd(pkgname))
-	{
-	    // cast to Package object
-	    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
-
-	    return YCPString(package->location().asString());
-	}
-    }
-    
-    return YCPVoid();
+    return GetPkgLocation(p, false);
 }
 
+
+// ------------------------
+/**
+   @builtin PkgPath
+
+   @short Path to a package path in the source
+   @param string package name
+   @return string Relative package path to source root directory
+   @usage Pkg::PkgPath (string package) -> string
+
+*/
+YCPValue
+PkgModuleFunctions::PkgPath (const YCPString& p)
+{
+    return GetPkgLocation(p, true);
+}
 
 
 
