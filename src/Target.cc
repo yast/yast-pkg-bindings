@@ -325,13 +325,14 @@ YCPValue
 PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
 {
 
+    // clear the old settings
+    _mount_points.clear();
+
+    // remember partitioning
     if (dirlist->size() == 0)
     {
 	return YCPError ("Bad args to Pkg::TargetInitDU");
     }
-
-//    std::set<PkgDuMaster::MountPoint> mountpoints;
-#warning TargetInitDU doesn't pass DU list to zypp
 
     for (int i = 0; i < dirlist->size(); ++i)
     {
@@ -399,10 +400,9 @@ PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
 
 	long long dirsize = dfree + dused;
 
-//	PkgDuMaster::MountPoint point (dname, FSize (4096), FSize (dirsize), FSize (dused), readonly);
-//	mountpoints.insert (point);
+	MountPoint mpoint(dname, dirsize, dused, readonly);
+	_mount_points.insert(mpoint);
     }
-    // TODO FIXME    _y2pm.packageManager().setMountPoints(mountpoints);
 
     return YCPVoid();
 }
@@ -432,7 +432,30 @@ YCPValue
 PkgModuleFunctions::TargetGetDU ()
 {
     YCPMap dirmap;
+
+    // check whether disk usage is initialized
+    if (_mount_points.empty())
+    {
+	y2error("Disk usage has not been initalized, use Pkg::TargetDUInit()");
+	return dirmap;	
+    }
+    
 # warning TargetGetDU is not implemented
+
+    for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
+	it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Package>::kind);
+	++it)
+    {
+	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>( it->resolvable() );
+	zypp::DiskUsage du = pkg->diskusage();
+
+	// TODO iterate trough all mount points and disk usage entries and sum them
+
+	// add installed packages
+
+	// remove uninstalled packages
+    }
+
     /*
     std::set<PkgDuMaster::MountPoint> mountpoints; // TODO FIXME = _y2pm.packageManager().updateDu().mountpoints();
 

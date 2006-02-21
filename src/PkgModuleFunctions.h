@@ -60,7 +60,6 @@ class PkgModuleFunctions : public Y2Namespace
 
 	zypp::Pathname _target_root;
 
-
 	/** 
 	 * ZYPP
 	 */
@@ -420,6 +419,27 @@ class PkgModuleFunctions : public Y2Namespace
 	}
 
 	virtual Y2Function* createFunctionCall (const string name, constFunctionTypePtr type);
+
+    protected:
+
+	struct MountPoint {
+	    std::string dir;
+	    long long total_size;
+	    long long used_size;
+	    bool readonly;
+
+	    MountPoint() : dir(""), total_size(0LL), used_size(0LL), readonly(false) {}
+
+	    MountPoint(std::string d, long long total, long long used, bool ro) :
+	    dir(d), total_size(total), used_size(used), readonly(ro) {} 
+
+	    // order by directory name
+	    bool operator<( const MountPoint & rhs ) const {
+		return dir < rhs.dir;
+	    }
+	};
+
+	std::set<MountPoint> _mount_points;
 
 };
 #endif // PkgModuleFunctions_h
