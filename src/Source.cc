@@ -74,12 +74,15 @@ PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
 YCPValue
 PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 {
+    bool success = true;
+
     try {
-	if( !zypp::SourceManager::sourceManager()->restore(_target_root) )
+	// we always use the configured caches
+	if( !zypp::SourceManager::sourceManager()->restore(_target_root), true )
 	{
 	    ycperror( "Unable to restore all sources" );
 	    
-	    return YCPBoolean( false );
+	    success = false;
 	}
 	
 	if( enable->value() )
@@ -97,7 +100,7 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
     {
 	// FIXME: assuming the sources are already initialized
     }
-    return YCPBoolean( true );
+    return YCPBoolean( success );
 }
 
 /****************************************************************************************
