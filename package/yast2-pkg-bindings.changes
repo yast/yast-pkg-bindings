@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Feb 21 18:28:20 CET 2006 - visnov@suse.cz
+
+- start of PkgTargetDU (#151430)
+- survive if no products found on a media (#152521)
+- 2.13.13 
+
+-------------------------------------------------------------------
 Mon Feb 20 17:49:31 CET 2006 - lslezak@suse.cz
 
 - fixed package location in PkgLocation and in PkgProperties

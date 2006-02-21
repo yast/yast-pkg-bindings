@@ -704,8 +704,15 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
     // scan all sources
     
     zypp::SourceFactory::ProductSet products;
-        
-    factory.listProducts( url, products );
+
+    try {        
+	factory.listProducts( url, products );
+    }
+    catch (...)
+    {
+	y2error( "Cannot read the product list from the media" );
+	return YCPInteger(ret);
+    }
     
     for( zypp::SourceFactory::ProductSet::const_iterator it = products.begin();
 	it != products.end() ; ++it )
