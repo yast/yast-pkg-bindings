@@ -207,13 +207,19 @@ YCPValue
 PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 {
     YCPMap data;
-    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id->value());
+    zypp::Source_Ref src;
 
-   if ( ! src )
-   {
-	y2error ("Source %lld not found", id->value());
+    try
+    {
+	src = zypp::SourceManager::sourceManager()->findSource(id->value());
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	y2error("Cannot find source '%lld': %s"
+		,id->value(), excpt.msg().c_str() );
+#warning Report the error
 	return YCPVoid ();
-   }
+    }
 
     data->add( YCPString("enabled"),		YCPBoolean(src.enabled()));
     data->add( YCPString("autorefresh"),	YCPBoolean(src.autorefresh()));
@@ -446,35 +452,6 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
     }
 
     return YCPString(path.asString());
-/*
-  YCPList args;
-  args->add (id);
-  args->add (mid);
-  args->add (d);
-
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
-  int &                    medianr  ( decl.arg<YT_INTEGER, int>() );
-  Pathname &               dir     ( decl.arg<YT_STRING,  Pathname>() );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  if ( ! source_id )
-    return pkgError( InstSrcError::E_bad_id );
-
-  Pathname localpath;
-  PMError err = source_id->provideDir( medianr, dir, localpath );
-
-  if ( err )
-    return pkgError( err );
-
-  return YCPString( localpath.asString() );
-  */
 }
 
 /****************************************************************************************
@@ -490,6 +467,8 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
 YCPValue
 PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 {
+
+#warning SourceChangeUrl is not implemented
     /* TODO FIXME
   YCPList args;
   args->add (id);
@@ -581,6 +560,8 @@ PkgModuleFunctions::SourceInstallOrder (const YCPMap& ord)
   // store new instorder
   _y2pm.instSrcManager().setInstOrder( order );
 */
+
+#warning SourceInstallOrder is not implemented
   return YCPBoolean( true );
 }
 
