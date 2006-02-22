@@ -324,7 +324,6 @@ PkgModuleFunctions::TargetRebuildDB ()
 YCPValue
 PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
 {
-
     // clear the old settings
     _mount_points.clear();
 
@@ -353,34 +352,40 @@ PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
 	}
 
 	if (good
+	    && !partmap->value(YCPString("name")).isNull()
 	    && partmap->value(YCPString("name"))->isString())
 	{
 	    dname = partmap->value(YCPString("name"))->asString()->value();
-	    if (dname[0] != '/')
-		dname = string("/") + dname;
+	    if (dname[0] == '/')
+		dname.erase(0,1); // remove leading /
 	}
 	else
 	{
+	    y2error("Pkg::TargetInitDU: \"name\" key is missing");
 	    good = false;
 	}
 
 	if (good
+	    && !partmap->value(YCPString("free")).isNull()
 	    && partmap->value(YCPString("free"))->isInteger())
 	{
 	    dfree = partmap->value(YCPString("free"))->asInteger()->value();
 	}
 	else
 	{
+	    y2error("Pkg::TargetInitDU: \"free\" key is missing");
 	    good = false;
 	}
 
 	if (good
+	    && !partmap->value(YCPString("used")).isNull()
 	    && partmap->value(YCPString("used"))->isInteger())
 	{
 	    dused = partmap->value(YCPString("used"))->asInteger()->value();
 	}
 	else
 	{
+	    y2error("Pkg::TargetInitDU: \"used\" key is missing");
 	    good = false;
 	}
 
@@ -398,9 +403,12 @@ PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
 	    continue;
 	}
 
+	y2internal("Adding %s", dname.c_str());
+
 	long long dirsize = dfree + dused;
 
-	MountPoint mpoint(dname, dirsize, dused, readonly);
+	// pkg_size is 0
+	MountPoint mpoint(dname, dirsize, dused, 0LL, readonly);
 	_mount_points.insert(mpoint);
     }
 
@@ -440,36 +448,83 @@ PkgModuleFunctions::TargetGetDU ()
 	return dirmap;	
     }
     
-# warning TargetGetDU is not implemented
+    // reset all package counters (pkg_size values)
+    for (std::set<MountPoint>::iterator mpit = _mount_points.begin();
+	mpit != _mount_points.end();
+	mpit++)
+    {
+	mpit->pkg_size = 0LL;
+    }
 
+    // iterate through all packages
     for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
 	it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Package>::kind);
 	++it)
     {
+	if (!it->status().isToBeInstalled() && !it->status().isToBeUninstalled())
+	{
+	    // shortcut - the package is not selected for installation or removing
+	    // so it can't affect disk usage at all
+	    continue;
+	}
+
 	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>( it->resolvable() );
 	zypp::DiskUsage du = pkg->diskusage();
 
-	// TODO iterate trough all mount points and disk usage entries and sum them
+	y2debug("Package: %s", (*it)->name().c_str());
 
-	// add installed packages
+	// TODO remove this, it's only useful for #152761 debugging
+	for (zypp::DiskUsage::iterator di = du.begin();
+	    di != du.end();
+	    di++)
+	{
+	    y2debug("read DU dir: %s, used: %d", di->path.c_str(), di->_size);
+	}
 
-	// remove uninstalled packages
+	// iterate trough all mount points, add usage to each directory
+	// directory tree must be processed from leaves to the root directory
+	// so iterate in reverse order so e.g. /usr is used before /
+	for (std::set<MountPoint>::reverse_iterator mpit = _mount_points.rbegin();
+	    mpit != _mount_points.rend();
+	    mpit++)
+	{
+	    // get usage for the mount point
+	    zypp::DiskUsage::Entry entry = du.extract(mpit->dir);
+
+	    // add or subtract it to the current value
+	    if (it->status().isToBeInstalled())
+	    {
+		y2debug("mountpoint: %s, added: %d", mpit->dir.c_str(), entry._size);
+		mpit->pkg_size += entry._size;
+	    }
+	    else if (it->status().isToBeUninstalled())
+	    {
+		y2debug("mountpoint: %s, removed: %d", mpit->dir.c_str(), entry._size);
+		mpit->pkg_size -= entry._size;
+	    }
+	}
+
     }
 
-    /*
-    std::set<PkgDuMaster::MountPoint> mountpoints; // TODO FIXME = _y2pm.packageManager().updateDu().mountpoints();
-
-    for (std::set<PkgDuMaster::MountPoint>::iterator it = mountpoints.begin();
-	 it != mountpoints.end(); ++it)
+    // create result data structure
+    for (std::set<MountPoint>::const_iterator mpit = _mount_points.begin();
+	mpit != _mount_points.end();
+	mpit++)
     {
 	YCPList sizelist;
-	sizelist->add (YCPInteger ((long long)(it->total())));
-	sizelist->add (YCPInteger ((long long)(it->initial_used())));
-	sizelist->add (YCPInteger ((long long)(it->pkg_used())));
-	sizelist->add (YCPInteger (it->readonly() ? 1 : 0));
-	dirmap->add (YCPString (it->_mountpoint), sizelist);
+	// partition size
+	sizelist->add (YCPInteger (mpit->total_size));
+	// already used
+	sizelist->add (YCPInteger (mpit->used_size));
+	// used size after PkgCommit()
+	sizelist->add (YCPInteger (mpit->pkg_size + mpit->used_size));
+	// readonly flag
+	sizelist->add (YCPInteger (mpit->readonly ? 1 : 0));
+
+	// add slash (which is not used by zypp::DiskUsage)
+	dirmap->add (YCPString("/" + mpit->dir), sizelist);
     }
-    */
+
     return dirmap;
 }
 

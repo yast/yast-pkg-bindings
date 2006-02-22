@@ -424,14 +424,15 @@ class PkgModuleFunctions : public Y2Namespace
 
 	struct MountPoint {
 	    std::string dir;
-	    long long total_size;
-	    long long used_size;
+	    mutable long long total_size;
+	    mutable long long used_size;
+	    mutable long long pkg_size;
 	    bool readonly;
 
-	    MountPoint() : dir(""), total_size(0LL), used_size(0LL), readonly(false) {}
+	    MountPoint() : dir(""), total_size(0LL), used_size(0LL), pkg_size(0LL), readonly(false) {}
 
-	    MountPoint(std::string d, long long total, long long used, bool ro) :
-	    dir(d), total_size(total), used_size(used), readonly(ro) {} 
+	    MountPoint(std::string d, long long total, long long used, long long pkg, bool ro) :
+	    dir(d), total_size(total), used_size(used), pkg_size(pkg), readonly(ro) {} 
 
 	    // order by directory name
 	    bool operator<( const MountPoint & rhs ) const {
@@ -439,6 +440,7 @@ class PkgModuleFunctions : public Y2Namespace
 	    }
 	};
 
+	// the set is sorted by directory name
 	std::set<MountPoint> _mount_points;
 
 };

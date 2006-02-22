@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Feb 22 14:49:34 CET 2006 - lslezak@suse.cz
+
+- TargetInitDU
+- TargetGetDU
+- 2.13.15
+
+-------------------------------------------------------------------
 Wed Feb 22 10:01:46 CET 2006 - kkaempf@suse.de
 
 - DoProvide now returns the best (architecture/edition) match
