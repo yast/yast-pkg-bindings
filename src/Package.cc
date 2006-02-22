@@ -32,12 +32,18 @@
 #include <ycp/YCPList.h>
 #include <ycp/YCPMap.h>
 
+#include <zypp/base/Algorithm.h>
+#include <zypp/ResFilters.h>
+#include <zypp/CapFilters.h>
+#include <zypp/ResStatus.h>
+
 #include <zypp/ResPool.h>
 #include <zypp/Package.h>
 #include <zypp/Product.h>
 #include <zypp/SourceManager.h>
 #include <zypp/UpgradeStatistics.h>
 #include <zypp/target/rpm/RpmDb.h>
+
 
 #include <fstream>
 
@@ -464,6 +470,36 @@ PkgModuleFunctions::IsAvailable (const YCPString& tag)
 }
 
 
+struct ProvideProcess
+{
+    zypp::PoolItem_Ref item;
+    zypp::Arch _architecture;
+
+    ProvideProcess( zypp::Arch arch )
+	: _architecture( arch )
+    { }
+
+    bool operator()( zypp::PoolItem provider )
+    {
+        if (!provider->arch().compatibleWith( _architecture )) {
+            MIL << "provider " << provider << " has incompatible arch '" << provider->arch() << "'" << endl;
+        }
+	else if (!item) {						// no provider yet
+	    item = provider;
+	}
+	else if (item->arch().compare( provider->arch() ) < 0) {	// provider has better arch
+	    item = provider;
+	}
+	else if (item->edition().compare( provider->edition() ) < 0) {
+	    item = provider;						// provider has better edition
+	}
+
+	return true;
+    }
+
+};
+
+
 /**
  * helper function, install a package which provides tag (as a
  *   package name, a provided tag, or a provided file
@@ -472,17 +508,19 @@ PkgModuleFunctions::IsAvailable (const YCPString& tag)
 bool
 PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind)
 {
-    zypp::ResPool::byName_iterator it = std::find_if (
-	zypp_ptr->pool().byNameBegin(name)
-	, zypp_ptr->pool().byNameEnd(name)
-	, zypp::resfilter::ByKind(kind)
+    ProvideProcess info( zypp_ptr->architecture() );
+
+    invokeOnEach( zypp_ptr->pool().byNameBegin( name ),
+		  zypp_ptr->pool().byNameEnd( name ),
+		  zypp::resfilter::ByKind( kind ),
+		  zypp::functor::functorRef<bool,zypp::PoolItem> (info) 
     );
 		
-    if (it == zypp_ptr->pool().byNameEnd(name)) 
+    if (!info.item) 
 	return false;
 
     // this might not be exact - it could be APPLICATION
-    bool result = it->status().setToBeInstalled(zypp::ResStatus::USER);
+    bool result = info.item.status().setToBeInstalled(zypp::ResStatus::USER);
     y2milestone ("DoProvideNameKind %s -> %s\n", name.c_str(), (result ? "Ok" : "Bad"));
     return true;
 }
@@ -520,6 +558,8 @@ PkgModuleFunctions::DoRemoveAllKind(zypp::Resolvable::Kind kind)
     return DoAllKind(kind, false);
 }
 
+
+
 /**
  * helper function, deinstall a package which provides tag (as a
  *   package name, a provided tag, or a provided file
@@ -532,7 +572,7 @@ PkgModuleFunctions::DoRemoveNameKind( const std::string & name, zypp::Resolvable
     zypp::ResPool::byName_iterator it = std::find_if (
 	zypp_ptr->pool().byNameBegin(name)
 	, zypp_ptr->pool().byNameEnd(name)
-	, zypp::resfilter::ByKind(kind)
+	, zypp::functor::chain( zypp::resfilter::ByInstalled(), zypp::resfilter::ByKind(kind) )
     );
 		
     if 	(it == zypp_ptr->pool().byNameEnd(name)) 
