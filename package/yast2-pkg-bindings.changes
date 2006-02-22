@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Feb 22 10:01:46 CET 2006 - kkaempf@suse.de
+
+- DoProvide now returns the best (architecture/edition) match
+  instead of the first.
+- 2.13.14
+
+-------------------------------------------------------------------
 Wed Feb 22 08:56:01 CET 2006 - visnov@suse.cz
 
 - Don't generate doxygen documentation, this is not a C++ library 
