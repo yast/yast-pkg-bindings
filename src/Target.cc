@@ -162,10 +162,16 @@ PkgModuleFunctions::TargetRemove(const YCPString& name)
 YCPBoolean
 PkgModuleFunctions::TargetLogfile (const YCPString& name)
 {
-    /* TODO FIXME
-    return YCPBoolean (_y2pm.instTarget().setInstallationLogfile (name->value()));
-    */
-    return YCPBoolean (true);
+    try
+    {
+	return YCPBoolean (zypp_ptr->target()->setInstallationLogfile (name->value()));
+    }
+    catch (zypp::Exception & excpt)
+    {
+	ycperror("TargetRemove has failed: %s", excpt.asString().c_str());
+        return YCPBoolean(false);
+    }
+    return YCPBoolean (true); // never reached
 }
 
 
