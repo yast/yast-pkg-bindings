@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Fri Feb 24 09:17:17 CET 2006 - lslezak@suse.cz
+
+- IsManualSelection, PkgReset, PkgMarkLicenseConfirmed
+- fixed PkgGetLicensesToConfirm, PkgGetLicenseToConfirm
+- PkgCommit updated to the new commit() API (#153294)
+- don't pack libpy2Pkg.la file
+- 2.13.17
+
+-------------------------------------------------------------------
 Fri Feb 24 08:44:18 CET 2006 - visnov@suse.cz
 
 - properly report if source restore failed

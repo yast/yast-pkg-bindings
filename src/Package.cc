@@ -43,7 +43,7 @@
 #include <zypp/SourceManager.h>
 #include <zypp/UpgradeStatistics.h>
 #include <zypp/target/rpm/RpmDb.h>
-
+#include <zypp/ZYppCommitResult.h>
 
 #include <fstream>
 
@@ -1092,9 +1092,18 @@ PkgModuleFunctions::ClearSaveState ()
 YCPValue
 PkgModuleFunctions::IsManualSelection ()
 {
-    // TODO FIXME
-    return YCPBoolean (false /*_y2pm.packageManager().anythingByUser()
-			|| _y2pm.selectionManager().anythingByUser()*/);
+    for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
+	it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Package>::kind);
+	++it)
+    {
+	// return true if there is a package installed/removed by user
+	if ((it->status().isToBeInstalled() || it->status().isToBeUninstalled()) && it->status().isByUser())
+	{
+	    return YCPBoolean(true);
+	}
+    }
+
+    return YCPBoolean(false);
 }
 
 // ------------------------
@@ -1525,12 +1534,16 @@ PkgModuleFunctions::PkgNeutral (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgReset ()
 {
-# warning PkgReset is not implemented
-    // TODO FIXME
-    //_y2pm.selectionManager().setNothingSelected();
-    //_y2pm.packageManager().setNothingSelected();
-
-    // FIXME also reset "conflict ignore list" in UI
+    for (zypp::ResPool::const_iterator it = zypp_ptr->pool().begin()
+	; it != zypp_ptr->pool().end()
+	; ++it)
+    {
+	// reset all transaction flags
+	it->status().setTransact(false, zypp::ResStatus::USER) ;
+	it->status().setTransact(false, zypp::ResStatus::APPL_HIGH) ;
+	it->status().setTransact(false, zypp::ResStatus::APPL_LOW) ;
+	it->status().setTransact(false, zypp::ResStatus::SOLVER) ;
+    }
 
     return YCPBoolean (true);
 }
@@ -1669,14 +1682,11 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 	return YCPError ("Bad args to Pkg::PkgCommit");
     }
 
-    zypp::PoolItemList errors;
-    zypp::PoolItemList remaining;
-    zypp::PoolItemList srcremaining;
-    int success = 0;
+    zypp::ZYpp::CommitResult result;
 
     try
     {
-	success = zypp_ptr->target()->commit(zypp_ptr->pool(), medianr, errors, remaining, srcremaining);
+	result = zypp_ptr->commit(medianr);
     }
     catch (...)
     {
@@ -1685,24 +1695,24 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 
     YCPList ret;
 
-    ret->add(YCPInteger(success));
+    ret->add(YCPInteger(result._result));
 
     YCPList errlist;
-    for (zypp::PoolItemList::const_iterator it = errors.begin(); it != errors.end(); ++it)
+    for (zypp::PoolItemList::const_iterator it = result._errors.begin(); it != result._errors.end(); ++it)
     {
 	errlist->add(YCPString(it->resolvable()->name()));
     }
     ret->add(errlist);
 
     YCPList remlist;
-    for (zypp::PoolItemList::const_iterator it = remaining.begin(); it != remaining.end(); ++it)
+    for (zypp::PoolItemList::const_iterator it = result._remaining.begin(); it != result._remaining.end(); ++it)
     {
 	remlist->add(YCPString(it->resolvable()->name()));
     }
     ret->add(remlist);
 
     YCPList srclist;
-    for (zypp::PoolItemList::const_iterator it = srcremaining.begin(); it != srcremaining.end(); ++it)
+    for (zypp::PoolItemList::const_iterator it = result._srcremaining.begin(); it != result._srcremaining.end(); ++it)
     {
 	srclist->add(YCPString(it->resolvable()->name()));
     }
@@ -1776,25 +1786,17 @@ YCPString PkgModuleFunctions::PkgGetLicenseToConfirm( const YCPString & package 
 	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
 	);
 
-	if (it != zypp_ptr->pool().byNameEnd(pkgname))
+	if (it != zypp_ptr->pool().byNameEnd(pkgname) && !it->status().isLicenceConfirmed())
 	{
 	    // cast to Package object
 	    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
+	    // get the license
 	    zypp::License license = package->licenseToConfirm();
-
 	    return YCPString(license);
 	}
     }
   
-# warning Has the license already been confirmed?
-    // TODO FIXME - check whether the license has been already confirmed?
-/*  if (! PMPackagePtr(selectable->candidateObj())->hasLicenseToConfirm ()) {
-    // license was confirmed before
-    return YCPString ("");
-  }
-  */
-
     return YCPString("");
 }
 
@@ -1825,15 +1827,15 @@ YCPMap PkgModuleFunctions::PkgGetLicensesToConfirm( const YCPList & packages )
 		, zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
 	    );
 
-	    if (it != zypp_ptr->pool().byNameEnd(pkgname))
+	    // is the found package selected?
+	    if (it != zypp_ptr->pool().byNameEnd(pkgname) && !it->status().isToBeInstalled())
 	    {
 		// cast to Package object
 		zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
-
-# warning Has the license already been confirmed?
-		// TODO FIXME - check whether the licenses have been already confirmed?
 		zypp::License license = package->licenseToConfirm();
-		if (!license.empty())
+
+		// has the license already been confirmed?
+		if (!license.empty() && !it->status().isLicenceConfirmed())
 		{
 		    ret->add(packages->value(i), YCPString(license));
 		}
@@ -1844,10 +1846,35 @@ YCPMap PkgModuleFunctions::PkgGetLicensesToConfirm( const YCPList & packages )
     return ret;
 }
 
+/**
+   @builtin PkgMarkLicenseConfirmed
+
+   @short Mark licence of the package confirmed
+   @param string name of a package
+   @return boolean true if the license has been successfuly confirmed
+*/
 YCPBoolean PkgModuleFunctions::PkgMarkLicenseConfirmed (const YCPString & package)
 {
-# warning PkgMarkLicenseConfirmed is not implemented
-  return YCPBoolean( true );
+    std::string pkgname = package->value();
+    
+    if (!pkgname.empty())
+    {
+	// find the package
+	zypp::ResPool::byName_iterator it = std::find_if (
+	    zypp_ptr->pool().byNameBegin(pkgname)
+	    , zypp_ptr->pool().byNameEnd(pkgname)
+	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+	);
+
+	if (it != zypp_ptr->pool().byNameEnd(pkgname))
+	{
+	    // confirm the license
+	    it->status().setLicenceConfirmed(true);
+	    return YCPBoolean( true );
+	}
+    }
+
+    return YCPBoolean( false );
 }
 
 /****************************************************************************************

@@ -168,7 +168,7 @@ PkgModuleFunctions::TargetLogfile (const YCPString& name)
     }
     catch (zypp::Exception & excpt)
     {
-	ycperror("TargetRemove has failed: %s", excpt.asString().c_str());
+	ycperror("TargetLogfile has failed: %s", excpt.asString().c_str());
         return YCPBoolean(false);
     }
     return YCPBoolean (true); // never reached

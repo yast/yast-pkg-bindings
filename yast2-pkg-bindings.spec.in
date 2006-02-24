@@ -13,6 +13,7 @@ Summary:	-
 @BUILD@
 
 @INSTALL@
+rm -rf %{buildroot}/@plugindir@/libpy2Pkg.la
 
 @CLEAN@
 
@@ -20,5 +21,4 @@ Summary:	-
 %defattr(-,root,root)
 @plugindir@/libpy2Pkg.so.*
 @plugindir@/libpy2Pkg.so
-@plugindir@/libpy2Pkg.la
 %doc @docdir@
