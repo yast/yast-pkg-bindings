@@ -925,7 +925,7 @@ PkgModuleFunctions::SourceEditGet ()
 
 	try
 	{
-	    src = zypp::SourceManager::sourceManager()->findSource(id->value());
+	    src = zypp::SourceManager::sourceManager()->findSource(*it);
 	}
 	catch (const zypp::Exception& excpt)
 	{
