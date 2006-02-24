@@ -96,10 +96,13 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	    }
 	}
     }
-    catch(...)
+    catch (const zypp::Exception& excpt)
     {
 	// FIXME: assuming the sources are already initialized
+	y2error ("Error in SourceStartManager: %s", excpt.msg().c_str());
+	success = false;
     }
+
     return YCPBoolean( success );
 }
 
@@ -257,13 +260,16 @@ YCPValue
 PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
 {
     YCPMap data;
+    zypp::Source_Ref src;
 
-    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id->value());
-
-    if (! src)
+    try
     {
-	y2error ("Source %lld not found", id->value());
-	return YCPVoid ();
+	src = zypp::SourceManager::sourceManager()->findSource(id->value());
+    }
+    catch (const zypp::Exception& excpt)
+    {
+          y2error ("Source ID %lld not found: %s", id->asInteger()->value(), excpt.msg().c_str());
+          return YCPVoid();
     }
 
   data->add( YCPString("media_count"),	YCPInteger(src.numberOfMedia()));
@@ -441,7 +447,18 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
 YCPValue
 PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mid, const YCPString& d)
 {
-    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+    zypp::Source_Ref src;
+
+    try
+    {
+	src = zypp::SourceManager::sourceManager()->findSource(id->value());
+    }
+    catch (const zypp::Exception& excpt)
+    {
+          y2error ("Source ID %lld not found: %s", id->asInteger()->value(), excpt.msg().c_str());
+          return YCPVoid();
+    }
+
     zypp::filesystem::Pathname path;
 
     try
@@ -903,8 +920,18 @@ PkgModuleFunctions::SourceEditGet ()
 	    
     for( std::list<unsigned int>::iterator it = ids.begin(); it != ids.end(); ++it)
     {
-	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(*it);
 	YCPMap src_map;
+	zypp::Source_Ref src;
+
+	try
+	{
+	    src = zypp::SourceManager::sourceManager()->findSource(id->value());
+	}
+	catch (const zypp::Exception& excpt)
+	{
+	    // this should never happen
+	    y2internal("Source ID %d not found: %s", *it, excpt.msg().c_str());
+	}
 
 	src_map->add(YCPString("SrcId"), YCPInteger(*it));
 	src_map->add(YCPString("enabled"), YCPBoolean(src.enabled()));

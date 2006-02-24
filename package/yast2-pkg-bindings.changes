@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Feb 24 13:03:36 CET 2006 - lslezak@suse.cz
+
+- catch SourceManager::findSource() exceptions (#153323)
+
+-------------------------------------------------------------------
 Fri Feb 24 09:17:17 CET 2006 - lslezak@suse.cz
 
 - IsManualSelection, PkgReset, PkgMarkLicenseConfirmed
