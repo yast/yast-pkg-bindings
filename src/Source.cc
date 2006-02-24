@@ -78,9 +78,9 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 
     try {
 	// we always use the configured caches
-	if( !zypp::SourceManager::sourceManager()->restore(_target_root), true )
+	if( !zypp::SourceManager::sourceManager()->restore(_target_root, true) )
 	{
-	    ycperror( "Unable to restore all sources" );
+	    y2error( "Unable to restore all sources" );
 	    
 	    success = false;
 	}

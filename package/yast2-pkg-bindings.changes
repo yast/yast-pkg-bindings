@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Feb 24 08:44:18 CET 2006 - visnov@suse.cz
+
+- properly report if source restore failed
+
+-------------------------------------------------------------------
 Wed Feb 22 17:26:58 CET 2006 - jsrain@suse.de
 
 - TargetLogfile
