@@ -477,16 +477,6 @@ PkgModuleFunctions::TargetGetDU ()
 	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>( it->resolvable() );
 	zypp::DiskUsage du = pkg->diskusage();
 
-	y2debug("Package: %s", (*it)->name().c_str());
-
-	// TODO remove this, it's only useful for #152761 debugging
-	for (zypp::DiskUsage::iterator di = du.begin();
-	    di != du.end();
-	    di++)
-	{
-	    y2debug("read DU dir: %s, used: %d", di->path.c_str(), di->_size);
-	}
-
 	// iterate trough all mount points, add usage to each directory
 	// directory tree must be processed from leaves to the root directory
 	// so iterate in reverse order so e.g. /usr is used before /
