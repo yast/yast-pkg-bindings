@@ -803,6 +803,75 @@ PkgModuleFunctions::PkgGroup (const YCPString& p)
     return YCPString(ret);
 }
 
+
+YCPValue
+PkgModuleFunctions::PkgProp(zypp::ResPool::byName_iterator it)
+{
+    YCPMap data;
+    
+    // cast to Package object
+    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
+
+    data->add(YCPString("arch"), YCPString((*it)->arch().asString()));
+    data->add( YCPString("medianr"), YCPInteger(package->mediaId()));
+
+    zypp::Source_Ref pkg_src = (*it)->source();
+    unsigned int srcid = 0;
+    bool found = false;
+    std::list<unsigned> enabled_srcs = zypp::SourceManager::sourceManager()->enabledSources();
+
+    // search source
+    for( std::list<unsigned>::const_iterator src_it = enabled_srcs.begin()
+	; src_it != enabled_srcs.end()
+	; src_it++)
+    {
+	zypp::Source_Ref src;
+
+	try
+	{
+	    src = zypp::SourceManager::sourceManager()->findSource(*src_it);
+	}
+	catch (...)
+	{
+	    y2error("cannot find source %d", *src_it);
+	    continue;
+	}
+
+	if (src == pkg_src)
+	{
+	    found = true;
+	    srcid = *src_it;
+	    break;
+	}
+    }
+
+    if (found)
+    {
+	// src has been found
+	data->add( YCPString("srcid"), YCPInteger(srcid));
+    }
+
+    std::string status("available");
+    if (it->status().isInstalled())
+    {
+	status = "installed";
+    }
+    else if (it->status().isToBeInstalled())
+    {
+	status = "selected";
+    }
+    else if (it->status().isToBeUninstalled())
+    {
+	status = "removed";
+    }
+    data->add( YCPString("status"), YCPSymbol(status));
+
+    data->add( YCPString("location"), YCPString(package->location().basename()));
+    data->add( YCPString("path"), YCPString(package->location().asString()));
+
+    return data;
+}
+
 // ------------------------
 /**
  * @builtin PkgProperties
@@ -839,53 +908,33 @@ PkgModuleFunctions::PkgProperties (const YCPString& p)
 
 	if (it != zypp_ptr->pool().byNameEnd(pkgname))
 	{
-	    // cast to Package object
-	    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
-
-	    data->add(YCPString("arch"), YCPString((*it)->arch().asString()));
-	    data->add( YCPString("medianr"), YCPInteger(package->mediaId()));
-    
-	    zypp::Source_Ref pkg_src = (*it)->source();
-	    unsigned int srcid = 0;
-	    bool found = false;
-
-#warning TODO: iterate through std::list<unsigned> zypp::SourceManager::sourceManager()->enabledSources()
-	    // search source
-	    while(!found)
-	    {
-		zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(srcid);
-    
-		if (src)
-		{
-		    if (src == pkg_src)
-		    {
-			found = true;
-		    }
-		    else
-		    {
-			srcid++;
-		    }
-		}
-		else
-		{
-		    break;
-		}
-	    }
-
-	    if (found)
-	    {
-		// src has been found
-		data->add( YCPString("srcid"), YCPInteger(srcid));
-	    }
-    
-	    data->add( YCPString("location"), YCPString(package->location().basename()));
-	    data->add( YCPString("path"), YCPString(package->location().asString()));
-
-	    return data;
+	    return PkgProp(it);
 	}
     }
     
     return YCPVoid();
+}
+
+YCPValue
+PkgModuleFunctions::PkgPropertiesAll (const YCPString& p)
+{
+    std::string pkgname = p->value();
+    YCPList data;
+
+    if (!pkgname.empty())
+    {
+	for (zypp::ResPool::byName_iterator it = zypp_ptr->pool().byNameBegin(pkgname);
+	    it != zypp_ptr->pool().byNameEnd(pkgname); ++it)
+	{
+	    // is it a package?
+	    if (zypp::isKind<zypp::Package>(it->resolvable()))
+	    {
+		data->add(PkgProp(it));
+	    }
+	}
+    }
+    
+    return data;
 }
 
 /* helper function */

@@ -74,6 +74,7 @@ class PkgModuleFunctions : public Y2Namespace
       bool DoRemoveAllKind(zypp::Resolvable::Kind kind);
       bool DoAllKind(zypp::Resolvable::Kind kind, bool provide);
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);
+      YCPValue PkgProp(zypp::ResPool::byName_iterator it);
       
       // builtin handling
       void registerFunctions ();
@@ -298,6 +299,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue PkgPath (const YCPString& package);
 	/* TYPEINFO: map<string,any>(string)*/
 	YCPValue PkgProperties (const YCPString& package);
+	/* TYPEINFO: list<map<string,any> >(string)*/
+	YCPValue PkgPropertiesAll (const YCPString& package);
 	/* TYPEINFO: list<string>(string,symbol)*/
 	YCPList  PkgGetFilelist (const YCPString& package, const YCPSymbol& which);
 	/* TYPEINFO: boolean()*/

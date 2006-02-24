@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Feb 24 18:47:57 CET 2006 - lslezak@suse.cz
+
+- fixed PkgProperties()
+- new builtin PkgPropertiesAll()
+
+-------------------------------------------------------------------
 Fri Feb 24 13:03:36 CET 2006 - lslezak@suse.cz
 
 - catch SourceManager::findSource() exceptions (#153323)
