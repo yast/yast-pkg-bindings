@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Feb 27 10:28:05 CET 2006 - visnov@suse.cz
+
+- implement missing download progress callback 
+
+-------------------------------------------------------------------
 Fri Feb 24 18:47:57 CET 2006 - lslezak@suse.cz
 
 - fixed PkgProperties()

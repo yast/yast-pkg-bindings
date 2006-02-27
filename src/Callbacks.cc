@@ -365,6 +365,18 @@ namespace ZyppRecipients {
 		callback.evaluateStr(); // return value ignored by RpmDb
 	    }
 	}
+
+        virtual bool progress(int value, zypp::Resolvable::constPtr resolvable_ptr)
+        { 
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressProvide) );
+	    if (callback._set) {
+		callback.addInt( value );
+		return callback.evaluateBool(); // return value ignored by RpmDb
+	    }
+	    
+	    return zypp::source::DownloadResolvableReport::progress(value, resolvable_ptr);
+	}
+
     };
 
 /*
