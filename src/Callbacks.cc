@@ -174,6 +174,7 @@ namespace ZyppRecipients {
     struct InstallPkgReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::InstallResolvableReport>
     {
 	zypp::Resolvable::constPtr _last;
+	int last_reported;
 	
 	InstallPkgReceive(RecipientCtl & construct_r) : Recipient(construct_r) 
 	{
@@ -181,7 +182,6 @@ namespace ZyppRecipients {
 
 	virtual void reportbegin()
 	{
-	  //_pc.reset();
 	}
 
 	virtual void reportend()
@@ -190,6 +190,9 @@ namespace ZyppRecipients {
 	
 	virtual void start(zypp::Resolvable::constPtr resolvable)
 	{
+	  // initialize the counter
+	  last_reported = 0;
+
 #warning install non-package
 	  zypp::Package::constPtr res = 
 	    zypp::asKind<zypp::Package>(resolvable);
@@ -213,9 +216,14 @@ namespace ZyppRecipients {
 	virtual bool progress(int value, zypp::Resolvable::constPtr resolvable)
 	{		
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
-	    if (callback._set) {
+	    // call the callback function only if the difference since the last call is at least 5%
+	    // or if 100% is reached
+	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100))
+	    {
 		callback.addInt( value );
 		callback.evaluate();
+
+		last_reported = value;
 	    }
 
 	    // return default value from the parent class
@@ -327,6 +335,7 @@ namespace ZyppRecipients {
     struct DownloadResolvableReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::DownloadResolvableReport>
     {
 	DownloadResolvableReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+	int last_reported;
 
 	virtual void reportbegin()
 	{
@@ -339,6 +348,7 @@ namespace ZyppRecipients {
 	virtual void start( zypp::Resolvable::constPtr resolvable_ptr, zypp::Url url)
 	{
 	  unsigned size = 0;
+	  last_reported = 0;
 	  
 	  if ( zypp::isKind<zypp::Package> (resolvable_ptr) )
 	  {
@@ -369,7 +379,9 @@ namespace ZyppRecipients {
         virtual bool progress(int value, zypp::Resolvable::constPtr resolvable_ptr)
         { 
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressProvide) );
-	    if (callback._set) {
+	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100))
+	    {
+		last_reported = value;
 		callback.addInt( value );
 		return callback.evaluateBool(); // return value ignored by RpmDb
 	    }
@@ -612,6 +624,7 @@ namespace ZyppRecipients {
     struct DownloadProgressReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::DownloadFileReport>
     {
 	DownloadProgressReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+	int last_reported;
 
 	virtual void reportbegin()
 	{
@@ -623,6 +636,7 @@ namespace ZyppRecipients {
 
 	virtual void start( zypp::Source_Ref source, zypp::Url url)
 	{
+	    last_reported = 0;
 	    CB callback( ycpcb( YCPCallbacks::CB_StartDownload ) );
 
 	    if ( callback._set )
@@ -636,8 +650,11 @@ namespace ZyppRecipients {
 	virtual bool progress(int value, zypp::Url url)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDownload ) );
-	    if ( callback._set )
+	    // call the callback function only if the difference since the last call is at least 5%
+	    // or if 100% is reached
+	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100))
 	    {
+		last_reported = value;
 		// report changed values
 		callback.addInt( value );
 		callback.addInt( 100  );
