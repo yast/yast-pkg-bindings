@@ -159,6 +159,31 @@ PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 }
 
 /****************************************************************************************
+ * @builtin SourceReleaseAll
+ *
+ * @short Release all medias hold by all sources
+ * @return boolean
+ **/
+YCPValue
+PkgModuleFunctions::SourceReleaseAll ()
+{
+    try
+    {
+	y2milestone( "Relesing all sources") ;
+	zypp::SourceManager::sourceManager()->releaseAllSources ();
+    }
+    catch (zypp::Exception & excpt)
+    {
+	y2error("Pkg::SourceReleaseAll has failed: %s", excpt.msg().c_str() );
+	return YCPBoolean(false);
+    }
+
+    y2milestone( "All sources released");
+
+    return YCPBoolean(true);
+}
+
+/****************************************************************************************
  * @builtin SourceFinishAll
  *
  * @short Disable all InstSrces.
