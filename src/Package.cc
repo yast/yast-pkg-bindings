@@ -1747,6 +1747,14 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 	y2error("Pkg::Commit has failed");
     }
 
+    try {
+	zypp::SourceManager::sourceManager()->releaseAllSources();
+    }
+    catch (...)
+    {
+	y2error("SourceManager::releaseAllSources has failed");
+    }
+
     YCPList ret;
 
     ret->add(YCPInteger(result._result));
