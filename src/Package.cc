@@ -1532,16 +1532,21 @@ PkgModuleFunctions::PkgDelete (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgTaboo (const YCPString& p)
 {
-# warning PkgTaboo is not implemented
-    /* TODO FIXME
-    PMSelectablePtr selectable = getPackageSelectable (p->value ());
-    if (!selectable)
-    {
+    std::string name = p->value();
+    if (name.empty())
 	return YCPBoolean (false);
-    }
-    return YCPBoolean (selectable->user_set_taboo());
-    */
-    return YCPBoolean (true);
+
+    // find the package
+    zypp::ResPool::byName_iterator it = std::find_if (
+	zypp_ptr->pool().byNameBegin(name)
+	, zypp_ptr->pool().byNameEnd(name)
+	, zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+    );
+
+    // lock the status
+    return YCPBoolean( (it != zypp_ptr->pool().byNameEnd(name)) 
+	// set locked by user
+	&& it->status().setLock(true, zypp::ResStatus::USER) );
 }
 
 /**
