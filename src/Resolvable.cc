@@ -32,6 +32,9 @@
 #include <ycp/YCPMap.h>
 
 #include <zypp/SourceManager.h>
+#include <zypp/Product.h>
+#include <zypp/Pattern.h>
+#include <zypp/base/PtrTypes.h>
 
 ///////////////////////////////////////////////////////////////////
 
@@ -226,6 +229,25 @@ PkgModuleFunctions::ResolvableProperties(const YCPString& name, const YCPSymbol&
 	    }
 
 	    info->add(YCPString("source"), YCPInteger((found) ? src_index : -1LL));
+
+	    // product specific info
+	    if( req_kind == "product" ) {
+		zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(it->resolvable());
+		info->add(YCPString("category"), YCPString(product->category()));
+		info->add(YCPString("vendor"), YCPString(product->vendor()));
+		info->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
+		info->add(YCPString("display_name"), YCPString(product->displayName()));
+	    }
+
+	    // pattern specific info
+	    if ( req_kind == "pattern" ) {
+		zypp::Pattern::constPtr pattern = boost::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable());
+		info->add(YCPString("category"), YCPString(pattern->category()));
+		info->add(YCPString("user_visible"), YCPBoolean(pattern->userVisible()));
+		info->add(YCPString("default"), YCPBoolean(pattern->isDefault()));
+		info->add(YCPString("icon"), YCPString(pattern->icon().asString()));
+		info->add(YCPString("script"), YCPString(pattern->script().asString()));
+	    }
 
 	    ret->add(info);
 	}
