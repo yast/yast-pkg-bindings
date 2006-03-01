@@ -41,6 +41,7 @@
 #include <zypp/ZYpp.h>
 #include <zypp/Pathname.h>
 #include <zypp/Url.h>
+#include <zypp/DiskUsageCounter.h>
 
 
 /**
@@ -422,29 +423,5 @@ class PkgModuleFunctions : public Y2Namespace
 	}
 
 	virtual Y2Function* createFunctionCall (const string name, constFunctionTypePtr type);
-
-    protected:
-
-	struct MountPoint {
-	    std::string dir;
-	    mutable long long total_size;
-	    mutable long long used_size;
-	    mutable long long pkg_size;
-	    bool readonly;
-
-	    MountPoint() : dir(""), total_size(0LL), used_size(0LL), pkg_size(0LL), readonly(false) {}
-
-	    MountPoint(std::string d, long long total, long long used, long long pkg, bool ro) :
-	    dir(d), total_size(total), used_size(used), pkg_size(pkg), readonly(ro) {} 
-
-	    // order by directory name
-	    bool operator<( const MountPoint & rhs ) const {
-		return dir < rhs.dir;
-	    }
-	};
-
-	// the set is sorted by directory name
-	std::set<MountPoint> _mount_points;
-
 };
 #endif // PkgModuleFunctions_h
