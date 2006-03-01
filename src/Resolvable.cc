@@ -183,6 +183,8 @@ PkgModuleFunctions::ResolvableProperties(const YCPString& name, const YCPSymbol&
 	    info->add(YCPString("name"), YCPString((*it)->name()));
 	    info->add(YCPString("version"), YCPString((*it)->edition().asString()));
 	    info->add(YCPString("arch"), YCPString((*it)->arch().asString()));
+	    info->add(YCPString("description"), YCPString((*it)->description()));
+	    info->add(YCPString("summary"), YCPString((*it)->summary()));
 
 	    // status
 	    std::string stat;

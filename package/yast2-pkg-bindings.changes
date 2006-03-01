@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Mar  1 17:01:50 CET 2006 - jsrain@suse.de
+
+- provide description and summary via generic interface (#153713)
+
+-------------------------------------------------------------------
 Tue Feb 28 16:22:15 CET 2006 - lslezak@suse.cz
 
 - call YCP callbacks only when progress value has changed more
