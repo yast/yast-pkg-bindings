@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Mar  2 09:09:51 CET 2006 - lslezak@suse.cz
+
+- added missing disconnect()s (#154331)
+
+-------------------------------------------------------------------
 Wed Mar  1 18:44:24 CET 2006 - jsrain@suse.de
 
 - provide description and summary via generic interface (#153713)

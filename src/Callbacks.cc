@@ -793,9 +793,11 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_rebuildDbReceive.disconnect();
 	_installPkgReceive.disconnect();
 	_removePkgReceive.disconnect();
+	_providePkgReceive.disconnect();
 	_mediaChangeReceive.disconnect();
 	_downloadProgressReceive.disconnect();
 	_sourceRefreshReceive.disconnect();
+	_createSourceReceive.disconnect();
     }
   public:
 
