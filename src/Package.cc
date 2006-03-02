@@ -1454,7 +1454,7 @@ PkgModuleFunctions::PkgInstall (const YCPString& p)
 
     // ensure installation of the 'best' architecture
 
-    return DoProvideNameKind( name, zypp::ResTraits<zypp::Package>::kind);
+    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::Package>::kind) );
 }
 
 
