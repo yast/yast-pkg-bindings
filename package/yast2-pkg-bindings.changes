@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Mar  2 16:32:19 CET 2006 - visnov@suse.cz
+
+- initialize only resolvables from the enabled sources
+- catch the restore source exception
+- don't initialize all resolvables to get the products from source
+- 2.13.21
+
+-------------------------------------------------------------------
 Thu Mar  2 15:19:17 CET 2006 - visnov@suse.cz
 
 - report user-abort from ProgressPackage callback (#150379) 

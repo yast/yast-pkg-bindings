@@ -92,14 +92,21 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	    for( std::list<unsigned int>::iterator it = ids.begin(); it != ids.end(); ++it)
 	    {
 		zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(*it);
-		zypp_ptr->addResolvables (src.resolvables());
+		if( src.enabled() )
+			zypp_ptr->addResolvables (src.resolvables());
 	    }
 	}
+    }
+    catch (const zypp::FailedSourcesRestoreException& excpt)
+    {
+	// FIXME: assuming the sources are already initialized
+	y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
+	success = false;
     }
     catch (const zypp::Exception& excpt)
     {
 	// FIXME: assuming the sources are already initialized
-	y2error ("Error in SourceStartManager: %s", excpt.msg().c_str());
+	y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
 	success = false;
     }
 
@@ -349,28 +356,17 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
 
 #warning product category handling???
 
-  zypp::Product::constPtr product;
-
-  // find a product for the given source
-  zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Product>::kind);
-
-  for( ; it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind)
-        ; ++it) {
-    product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
-
-    y2debug ("Checking product: %s", product->displayName().c_str());
-    if( product->source() == src )
-    {
-	y2debug ("Found");
- 	break; 
-    }
-  }
-
-  if( it == zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind) )
+  zypp::ResStore products (src.resolvables(zypp::ResTraits<zypp::Product>::kind));
+  
+  if( products.empty() )
   {
 	y2error ("Product for source '%lld' not found", id->asInteger()->value());
 	return YCPVoid();
   }
+  
+  zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( *(products.begin()) );
+  
+  y2debug ("Found");
 
   YCPMap data;
 
