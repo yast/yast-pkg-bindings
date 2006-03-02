@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Mar  2 15:19:17 CET 2006 - visnov@suse.cz
+
+- report user-abort from ProgressPackage callback (#150379) 
+
+-------------------------------------------------------------------
 Thu Mar  2 12:03:27 CET 2006 - kkaempf@suse.de
 
 - assure that PkgInstall always gets the best architecture.

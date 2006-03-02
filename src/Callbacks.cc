@@ -221,7 +221,12 @@ namespace ZyppRecipients {
 	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100))
 	    {
 		callback.addInt( value );
-		callback.evaluate();
+		bool res = callback.evaluateBool();
+		
+		if( res )
+		    y2milestone( "Package installation callback returned abort" );
+		
+		return res;
 
 		last_reported = value;
 	    }
