@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Mar  2 12:03:27 CET 2006 - kkaempf@suse.de
+
+- assure that PkgInstall always gets the best architecture.
+  (#154627)
+- assure that PkgRemove removes installed package.
+
+-------------------------------------------------------------------
 Thu Mar  2 09:09:51 CET 2006 - lslezak@suse.cz
 
 - added missing disconnect()s (#154331)
