@@ -1452,17 +1452,9 @@ PkgModuleFunctions::PkgInstall (const YCPString& p)
     if (name.empty())
 	return YCPBoolean (false);
 
-    // find the package
-    zypp::ResPool::byName_iterator it = std::find_if (
-	zypp_ptr->pool().byNameBegin(name)
-	, zypp_ptr->pool().byNameEnd(name)
-	, zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
-    );
+    // ensure installation of the 'best' architecture
 
-    // set the status to installed
-    return YCPBoolean( (it != zypp_ptr->pool().byNameEnd(name))
-	// set installed by user
-	&& it->status().setToBeInstalled(zypp::ResStatus::USER) );
+    return DoProvideNameKind( name, zypp::ResTraits<zypp::Package>::kind);
 }
 
 
@@ -1510,7 +1502,10 @@ PkgModuleFunctions::PkgDelete (const YCPString& p)
     zypp::ResPool::byName_iterator it = std::find_if (
 	zypp_ptr->pool().byNameBegin(name)
 	, zypp_ptr->pool().byNameEnd(name)
-	, zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
+	, zypp::functor::chain (
+	    zypp::resfilter::ByInstalled (),
+	    zypp::resfilter::ByKind( zypp::ResTraits<zypp::Package>::kind )
+	  )
     );
 
     
