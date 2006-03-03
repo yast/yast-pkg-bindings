@@ -1107,5 +1107,29 @@ PkgModuleFunctions::SourceSaveRanks ()
   return YCPBoolean( true );
 }
 
+/****************************************************************************************
+ * @builtin SourceMoveDownloadArea
+ *
+ * @short Move download area of CURL-based sources to specified directory
+ * @param path specifies the path to move the download area to
+ * @return boolean
+ **/
+YCPValue
+PkgModuleFunctions::SourceMoveDownloadArea (const YCPString & path)
+{
+    try
+    {
+	y2milestone( "Moving download area of all sources to %s", path->value().c_str()) ;
+	zypp::SourceManager::sourceManager()->reattachSources (path->value(), true);
+    }
+    catch (zypp::Exception & excpt)
+    {
+	y2error("Pkg::SourceMoveDownloadArea has failed: %s", excpt.msg().c_str() );
+	return YCPBoolean(false);
+    }
 
+    y2milestone( "Download areas moved");
+
+    return YCPBoolean(true);
+}
 

@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Mar  3 01:01:32 CET 2006 - jsrain@suse.de
+
+- new builting Pkg::SourceMoveDownloadArea (#151862)
+
+-------------------------------------------------------------------
 Thu Mar  2 16:32:19 CET 2006 - visnov@suse.cz
 
 - initialize only resolvables from the enabled sources

@@ -182,8 +182,6 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue SourceFinish (const YCPInteger&);
 	/* TYPEINFO: boolean()*/
 	YCPValue SourceFinishAll ();
-	/* TYPEINFO: boolean()*/
-	YCPValue SourceReleaseAll ();
 	/* TYPEINFO: map<string,any>(integer)*/
 	YCPValue SourceGeneralData (const YCPInteger&);
 	/* TYPEINFO: map<string,any>(integer)*/
@@ -392,6 +390,10 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue ResolvableRemove( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: list<map<string,any> >(string,symbol,string)*/
         YCPValue ResolvableProperties(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version);
+	/* TYPEINFO: boolean()*/
+	YCPValue SourceReleaseAll ();
+	/* TYPEINFO: boolean(string)*/
+	YCPValue SourceMoveDownloadArea (const YCPString & path);
 
 	/**
 	 * Constructor.
