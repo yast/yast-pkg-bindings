@@ -1618,7 +1618,7 @@ PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
     catch (const zypp::Exception& excpt)
     {
 	y2error("An error occurred during Pkg::PkgSolve.");
-	_last_error.setLastError(excpt.asTranslatedString(), _("See /var/log/YaST2/badlist for more information."));
+	_last_error.setLastError(excpt.asUserString(), _("See /var/log/YaST2/badlist for more information."));
     }
 
     // save information about failed dependencies to file
@@ -1741,7 +1741,7 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
     catch (const zypp::Exception& excpt)
     {
 	y2error("Pkg::Commit has failed: ZYpp::commit has failed");
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	return YCPVoid();
     }
 
@@ -1751,7 +1751,7 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
     catch (const zypp::Exception& excpt)
     {
 	y2error("Pkg::Commit has failed: cannot release all sources");
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
     }
 
     YCPList ret;

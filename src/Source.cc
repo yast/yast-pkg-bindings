@@ -101,14 +101,14 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
     {
 	// FIXME: assuming the sources are already initialized
 	y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	success = false;
     }
     catch (const zypp::Exception& excpt)
     {
 	// FIXME: assuming the sources are already initialized
 	y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	success = false;
     }
 
@@ -183,7 +183,7 @@ PkgModuleFunctions::SourceReleaseAll ()
     }
     catch (zypp::Exception & excpt)
     {
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	y2error("Pkg::SourceReleaseAll has failed: %s", excpt.msg().c_str() );
 	return YCPBoolean(false);
     }
@@ -212,7 +212,7 @@ PkgModuleFunctions::SourceFinishAll ()
     catch (zypp::Exception & excpt)
     {
 	y2error("Pkg::SourceFinishAll has failed: %s", excpt.msg().c_str() );
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	return YCPBoolean(false);
     }
 
@@ -259,7 +259,7 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
     {
 	y2error("Cannot find source '%lld': %s"
 		,id->value(), excpt.msg().c_str() );
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	return YCPVoid ();
     }
 
@@ -305,7 +305,7 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
     catch (const zypp::Exception& excpt)
     {
 	y2error ("Source ID %lld not found: %s", id->asInteger()->value(), excpt.msg().c_str());
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
         return YCPVoid();
     }
 
@@ -358,7 +358,7 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
   catch (const zypp::Exception& excpt)
   {
 	y2error ("Source ID not found: %lld", id->asInteger()->value());
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	return YCPVoid();
   }
 
@@ -444,7 +444,7 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
     }
     catch (const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	y2error ("Source ID not found: %lld", id->asInteger()->value());
 	return YCPVoid();
     }
@@ -456,7 +456,7 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
     }
     catch (const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	y2milestone ("File not found: %s", f->value_cstr());
 	return YCPVoid();
     }
@@ -487,7 +487,7 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
     }
     catch (const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
         y2error ("Source ID %lld not found: %s", id->asInteger()->value(), excpt.msg().c_str());
 	return YCPVoid();
     }
@@ -500,7 +500,7 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
     }
     catch (const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	y2milestone ("Directory not found: %s", d->value_cstr());
 	return YCPVoid();
     }
@@ -694,7 +694,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     {
 	y2error("Scanning products for '%s' has failed"
 		, url.asString().c_str());
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	return ids;
     }
     
@@ -712,7 +712,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 	{
 	    y2error("SourceCreate for '%s' product '%s' has failed"
 		, url.asString().c_str(), pn.asString().c_str());
-	    _last_error.setLastError(excpt.asTranslatedString());
+	    _last_error.setLastError(excpt.asUserString());
 	}
     }
   } else {
@@ -728,7 +728,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     {
 	y2error("SourceCreate for '%s' product '%s' has failed"
 	    , url.asString().c_str(), pn.asString().c_str());
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
     }
   }
 
@@ -788,7 +788,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
     }
     catch ( const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	y2error( "Cannot read the product list from the media" );
 	return YCPInteger(ret);
     }
@@ -817,7 +817,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 	{
 	    y2error("SourceCreate for '%s' product '%s' has failed"
 		, url.asString().c_str(), pn.asString().c_str());
-	    _last_error.setLastError(excpt.asTranslatedString());
+	    _last_error.setLastError(excpt.asUserString());
 	}
     }
   } else {
@@ -838,7 +838,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
     {
 	y2error("SourceCreate for '%s' product '%s' has failed"
 	    , url.asString().c_str(), pn.asString().c_str());
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
     }
   }
 
@@ -866,7 +866,7 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
     }
     catch(const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	y2error ("Source ID not found: %lld", id->asInteger()->value());
 	return YCPBoolean(false);
     }
@@ -905,7 +905,7 @@ PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean
     catch (const zypp::Exception& excpt)
     {
 	y2error ("Source ID %lld not found: %s", id->asInteger()->value(), excpt.msg().c_str());
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	return YCPVoid();
     }
 
@@ -983,7 +983,7 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
     catch (const zypp::Exception& excpt)
     {
 	y2error("Pkg::SourceDelete: Cannot remove source %lld", id->value());
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	return YCPBoolean(false);
     }
 
@@ -1081,7 +1081,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
     catch (const zypp::Exception& excpt)
     {
 	ycperror( "Pkg::SourceEditSet, source %d not found", index);
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	error = true;
 	continue;
     }
@@ -1198,7 +1198,7 @@ PkgModuleFunctions::SourceMoveDownloadArea (const YCPString & path)
     }
     catch (zypp::Exception & excpt)
     {
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	y2error("Pkg::SourceMoveDownloadArea has failed: %s", excpt.msg().c_str() );
 	return YCPBoolean(false);
     }

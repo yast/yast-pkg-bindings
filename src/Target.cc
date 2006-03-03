@@ -60,7 +60,7 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& /*unuse
     }
     catch (zypp::Exception & excpt)
     {
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	ycperror("TargetInit has failed: %s", excpt.msg().c_str() );
         return YCPError(excpt.msg().c_str(), YCPBoolean(false));
     }
@@ -86,7 +86,7 @@ PkgModuleFunctions::TargetFinish ()
     }
     catch (zypp::Exception & excpt)
     {
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	ycperror("TargetFinish has failed: %s", excpt.msg().c_str() );
         return YCPBoolean(false);
     }
@@ -116,7 +116,7 @@ PkgModuleFunctions::TargetInstall(const YCPString& filename)
     }
     catch (zypp::Exception & excpt)
     {
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	ycperror("TargetInstall has failed: %s", excpt.asString().c_str());
         return YCPBoolean(false);
     }
@@ -145,7 +145,7 @@ PkgModuleFunctions::TargetRemove(const YCPString& name)
     }
     catch (zypp::Exception & excpt)
     {
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	ycperror("TargetRemove has failed: %s", excpt.asString().c_str());
         return YCPBoolean(false);
     }
@@ -170,7 +170,7 @@ PkgModuleFunctions::TargetLogfile (const YCPString& name)
     }
     catch (zypp::Exception & excpt)
     {
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	ycperror("TargetLogfile has failed: %s", excpt.asString().c_str());
         return YCPBoolean(false);
     }
@@ -304,7 +304,7 @@ PkgModuleFunctions::TargetRebuildDB ()
     }
     catch (zypp::Exception & excpt)
     {
-	_last_error.setLastError(excpt.asTranslatedString());
+	_last_error.setLastError(excpt.asUserString());
 	ycperror("TargetRebuildDB has failed: %s", excpt.msg().c_str() );
         return YCPBoolean(false);
     }
