@@ -357,7 +357,7 @@ PkgModuleFunctions::PkgMediaCount()
     for(std::map<unsigned, std::vector<unsigned> >::const_iterator it =
 	result.begin(); it != result.end() ; ++it)
     {
-	std::vector<unsigned> values = it->second;
+	const std::vector<unsigned> &values = it->second;
 	YCPList source;
 	
 	for( unsigned i = 0 ; i < values.size() ; i++ )
@@ -519,7 +519,7 @@ PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvabl
     if (!info.item) 
 	return false;
 
-    // this might not be exact - it could be APPLICATION
+    #warning this might not be exact - it could be APPLICATION
     bool result = info.item.status().setToBeInstalled(zypp::ResStatus::USER);
     y2milestone ("DoProvideNameKind %s -> %s\n", name.c_str(), (result ? "Ok" : "Bad"));
     return true;
@@ -1615,9 +1615,10 @@ PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
     {
 	result = zypp_ptr->resolver()->resolvePool();
     }
-    catch (...)
+    catch (const zypp::Exception& excpt)
     {
 	y2error("An error occurred during Pkg::PkgSolve.");
+	_last_error.setLastError(excpt.asTranslatedString(), _("See /var/log/YaST2/badlist for more information."));
     }
 
     // save information about failed dependencies to file
@@ -1737,17 +1738,20 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
     {
 	result = zypp_ptr->commit(medianr);
     }
-    catch (...)
+    catch (const zypp::Exception& excpt)
     {
-	y2error("Pkg::Commit has failed");
+	y2error("Pkg::Commit has failed: ZYpp::commit has failed");
+	_last_error.setLastError(excpt.asTranslatedString());
+	return YCPVoid();
     }
 
     try {
 	zypp::SourceManager::sourceManager()->releaseAllSources();
     }
-    catch (...)
+    catch (const zypp::Exception& excpt)
     {
-	y2error("SourceManager::releaseAllSources has failed");
+	y2error("Pkg::Commit has failed: cannot release all sources");
+	_last_error.setLastError(excpt.asTranslatedString());
     }
 
     YCPList ret;

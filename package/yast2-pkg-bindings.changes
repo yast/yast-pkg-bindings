@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Mar  3 16:52:55 CET 2006 - lslezak@suse.cz
+
+- error handling: PkgLastError(), LastErrorDetails(), remember
+  error messages
+- TargetGetDU - use current system paritioning if TargetInitDU
+  has not been called
+
+-------------------------------------------------------------------
 Fri Mar  3 10:34:15 CET 2006 - visnov@suse.cz
 
 - new builtin Pkg::Init() 

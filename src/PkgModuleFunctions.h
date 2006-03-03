@@ -43,6 +43,7 @@
 #include <zypp/Url.h>
 #include <zypp/DiskUsageCounter.h>
 
+#include "PkgError.h"
 
 /**
  * A simple class for package management access
@@ -89,6 +90,7 @@ class PkgModuleFunctions : public Y2Namespace
        **/
       CallbackHandler & _callbackHandler;
 
+      PkgError _last_error;
 
     public:
 	// general

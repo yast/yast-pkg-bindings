@@ -34,14 +34,11 @@
 #include <ycp/YCPList.h>
 #include <ycp/YCPMap.h>
 
-#include <unistd.h>
 #include <sys/statvfs.h>
 
 #include <zypp/target/rpm/RpmDb.h>
 #include <zypp/Product.h>
 #include <zypp/DiskUsageCounter.h>
-
-using std::string;
 
 /** ------------------------
  *
@@ -63,6 +60,7 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& /*unuse
     }
     catch (zypp::Exception & excpt)
     {
+	_last_error.setLastError(excpt.asTranslatedString());
 	ycperror("TargetInit has failed: %s", excpt.msg().c_str() );
         return YCPError(excpt.msg().c_str(), YCPBoolean(false));
     }
@@ -88,6 +86,7 @@ PkgModuleFunctions::TargetFinish ()
     }
     catch (zypp::Exception & excpt)
     {
+	_last_error.setLastError(excpt.asTranslatedString());
 	ycperror("TargetFinish has failed: %s", excpt.msg().c_str() );
         return YCPBoolean(false);
     }
@@ -117,6 +116,7 @@ PkgModuleFunctions::TargetInstall(const YCPString& filename)
     }
     catch (zypp::Exception & excpt)
     {
+	_last_error.setLastError(excpt.asTranslatedString());
 	ycperror("TargetInstall has failed: %s", excpt.asString().c_str());
         return YCPBoolean(false);
     }
@@ -145,6 +145,7 @@ PkgModuleFunctions::TargetRemove(const YCPString& name)
     }
     catch (zypp::Exception & excpt)
     {
+	_last_error.setLastError(excpt.asTranslatedString());
 	ycperror("TargetRemove has failed: %s", excpt.asString().c_str());
         return YCPBoolean(false);
     }
@@ -169,6 +170,7 @@ PkgModuleFunctions::TargetLogfile (const YCPString& name)
     }
     catch (zypp::Exception & excpt)
     {
+	_last_error.setLastError(excpt.asTranslatedString());
 	ycperror("TargetLogfile has failed: %s", excpt.asString().c_str());
         return YCPBoolean(false);
     }
@@ -302,6 +304,7 @@ PkgModuleFunctions::TargetRebuildDB ()
     }
     catch (zypp::Exception & excpt)
     {
+	_last_error.setLastError(excpt.asTranslatedString());
 	ycperror("TargetRebuildDB has failed: %s", excpt.msg().c_str() );
         return YCPBoolean(false);
     }
@@ -451,6 +454,21 @@ PkgModuleFunctions::TargetGetDU ()
     YCPMap dirmap;
 
     zypp::DiskUsageCounter::MountPointSet mps = zypp_ptr->diskUsage();
+
+    if (mps.empty())
+    {
+	// mount points have not been defined
+	y2warning("Pkg::TargetDUInit() has not been called, using data from system...");
+
+	// read data from system
+	zypp::DiskUsageCounter::MountPointSet system = zypp::DiskUsageCounter::detectMountPoints();
+
+	// set the mount points
+	zypp_ptr->setPartitions(system);
+    
+	// try again
+	mps = zypp_ptr->diskUsage();
+    }
 
     // create result data structure from the stored info and calculated disk usage
     for (zypp::DiskUsageCounter::MountPointSet::const_iterator mpit = mps.begin();

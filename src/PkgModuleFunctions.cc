@@ -299,8 +299,7 @@ PkgModuleFunctions::GetAdditionalLocales ()
 YCPValue
 PkgModuleFunctions::LastError ()
 {
-    // TODO FIXME
-    return YCPString("");
+    return YCPString(_last_error.lastError());
 }
 
 /**
@@ -312,8 +311,7 @@ PkgModuleFunctions::LastError ()
 YCPValue
 PkgModuleFunctions::LastErrorDetails ()
 {
-    // TODO FIXME
-    return YCPString ("");
+    return YCPString (_last_error.lastErrorDetails());
 }
 
 /**
@@ -339,7 +337,6 @@ PkgModuleFunctions::LastErrorId ()
 
     return YCPString( "ok" );
 }
-
 
 /**
  * @builtin Init
