@@ -648,7 +648,21 @@ YCPValue
 PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 {
   zypp::SourceFactory factory;
-  zypp::Url url (media->value ());
+  
+  
+  zypp::Url url;
+  
+  try {
+    url = zypp::Url(media->value ());
+  }
+  catch(const zypp::Exception & expt )
+  {
+    y2error ("Invalid URL: %s", expt.asString().c_str());
+
+#warning report error
+    return YCPBoolean (false);
+  }
+  
   zypp::Pathname pn(pd->value ());
   
   YCPList ids;
@@ -732,8 +746,21 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
   y2debug("Creating source...");
 
   zypp::SourceFactory factory;
-  zypp::Url url (media->value ());
   zypp::Pathname pn(pd->value ());
+
+  zypp::Url url;
+  
+  try {
+    url = zypp::Url(media->value ());
+  }
+  catch(const zypp::Exception & expt )
+  {
+    y2error ("Invalid URL: %s", expt.asString().c_str());
+
+#warning report error
+    return YCPBoolean (false);
+  }
+  
   
   YCPList ids;
   int ret = -1;

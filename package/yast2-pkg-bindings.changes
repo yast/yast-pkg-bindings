@@ -2,6 +2,7 @@
 Fri Mar  3 10:34:15 CET 2006 - visnov@suse.cz
 
 - new builtin Pkg::Init() 
+- catch Url exceptions in source creation
 
 -------------------------------------------------------------------
 Fri Mar  3 01:01:32 CET 2006 - jsrain@suse.de
