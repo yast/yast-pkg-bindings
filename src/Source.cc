@@ -909,9 +909,22 @@ PkgModuleFunctions::SourceFinish (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
 {
-#warning SourceRefreshNow not implemented yet
+    zypp::Source_Ref src;
 
-  return YCPBoolean( true );
+    try {
+	src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+    } catch( const zypp::Exception & expt ) {
+	y2error ("Source ID not found: %lld", id->asInteger()->value());
+	return YCPBoolean(false);
+    }
+
+    try {
+	src.refresh();
+    } catch ( const zypp::Exception & expt ) {
+	y2error ("Error while refreshin the source: %s", expt.asString().c_str());
+	return YCPBoolean(false);
+    }
+    return YCPBoolean( true );
 }
 
 /****************************************************************************************
