@@ -341,6 +341,29 @@ PkgModuleFunctions::LastErrorId ()
 }
 
 
+/**
+ * @builtin Init
+ * @short completely initialize package management, throw away the current status
+ * @return boolean true on success
+ */
+YCPValue
+PkgModuleFunctions::Init ()
+{
+    try {
+	zypp::SourceManager::sourceManager()->reset();
+	
+	zypp_ptr->reset();
+    }
+    catch( const zypp::Exception & expt )
+    {
+	y2error( "Initialization of libzypp failed" );
+	return YCPBoolean(false);
+    }
+    
+    return YCPBoolean(true);
+}
+
+
 /** ------------------------
  * Convert InstSrcDescr to product info YCPMap:
  * <TABLE>

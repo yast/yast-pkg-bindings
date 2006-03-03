@@ -108,6 +108,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue LastErrorDetails ();
 	/* TYPEINFO: string() */
 	YCPValue LastErrorId ();
+	/* TYPEINFO: boolean() */
+	YCPValue Init ();
 
 	// callbacks
 	/* TYPEINFO: void(string) */
