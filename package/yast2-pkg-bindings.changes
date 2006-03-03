@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Mar  3 20:10:09 CET 2006 - jsrain@suse.de
+
+- fixed Pkg::SourceMoveDownloadArea according to changes in libzypp
+
+-------------------------------------------------------------------
 Fri Mar  3 16:52:55 CET 2006 - lslezak@suse.cz
 
 - error handling: PkgLastError(), LastErrorDetails(), remember

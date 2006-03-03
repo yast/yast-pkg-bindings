@@ -1194,7 +1194,7 @@ PkgModuleFunctions::SourceMoveDownloadArea (const YCPString & path)
     try
     {
 	y2milestone( "Moving download area of all sources to %s", path->value().c_str()) ;
-	zypp::SourceManager::sourceManager()->reattachSources (path->value(), true);
+	zypp::SourceManager::sourceManager()->reattachSources (path->value());
     }
     catch (zypp::Exception & excpt)
     {
