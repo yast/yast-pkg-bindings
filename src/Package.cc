@@ -44,6 +44,7 @@
 #include <zypp/UpgradeStatistics.h>
 #include <zypp/target/rpm/RpmDb.h>
 #include <zypp/ZYppCommitResult.h>
+#include <zypp/ResPoolManager.h>
 
 #include <fstream>
 
@@ -1668,27 +1669,28 @@ PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
 YCPBoolean
 PkgModuleFunctions::PkgSolveCheckTargetOnly()
 {
-#warning PkgSolveCheckTargetOnly is not implemented
-/* TODO FIXME
-  PkgDep::ErrorResultList bad;
+    // create pool just with objects from target
+    zypp::ResStore store = zypp_ptr->target()->resolvables();
+    zypp::ResPoolManager pool;
+    pool.insert(store.begin(), store.end(), true);
 
-  if ( ! _y2pm.packageManager().solveConsistent( bad ) )
-  {
-    _solve_errors = bad.size();
-    y2error ("SolveCheckTarget: %zd packages failed (see /var/log/YaST2/badlist)", bad.size());
+    // create resolver
+    zypp::Resolver solver(pool.accessor());
 
-    std::ofstream out ("/var/log/YaST2/badlist");
-    out << bad.size() << " packages failed" << std::endl;
-    for( PkgDep::ErrorResultList::const_iterator p = bad.begin();
-	 p != bad.end(); ++p )
+    bool result = false;
+
+    try
     {
-      out << *p << std::endl;
+	// verify consistency of system
+	result = solver.verifySystem();
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	y2error("An error occurred during Pkg::PkgSolveCheckTargetOnly");
+	_last_error.setLastError(excpt.asUserString());
     }
 
-    return YCPBoolean (false);
-  }
-  */
-  return YCPBoolean (true);
+    return YCPBoolean(result);
 }
 
 
