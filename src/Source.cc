@@ -671,8 +671,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
   catch(const zypp::Exception & expt )
   {
     y2error ("Invalid URL: %s", expt.asString().c_str());
-
-#warning report error
+    _last_error.setLastError(excpt.asUserString());
     return YCPBoolean (false);
   }
   
@@ -769,8 +768,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
   catch(const zypp::Exception & expt )
   {
     y2error ("Invalid URL: %s", expt.asString().c_str());
-
-#warning report error
+    _last_error.setLastError(excpt.asUserString());
     return YCPBoolean (false);
   }
   
