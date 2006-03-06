@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Mar  6 10:32:58 CET 2006 - lslezak@suse.cz
+
+- implemented PkgSolveCheckTargetOnly
+- 2.13.22
+
+-------------------------------------------------------------------
 Fri Mar  3 20:10:09 CET 2006 - jsrain@suse.de
 
 - fixed Pkg::SourceMoveDownloadArea according to changes in libzypp
