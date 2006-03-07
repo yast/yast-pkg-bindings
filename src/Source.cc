@@ -204,6 +204,12 @@ PkgModuleFunctions::SourceFinishAll ()
 {
     try
     {
+	// look if there are any enabled sources
+	std::list<unsigned int> enabled_sources = zypp::SourceManager::sourceManager()->enabledSources();
+	if (enabled_sources.empty()) {
+	    y2milestone( "No enabled sources." );
+	    return YCPBoolean( true );
+	}
 	y2milestone( "Storing the source setup in %s", _target_root.asString().c_str()) ;
 	zypp::SourceManager::sourceManager()->store( _target_root, true );
 	y2milestone( "Disabling all sources") ;
