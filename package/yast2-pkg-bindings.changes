@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Mar  7 14:51:03 CET 2006 - lslezak@suse.cz
+
+- implemented PkgSrcInstall
+
+-------------------------------------------------------------------
 Mon Mar  6 10:32:58 CET 2006 - lslezak@suse.cz
 
 - implemented PkgSolveCheckTargetOnly

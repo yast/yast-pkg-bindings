@@ -39,6 +39,7 @@
 
 #include <zypp/ResPool.h>
 #include <zypp/Package.h>
+#include <zypp/SrcPackage.h>
 #include <zypp/Product.h>
 #include <zypp/SourceManager.h>
 #include <zypp/UpgradeStatistics.h>
@@ -1470,17 +1471,13 @@ PkgModuleFunctions::PkgInstall (const YCPString& p)
 YCPValue
 PkgModuleFunctions::PkgSrcInstall (const YCPString& p)
 {
-#warning PkgSrcInstall is not implemented
-    /* TODO FIXME
-    PMSelectablePtr selectable = getPackageSelectable (p->value ());
-
-    if (!selectable)
-    {
+    std::string name = p->value();
+    if (name.empty())
 	return YCPBoolean (false);
-    }
-    return YCPBoolean (selectable->set_source_install(true));
-    */
-    return YCPBoolean(true);
+
+    // ensure installation of the 'best' architecture
+
+    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::SrcPackage>::kind) );
 }
 
 
