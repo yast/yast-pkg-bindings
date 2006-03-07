@@ -2,6 +2,7 @@
 Tue Mar  7 19:12:44 CET 2006 - jsrain@suse.de
 
 - handle installation abort properly (#154936)
+- 2.13.24
 
 -------------------------------------------------------------------
 Tue Mar  7 15:28:42 CET 2006 - kkaempf@suse.de
