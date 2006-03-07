@@ -44,6 +44,7 @@
 #include <zypp/SourceManager.h>
 #include <zypp/UpgradeStatistics.h>
 #include <zypp/target/rpm/RpmDb.h>
+#include <zypp/target/TargetImpl.h>
 #include <zypp/ZYppCommitResult.h>
 #include <zypp/ResPoolManager.h>
 
@@ -1736,6 +1737,13 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
     try
     {
 	result = zypp_ptr->commit(medianr);
+    }
+    catch (const zypp::target::TargetAbortedException & excpt)
+    {
+	y2milestone ("Installation aborted by user");
+	YCPList ret;
+	ret->add(YCPInteger(-1));
+	return ret;
     }
     catch (const zypp::Exception& excpt)
     {
