@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Mar  7 15:28:42 CET 2006 - kkaempf@suse.de
+
+- bail out early from SourceFinishAll() if there are no enabled
+  sources (#155459)
+- 2.13.23
+
+-------------------------------------------------------------------
 Tue Mar  7 14:51:03 CET 2006 - lslezak@suse.cz
 
 - implemented PkgSrcInstall
