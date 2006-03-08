@@ -625,6 +625,7 @@ PkgModuleFunctions::DoProvide (const YCPList& tags)
             }
         }
     }
+# warning error handling - return value    
     return ret;
 }
 

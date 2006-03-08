@@ -36,7 +36,7 @@
 #include <zypp/Source.h>
 #include <zypp/Product.h>
 
-using namespace std;
+#include <stdio.h> // snprintf
 
 /****************************************************************************************
  * @builtin SourceSetRamCache
@@ -625,6 +625,30 @@ PkgModuleFunctions::SourceInstallOrder (const YCPMap& ord)
   return YCPBoolean( true );
 }
 
+// return integer greater than the greatest source ID
+unsigned int max_src_id()
+{
+    // all sources
+    std::list<unsigned int> srcs = zypp::SourceManager::sourceManager()->allSources();
+
+    // the greater ID
+    std::list<unsigned int>::const_iterator maxit = max_element(srcs.begin(), srcs.end());
+
+    return (maxit == srcs.end()) ?  0 : (*maxit) + 1;
+}
+
+// helper function - convert int to std::string using snprintf
+std::string int_to_string(unsigned int input)
+{
+#define BUFF_SIZE 16
+    char buffer[BUFF_SIZE];
+    snprintf(buffer, BUFF_SIZE, "%d", input);
+#undef BUFF_SIZE
+
+    return std::string(buffer);
+}
+
+
 /****************************************************************************************
  * @builtin SourceCacheCopyTo
  *
@@ -708,10 +732,12 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     {
 	try
 	{
-	    // create the source, use URL as the alias
-	    id = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString()+pn.asString());
+	    // create the source, use URL + ID as the alias 
+	    // alias must be unique, add max source number
+	    std::string alias = url.asString()+pn.asString()+"-"+int_to_string(max_src_id());
+	    id = zypp::SourceManager::sourceManager()->addSource(url, pn, alias);
 	    ids->add( YCPInteger(id) );
-	    y2milestone("Added source %d: %s", id, (url.asString()+pn.asString()).c_str() );  
+	    y2milestone("Added source %d: %s (alias %s)", id, (url.asString()+pn.asString()).c_str(), alias.c_str() );  
 	}
 	catch ( const zypp::Exception& excpt)
 	{
@@ -725,8 +751,8 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 
     try
     {
-	// create the source, use URL as the alias
-	id = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString()+pn.asString());
+	// create the source, use URL + ID as the alias 
+	id = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString()+pn.asString()+"-"+int_to_string(max_src_id()));
 	ids->add( YCPInteger(id) );
     }
     catch ( const zypp::Exception& excpt)
@@ -802,8 +828,9 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
     {
 	try
 	{
-	    // create the source, use URL as the alias
-	    unsigned id = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString()+pn.asString());
+	    // create the source, use URL + ID as the alias 
+	    std::string alias = url.asString()+pn.asString()+"-"+int_to_string(max_src_id());
+	    unsigned id = zypp::SourceManager::sourceManager()->addSource(url, pn, alias);
 
 	    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id);
 
@@ -815,7 +842,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 	    if ( ret == -1 ) 
 		ret = id;
 
-	    y2milestone("Added source %d: %s", id, (url.asString()+pn.asString()).c_str() );  
+	    y2milestone("Added source %d: %s (alias %s)", id, (url.asString()+pn.asString()).c_str(), alias.c_str() );  
 	}
 	catch ( const zypp::Exception& excpt)
 	{
@@ -829,14 +856,17 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 
     try
     {
-	// create the source, use URL as the alias
-	ret = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString()+pn.asString());
+	std::string alias = url.asString()+pn.asString()+"-"+int_to_string(max_src_id());
+
+	// create the source, use URL + ID as the alias 
+	ret = zypp::SourceManager::sourceManager()->addSource(url, pn, alias);
 
 	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(ret);
 
 	src.enable(); 
     
     	zypp_ptr->addResolvables (src.resolvables());
+	y2milestone("Added source %d: %s (alias %s)", ret, (url.asString()+pn.asString()).c_str(), alias.c_str() );  
     }
     catch ( const zypp::Exception& excpt)
     {
