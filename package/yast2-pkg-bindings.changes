@@ -3,7 +3,6 @@ Wed Mar  8 10:57:53 CET 2006 - lslezak@suse.cz
 
 - create unique alias for a new installation source,
   use URL + src ID as alias (#154913)
-- 2.13.25
 
 -------------------------------------------------------------------
 Tue Mar  7 19:12:44 CET 2006 - jsrain@suse.de
