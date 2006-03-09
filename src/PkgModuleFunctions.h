@@ -258,6 +258,8 @@ class PkgModuleFunctions : public Y2Namespace
 	// selection related
 	/* TYPEINFO: list<string>(symbol,string)*/
 	YCPValue GetSelections (const YCPSymbol& stat, const YCPString& cat);
+	/* TYPEINFO: list<string>(symbol,string)*/
+	YCPValue GetPatterns (const YCPSymbol& stat, const YCPString& cat);
 	/* TYPEINFO: string()*/
 	YCPValue GetBackupPath ();
 	/* TYPEINFO: void(string)*/
@@ -266,6 +268,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue CreateBackups (const YCPBoolean& flag);
 	/* TYPEINFO: map<string,any>(string)*/
 	YCPValue SelectionData (const YCPString& cat);
+	/* TYPEINFO: map<string,any>(string)*/
+	YCPValue PatternData (const YCPString& pat);
 	/* TYPEINFO: list<string>(string,boolean,string)*/
 	YCPValue SelectionContent (const YCPString&, const YCPBoolean&, const YCPString&);
 	/* TYPEINFO: boolean(string)*/

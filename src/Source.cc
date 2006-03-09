@@ -88,8 +88,8 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	if( enable->value() )
 	{
 	    // go over all sources and get resolvables
-	    std::list<unsigned int> ids = zypp::SourceManager::sourceManager()->enabledSources();
-	    for( std::list<unsigned int>::iterator it = ids.begin(); it != ids.end(); ++it)
+	    std::list<zypp::SourceManager::SourceId> ids = zypp::SourceManager::sourceManager()->enabledSources();
+	    for( std::list<zypp::SourceManager::SourceId>::iterator it = ids.begin(); it != ids.end(); ++it)
 	    {
 		zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(*it);
 		if( src.enabled() )
@@ -155,11 +155,11 @@ PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
 YCPValue
 PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 {
-    std::list<unsigned int> ids = zypp::SourceManager::sourceManager()->enabledSources();
+    std::list<zypp::SourceManager::SourceId> ids = zypp::SourceManager::sourceManager()->enabledSources();
     
     YCPList res;
     
-    for( std::list<unsigned int>::const_iterator it = ids.begin(); it != ids.end() ; ++it )
+    for( std::list<zypp::SourceManager::SourceId>::const_iterator it = ids.begin(); it != ids.end() ; ++it )
     {
 	res->add( YCPInteger( *it ) );
     }
@@ -205,7 +205,7 @@ PkgModuleFunctions::SourceFinishAll ()
     try
     {
 	// look if there are any enabled sources
-	std::list<unsigned int> enabled_sources = zypp::SourceManager::sourceManager()->enabledSources();
+	std::list<zypp::SourceManager::SourceId> enabled_sources = zypp::SourceManager::sourceManager()->enabledSources();
 	if (enabled_sources.empty()) {
 	    y2milestone( "No enabled sources." );
 	    return YCPBoolean( true );
@@ -626,23 +626,23 @@ PkgModuleFunctions::SourceInstallOrder (const YCPMap& ord)
 }
 
 // return integer greater than the greatest source ID
-unsigned int max_src_id()
+zypp::SourceManager::SourceId max_src_id()
 {
     // all sources
-    std::list<unsigned int> srcs = zypp::SourceManager::sourceManager()->allSources();
+    std::list<zypp::SourceManager::SourceId> srcs = zypp::SourceManager::sourceManager()->allSources();
 
     // the greater ID
-    std::list<unsigned int>::const_iterator maxit = max_element(srcs.begin(), srcs.end());
+    std::list<zypp::SourceManager::SourceId>::const_iterator maxit = max_element(srcs.begin(), srcs.end());
 
-    return (maxit == srcs.end()) ?  0 : (*maxit) + 1;
+    return (maxit == srcs.end()) ?  zypp::SourceManager::SourceId(0) : (*maxit) + 1;
 }
 
 // helper function - convert int to std::string using snprintf
-std::string int_to_string(unsigned int input)
+std::string id_to_string(zypp::SourceManager::SourceId input)
 {
 #define BUFF_SIZE 16
     char buffer[BUFF_SIZE];
-    snprintf(buffer, BUFF_SIZE, "%d", input);
+    snprintf(buffer, BUFF_SIZE, "%lu", input);
 #undef BUFF_SIZE
 
     return std::string(buffer);
@@ -734,7 +734,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 	{
 	    // create the source, use URL + ID as the alias 
 	    // alias must be unique, add max source number
-	    std::string alias = url.asString()+pn.asString()+"-"+int_to_string(max_src_id());
+	    std::string alias = url.asString()+pn.asString()+"-"+id_to_string(max_src_id());
 	    id = zypp::SourceManager::sourceManager()->addSource(url, pn, alias);
 	    ids->add( YCPInteger(id) );
 	    y2milestone("Added source %d: %s (alias %s)", id, (url.asString()+pn.asString()).c_str(), alias.c_str() );  
@@ -752,7 +752,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     try
     {
 	// create the source, use URL + ID as the alias 
-	id = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString()+pn.asString()+"-"+int_to_string(max_src_id()));
+	id = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString()+pn.asString()+"-"+id_to_string(max_src_id()));
 	ids->add( YCPInteger(id) );
     }
     catch ( const zypp::Exception& excpt)
@@ -829,7 +829,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 	try
 	{
 	    // create the source, use URL + ID as the alias 
-	    std::string alias = url.asString()+pn.asString()+"-"+int_to_string(max_src_id());
+	    std::string alias = url.asString()+pn.asString()+"-"+id_to_string(max_src_id());
 	    unsigned id = zypp::SourceManager::sourceManager()->addSource(url, pn, alias);
 
 	    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id);
@@ -856,7 +856,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 
     try
     {
-	std::string alias = url.asString()+pn.asString()+"-"+int_to_string(max_src_id());
+	std::string alias = url.asString()+pn.asString()+"-"+id_to_string(max_src_id());
 
 	// create the source, use URL + ID as the alias 
 	ret = zypp::SourceManager::sourceManager()->addSource(url, pn, alias);
@@ -1043,9 +1043,9 @@ YCPValue
 PkgModuleFunctions::SourceEditGet ()
 {
     YCPList ret;
-    std::list<unsigned int> ids = zypp::SourceManager::sourceManager()->allSources();
+    std::list<zypp::SourceManager::SourceId> ids = zypp::SourceManager::sourceManager()->allSources();
 	    
-    for( std::list<unsigned int>::iterator it = ids.begin(); it != ids.end(); ++it)
+    for( std::list<zypp::SourceManager::SourceId>::iterator it = ids.begin(); it != ids.end(); ++it)
     {
 	YCPMap src_map;
 	zypp::Source_Ref src;
@@ -1057,7 +1057,7 @@ PkgModuleFunctions::SourceEditGet ()
 	catch (const zypp::Exception& excpt)
 	{
 	    // this should never happen
-	    y2internal("Source ID %d not found: %s", *it, excpt.msg().c_str());
+	    y2internal("Source ID %lu not found: %s", *it, excpt.msg().c_str());
 	}
 
 	src_map->add(YCPString("SrcId"), YCPInteger(*it));

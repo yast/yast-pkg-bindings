@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Mar  9 10:53:10 CET 2006 - lslezak@suse.cz
+
+- new pattern related builtins: GetPatterns and PatternData
+  (similar to GetSelections and SelectionData)
+- use zypp::SourceManager::SourceId instead of 'int' for source ID
+
+-------------------------------------------------------------------
 Wed Mar  8 10:57:53 CET 2006 - lslezak@suse.cz
 
 - create unique alias for a new installation source,

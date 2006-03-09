@@ -40,6 +40,8 @@
 #include <zypp/ResTraits.h>
 #include <zypp/Resolvable.h>
 #include <zypp/Selection.h>
+#include <zypp/Pattern.h>
+#include <zypp/SourceManager.h>
 
 using std::string;
 
@@ -134,6 +136,190 @@ PkgModuleFunctions::GetSelections (const YCPSymbol& stat, const YCPString& cat)
     return selections;
 }
 
+
+// ------------------------
+/**
+   @builtin GetPatterns
+
+   @short Return list of patterns matching given status
+   @description
+   returns a list of pattern names matching the status symbol
+     and the category.
+
+   If category == "base", base patterns are returned
+
+   If category == "", addon patterns are returned
+   else patterns matching the given category are returned
+
+   status can be:
+   <code>
+   `all		: all known patterns<br>
+   `available	: available patterns<br>
+   `selected	: selected but not yet installed patterns<br>
+   `installed	: installed pattern<br>
+   </code>
+   @param symbol status `all,`selected or `installed
+   @param string category base or empty string for addons
+   @return list<string>
+
+*/
+YCPValue
+PkgModuleFunctions::GetPatterns(const YCPSymbol& stat, const YCPString& cat)
+{
+    std::string status = stat->symbol();
+    std::string category = cat->value();
+
+    YCPList patterns;
+
+    for (zypp::ResPool::byKind_iterator it 
+	= zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Pattern>::kind);
+	it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Pattern>::kind) ; ++it )
+    {
+	std::string pattern;
+
+	if (status == "all" || status == "available")
+	{
+	    pattern = it->resolvable()->name();
+	}
+	else if (status == "selected")
+	{
+	    if( it->status().isToBeInstalled() )
+	        pattern = it->resolvable()->name();
+	}
+	else if (status == "installed")
+	{
+	    if( it->status().wasInstalled() )
+	        pattern = it->resolvable()->name();
+	}
+	else
+	{
+	    y2warning (string ("Unknown status in Pkg::GetPatterns(" + status + ", ...)").c_str());
+	    break;
+	}
+
+	if (pattern.empty())
+	{
+	    continue;
+	}
+
+	std::string pattern_cat = zypp::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable())->category();
+
+	if (!category.empty() && pattern_cat != category)
+	{
+	    continue;	// asked for explicit category, but it doesn't match
+	}
+
+	patterns->add (YCPString (pattern));
+    }
+    return patterns;
+}
+
+// ------------------------
+/**
+   @builtin PatternData
+
+   @short Get Pattern Data
+   @description
+
+   Return information about pattern
+
+   <code>
+  	->	$[
+		"arch" : "i586",
+  		"category" : "Base Technologies",
+		"description" : "Description"
+		"icon":"",
+		"order":"1020",
+		"script":"",
+		"summary":"Base System",
+		"version":"10-5",
+		"visible":true
+		]
+   </code>
+
+   Get summary (aka label), category, visible, recommends, suggests, archivesize,
+   order attributes of a pattern, requires, conflicts, provides and obsoletes.
+
+   @param string pattern
+   @return map Returns an empty map if no pattern found and
+   Returns nil if called with wrong arguments
+
+*/
+
+YCPValue
+PkgModuleFunctions::PatternData (const YCPString& pat)
+{
+    YCPMap data;
+    std::string name = pat->value();
+
+    zypp::ResPool::byName_iterator it = std::find_if (
+        zypp_ptr->pool().byNameBegin(name)
+        , zypp_ptr->pool().byNameEnd(name)
+        , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Pattern>::kind)
+    );
+
+    if ( it != zypp_ptr->pool().byNameEnd(name) )
+    {
+	zypp::Pattern::constPtr pattern = 
+	    zypp::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable ());
+
+	// pattern found
+	data->add (YCPString ("summary"), YCPString (pattern->summary()));
+	data->add (YCPString ("category"), YCPString (pattern->category()));
+	data->add (YCPString ("visible"), YCPBoolean (pattern->userVisible()));
+	data->add (YCPString ("order"), YCPString (pattern->order()));
+	data->add (YCPString ("description"), YCPString (pattern->description()));
+	data->add (YCPString ("default"), YCPBoolean (pattern->isDefault()));
+	data->add (YCPString ("icon"), YCPString (pattern->icon().asString()));
+	data->add (YCPString ("script"), YCPString (pattern->script().asString()));
+	data->add (YCPString ("version"), YCPString((*it)->edition().asString()));
+	data->add (YCPString ("arch"), YCPString((*it)->arch().asString()));
+
+	// add source ID
+	zypp::Source_Ref pkg_src = (*it)->source();
+	zypp::SourceManager::SourceId srcid = 0;
+	bool found = false;
+	std::list<zypp::SourceManager::SourceId> enabled_srcs = zypp::SourceManager::sourceManager()->enabledSources();
+
+	// search source
+	for( std::list<zypp::SourceManager::SourceId>::const_iterator src_it = enabled_srcs.begin()
+	    ; src_it != enabled_srcs.end()
+	    ; src_it++)
+	{
+	    y2error("testing source %lu", *src_it);
+	    zypp::Source_Ref src;
+
+	    try
+	    {
+		src = zypp::SourceManager::sourceManager()->findSource(*src_it);
+	    }
+	    catch (...)
+	    {
+		y2error("cannot find source %lu", *src_it);
+		continue;
+	    }
+
+	    if (src == pkg_src)
+	    {
+		found = true;
+		srcid = *src_it;
+		break;
+	    }
+	}
+
+	if (found)
+	{
+	    // src has been found
+	    data->add( YCPString("srcid"), YCPInteger(srcid));
+	}
+    }
+    else
+    {
+	return YCPError ("Pattern '" + name + "' not found", data);
+    }
+
+    return data;
+}
 
 
 // ------------------------

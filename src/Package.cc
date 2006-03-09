@@ -192,12 +192,12 @@ PkgModuleFunctions::PkgMediaNames ()
 {
 # warning No installation order
 
-    std::list<unsigned> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
+    std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
 
     YCPList res;
     
     // initialize    
-    for( list<unsigned>::const_iterator sit = source_ids.begin();
+    for( std::list<zypp::SourceManager::SourceId>::const_iterator sit = source_ids.begin();
 	sit != source_ids.end(); ++sit)
     {
 	unsigned id = *sit;
@@ -253,22 +253,25 @@ PkgModuleFunctions::PkgMediaSizes ()
 {
 # warning No installation order
 
-    std::list<unsigned> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
+    // all enabled sources
+    std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
     
-    std::map<unsigned, std::vector<unsigned> > result;
+    // map SourceId -> [ number_of_media, total_size ] 
+    std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> > result;
     
-    std::map<zypp::Source_Ref, unsigned> source_map;
+    // map zypp::Source -> SourceID
+    std::map<zypp::Source_Ref, zypp::SourceManager::SourceId> source_map;
 
     // initialize    
-    for( list<unsigned>::const_iterator sit = source_ids.begin();
+    for( std::list<zypp::SourceManager::SourceId>::const_iterator sit = source_ids.begin();
 	sit != source_ids.end(); ++sit)
     {
-	unsigned id = *sit;
+	zypp::SourceManager::SourceId id = *sit;
 	
 	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
 	unsigned media = src.numberOfMedia();
 	
-	result[id] = std::vector<unsigned>(media,0);
+	result[id] = std::vector<zypp::ByteCount>(media,0);
 	
 	source_map[ src ] = id;
     }
@@ -281,7 +284,7 @@ PkgModuleFunctions::PkgMediaSizes ()
 
 	if( it->status().isToBeInstalled() )
 	{
-	    long long size = pkg->size();
+	    zypp::ByteCount size = pkg->size();
 	    result[ source_map[pkg->source()] ]
 	      [pkg->mediaId()-1] += size ;	// media are numbered from 1
 	}
@@ -289,10 +292,10 @@ PkgModuleFunctions::PkgMediaSizes ()
     
     YCPList res;
     
-    for(std::map<unsigned, std::vector<unsigned> >::const_iterator it =
+    for(std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> >::const_iterator it =
 	result.begin(); it != result.end() ; ++it)
     {
-	std::vector<unsigned> values = it->second;
+	std::vector<zypp::ByteCount> values = it->second;
 	YCPList source;
 	
 	for( unsigned i = 0 ; i < values.size() ; i++ )
@@ -324,22 +327,26 @@ PkgModuleFunctions::PkgMediaCount()
 {
 # warning No installation order
 
-    std::list<unsigned> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
+    // all enabled sources
+    std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
     
-    std::map<unsigned, std::vector<unsigned> > result;
+    // map SourceId -> [ number_of_media, total_size ] 
+    std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> > result;
     
-    std::map<zypp::Source_Ref, unsigned> source_map;
+    // map zypp::Source -> SourceID
+    std::map<zypp::Source_Ref, zypp::SourceManager::SourceId> source_map;
+
 
     // initialize    
-    for( list<unsigned>::const_iterator sit = source_ids.begin();
+    for( std::list<zypp::SourceManager::SourceId>::const_iterator sit = source_ids.begin();
 	sit != source_ids.end(); ++sit)
     {
-	unsigned id = *sit;
+	zypp::SourceManager::SourceId id = *sit;
 	
 	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
 	unsigned media = src.numberOfMedia();
 	
-	result[id] = std::vector<unsigned>(media,0);
+	result[id] = std::vector<zypp::ByteCount>(media,0);
 	
 	source_map[ src ] = id;
     }
@@ -357,10 +364,10 @@ PkgModuleFunctions::PkgMediaCount()
     
     YCPList res;
     
-    for(std::map<unsigned, std::vector<unsigned> >::const_iterator it =
+    for(std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> >::const_iterator it =
 	result.begin(); it != result.end() ; ++it)
     {
-	const std::vector<unsigned> &values = it->second;
+	const std::vector<zypp::ByteCount> &values = it->second;
 	YCPList source;
 	
 	for( unsigned i = 0 ; i < values.size() ; i++ )
@@ -820,12 +827,12 @@ PkgModuleFunctions::PkgProp(zypp::ResPool::byName_iterator it)
     data->add( YCPString("medianr"), YCPInteger(package->mediaId()));
 
     zypp::Source_Ref pkg_src = (*it)->source();
-    unsigned int srcid = 0;
+    zypp::SourceManager::SourceId srcid = 0;
     bool found = false;
-    std::list<unsigned> enabled_srcs = zypp::SourceManager::sourceManager()->enabledSources();
+    std::list<zypp::SourceManager::SourceId> enabled_srcs = zypp::SourceManager::sourceManager()->enabledSources();
 
     // search source
-    for( std::list<unsigned>::const_iterator src_it = enabled_srcs.begin()
+    for( std::list<zypp::SourceManager::SourceId>::const_iterator src_it = enabled_srcs.begin()
 	; src_it != enabled_srcs.end()
 	; src_it++)
     {
@@ -837,7 +844,7 @@ PkgModuleFunctions::PkgProp(zypp::ResPool::byName_iterator it)
 	}
 	catch (...)
 	{
-	    y2error("cannot find source %d", *src_it);
+	    y2error("cannot find source %lu", *src_it);
 	    continue;
 	}
 

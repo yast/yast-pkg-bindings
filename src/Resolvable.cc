@@ -172,7 +172,7 @@ PkgModuleFunctions::ResolvableProperties(const YCPString& name, const YCPSymbol&
 	return ret;
     }
 
-    std::list<unsigned> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
+    std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
     
     for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(kind);
 	it != zypp_ptr->pool().byKindEnd(kind);
@@ -214,7 +214,7 @@ PkgModuleFunctions::ResolvableProperties(const YCPString& name, const YCPSymbol&
 
 	    // find index of the source
 	    // TODO optimize it by using hash<Source, index>?
-	    for (std::list<unsigned>::const_iterator idxit = source_ids.begin()
+	    for (std::list<zypp::SourceManager::SourceId>::const_iterator idxit = source_ids.begin()
 		; idxit != source_ids.end()
 		; idxit++)
 	    {
