@@ -222,13 +222,12 @@ namespace ZyppRecipients {
 	    {
 		callback.addInt( value );
 		bool res = callback.evaluateBool();
-		
-		if( res )
+
+		if( !res )
 		    y2milestone( "Package installation callback returned abort" );
 		
-		return res;
-
 		last_reported = value;
+		return res;
 	    }
 
 	    // return default value from the parent class
