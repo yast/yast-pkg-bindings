@@ -145,7 +145,7 @@ PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
 /****************************************************************************************
  * @builtin SourceGetCurrent
  *
- * @short Return the list of all enabled InstSrc Ids.
+ * @short Return the list of all InstSrc Ids.
  *
  * @param boolean enabled_only If true, or omitted, return the Ids of all enabled InstSrces.
  * If false, return the Ids of all known InstSrces.
@@ -155,7 +155,9 @@ PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
 YCPValue
 PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 {
-    std::list<zypp::SourceManager::SourceId> ids = zypp::SourceManager::sourceManager()->enabledSources();
+    std::list<zypp::SourceManager::SourceId> ids = (enabled->value()) ?
+	zypp::SourceManager::sourceManager()->enabledSources()
+	: zypp::SourceManager::sourceManager()->allSources();
     
     YCPList res;
     
