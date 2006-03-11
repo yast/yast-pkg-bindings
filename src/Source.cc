@@ -81,10 +81,10 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	if( !zypp::SourceManager::sourceManager()->restore(_target_root, true) )
 	{
 	    y2error( "Unable to restore all sources" );
-	    
+
 	    success = false;
 	}
-	
+
 	if( enable->value() )
 	{
 	    // go over all sources and get resolvables
@@ -138,7 +138,7 @@ YCPValue
 PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
 {
     SourceStartManager(enabled);
-    
+
     return SourceGetCurrent(enabled);
 }
 
@@ -158,9 +158,9 @@ PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
     std::list<zypp::SourceManager::SourceId> ids = (enabled->value()) ?
 	zypp::SourceManager::sourceManager()->enabledSources()
 	: zypp::SourceManager::sourceManager()->allSources();
-    
+
     YCPList res;
-    
+
     for( std::list<zypp::SourceManager::SourceId>::const_iterator it = ids.begin(); it != ids.end() ; ++it )
     {
 	res->add( YCPInteger( *it ) );
@@ -373,15 +373,15 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
 #warning product category handling???
 
   zypp::ResStore products (src.resolvables(zypp::ResTraits<zypp::Product>::kind));
-  
+
   if( products.empty() )
   {
 	y2error ("Product for source '%lld' not found", id->asInteger()->value());
 	return YCPVoid();
   }
-  
+
   zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( *(products.begin()) );
-  
+
   y2debug ("Found");
 
   YCPMap data;
@@ -391,9 +391,9 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
   data->add( YCPString("productname"),		YCPString( product->name() ) );
   data->add( YCPString("productversion"),	YCPString( product->edition().version() ) );
   data->add( YCPString("relnotesurl"), 		YCPString( product->releaseNotesUrl().asString()));
-  
-#warning SourceProductData not finished 
-/*  
+
+#warning SourceProductData not finished
+/*
   data->add( YCPString("datadir"),		YCPString( descr->content_datadir().asString() ) );
 */
   return data;
@@ -407,18 +407,18 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
  * <code>
  * $[
  *   "baseproduct":"",
- *   "baseversion":"", 
- *   "defaultbase":"i386", 
- *   "distproduct":"SuSE-Linux-DVD", 
- *   "distversion":"10.0", 
- *   "flags":"update", 
- *   "name":"SUSE LINUX", 
- *   "product":"SUSE LINUX 10.0", 
+ *   "baseversion":"",
+ *   "defaultbase":"i386",
+ *   "distproduct":"SuSE-Linux-DVD",
+ *   "distversion":"10.0",
+ *   "flags":"update",
+ *   "name":"SUSE LINUX",
+ *   "product":"SUSE LINUX 10.0",
  *   "relnotesurl":"http://www.suse.com/relnotes/i386/SUSE-LINUX/10.0/release-notes.rpm",
  *   "requires":"suse-release-10.0",
- *   "vendor":"SUSE LINUX Products GmbH, Nuernberg, Germany", 
+ *   "vendor":"SUSE LINUX Products GmbH, Nuernberg, Germany",
  *   "version":"10.0"
- * ] 
+ * ]
  * </code>
  * @return map Product info as a map
  **/
@@ -458,7 +458,7 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
     }
 
     zypp::filesystem::Pathname path;
-  
+
     try {
     	path = src.provideFile(f->value(), mid->asInteger()->value());
     }
@@ -650,6 +650,18 @@ std::string id_to_string(zypp::SourceManager::SourceId input)
     return std::string(buffer);
 }
 
+/** Create a Source and immediately put it into the SourceManager.
+ * \return the SourceId
+ * \throws Exception if Source creation fails
+*/
+inline zypp::SourceManager::SourceId createManagedSource( const zypp::Url & url_r,
+                                                          const zypp::Pathname & path_r = "/",
+                                                          const std::string & alias_r = "",
+                                                          const zypp::Pathname & cache_dir_r = "" )
+{
+  zypp::Source_Ref newsrc( zypp::SourceFactory().createFrom(url_r, path_r, alias_r, cache_dir_r) );
+  return zypp::SourceManager::sourceManager()->addSource( newsrc );
+}
 
 /****************************************************************************************
  * @builtin SourceCacheCopyTo
@@ -693,10 +705,10 @@ YCPValue
 PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 {
   zypp::SourceFactory factory;
-  
-  
+
+
   zypp::Url url;
-  
+
   try {
     url = zypp::Url(media->value ());
   }
@@ -706,17 +718,17 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     _last_error.setLastError(expt.asUserString());
     return YCPBoolean (false);
   }
-  
+
   zypp::Pathname pn(pd->value ());
-  
+
   YCPList ids;
   unsigned int id;
-  
+
   if ( pd->value().empty() ) {
     // scan all sources
-    
+
     zypp::SourceFactory::ProductSet products;
-        
+
     try
     {
 	factory.listProducts( url, products );
@@ -728,18 +740,18 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 	_last_error.setLastError(excpt.asUserString());
 	return ids;
     }
-    
+
     for( zypp::SourceFactory::ProductSet::const_iterator it = products.begin();
 	it != products.end() ; ++it )
     {
 	try
 	{
-	    // create the source, use URL + ID as the alias 
+	    // create the source, use URL + ID as the alias
 	    // alias must be unique, add max source number
 	    std::string alias = url.asString()+pn.asString()+"-"+id_to_string(max_src_id());
-	    id = zypp::SourceManager::sourceManager()->addSource(url, pn, alias);
+	    id = createManagedSource(url, pn, alias);
 	    ids->add( YCPInteger(id) );
-	    y2milestone("Added source %d: %s (alias %s)", id, (url.asString()+pn.asString()).c_str(), alias.c_str() );  
+	    y2milestone("Added source %d: %s (alias %s)", id, (url.asString()+pn.asString()).c_str(), alias.c_str() );
 	}
 	catch ( const zypp::Exception& excpt)
 	{
@@ -753,8 +765,8 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 
     try
     {
-	// create the source, use URL + ID as the alias 
-	id = zypp::SourceManager::sourceManager()->addSource(url, pn, url.asString()+pn.asString()+"-"+id_to_string(max_src_id()));
+	// create the source, use URL + ID as the alias
+	id = createManagedSource(url, pn, url.asString()+pn.asString()+"-"+id_to_string(max_src_id()));
 	ids->add( YCPInteger(id) );
     }
     catch ( const zypp::Exception& excpt)
@@ -765,7 +777,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     }
   }
 
-  y2milestone("Found sources: %s", ids->toString().c_str() );  
+  y2milestone("Found sources: %s", ids->toString().c_str() );
   return ids;
 }
 
@@ -795,7 +807,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
   zypp::Pathname pn(pd->value ());
 
   zypp::Url url;
-  
+
   try {
     url = zypp::Url(media->value ());
   }
@@ -805,17 +817,17 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
     _last_error.setLastError(expt.asUserString());
     return YCPBoolean (false);
   }
-  
-  
+
+
   YCPList ids;
   int ret = -1;
-  
+
   if ( pd->value().empty() ) {
     // scan all sources
-    
+
     zypp::SourceFactory::ProductSet products;
 
-    try {        
+    try {
 	factory.listProducts( url, products );
     }
     catch ( const zypp::Exception& excpt)
@@ -824,27 +836,27 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 	y2error( "Cannot read the product list from the media" );
 	return YCPInteger(ret);
     }
-    
+
     for( zypp::SourceFactory::ProductSet::const_iterator it = products.begin();
 	it != products.end() ; ++it )
     {
 	try
 	{
-	    // create the source, use URL + ID as the alias 
+	    // create the source, use URL + ID as the alias
 	    std::string alias = url.asString()+pn.asString()+"-"+id_to_string(max_src_id());
-	    unsigned id = zypp::SourceManager::sourceManager()->addSource(url, pn, alias);
+	    unsigned id = createManagedSource(url, pn, alias);
 
 	    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id);
 
-	    src.enable(); 
-    
+	    src.enable();
+
     	    zypp_ptr->addResolvables (src.resolvables());
 
 	    // return the id of the first product
-	    if ( ret == -1 ) 
+	    if ( ret == -1 )
 		ret = id;
 
-	    y2milestone("Added source %d: %s (alias %s)", id, (url.asString()+pn.asString()).c_str(), alias.c_str() );  
+	    y2milestone("Added source %d: %s (alias %s)", id, (url.asString()+pn.asString()).c_str(), alias.c_str() );
 	}
 	catch ( const zypp::Exception& excpt)
 	{
@@ -860,15 +872,15 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
     {
 	std::string alias = url.asString()+pn.asString()+"-"+id_to_string(max_src_id());
 
-	// create the source, use URL + ID as the alias 
-	ret = zypp::SourceManager::sourceManager()->addSource(url, pn, alias);
+	// create the source, use URL + ID as the alias
+	ret = createManagedSource(url, pn, alias);
 
 	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(ret);
 
-	src.enable(); 
-    
+	src.enable();
+
     	zypp_ptr->addResolvables (src.resolvables());
-	y2milestone("Added source %d: %s (alias %s)", ret, (url.asString()+pn.asString()).c_str(), alias.c_str() );  
+	y2milestone("Added source %d: %s (alias %s)", ret, (url.asString()+pn.asString()).c_str(), alias.c_str() );
     }
     catch ( const zypp::Exception& excpt)
     {
@@ -1046,7 +1058,7 @@ PkgModuleFunctions::SourceEditGet ()
 {
     YCPList ret;
     std::list<zypp::SourceManager::SourceId> ids = zypp::SourceManager::sourceManager()->allSources();
-	    
+
     for( std::list<zypp::SourceManager::SourceId>::iterator it = ids.begin(); it != ids.end(); ++it)
     {
 	YCPMap src_map;
@@ -1065,7 +1077,7 @@ PkgModuleFunctions::SourceEditGet ()
 	src_map->add(YCPString("SrcId"), YCPInteger(*it));
 	src_map->add(YCPString("enabled"), YCPBoolean(src.enabled()));
 	src_map->add(YCPString("autorefresh"), YCPBoolean(src.autorefresh()));
-	
+
 	ret->add(src_map);
     }
 
@@ -1090,7 +1102,7 @@ YCPValue
 PkgModuleFunctions::SourceEditSet (const YCPList& states)
 {
   bool error = false;
- 
+
   for (int index = 0; index < states->size(); index++ )
   {
     if( ! states->value(index)->isMap() )
@@ -1099,9 +1111,9 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 	error = true;
 	continue;
     }
-    
+
     YCPMap descr = states->value(index)->asMap();
-    
+
     if (descr->value( YCPString("SrcId") ).isNull() || !descr->value(YCPString("SrcId"))->isInteger())
     {
 	ycperror( "Pkg::SourceEditSet, SrcId not defined for a source description at index %d", index);
@@ -1109,7 +1121,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 	continue;
     }
     int id = descr->value( YCPString("SrcId") )->asInteger()->value();
-    
+
     zypp::Source_Ref src;
     try {
 	src = zypp::SourceManager::sourceManager()->findSource(id);
@@ -1121,12 +1133,12 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 	error = true;
 	continue;
     }
-    
+
     // now, we have the source
     if( ! descr->value( YCPString("enabled")).isNull() && descr->value(YCPString("enabled"))->isBoolean ())
     {
 	bool enable = descr->value(YCPString("enabled"))->asBoolean ()->value();
-	
+
 	if( enable )
 	    src.enable();
 	else
@@ -1140,7 +1152,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 
 #warning SourceEditSet ordering not implemented yet
   }
-  
+
   return YCPBoolean( true );
 }
 
