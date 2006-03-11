@@ -1,0 +1,24 @@
+@HEADER-COMMENT@
+
+@HEADER@
+BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer rpm-devel sgml-skel yast2-core-devel yast2-devtools libzypp libzypp-devel boost boost-devel dbus-1-devel hal-devel
+
+Summary:	-
+
+%description
+-
+
+@PREP@
+
+@BUILD@
+
+@INSTALL@
+rm -rf %{buildroot}/@plugindir@/libpy2Pkg.la
+
+@CLEAN@
+
+%files
+%defattr(-,root,root)
+@plugindir@/libpy2Pkg.so.*
+@plugindir@/libpy2Pkg.so
+%doc @docdir@
