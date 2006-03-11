@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Mar 11 14:23:11 CET 2006 - kkaempf@suse.de
+
+- fix the build.
+- 2.13.25
+
+-------------------------------------------------------------------
 Thu Mar  9 10:53:10 CET 2006 - lslezak@suse.cz
 
 - new pattern related builtins: GetPatterns and PatternData
