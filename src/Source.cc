@@ -627,40 +627,51 @@ PkgModuleFunctions::SourceInstallOrder (const YCPMap& ord)
   return YCPBoolean( true );
 }
 
-// return integer greater than the greatest source ID
-zypp::SourceManager::SourceId max_src_id()
+
+static std::string timestamp ()
 {
-    // all sources
-    std::list<zypp::SourceManager::SourceId> srcs = zypp::SourceManager::sourceManager()->allSources();
+    time_t t = time(NULL);
+    struct tm * tmp = localtime(&t);
 
-    // the greater ID
-    std::list<zypp::SourceManager::SourceId>::const_iterator maxit = max_element(srcs.begin(), srcs.end());
+    if (tmp == NULL) {
+	return "";
+    }
 
-    return (maxit == srcs.end()) ?  zypp::SourceManager::SourceId(0) : (*maxit) + 1;
-}
-
-// helper function - convert int to std::string using snprintf
-std::string id_to_string(zypp::SourceManager::SourceId input)
-{
-#define BUFF_SIZE 16
-    char buffer[BUFF_SIZE];
-    snprintf(buffer, BUFF_SIZE, "%lu", input);
-#undef BUFF_SIZE
-
-    return std::string(buffer);
+    char outstr[50];
+    if (strftime(outstr, sizeof(outstr), "%Y%m%d-%H%M%S", tmp) == 0) {
+	return "";
+    }
+    return outstr;
 }
 
 /** Create a Source and immediately put it into the SourceManager.
  * \return the SourceId
  * \throws Exception if Source creation fails
 */
-inline zypp::SourceManager::SourceId createManagedSource( const zypp::Url & url_r,
-                                                          const zypp::Pathname & path_r = "/",
-                                                          const std::string & alias_r = "",
-                                                          const zypp::Pathname & cache_dir_r = "" )
+zypp::SourceManager::SourceId
+createManagedSource( const zypp::Url & url_r,
+		     const zypp::Pathname & path_r )
 {
-  zypp::Source_Ref newsrc( zypp::SourceFactory().createFrom(url_r, path_r, alias_r, cache_dir_r) );
-  return zypp::SourceManager::sourceManager()->addSource( newsrc );
+  zypp::Source_Ref newsrc = zypp::SourceFactory().createFrom(url_r, path_r);
+  
+  // use product name+edition as the alias
+  // (URL is not enough for different sources in the same DVD drive)
+  // alias must be unique, add timestamp
+  zypp::ResStore products = newsrc.resolvables (zypp::Product::TraitsType::kind);
+  zypp::ResStore::iterator
+      b = products.begin (),
+      e = products.end ();  
+  string alias;
+  if (b != e)
+  {
+      zypp::ResObject::Ptr p = *b;
+      alias = p->name () + '-' + p->edition ().asString () + '-';
+  }
+  alias += timestamp ();
+
+  zypp::SourceManager::SourceId id = zypp::SourceManager::sourceManager()->addSource( newsrc );
+  y2milestone("Added source %lu: %s (alias %s)", id, (url_r.asString()+path_r.asString()).c_str(), alias.c_str() );
+  return id;
 }
 
 /****************************************************************************************
@@ -753,12 +764,8 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     {
 	try
 	{
-	    // create the source, use URL + ID as the alias
-	    // alias must be unique, add max source number
-	    std::string alias = url.asString()+it->_dir.asString()+"-"+id_to_string(max_src_id());
-	    id = createManagedSource(url, it->_dir, alias);
+	    id = createManagedSource(url, it->_dir);
 	    ids->add( YCPInteger(id) );
-	    y2milestone("Added source %d: %s (alias %s)", id, (url.asString()+pn.asString()).c_str(), alias.c_str() );
 	}
 	catch ( const zypp::Exception& excpt)
 	{
@@ -772,8 +779,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 
     try
     {
-	// create the source, use URL + ID as the alias
-	id = createManagedSource(url, pn, url.asString()+pn.asString()+"-"+id_to_string(max_src_id()));
+	id = createManagedSource(url, pn);
 	ids->add( YCPInteger(id) );
     }
     catch ( const zypp::Exception& excpt)
@@ -856,9 +862,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
     {
 	try
 	{
-	    // create the source, use URL + ID as the alias
-	    std::string alias = url.asString()+it->_dir.asString()+"-"+id_to_string(max_src_id());
-	    unsigned id = createManagedSource(url, it->_dir, alias);
+	    unsigned id = createManagedSource(url, it->_dir);
 
 	    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id);
 
@@ -870,7 +874,6 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 	    if ( ret == -1 )
 		ret = id;
 
-	    y2milestone("Added source %d: %s (alias %s)", id, (url.asString()+pn.asString()).c_str(), alias.c_str() );
 	}
 	catch ( const zypp::Exception& excpt)
 	{
@@ -884,17 +887,13 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 
     try
     {
-	std::string alias = url.asString()+pn.asString()+"-"+id_to_string(max_src_id());
-
-	// create the source, use URL + ID as the alias
-	ret = createManagedSource(url, pn, alias);
+	ret = createManagedSource(url, pn);
 
 	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(ret);
 
 	src.enable();
 
     	zypp_ptr->addResolvables (src.resolvables());
-	y2milestone("Added source %d: %s (alias %s)", ret, (url.asString()+pn.asString()).c_str(), alias.c_str() );
     }
     catch ( const zypp::Exception& excpt)
     {

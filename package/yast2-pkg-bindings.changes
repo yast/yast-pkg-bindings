@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Mar 14 14:26:42 CET 2006 - mvidner@suse.cz
+
+- Use product(name+edition)+current timestamp
+  to set the source alias in SourceCreate and SourceScan (#154913).
+
+-------------------------------------------------------------------
 Tue Mar 14 10:43:52 CET 2006 - visnov@suse.cz
 
 - added TargetDisableSources to disable configured sources
