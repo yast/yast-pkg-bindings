@@ -8,6 +8,7 @@
 <!ENTITY PkgModuleFunctions    SYSTEM "PkgModuleFunctions.xml">
 <!ENTITY PkgModuleFunctionsPackage    SYSTEM "Package.xml">
 <!ENTITY PkgModuleFunctionsPatch    SYSTEM "Patch.xml">
+<!ENTITY PkgModuleFunctionsResolvable    SYSTEM "Resolvable.xml">
 <!ENTITY PkgModuleFunctionsSelection    SYSTEM "Selection.xml">
 <!ENTITY PkgModuleFunctionsSource    SYSTEM "Source.xml">
 <!ENTITY PkgModuleFunctionsTarget    SYSTEM "Target.xml">
@@ -45,6 +46,7 @@
     &PkgModuleFunctions;
     &PkgModuleFunctionsSelection;
     &PkgModuleFunctionsPackage;
+    &PkgModuleFunctionsResolvable;
     &PkgModuleFunctionsTarget;
     &PkgModuleFunctionsPatch;
 
