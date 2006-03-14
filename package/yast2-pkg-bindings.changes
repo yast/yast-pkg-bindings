@@ -1,7 +1,8 @@
 -------------------------------------------------------------------
-Tue Mar 14 16:44:29 CET 2006 - mvidner@suse.cz
+Tue Mar 14 19:12:11 CET 2006 - mvidner@suse.cz
 
 - Use APPL_HIGH level instead of USER for Pkg:: (#156875, thanks ma)
+- 2.13.27
 
 -------------------------------------------------------------------
 Tue Mar 14 15:21:22 CET 2006 - mvidner@suse.cz
