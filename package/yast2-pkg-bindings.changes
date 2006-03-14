@@ -4,7 +4,7 @@ Tue Mar 14 10:43:52 CET 2006 - visnov@suse.cz
 - added TargetDisableSources to disable configured sources
   at the target system (#154850)
 - if no products found by libzypp, try also the base URL 
-  in SourceScan (#157442)
+  in SourceScan and SourceCreate (#157442)
 
 -------------------------------------------------------------------
 Sat Mar 11 14:23:11 CET 2006 - kkaempf@suse.de

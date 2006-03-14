@@ -762,7 +762,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 	}
 	catch ( const zypp::Exception& excpt)
 	{
-	    y2error("SourceCreate for '%s' product '%s' has failed"
+	    y2error("SourceScan for '%s' product '%s' has failed"
 		, url.asString().c_str(), pn.asString().c_str());
 	    _last_error.setLastError(excpt.asUserString());
 	}
@@ -778,7 +778,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     }
     catch ( const zypp::Exception& excpt)
     {
-	y2error("SourceCreate for '%s' product '%s' has failed"
+	y2error("SourceScan for '%s' product '%s' has failed"
 	    , url.asString().c_str(), pn.asString().c_str());
 	_last_error.setLastError(excpt.asUserString());
     }
@@ -844,14 +844,21 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 	return YCPInteger(ret);
     }
 
+    if( products.empty() )
+    {
+	// no products found, use the base URL instead
+	zypp::SourceFactory::ProductEntry entry ;
+	products.insert( entry );
+    }
+
     for( zypp::SourceFactory::ProductSet::const_iterator it = products.begin();
 	it != products.end() ; ++it )
     {
 	try
 	{
 	    // create the source, use URL + ID as the alias
-	    std::string alias = url.asString()+pn.asString()+"-"+id_to_string(max_src_id());
-	    unsigned id = createManagedSource(url, pn, alias);
+	    std::string alias = url.asString()+it->_dir.asString()+"-"+id_to_string(max_src_id());
+	    unsigned id = createManagedSource(url, it->_dir, alias);
 
 	    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id);
 
