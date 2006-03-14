@@ -740,7 +740,14 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 	_last_error.setLastError(excpt.asUserString());
 	return ids;
     }
-
+    
+    if( products.empty() )
+    {
+	// no products found, use the base URL instead
+	zypp::SourceFactory::ProductEntry entry ;
+	products.insert( entry );
+    }
+    
     for( zypp::SourceFactory::ProductSet::const_iterator it = products.begin();
 	it != products.end() ; ++it )
     {
@@ -748,8 +755,8 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 	{
 	    // create the source, use URL + ID as the alias
 	    // alias must be unique, add max source number
-	    std::string alias = url.asString()+pn.asString()+"-"+id_to_string(max_src_id());
-	    id = createManagedSource(url, pn, alias);
+	    std::string alias = url.asString()+it->_dir.asString()+"-"+id_to_string(max_src_id());
+	    id = createManagedSource(url, it->_dir, alias);
 	    ids->add( YCPInteger(id) );
 	    y2milestone("Added source %d: %s (alias %s)", id, (url.asString()+pn.asString()).c_str(), alias.c_str() );
 	}
