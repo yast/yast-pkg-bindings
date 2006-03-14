@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Mar 14 10:43:52 CET 2006 - visnov@suse.cz
+
+- added TargetDisableSources to disable configured sources
+  at the target system (#154850)
+
+-------------------------------------------------------------------
 Sat Mar 11 14:23:11 CET 2006 - kkaempf@suse.de
 
 - fix the build.

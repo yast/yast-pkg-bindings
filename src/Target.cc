@@ -38,6 +38,7 @@
 
 #include <zypp/target/rpm/RpmDb.h>
 #include <zypp/Product.h>
+#include <zypp/SourceManager.h>
 #include <zypp/DiskUsageCounter.h>
 
 /** ------------------------
@@ -67,6 +68,30 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& /*unuse
     
     _target_root = zypp::Pathname(root->value());
 
+    return YCPBoolean(true);
+}
+
+/** ------------------------
+ *
+ * @builtin TargetDisableSources
+ * @short Disable all sources configured on the target. Typically
+ * used on upgrade.
+ * @return boolean true on success.
+ */
+YCPBoolean
+PkgModuleFunctions::TargetDisableSources ()
+{
+    try
+    {
+	zypp::SourceManager::disableSourcesAt( _target_root );
+    }
+    catch (zypp::Exception & excpt)
+    {
+	_last_error.setLastError(excpt.asUserString());
+	ycperror("TargetDisableSources has failed: %s", excpt.msg().c_str() );
+        return YCPBoolean(false);
+    }
+    
     return YCPBoolean(true);
 }
 
