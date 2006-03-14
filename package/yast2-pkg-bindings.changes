@@ -1,8 +1,11 @@
 -------------------------------------------------------------------
-Tue Mar 14 14:26:42 CET 2006 - mvidner@suse.cz
+Tue Mar 14 15:21:22 CET 2006 - mvidner@suse.cz
 
+- Provide Product::version via TargetProducts,
+  fixing crypto update (#153576).
 - Use product(name+edition)+current timestamp
   to set the source alias in SourceCreate and SourceScan (#154913).
+- 2.13.26
 
 -------------------------------------------------------------------
 Tue Mar 14 10:43:52 CET 2006 - visnov@suse.cz

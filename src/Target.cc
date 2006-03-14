@@ -302,8 +302,10 @@ PkgModuleFunctions::TargetProducts ()
 	if (it->status().isInstalled() )
 	{
 	    YCPMap prod;
-#warning TargetProducts doesn't return all keys
+#warning TargetProducts does not return all keys
+	    // see also PkgModuleFunctions::Descr2Map and Product.ycp::Product
 	    prod->add( YCPString("name"), YCPString( product->name() ) );
+	    prod->add( YCPString("version"), YCPString( product->edition().version() ) );
 	    prod->add( YCPString("relnotesurl"), YCPString( product->releaseNotesUrl().asString() ) );
 	    products->add(prod);
 	}
