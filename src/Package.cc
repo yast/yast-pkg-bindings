@@ -56,6 +56,10 @@ namespace zypp {
 	typedef std::list<PoolItem> PoolItemList; 
 }
 
+// After all, APPL_HIGH might be more appropriate, because we suggest the user
+// what he should do and if it does not work, it's his job to fix it (using
+// USER). --ma
+const zypp::ResStatus::TransactByValue whoWantsIt = zypp::ResStatus::APPL_HIGH;	// #156875
 
 // ------------------------
 /**
@@ -529,8 +533,7 @@ PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvabl
     if (!info.item) 
 	return false;
 
-    #warning this might not be exact - it could be APPLICATION
-    bool result = info.item.status().setToBeInstalled(zypp::ResStatus::USER);
+    bool result = info.item.status().setToBeInstalled(whoWantsIt);
     y2milestone ("DoProvideNameKind %s -> %s\n", name.c_str(), (result ? "Ok" : "Bad"));
     return true;
 }
@@ -546,8 +549,8 @@ PkgModuleFunctions::DoAllKind(zypp::Resolvable::Kind kind, bool provide)
     for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(kind);
 	it != zypp_ptr->pool().byKindEnd(kind); ++it)
     {
-	bool res = provide ? it->status().setToBeInstalled(zypp::ResStatus::USER)
-	    : it->status().setToBeUninstalled(zypp::ResStatus::USER);
+	bool res = provide ? it->status().setToBeInstalled(whoWantsIt)
+	    : it->status().setToBeUninstalled(whoWantsIt);
 	
 	y2milestone ("%s %s -> %s\n", (provide ? "Install" : "Remove"), (*it)->name().c_str(), (res ? "Ok" : "Failed"));
 	ret = ret && res;
@@ -588,8 +591,7 @@ PkgModuleFunctions::DoRemoveNameKind( const std::string & name, zypp::Resolvable
     if 	(it == zypp_ptr->pool().byNameEnd(name)) 
 	return false;
 	
-    // this might not be exact - it could be APPLICATION	
-    bool result = it->status().setToBeUninstalled(zypp::ResStatus::USER);
+    bool result = it->status().setToBeUninstalled(whoWantsIt);
     y2milestone ("DoRemoveNameKind %s -> %s\n", name.c_str(), (result ? "Ok" : "Bad"));
     
     return true;
@@ -1518,8 +1520,7 @@ PkgModuleFunctions::PkgDelete (const YCPString& p)
     
     // set the status to uninstalled
     return YCPBoolean( (it != zypp_ptr->pool().byNameEnd(name)) 
-	// set uninstalled by user
-	&& it->status().setToBeUninstalled(zypp::ResStatus::USER) );
+	&& it->status().setToBeUninstalled(whoWantsIt) );
 }
 
 
@@ -1547,8 +1548,7 @@ PkgModuleFunctions::PkgTaboo (const YCPString& p)
 
     // lock the status
     return YCPBoolean( (it != zypp_ptr->pool().byNameEnd(name)) 
-	// set locked by user
-	&& it->status().setLock(true, zypp::ResStatus::USER) );
+	&& it->status().setLock(true, whoWantsIt) );
 }
 
 /**
@@ -1575,8 +1575,7 @@ PkgModuleFunctions::PkgNeutral (const YCPString& p)
 
     // reset all transactions
     return YCPBoolean( (it != zypp_ptr->pool().byNameEnd(name)) 
-	// set neutral by user
-	&& it->status().setTransact(false, zypp::ResStatus::USER) );
+	&& it->status().setTransact(false, whoWantsIt) );
 }
 
 
@@ -1595,10 +1594,7 @@ PkgModuleFunctions::PkgReset ()
 	; ++it)
     {
 	// reset all transaction flags
-	it->status().setTransact(false, zypp::ResStatus::USER) ;
-	it->status().setTransact(false, zypp::ResStatus::APPL_HIGH) ;
-	it->status().setTransact(false, zypp::ResStatus::APPL_LOW) ;
-	it->status().setTransact(false, zypp::ResStatus::SOLVER) ;
+	it->status().resetTransact(zypp::ResStatus::USER) ; // the highest level
     }
 
     return YCPBoolean (true);
