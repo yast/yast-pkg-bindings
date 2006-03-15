@@ -668,6 +668,8 @@ createManagedSource( const zypp::Url & url_r,
       alias = p->name () + '-' + p->edition ().asString () + '-';
   }
   alias += timestamp ();
+  
+  newsrc.setAlias( alias );
 
   zypp::SourceManager::SourceId id = zypp::SourceManager::sourceManager()->addSource( newsrc );
   y2milestone("Added source %lu: %s (alias %s)", id, (url_r.asString()+path_r.asString()).c_str(), alias.c_str() );

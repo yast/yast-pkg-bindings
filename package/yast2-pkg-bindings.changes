@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Mar 15 09:02:40 CET 2006 - visnov@suse.cz
+
+- set alias when creating a source
+- 2.13.28 
+
+-------------------------------------------------------------------
 Tue Mar 14 19:12:11 CET 2006 - mvidner@suse.cz
 
 - Use APPL_HIGH level instead of USER for Pkg:: (#156875, thanks ma)
