@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Mar 15 22:47:35 CET 2006 - kkaempf@suse.de
+
+- add PkgEstablish() to calculate needed/unneeded patches.
+
+-------------------------------------------------------------------
 Wed Mar 15 09:02:40 CET 2006 - visnov@suse.cz
 
 - set alias when creating a source
