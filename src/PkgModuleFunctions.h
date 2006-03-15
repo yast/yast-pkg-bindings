@@ -348,6 +348,8 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: boolean(boolean)*/
 	YCPBoolean PkgSolve (const YCPBoolean& filter);
 	/* TYPEINFO: boolean()*/
+	YCPBoolean PkgEstablish ();
+	/* TYPEINFO: boolean()*/
 	YCPBoolean PkgSolveCheckTargetOnly ();
 	/* TYPEINFO: integer()*/
 	YCPValue PkgSolveErrors ();
