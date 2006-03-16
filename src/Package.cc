@@ -56,11 +56,6 @@ namespace zypp {
 	typedef std::list<PoolItem> PoolItemList; 
 }
 
-// After all, APPL_HIGH might be more appropriate, because we suggest the user
-// what he should do and if it does not work, it's his job to fix it (using
-// USER). --ma
-const zypp::ResStatus::TransactByValue whoWantsIt = zypp::ResStatus::APPL_HIGH;	// #156875
-
 // ------------------------
 /**
  *  @builtin PkgQueryProvides

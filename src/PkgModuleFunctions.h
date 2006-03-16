@@ -82,6 +82,11 @@ class PkgModuleFunctions : public Y2Namespace
       void registerFunctions ();
       vector<string> _registered_functions;
 
+      // After all, APPL_HIGH might be more appropriate, because we suggest
+      // the user what he should do and if it does not work, it's his job to
+      // fix it (using USER). --ma
+      static const zypp::ResStatus::TransactByValue whoWantsIt;	// #156875
+
     private:
 
       /**
@@ -402,6 +407,9 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue ResolvableRemove( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: list<map<string,any> >(string,symbol,string)*/
         YCPValue ResolvableProperties(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version);
+	/* TYPEINFO: boolean()*/
+	YCPValue ResolvablePreselectPatches ();
+
 	/* TYPEINFO: boolean()*/
 	YCPValue SourceReleaseAll ();
 	/* TYPEINFO: boolean(string)*/

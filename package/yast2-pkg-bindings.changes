@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Mar 16 17:48:32 CET 2006 - mvidner@suse.cz
+
+- added Pkg::ResolvablePreselectPatches to select Needed items
+- 2.13.29
+
+-------------------------------------------------------------------
 Wed Mar 15 22:47:35 CET 2006 - kkaempf@suse.de
 
 - add PkgEstablish() to calculate needed/unneeded patches.

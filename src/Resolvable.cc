@@ -33,6 +33,7 @@
 
 #include <zypp/SourceManager.h>
 #include <zypp/Product.h>
+#include <zypp/Patch.h>
 #include <zypp/Pattern.h>
 #include <zypp/base/PtrTypes.h>
 
@@ -257,3 +258,32 @@ PkgModuleFunctions::ResolvableProperties(const YCPString& name, const YCPSymbol&
 }
 
 
+// ------------------------
+/**
+   @builtin ResolvablePatchMagic
+   @short Further processing after PkgEstablish
+   @return boolean false if failed
+*/
+YCPValue
+PkgModuleFunctions::ResolvablePreselectPatches ()
+{
+    YCPBoolean ret = true;
+    // pseudo code from
+    // http://svn.suse.de/trac/zypp/wiki/ZMD/YaST/update/yast
+    const zypp::ResPool & pool = zypp_ptr->pool();
+    zypp::ResPool::const_iterator
+	b = pool.begin (),
+	e = pool.end (),
+	i;
+    for (i = b; i != e; ++i)
+    {
+	if (i->status().isNeeded()) {	// uninstalled
+	    zypp::Patch::constPtr pch = zypp::asKind<zypp::Patch>(i->resolvable());
+	    if (pch && pch->category () == "optional") {
+		continue;	// dont auto-install optional patches
+	    }
+	    i->status().setTransact(true, whoWantsIt); // schedule for installation
+	}
+    }
+    return ret;
+}

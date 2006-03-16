@@ -145,6 +145,8 @@ public:
 	    return m_name;
     }
 
+const zypp::ResStatus::TransactByValue PkgModuleFunctions::whoWantsIt = zypp::ResStatus::APPL_HIGH;
+
 /**
  * Constructor.
  */
