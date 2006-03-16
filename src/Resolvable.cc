@@ -36,6 +36,8 @@
 #include <zypp/Patch.h>
 #include <zypp/Pattern.h>
 #include <zypp/base/PtrTypes.h>
+#include <zypp/Dep.h>
+#include <zypp/CapSet.h>
 
 ///////////////////////////////////////////////////////////////////
 
@@ -146,6 +148,18 @@ PkgModuleFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol&
 YCPValue
 PkgModuleFunctions::ResolvableProperties(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version)
 {
+    return ResolvablePropertiesEx (name, kind_r, version, false);
+}
+
+YCPValue
+PkgModuleFunctions::ResolvableDependencies(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version)
+{
+    return ResolvablePropertiesEx (name, kind_r, version, true);
+}
+
+YCPValue
+PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies)
+{
     zypp::Resolvable::Kind kind;
     std::string req_kind = kind_r->symbol ();
     std::string nm = name->value();
@@ -250,6 +264,42 @@ PkgModuleFunctions::ResolvableProperties(const YCPString& name, const YCPSymbol&
 		info->add(YCPString("script"), YCPString(pattern->script().asString()));
 	    }
 
+	    // dependency info
+	    if (dependencies)
+	    {
+                std::set<std::string> _kinds;
+                _kinds.insert("provides");
+                _kinds.insert("prerequires");
+                _kinds.insert("requires");
+                _kinds.insert("conflicts");
+                _kinds.insert("obsoletes");
+                _kinds.insert("recommends");
+                _kinds.insert("suggests");
+                _kinds.insert("freshens");
+                _kinds.insert("enhances");
+                _kinds.insert("supplements");
+                YCPList ycpdeps;
+                for (std::set<std::string>::const_iterator kind_it = _kinds.begin();
+                    kind_it != _kinds.end(); ++kind_it)
+                {
+                    try {
+                        zypp::Dep depkind(*kind_it);
+                        zypp::CapSet deps = it->resolvable()->dep(depkind);
+                        for (zypp::CapSet::const_iterator d = deps.begin(); d != deps.end(); ++d)
+                        {
+                            YCPMap ycpdep;
+                            ycpdep->add (YCPString ("res_kind"), YCPString (d->refers().asString()));
+                            ycpdep->add (YCPString ("name"), YCPString (d->asString()));
+                            ycpdep->add (YCPString ("dep_kind"), YCPString (*kind_it));
+                            ycpdeps->add (ycpdep);
+                        }
+    
+                    }
+                    catch (...)
+                    {}
+                }
+                info->add (YCPString ("dependencies"), ycpdeps);
+	    }
 	    ret->add(info);
 	}
     }

@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Mar 16 18:18:53 CET 2006 - jsrain@suse.de
+
+- added Pkg::ResolvableDependencies
+
+-------------------------------------------------------------------
 Thu Mar 16 17:48:32 CET 2006 - mvidner@suse.cz
 
 - added Pkg::ResolvablePreselectPatches to select Needed items

@@ -407,6 +407,8 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue ResolvableRemove( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: list<map<string,any> >(string,symbol,string)*/
         YCPValue ResolvableProperties(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version);
+	/* TYPEINFO: list<map<string,any> >(string,symbol,string)*/
+        YCPValue ResolvableDependencies(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version);
 	/* TYPEINFO: boolean()*/
 	YCPValue ResolvablePreselectPatches ();
 
@@ -414,6 +416,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue SourceReleaseAll ();
 	/* TYPEINFO: boolean(string)*/
 	YCPValue SourceMoveDownloadArea (const YCPString & path);
+
+        YCPValue ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies);
 
 	/**
 	 * Constructor.
