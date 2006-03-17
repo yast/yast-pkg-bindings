@@ -251,7 +251,7 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 		info->add(YCPString("category"), YCPString(product->category()));
 		info->add(YCPString("vendor"), YCPString(product->vendor()));
 		info->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
-		info->add(YCPString("display_name"), YCPString(product->displayName()));
+		info->add(YCPString("display_name"), YCPString(product->summary()));
 		YCPList flags;
 		std::list<std::string> flags = product->flags();
 		foreach (std::list<std::string>::const_iterator flag_it = flags.begin();
