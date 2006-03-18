@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Mar 18 02:18:40 CET 2006 - kkaempf@suse.de
+
+- fix Pkg::IsSelected (and others) to check the right
+  item of the pool (#158602)
+- 2.13.31
+
+-------------------------------------------------------------------
 Thu Mar 16 20:10:48 CET 2006 - jsrain@suse.de
 
 - let products provide their flags
