@@ -514,6 +514,11 @@ struct ProvideProcess
 
     bool operator()( zypp::PoolItem provider )
     {
+        // 1. compatible arch
+        // 2. best arch
+        // 3. best edition
+        //  see QueueItemRequire in zypp/solver/detail, RequireProcess
+
         if (!provider->arch().compatibleWith( _architecture )) {
             MIL << "provider " << provider << " has incompatible arch '" << provider->arch() << "'" << endl;
         }
