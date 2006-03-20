@@ -33,7 +33,7 @@
 
 // FIXME: do this nicer, source create use this to avoid user feedback
 // on probing of source type
-static bool _silent_probing;
+bool _silent_probing;
 
 ///////////////////////////////////////////////////////////////////
 namespace ZyppRecipients {

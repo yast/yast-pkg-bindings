@@ -473,6 +473,72 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
 }
 
 /****************************************************************************************
+ * @builtin SourceProvideOptionalFile
+ *
+ * @short Make an optional file available at the local filesystem
+ * @description
+ * Let an InstSrc provide some file (make it available at the local filesystem).
+ * If the file doesn't exist don't ask user for another medium and return nil
+ *
+ * @param integer SrcId	Specifies the InstSrc .
+ * @param integer medianr Number of the media the file is located on ('1' for the 1st media).
+ * @param string file Filename relative to the media root.
+ *
+ * @return string local path as string
+ **/
+YCPValue
+PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
+{
+    YCPValue ret;
+
+    // FIXME: do it better
+    extern bool _silent_probing;
+   
+    // remember the current value 
+    bool _silent_probing_old = _silent_probing;
+
+    // disable media change callback
+    _silent_probing = true;
+
+    zypp::Source_Ref src;
+
+    try {
+	src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	_last_error.setLastError(excpt.asUserString());
+	y2error ("Source ID not found: %lld", id->asInteger()->value());
+	return YCPVoid();
+    }
+
+    zypp::filesystem::Pathname path;
+    bool found = true;
+
+    try {
+    	path = src.provideFile(f->value(), mid->asInteger()->value());
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	found = false;
+	// the file is optional, don't set error flag here
+    }
+
+ 
+    // set the original probing value
+    _silent_probing = _silent_probing_old;
+
+    if (found)
+    {
+	return YCPString(path.asString());
+    }
+    else
+    {
+	return YCPVoid();
+    }
+}
+
+/****************************************************************************************
  * @builtin SourceProvideDir
  * @short make a directory available at the local filesystem
  * @description

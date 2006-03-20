@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Mar 20 18:28:03 CET 2006 - lslezak@suse.cz
+
+- new SourceProvideOptionalFile() binding (#159116)
+- 2.13.33
+
+-------------------------------------------------------------------
 Mon Mar 20 09:09:16 CET 2006 - visnov@suse.cz
 
 - adapt for latest libzypp

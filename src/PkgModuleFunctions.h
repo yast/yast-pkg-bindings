@@ -200,6 +200,8 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: string(integer,integer,string)*/
 	YCPValue SourceProvideFile (const YCPInteger&, const YCPInteger&, const YCPString&);
 	/* TYPEINFO: string(integer,integer,string)*/
+	YCPValue SourceProvideOptionalFile (const YCPInteger&, const YCPInteger&, const YCPString&);
+	/* TYPEINFO: string(integer,integer,string)*/
 	YCPValue SourceProvideDir (const YCPInteger&, const YCPInteger&, const YCPString&);
 	/* TYPEINFO: boolean(string)*/
 	YCPValue SourceCacheCopyTo (const YCPString&);
