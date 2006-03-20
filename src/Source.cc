@@ -386,7 +386,7 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
 
   YCPMap data;
 
-  data->add( YCPString("label"),		YCPString( product->displayName() ) );
+  data->add( YCPString("label"),		YCPString( product->summary() ) );
   data->add( YCPString("vendor"),		YCPString( product->vendor() ) );
   data->add( YCPString("productname"),		YCPString( product->name() ) );
   data->add( YCPString("productversion"),	YCPString( product->edition().version() ) );

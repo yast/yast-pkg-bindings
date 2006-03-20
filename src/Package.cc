@@ -210,12 +210,12 @@ PkgModuleFunctions::PkgMediaNames ()
     	    ; ++it) {
 	    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
 
-	    y2debug ("Checking product: %s", product->displayName().c_str());
+	    y2debug ("Checking product: %s", product->summary().c_str());
 	    if( product->source() == src )
 	    {
 		y2debug ("Found");
 		
-		res->add( YCPString ( product->displayName() ) );
+		res->add( YCPString ( product->summary() ) );
  		break; 
 	    }
 	}
