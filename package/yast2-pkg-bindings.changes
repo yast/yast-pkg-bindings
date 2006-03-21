@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Mar 21 08:58:48 CET 2006 - visnov@suse.cz
+
+- allow more choices how the media change callback behave (#159116)
+- 2.13.34 
+
+-------------------------------------------------------------------
 Mon Mar 20 18:28:03 CET 2006 - lslezak@suse.cz
 
 - new SourceProvideOptionalFile() binding (#159116)

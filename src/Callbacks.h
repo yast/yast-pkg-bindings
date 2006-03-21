@@ -95,6 +95,16 @@ class PkgModuleFunctions::CallbackHandler {
     ~CallbackHandler();
 };
 
+namespace ZyppRecipients {
+
+  enum MediaChangeSensitivity {
+    MEDIA_CHANGE_FULL,
+    MEDIA_CHANGE_OPTIONALFILE,
+    MEDIA_CHANGE_DISABLE,
+  };
+
+};
+
 ///////////////////////////////////////////////////////////////////
 
 #endif // PkgModuleCallbacks_h

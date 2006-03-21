@@ -31,14 +31,15 @@
 #include <zypp/Package.h>
 #include <zypp/Product.h>
 
-// FIXME: do this nicer, source create use this to avoid user feedback
-// on probing of source type
-bool _silent_probing;
-
 ///////////////////////////////////////////////////////////////////
 namespace ZyppRecipients {
 ///////////////////////////////////////////////////////////////////
 
+// FIXME: do this nicer, source create use this to avoid user feedback
+// on probing of source type
+
+  static MediaChangeSensitivity _silent_probing;
+  
   typedef PkgModuleFunctions::CallbackHandler::YCPCallbacks YCPCallbacks;
 
   ///////////////////////////////////////////////////////////////////
@@ -543,8 +544,12 @@ namespace ZyppRecipients {
 
 	virtual Action requestMedia(zypp::Source_Ref source, unsigned mediumNr, zypp::media::MediaChangeReport::Error error, std::string description)
 	{
-	    if ( _silent_probing) 
+	    if ( _silent_probing == MEDIA_CHANGE_DISABLE ) 
 		return zypp::media::MediaChangeReport::ABORT;
+		
+	    if ( _silent_probing == MEDIA_CHANGE_OPTIONALFILE 
+	      && error == zypp::media::MediaChangeReport::NOT_FOUND )
+	        return zypp::media::MediaChangeReport::ABORT;
 		
 	    CB callback( ycpcb( YCPCallbacks::CB_MediaChange ) );
 	    if ( callback._set )
@@ -562,7 +567,7 @@ namespace ZyppRecipients {
 		    // is it a product object?
 		    if (zypp::isKind<zypp::Product>(*it))
 		    {
-			product_name = (*it)->name();
+			product_name = (*it)->summary();
 			break;
 		    }	
 		}
@@ -703,15 +708,15 @@ namespace ZyppRecipients {
         virtual void startData(
           zypp::Url source_url
         ) {
-	    _silent_probing = true;
+	    _silent_probing = MEDIA_CHANGE_DISABLE;
 	}
 
         virtual void startProbe(zypp::Url url) {
-	    _silent_probing = true;
+	    _silent_probing = MEDIA_CHANGE_DISABLE;
 	}
 
         virtual void endProbe(zypp::Url url) {
-	    _silent_probing = false;
+	    _silent_probing = MEDIA_CHANGE_FULL;
 	}
 
         virtual bool progressData(int value, zypp::Url url)
@@ -728,7 +733,7 @@ namespace ZyppRecipients {
           , zypp::source::CreateSourceReport::Error error
           , std::string reason
         ) {
-	    _silent_probing = false;
+	    _silent_probing = MEDIA_CHANGE_FULL;
 	}
     };
 

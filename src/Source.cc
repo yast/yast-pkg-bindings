@@ -31,6 +31,8 @@
 #include <PkgModule.h>
 #include <PkgModuleFunctions.h>
 
+#include <Callbacks.h>
+
 #include <zypp/SourceManager.h>
 #include <zypp/SourceFactory.h>
 #include <zypp/Source.h>
@@ -492,13 +494,13 @@ PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPIn
     YCPValue ret;
 
     // FIXME: do it better
-    extern bool _silent_probing;
+    extern ZyppRecipients::MediaChangeSensitivity _silent_probing;
    
     // remember the current value 
-    bool _silent_probing_old = _silent_probing;
+    ZyppRecipients::MediaChangeSensitivity _silent_probing_old = _silent_probing;
 
     // disable media change callback
-    _silent_probing = true;
+    _silent_probing = ZyppRecipients::MEDIA_CHANGE_OPTIONALFILE;
 
     zypp::Source_Ref src;
 
