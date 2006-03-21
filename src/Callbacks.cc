@@ -31,15 +31,15 @@
 #include <zypp/Package.h>
 #include <zypp/Product.h>
 
+// FIXME: do this nicer, source create use this to avoid user feedback
+// on probing of source type
+
+ZyppRecipients::MediaChangeSensitivity _silent_probing = ZyppRecipients::MEDIA_CHANGE_FULL;
+ 
 ///////////////////////////////////////////////////////////////////
 namespace ZyppRecipients {
 ///////////////////////////////////////////////////////////////////
 
-// FIXME: do this nicer, source create use this to avoid user feedback
-// on probing of source type
-
-  static MediaChangeSensitivity _silent_probing;
-  
   typedef PkgModuleFunctions::CallbackHandler::YCPCallbacks YCPCallbacks;
 
   ///////////////////////////////////////////////////////////////////

@@ -493,9 +493,8 @@ PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPIn
 {
     YCPValue ret;
 
-    // FIXME: do it better
     extern ZyppRecipients::MediaChangeSensitivity _silent_probing;
-   
+
     // remember the current value 
     ZyppRecipients::MediaChangeSensitivity _silent_probing_old = _silent_probing;
 
