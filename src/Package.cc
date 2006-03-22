@@ -1331,7 +1331,7 @@ PkgModuleFunctions::FilterPackages(const YCPBoolean& y_byAuto, const YCPBoolean&
 
    @param symbol 'which' defines which packages are returned: `installed all installed packages,
    `selected returns all selected but not yet installed packages, `available returns all
-   available packages (from the installation source)
+   available packages (from the installation source), `removed all packages selected for removal
    @param boolean names_only If true, return package names only
    @return list<string>
 
@@ -1359,6 +1359,13 @@ PkgModuleFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_na
 	else if (which == "selected")
 	{
 	    if (it->status().isToBeInstalled())
+	    {
+		pkg2list(packages, it, names_only);
+	    }
+	}
+	else if (which == "removed")
+	{
+	    if (it->status().isToBeUninstalled())
 	    {
 		pkg2list(packages, it, names_only);
 	    }

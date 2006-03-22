@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Mar 22 14:29:13 CET 2006 - lslezak@suse.cz
+
+- added `removed option in GetPackages builtin
+  (required for #156638)
+
+-------------------------------------------------------------------
 Tue Mar 21 10:14:16 CET 2006 - visnov@suse.cz
 
 - fix build
