@@ -74,6 +74,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_StartSourceRefresh, CB_ErrorSourceRefresh, CB_DoneSourceRefresh,
       CB_MediaChange,
       CB_SourceChange,
+      CB_ResolvableReport,
       CB_YouProgress,
       CB_YouPatchProgress,
       CB_YouError,
@@ -120,6 +121,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( YouLog );
 	ENUM_OUT( YouExecuteYcpScript );
 	ENUM_OUT( YouScriptProgress );
+	ENUM_OUT( ResolvableReport );
 #undef ENUM_OUT
 	// no default! let compiler warn missing values
       }

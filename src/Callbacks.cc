@@ -737,6 +737,21 @@ namespace ZyppRecipients {
 	}
     };
 
+    struct ResolvableReport : public Recipient, public zypp::callback::ReceiveReport<zypp::target::MessageResolvableReport>
+    {
+	ResolvableReport( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual void show(zypp::Message::constPtr message)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ResolvableReport) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(message->text().asString());
+		callback.evaluate();
+	    }
+	}
+    };
 ///////////////////////////////////////////////////////////////////
 }; // namespace ZyppRecipients
 ///////////////////////////////////////////////////////////////////
@@ -769,6 +784,9 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
     ZyppRecipients::SourceRefreshReceive _sourceRefreshReceive;
     ZyppRecipients::CreateSourceReceive _createSourceReceive;
 
+    // resolvable report
+    ZyppRecipients::ResolvableReport _resolvableReport;
+
   public:
 
     ZyppReceive( const YCPCallbacks & ycpcb_r )
@@ -782,6 +800,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
       , _mediaChangeReceive( *this )
       , _sourceRefreshReceive( *this )
       , _createSourceReceive( *this )
+      , _resolvableReport( *this )
     {
 	// connect the receivers
 	_convertDbReceive.connect();
@@ -793,6 +812,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_downloadProgressReceive.connect();
 	_sourceRefreshReceive.connect();
 	_createSourceReceive.connect();
+	_resolvableReport.connect();
     }
 
     virtual ~ZyppReceive()
@@ -807,6 +827,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_downloadProgressReceive.disconnect();
 	_sourceRefreshReceive.disconnect();
 	_createSourceReceive.disconnect();
+	_resolvableReport.disconnect();
     }
   public:
 
@@ -890,6 +911,10 @@ YCPValue PkgModuleFunctions::CallbackErrorSourceRefresh( const YCPString& args )
 }
 YCPValue PkgModuleFunctions::CallbackDoneSourceRefresh( const YCPString& args ) {
   return SET_YCP_CB( CB_DoneSourceRefresh, args );
+}
+
+YCPValue PkgModuleFunctions::CallbackResolvableReport( const YCPString& args ) {
+  return SET_YCP_CB( CB_ResolvableReport, args );
 }
 
 YCPValue PkgModuleFunctions::CallbackMediaChange( const YCPString& args ) {

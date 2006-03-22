@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Mar 22 17:04:56 CET 2006 - lslezak@suse.cz
+
+- new builtin Pkg::CallbackResolvableReport (#160015)
+
+-------------------------------------------------------------------
 Wed Mar 22 14:29:13 CET 2006 - lslezak@suse.cz
 
 - added `removed option in GetPackages builtin
