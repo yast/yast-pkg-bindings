@@ -571,7 +571,7 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
 
     try
     {
-	path = src.provideDir(d->value(), mid->asInteger()->value());
+	path = src.provideDirTree(d->value(), mid->asInteger()->value());
     }
     catch (const zypp::Exception& excpt)
     {
