@@ -1995,8 +1995,8 @@ YCPMap PkgModuleFunctions::PkgGetLicensesToConfirm( const YCPList & packages )
 		    zypp::resfilter::ByKind( zypp::ResTraits<zypp::Package>::kind ) )
 	    );
 
-	    // is the found package selected?
-	    if (it != zypp_ptr->pool().byNameEnd(pkgname) && !it->status().isToBeInstalled())
+	    // found a package?
+	    if (it != zypp_ptr->pool().byNameEnd(pkgname))
 	    {
 		// cast to Package object
 		zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
