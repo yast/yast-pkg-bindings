@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Mar 24 15:35:45 CET 2006 - visnov@suse.cz
+
+- mark only patches in ResolvablePreselectPatches (#160573)
+- 2.13.38 
+
+-------------------------------------------------------------------
 Thu Mar 23 13:11:45 CET 2006 - lslezak@suse.cz
 
 - return package licenses correctly (#160028)

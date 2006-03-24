@@ -356,7 +356,7 @@ PkgModuleFunctions::PkgMediaCount()
     {
 	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
-	if( it->status().isToBeInstalled() )
+	if( pkg && it->status().isToBeInstalled() )
 	    result[ source_map[pkg->source()] ]
 	      [pkg->mediaId()-1]++ ;	// media are numbered from 1
     }
@@ -1323,7 +1323,7 @@ PkgModuleFunctions::FilterPackages(const YCPBoolean& y_byAuto, const YCPBoolean&
 /**
    @builtin GetPackages
 
-   @short Get list of packages (installed, selected, available)
+   @short Get list of packages (installed, selected, available, to be removed)
    @description
    return list of packages (["pkg1", "pkg2", ...] if names_only==true,
    ["pkg1 version release arch", "pkg1 version release arch", ... if

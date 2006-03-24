@@ -23,6 +23,8 @@
 #include <ycp/y2log.h>
 #include "PkgModuleFunctions.h"
 
+#include <sstream>
+
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPInteger.h>
@@ -38,6 +40,7 @@
 #include <zypp/base/PtrTypes.h>
 #include <zypp/Dep.h>
 #include <zypp/CapSet.h>
+#include <zypp/PoolItem.h>
 
 ///////////////////////////////////////////////////////////////////
 
@@ -337,10 +340,15 @@ PkgModuleFunctions::ResolvablePreselectPatches ()
     {
 	if (i->status().isNeeded()) {	// uninstalled
 	    zypp::Patch::constPtr pch = zypp::asKind<zypp::Patch>(i->resolvable());
-	    if (pch && pch->category () == "optional") {
-		continue;	// dont auto-install optional patches
+	    if (pch && pch->category () != "optional") {
+		// dont auto-install optional patches
+
+		stringstream str; 
+		str << *i << endl;
+		y2milestone( "Setting '%s' to transact", str.str().c_str() );
+		i->status().setTransact(true, whoWantsIt); // schedule for installation
 	    }
-	    i->status().setTransact(true, whoWantsIt); // schedule for installation
+	    
 	}
     }
     return ret;
