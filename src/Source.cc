@@ -106,6 +106,11 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	_last_error.setLastError(excpt.asUserString());
 	success = false;
     }
+    catch (const zypp::SourcesAlreadyRestoredException& excpt)
+    {
+	y2milestone ("At least one source already registered, SourceManager already started.");
+	success = true;
+    }
     catch (const zypp::Exception& excpt)
     {
 	// FIXME: assuming the sources are already initialized
