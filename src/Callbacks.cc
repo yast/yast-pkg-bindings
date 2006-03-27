@@ -394,6 +394,30 @@ namespace ZyppRecipients {
 	    return zypp::source::DownloadResolvableReport::progress(value, resolvable_ptr);
 	}
 
+	virtual Action problem(Resolvable::constPtr resolvable_ptr, Error error, std::string description)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
+	    if (callback._set) {
+		callback.addInt( error );
+		callback.addStr( description );
+		callback.addStr( std::string() ); // FIXME: on error name, for OK, local path
+		callback.evaluateStr(); // return value ignored by RpmDb
+
+                std::string ret = callback.evaluateStr();
+
+                // "R" =  retry
+                if (ret == "R") return zypp::source::DownloadResolvableReport::RETRY;
+
+                // "C" = cancel
+                if (ret == "C") return zypp::source::DownloadResolvableReport::ABORT;
+
+                // otherwise return the default value from the parent class
+	    }
+
+            // return the default value from the parent class
+	    return zypp::source::DownloadResolvableReport::problem(resolvable_ptr, error, description);
+	}
+
     };
 
 /*
