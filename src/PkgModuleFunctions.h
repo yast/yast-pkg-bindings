@@ -409,6 +409,8 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: boolean(string,symbol)*/
         YCPValue ResolvableRemove( const YCPString& name_r, const YCPSymbol& kind_r );
+	/* TYPEINFO: boolean(string,symbol)*/
+        YCPValue ResolvableNeutral( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: list<map<string,any> >(string,symbol,string)*/
         YCPValue ResolvableProperties(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version);
 	/* TYPEINFO: list<map<string,any> >(string,symbol,string)*/

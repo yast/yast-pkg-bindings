@@ -131,6 +131,60 @@ PkgModuleFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol&
     );
 }
 
+// ------------------------
+/**
+   @builtin ResolvableNeutral
+   @short Remove all transactions from all resolvables with selected name and kind
+   @param name_r name of the resolvable, if empty ("") use all resolvables of the kind 
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @return boolean false if failed
+*/
+YCPValue
+PkgModuleFunctions::ResolvableNeutral ( const YCPString& name_r, const YCPSymbol& kind_r )
+{
+    zypp::Resolvable::Kind kind;
+    
+    std::string req_kind = kind_r->symbol();
+    std::string name = name_r->value();
+
+    if( req_kind == "product" ) {
+	kind = zypp::ResTraits<zypp::Product>::kind;
+    }
+    else if ( req_kind == "patch" ) {
+    	kind = zypp::ResTraits<zypp::Patch>::kind;
+    }
+    else if ( req_kind == "package" ) {
+	kind = zypp::ResTraits<zypp::Package>::kind;
+    }
+    else if ( req_kind == "selection" ) {
+	kind = zypp::ResTraits<zypp::Selection>::kind;
+    }
+    else if ( req_kind == "pattern" ) {
+	kind = zypp::ResTraits<zypp::Pattern>::kind;
+    }
+    else
+    {
+	y2error("Pkg::ResolvableNeutral: unknown symbol: %s", req_kind.c_str());
+	return YCPBoolean(false);
+    }
+
+    bool ret = true;
+
+    for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(kind);
+	it != zypp_ptr->pool().byKindEnd(kind);
+	++it)
+    {
+	if (name.empty() || (*it)->name() == name)
+	{
+	    if (!it->status().setTransact(false, whoWantsIt))
+	    {
+		ret = false;
+	    }
+	}
+    }
+
+    return YCPBoolean(ret);
+}
 
 
 /**
