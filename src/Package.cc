@@ -1583,9 +1583,11 @@ PkgModuleFunctions::PkgTaboo (const YCPString& p)
 	, zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
     );
 
-    // lock the status
+    // remove the transactions, lock the status
     return YCPBoolean( (it != zypp_ptr->pool().byNameEnd(name)) 
-	&& it->status().setLock(true, whoWantsIt) );
+	&& it->status().setTransact(false, whoWantsIt)
+	&& it->status().setLock(true, whoWantsIt)
+    );
 }
 
 /**

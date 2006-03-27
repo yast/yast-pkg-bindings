@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Mar 27 15:12:28 CEST 2006 - lslezak@suse.cz
+
+- remove all transactions in PkgTaboo, prevent from installing
+  unconfirmed packages (#160588)
+
+-------------------------------------------------------------------
 Sat Mar 25 22:36:37 CET 2006 - jsrain@suse.de
 
 - do not report repeated SourceStartManager as error
