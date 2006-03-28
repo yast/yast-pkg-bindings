@@ -394,7 +394,7 @@ namespace ZyppRecipients {
 	    return zypp::source::DownloadResolvableReport::progress(value, resolvable_ptr);
 	}
 
-	virtual Action problem(Resolvable::constPtr resolvable_ptr, Error error, std::string description)
+	virtual Action problem(zypp::Resolvable::constPtr resolvable_ptr, zypp::source::DownloadResolvableReport::Error error, std::string description)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
 	    if (callback._set) {
