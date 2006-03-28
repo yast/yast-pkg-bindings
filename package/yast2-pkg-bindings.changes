@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Mar 28 09:59:19 CEST 2006 - visnov@suse.cz
+
+- fix compile
+- catch media exception if source cannot be reattached
+  to get source product information
+- 2.13.42 
+
+-------------------------------------------------------------------
 Mon Mar 27 16:14:51 CEST 2006 - lslezak@suse.cz
 
 - new binding Pkg::ResolvableNeutral() (#159466)

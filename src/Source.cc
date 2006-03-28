@@ -378,16 +378,24 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
   }
 
 #warning product category handling???
+  zypp::Product::constPtr product;
+  
+  try {
+    zypp::ResStore products (src.resolvables(zypp::ResTraits<zypp::Product>::kind));
 
-  zypp::ResStore products (src.resolvables(zypp::ResTraits<zypp::Product>::kind));
-
-  if( products.empty() )
-  {
+    if( products.empty() )
+    {
 	y2error ("Product for source '%lld' not found", id->asInteger()->value());
 	return YCPVoid();
-  }
+    }
 
-  zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( *(products.begin()) );
+    product = boost::dynamic_pointer_cast<const zypp::Product>( *(products.begin()) );
+  } 
+  catch (const zypp::Exception& excpt) {
+	y2error ("Source %lld failed to provide products", id->asInteger()->value());
+	_last_error.setLastError(excpt.asUserString());
+	return YCPVoid();
+  }
 
   y2debug ("Found");
 
