@@ -77,7 +77,7 @@ class PkgModuleFunctions : public Y2Namespace
       bool DoAllKind(zypp::Resolvable::Kind kind, bool provide);
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);
       YCPValue PkgProp( zypp::PoolItem_Ref item );
-      
+
       // builtin handling
       void registerFunctions ();
       vector<string> _registered_functions;
@@ -457,5 +457,12 @@ class PkgModuleFunctions : public Y2Namespace
 	}
 
 	virtual Y2Function* createFunctionCall (const string name, constFunctionTypePtr type);
+
+	// is zypp library initialized?
+	bool ZyppInitialized();
+
+	// initialize zypp library unless it's already initialized
+	void ZyppInit();
+
 };
 #endif // PkgModuleFunctions_h

@@ -38,6 +38,9 @@
 #include <zypp/ZYppFactory.h>
 #include <zypp/ResPool.h>
 
+// sleep
+#include <unistd.h>
+
 class Y2PkgFunction: public Y2Function 
 {
     unsigned int m_position;
@@ -123,6 +126,29 @@ public:
     YCPValue Y2PkgFunction::evaluateCall ()
     {
 	ycpmilestone ("Pkg Builtin called: %s", name().c_str() );
+
+	int max_count = 10;
+	unsigned int seconds = 10;
+
+	while (!m_instance->ZyppInitialized() && max_count > 0)
+	{
+	    m_instance->ZyppInit();
+	    
+	    if (!m_instance->ZyppInitialized())
+	    {
+		sleep(seconds);
+	    }
+
+	    max_count--;
+	}
+
+	if (!m_instance->ZyppInitialized())
+	{
+	    // still not initialized
+	    y2error("Pkg::%s : Cannot evaluate the call, zypp is not initialized", name().c_str());
+	    return YCPNull ();
+	}
+
 	switch (m_position) {
 #include "PkgBuiltinCalls.h"
 	}
@@ -153,11 +179,32 @@ const zypp::ResStatus::TransactByValue PkgModuleFunctions::whoWantsIt = zypp::Re
 PkgModuleFunctions::PkgModuleFunctions ()
     : Y2Namespace()
     , _target_root( "/" )
+    , zypp_ptr(NULL)
     ,_callbackHandler( *new CallbackHandler( ) )
 {
-  zypp_ptr = zypp::getZYpp();
+    registerFunctions ();
+}
 
-  registerFunctions ();
+void PkgModuleFunctions::ZyppInit()
+{
+    if (zypp_ptr == NULL)
+    {
+	try
+	{
+	    y2milestone("Initializing Zypp library...");
+	    zypp_ptr = zypp::getZYpp();
+	}
+	catch (...)
+	{
+	    y2error("Cannot get Zypp instance");
+	}
+    }
+}
+
+
+bool PkgModuleFunctions::ZyppInitialized()
+{
+    return zypp_ptr != NULL;
 }
 
 /**
