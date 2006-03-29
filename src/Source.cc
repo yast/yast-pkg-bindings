@@ -809,7 +809,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
   {
     y2error ("Invalid URL: %s", expt.asString().c_str());
     _last_error.setLastError(expt.asUserString());
-    return YCPBoolean (false);
+    return YCPList();
   }
 
   zypp::Pathname pn(pd->value ());
@@ -910,7 +910,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
   {
     y2error ("Invalid URL: %s", expt.asString().c_str());
     _last_error.setLastError(expt.asUserString());
-    return YCPBoolean (false);
+    return YCPInteger (-1);
   }
 
 

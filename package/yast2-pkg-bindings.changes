@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Mar 29 16:40:14 CEST 2006 - visnov@suse.cz
+
+- return correct type in SourceCreate and SourceScan if URL wrong 
+
+-------------------------------------------------------------------
 Wed Mar 29 15:47:19 CEST 2006 - mvidner@suse.cz
 
 - Find zypp using pkg-config (enables prefix builds).

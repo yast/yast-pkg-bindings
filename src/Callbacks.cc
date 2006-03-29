@@ -771,7 +771,15 @@ namespace ZyppRecipients {
 
 	    if (callback._set)
 	    {
+		zypp::Patch::constPtr patch = message->patch();
+		
+		// patch name
+		callback.addStr(patch ? patch->name() : message->name());
+		// patch summary
+		callback.addStr(patch ? patch->summary() : message->summary());
+		// message itself
 		callback.addStr(message->text().asString());
+
 		callback.evaluate();
 	    }
 	}
