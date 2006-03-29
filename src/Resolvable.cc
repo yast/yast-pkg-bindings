@@ -451,8 +451,8 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 
 // ------------------------
 /**
-   @builtin ResolvablePatchMagic
-   @short Further processing after PkgEstablish
+   @builtin ResolvablePreselectPatches
+   @short Preselect patches for auto online update during the installation
    @return boolean false if failed
 */
 YCPValue
