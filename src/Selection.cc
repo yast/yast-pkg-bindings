@@ -85,54 +85,61 @@ PkgModuleFunctions::GetSelections (const YCPSymbol& stat, const YCPString& cat)
 
     YCPList selections;
 
-    for (zypp::ResPool::byKind_iterator it 
-	= zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Selection>::kind);
-	it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Selection>::kind) ; ++it )
+    try
     {
-	string selection;
+	for (zypp::ResPool::byKind_iterator it 
+	    = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Selection>::kind);
+	    it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Selection>::kind) ; ++it )
+	{
+	    string selection;
 
-	if (status == "all" || status == "available")
-	{
-	    selection = it->resolvable()->name();
-	}
-	else if (status == "selected")
-	{
-	    if( it->status().isToBeInstalled() )
-	        selection = it->resolvable()->name();
-	}
-	else if (status == "installed")
-	{
-	    if( it->status().wasInstalled() )
-	        selection = it->resolvable()->name();
-	}
-	else
-	{
-	    y2warning (string ("Unknown status in Pkg::GetSelections(" + status + ", ...)").c_str());
-	    break;
-	}
-
-	if (selection.empty())
-	{
-	    continue;
-	}
-
-	string selection_cat = zypp::dynamic_pointer_cast<const zypp::Selection>(it->resolvable())->category();
-	if (category != "")
-	{
-	    if ( selection_cat != category)
+	    if (status == "all" || status == "available")
 	    {
-		continue;			// asked for explicit category
+		selection = it->resolvable()->name();
 	    }
-	}
-	else	// category == ""
-	{
-	    if (selection_cat == "baseconf")
+	    else if (status == "selected")
 	    {
-		continue;			// asked for non-base
+		if( it->status().isToBeInstalled() )
+		    selection = it->resolvable()->name();
 	    }
+	    else if (status == "installed")
+	    {
+		if( it->status().wasInstalled() )
+		    selection = it->resolvable()->name();
+	    }
+	    else
+	    {
+		y2warning (string ("Unknown status in Pkg::GetSelections(" + status + ", ...)").c_str());
+		break;
+	    }
+
+	    if (selection.empty())
+	    {
+		continue;
+	    }
+
+	    string selection_cat = zypp::dynamic_pointer_cast<const zypp::Selection>(it->resolvable())->category();
+	    if (category != "")
+	    {
+		if ( selection_cat != category)
+		{
+		    continue;			// asked for explicit category
+		}
+	    }
+	    else	// category == ""
+	    {
+		if (selection_cat == "baseconf")
+		{
+		    continue;			// asked for non-base
+		}
+	    }
+	    selections->add (YCPString (selection));
 	}
-	selections->add (YCPString (selection));
     }
+    catch (...)
+    {
+    }
+
     return selections;
 }
 
@@ -171,46 +178,53 @@ PkgModuleFunctions::GetPatterns(const YCPSymbol& stat, const YCPString& cat)
 
     YCPList patterns;
 
-    for (zypp::ResPool::byKind_iterator it 
-	= zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Pattern>::kind);
-	it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Pattern>::kind) ; ++it )
+    try
     {
-	std::string pattern;
+	for (zypp::ResPool::byKind_iterator it 
+	    = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Pattern>::kind);
+	    it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Pattern>::kind) ; ++it )
+	{
+	    std::string pattern;
 
-	if (status == "all" || status == "available")
-	{
-	    pattern = it->resolvable()->name();
-	}
-	else if (status == "selected")
-	{
-	    if( it->status().isToBeInstalled() )
-	        pattern = it->resolvable()->name();
-	}
-	else if (status == "installed")
-	{
-	    if( it->status().wasInstalled() )
-	        pattern = it->resolvable()->name();
-	}
-	else
-	{
-	    y2warning (string ("Unknown status in Pkg::GetPatterns(" + status + ", ...)").c_str());
-	    break;
-	}
+	    if (status == "all" || status == "available")
+	    {
+		pattern = it->resolvable()->name();
+	    }
+	    else if (status == "selected")
+	    {
+		if( it->status().isToBeInstalled() )
+		    pattern = it->resolvable()->name();
+	    }
+	    else if (status == "installed")
+	    {
+		if( it->status().wasInstalled() )
+		    pattern = it->resolvable()->name();
+	    }
+	    else
+	    {
+		y2warning (string ("Unknown status in Pkg::GetPatterns(" + status + ", ...)").c_str());
+		break;
+	    }
 
-	if (pattern.empty())
-	{
-	    continue;
+	    if (pattern.empty())
+	    {
+		continue;
+	    }
+
+	    std::string pattern_cat = zypp::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable())->category();
+
+	    if (!category.empty() && pattern_cat != category)
+	    {
+		continue;	// asked for explicit category, but it doesn't match
+	    }
+
+	    patterns->add (YCPString (pattern));
 	}
-
-	std::string pattern_cat = zypp::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable())->category();
-
-	if (!category.empty() && pattern_cat != category)
-	{
-	    continue;	// asked for explicit category, but it doesn't match
-	}
-
-	patterns->add (YCPString (pattern));
     }
+    catch (...)
+    {
+    }
+
     return patterns;
 }
 
@@ -252,70 +266,76 @@ PkgModuleFunctions::PatternData (const YCPString& pat)
     YCPMap data;
     std::string name = pat->value();
 
-    zypp::ResPool::byName_iterator it = std::find_if (
-        zypp_ptr->pool().byNameBegin(name)
-        , zypp_ptr->pool().byNameEnd(name)
-        , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Pattern>::kind)
-    );
-
-    if ( it != zypp_ptr->pool().byNameEnd(name) )
+    try
     {
-	zypp::Pattern::constPtr pattern = 
-	    zypp::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable ());
+	zypp::ResPool::byName_iterator it = std::find_if (
+	    zypp_ptr()->pool().byNameBegin(name)
+	    , zypp_ptr()->pool().byNameEnd(name)
+	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Pattern>::kind)
+	);
 
-	// pattern found
-	data->add (YCPString ("summary"), YCPString (pattern->summary()));
-	data->add (YCPString ("category"), YCPString (pattern->category()));
-	data->add (YCPString ("visible"), YCPBoolean (pattern->userVisible()));
-	data->add (YCPString ("order"), YCPString (pattern->order()));
-	data->add (YCPString ("description"), YCPString (pattern->description()));
-	data->add (YCPString ("default"), YCPBoolean (pattern->isDefault()));
-	data->add (YCPString ("icon"), YCPString (pattern->icon().asString()));
-	data->add (YCPString ("script"), YCPString (pattern->script().asString()));
-	data->add (YCPString ("version"), YCPString((*it)->edition().asString()));
-	data->add (YCPString ("arch"), YCPString((*it)->arch().asString()));
-
-	// add source ID
-	zypp::Source_Ref pkg_src = (*it)->source();
-	zypp::SourceManager::SourceId srcid = 0;
-	bool found = false;
-	std::list<zypp::SourceManager::SourceId> enabled_srcs = zypp::SourceManager::sourceManager()->enabledSources();
-
-	// search source
-	for( std::list<zypp::SourceManager::SourceId>::const_iterator src_it = enabled_srcs.begin()
-	    ; src_it != enabled_srcs.end()
-	    ; src_it++)
+	if ( it != zypp_ptr()->pool().byNameEnd(name) )
 	{
-	    y2error("testing source %lu", *src_it);
-	    zypp::Source_Ref src;
+	    zypp::Pattern::constPtr pattern = 
+		zypp::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable ());
 
-	    try
+	    // pattern found
+	    data->add (YCPString ("summary"), YCPString (pattern->summary()));
+	    data->add (YCPString ("category"), YCPString (pattern->category()));
+	    data->add (YCPString ("visible"), YCPBoolean (pattern->userVisible()));
+	    data->add (YCPString ("order"), YCPString (pattern->order()));
+	    data->add (YCPString ("description"), YCPString (pattern->description()));
+	    data->add (YCPString ("default"), YCPBoolean (pattern->isDefault()));
+	    data->add (YCPString ("icon"), YCPString (pattern->icon().asString()));
+	    data->add (YCPString ("script"), YCPString (pattern->script().asString()));
+	    data->add (YCPString ("version"), YCPString((*it)->edition().asString()));
+	    data->add (YCPString ("arch"), YCPString((*it)->arch().asString()));
+
+	    // add source ID
+	    zypp::Source_Ref pkg_src = (*it)->source();
+	    zypp::SourceManager::SourceId srcid = 0;
+	    bool found = false;
+	    std::list<zypp::SourceManager::SourceId> enabled_srcs = zypp::SourceManager::sourceManager()->enabledSources();
+
+	    // search source
+	    for( std::list<zypp::SourceManager::SourceId>::const_iterator src_it = enabled_srcs.begin()
+		; src_it != enabled_srcs.end()
+		; src_it++)
 	    {
-		src = zypp::SourceManager::sourceManager()->findSource(*src_it);
-	    }
-	    catch (...)
-	    {
-		y2error("cannot find source %lu", *src_it);
-		continue;
+		y2error("testing source %lu", *src_it);
+		zypp::Source_Ref src;
+
+		try
+		{
+		    src = zypp::SourceManager::sourceManager()->findSource(*src_it);
+		}
+		catch (...)
+		{
+		    y2error("cannot find source %lu", *src_it);
+		    continue;
+		}
+
+		if (src == pkg_src)
+		{
+		    found = true;
+		    srcid = *src_it;
+		    break;
+		}
 	    }
 
-	    if (src == pkg_src)
+	    if (found)
 	    {
-		found = true;
-		srcid = *src_it;
-		break;
+		// src has been found
+		data->add( YCPString("srcid"), YCPInteger(srcid));
 	    }
 	}
-
-	if (found)
+	else
 	{
-	    // src has been found
-	    data->add( YCPString("srcid"), YCPInteger(srcid));
+	    return YCPError ("Pattern '" + name + "' not found", data);
 	}
     }
-    else
+    catch (...)
     {
-	return YCPError ("Pattern '" + name + "' not found", data);
     }
 
     return data;
@@ -371,55 +391,61 @@ PkgModuleFunctions::SelectionData (const YCPString& sel)
     tiny_helper_no1 (&data, "obsoletes", selection->obsoletes ());
     */
 
-   zypp::ResPool::byName_iterator it = std::find_if (
-        zypp_ptr->pool().byNameBegin(name)
-        , zypp_ptr->pool().byNameEnd(name)
-        , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Selection>::kind)
-    );
-
-    if ( it != zypp_ptr->pool().byNameEnd(name) )
+    try
     {
-	zypp::Selection::constPtr selection = 
-	    zypp::dynamic_pointer_cast<const zypp::Selection>(it->resolvable ());
+       zypp::ResPool::byName_iterator it = std::find_if (
+	    zypp_ptr()->pool().byNameBegin(name)
+	    , zypp_ptr()->pool().byNameEnd(name)
+	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Selection>::kind)
+	);
 
-	// selection found
-	data->add (YCPString ("summary"), YCPString (selection->summary()));
-	data->add (YCPString ("category"), YCPString (selection->category()));
-	data->add (YCPString ("visible"), YCPBoolean (selection->visible()));
-	data->add (YCPString ("order"), YCPString (selection->order()));
-	data->add (YCPString ("description"), YCPString (selection->description()));
-
-/*	YCPList recommendslist;
-	std::set<std::string> recommends = selection->recommends();
-
-	for (std::set<std::string>::const_iterator rec = recommends.begin();
-	    rec != recommends.end(); rec++)
+	if ( it != zypp_ptr()->pool().byNameEnd(name) )
 	{
-	    if (!((*rec).empty()))
-	    {
-		recommendslist->add(YCPString(*rec));
-	    }
-	}
-	data->add (YCPString("recommends"), recommendslist);
+	    zypp::Selection::constPtr selection = 
+		zypp::dynamic_pointer_cast<const zypp::Selection>(it->resolvable ());
 
-	YCPList suggestslist;
-	std::set<std::string> suggests = selection->suggests();
+	    // selection found
+	    data->add (YCPString ("summary"), YCPString (selection->summary()));
+	    data->add (YCPString ("category"), YCPString (selection->category()));
+	    data->add (YCPString ("visible"), YCPBoolean (selection->visible()));
+	    data->add (YCPString ("order"), YCPString (selection->order()));
+	    data->add (YCPString ("description"), YCPString (selection->description()));
 
-	for (std::set<std::string>::const_iterator sug = suggests.begin();
-	    sug != suggests.end(); sug++)
-	{
-	    if (!((*sug).empty()))
+    /*	YCPList recommendslist;
+	    std::set<std::string> recommends = selection->recommends();
+
+	    for (std::set<std::string>::const_iterator rec = recommends.begin();
+		rec != recommends.end(); rec++)
 	    {
-		suggestslist->add(YCPString(*sug));
+		if (!((*rec).empty()))
+		{
+		    recommendslist->add(YCPString(*rec));
+		}
 	    }
-	}
-	data->add (YCPString("suggests"), recommendslist);
-*/
+	    data->add (YCPString("recommends"), recommendslist);
+
+	    YCPList suggestslist;
+	    std::set<std::string> suggests = selection->suggests();
+
+	    for (std::set<std::string>::const_iterator sug = suggests.begin();
+		sug != suggests.end(); sug++)
+	    {
+		if (!((*sug).empty()))
+		{
+		    suggestslist->add(YCPString(*sug));
+		}
+	    }
+	    data->add (YCPString("suggests"), recommendslist);
+    */
 #warning Report also archivesize, requires, provides, conflicts and obsoletes
+	}
+	else
+	{
+	    return YCPError ("Selection '" + name + "' not found", data);
+	}
     }
-    else
+    catch (...)
     {
-	return YCPError ("Selection '" + name + "' not found", data);
     }
 
     return data;
@@ -448,34 +474,40 @@ PkgModuleFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to
     YCPList data;
     std::string name = sel->value();
     std::string locale = lang->value();
-    
-    zypp::ResPool::byName_iterator it = std::find_if (
-        zypp_ptr->pool().byNameBegin(name)
-        , zypp_ptr->pool().byNameEnd(name)
-        , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Selection>::kind)
-    );
 
-    if ( it != zypp_ptr->pool().byNameEnd(name) )
-    {
-	zypp::Selection::constPtr selection = 
-	    zypp::dynamic_pointer_cast<const zypp::Selection>(it->resolvable ());
+    try
+    {    
+	zypp::ResPool::byName_iterator it = std::find_if (
+	    zypp_ptr()->pool().byNameBegin(name)
+	    , zypp_ptr()->pool().byNameEnd(name)
+	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Selection>::kind)
+	);
+
+	if ( it != zypp_ptr()->pool().byNameEnd(name) )
+	{
+	    zypp::Selection::constPtr selection = 
+		zypp::dynamic_pointer_cast<const zypp::Selection>(it->resolvable ());
 
 #warning implemented correctly?
-	// is it correct?
-	std::set<std::string> inst = selection->install_packages(zypp::Locale(locale));
+	    // is it correct?
+	    std::set<std::string> inst = selection->install_packages(zypp::Locale(locale));
 
-	for (std::set<std::string>::const_iterator inst_it = inst.begin();
-	    inst_it != inst.end(); inst_it++)
-	{
-	    if (!((*inst_it).empty()))
+	    for (std::set<std::string>::const_iterator inst_it = inst.begin();
+		inst_it != inst.end(); inst_it++)
 	    {
-		data->add(YCPString(*inst_it));
+		if (!((*inst_it).empty()))
+		{
+		    data->add(YCPString(*inst_it));
+		}
 	    }
 	}
+	else
+	{
+	    return YCPError ("Selection '" + name + "' not found", data);
+	}
     }
-    else
+    catch (...)
     {
-	return YCPError ("Selection '" + name + "' not found", data);
     }
 
     return data;

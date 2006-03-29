@@ -41,6 +41,9 @@
 // sleep
 #include <unistd.h>
 
+// exit
+#include <cstdlib>
+
 class Y2PkgFunction: public Y2Function 
 {
     unsigned int m_position;
@@ -127,28 +130,6 @@ public:
     {
 	ycpmilestone ("Pkg Builtin called: %s", name().c_str() );
 
-	int max_count = 10;
-	unsigned int seconds = 10;
-
-	while (!m_instance->ZyppInitialized() && max_count > 0)
-	{
-	    m_instance->ZyppInit();
-	    
-	    if (!m_instance->ZyppInitialized())
-	    {
-		sleep(seconds);
-	    }
-
-	    max_count--;
-	}
-
-	if (!m_instance->ZyppInitialized())
-	{
-	    // still not initialized
-	    y2error("Pkg::%s : Cannot evaluate the call, zypp is not initialized", name().c_str());
-	    return YCPNull ();
-	}
-
 	switch (m_position) {
 #include "PkgBuiltinCalls.h"
 	}
@@ -179,33 +160,51 @@ const zypp::ResStatus::TransactByValue PkgModuleFunctions::whoWantsIt = zypp::Re
 PkgModuleFunctions::PkgModuleFunctions ()
     : Y2Namespace()
     , _target_root( "/" )
-    , zypp_ptr(NULL)
+    , zypp_pointer(NULL)
     ,_callbackHandler( *new CallbackHandler( ) )
 {
     registerFunctions ();
 }
 
-void PkgModuleFunctions::ZyppInit()
+/**
+ * Connect to Zypp library if it is not already connected.
+ */
+zypp::ZYpp::Ptr PkgModuleFunctions::zypp_ptr()
 {
-    if (zypp_ptr == NULL)
+    if (zypp_pointer != NULL)
+    {
+	return zypp_pointer;
+    }
+
+    int max_count = 10;
+    unsigned int seconds = 5;
+
+    while (zypp_pointer == NULL && max_count > 0)
     {
 	try
 	{
 	    y2milestone("Initializing Zypp library...");
-	    zypp_ptr = zypp::getZYpp();
+	    zypp_pointer = zypp::getZYpp();
+	    return zypp_pointer;
 	}
 	catch (...)
 	{
-	    y2error("Cannot get Zypp instance");
+	}
+
+	max_count--;
+
+	if (zypp_pointer == NULL && max_count > 0)
+	{
+	    sleep(seconds);
 	}
     }
+
+    // still not initialized, throw an exception
+    ZYPP_THROW (zypp::Exception(std::string("Cannot connect to the package manager")));
+
+    return zypp_pointer;
 }
 
-
-bool PkgModuleFunctions::ZyppInitialized()
-{
-    return zypp_ptr != NULL;
-}
 
 /**
  * Destructor.
@@ -240,6 +239,19 @@ void PkgModuleFunctions::registerFunctions()
 // general
 
 /**
+ * @builtin Connect
+ * @short Explicitly connect to the package manager, if it is already connected do nothing
+ * @description Checks whether the package manager is connected to Yast,
+ * if not try connecting to it.
+ * @return boolean true if the package manager is connected
+ */
+YCPValue
+PkgModuleFunctions::Connect()
+{
+    return YCPBoolean(zypp_ptr() != NULL);
+}
+
+/**
  * @builtin InstSysMode
  * @short Set packagemanager to "inst-sys" mode
  * @description Set packagemanager to "inst-sys" mode - dont use local caches (ramdisk!)
@@ -265,7 +277,14 @@ PkgModuleFunctions::InstSysMode ()
 YCPValue
 PkgModuleFunctions::SetLocale (const YCPString &locale)
 {
-    zypp_ptr->setTextLocale(zypp::Locale(locale->value()));
+    try
+    {
+	zypp_ptr()->setTextLocale(zypp::Locale(locale->value()));
+    }
+    catch(...)
+    {
+    }
+
     return YCPVoid();
 }
 
@@ -278,7 +297,15 @@ PkgModuleFunctions::SetLocale (const YCPString &locale)
 YCPValue
 PkgModuleFunctions::GetLocale ()
 {
-    return YCPString(zypp_ptr->getTextLocale().code());
+    try
+    {
+	return YCPString(zypp_ptr()->getTextLocale().code());
+    }
+    catch (...)
+    {
+    }
+
+    return YCPVoid();
 }
 
 
@@ -309,7 +336,13 @@ PkgModuleFunctions::SetAdditionalLocales (YCPList langycplist)
 	i++;
     }
 
-    zypp_ptr->setRequestedLocales(lset);
+    try
+    {
+	zypp_ptr()->setRequestedLocales(lset);
+    }
+    catch(...)
+    {
+    }
 
     return YCPVoid();
 }
@@ -327,12 +360,18 @@ PkgModuleFunctions::GetAdditionalLocales ()
 {
     YCPList langycplist;
 
-    zypp::ZYpp::LocaleSet lset = zypp_ptr->getRequestedLocales();
-
-    for (zypp::ZYpp::LocaleSet::const_iterator it = lset.begin();
-	 it != lset.end(); ++it)
+    try
     {
-      langycplist->add (YCPString(it->code()));
+	zypp::ZYpp::LocaleSet lset = zypp_ptr()->getRequestedLocales();
+
+	for (zypp::ZYpp::LocaleSet::const_iterator it = lset.begin();
+	     it != lset.end(); ++it)
+	{
+	  langycplist->add (YCPString(it->code()));
+	}
+    }
+    catch(...)
+    {
     }
 
     return langycplist;
@@ -398,7 +437,7 @@ PkgModuleFunctions::Init ()
     try {
 	zypp::SourceManager::sourceManager()->reset();
 	
-	zypp_ptr->reset();
+	zypp_ptr()->reset();
     }
     catch( const zypp::Exception & expt )
     {

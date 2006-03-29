@@ -170,17 +170,24 @@ PkgModuleFunctions::ResolvableNeutral ( const YCPString& name_r, const YCPSymbol
 
     bool ret = true;
 
-    for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(kind);
-	it != zypp_ptr->pool().byKindEnd(kind);
-	++it)
+    try
     {
-	if (name.empty() || (*it)->name() == name)
+	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(kind);
+	    it != zypp_ptr()->pool().byKindEnd(kind);
+	    ++it)
 	{
-	    if (!it->status().setTransact(false, whoWantsIt))
+	    if (name.empty() || (*it)->name() == name)
 	    {
-		ret = false;
+		if (!it->status().setTransact(false, whoWantsIt))
+		{
+		    ret = false;
+		}
 	    }
 	}
+    }
+    catch (...)
+    {
+	return YCPBoolean(false);
     }
 
     return YCPBoolean(ret);
@@ -226,17 +233,24 @@ PkgModuleFunctions::ResolvableSetSoftLock ( const YCPString& name_r, const YCPSy
 
     bool ret = true;
 
-    for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(kind);
-	it != zypp_ptr->pool().byKindEnd(kind);
-	++it)
+    try
     {
-	if (name.empty() || (*it)->name() == name)
+	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(kind);
+	    it != zypp_ptr()->pool().byKindEnd(kind);
+	    ++it)
 	{
-	    if (!it->status().setSoftLock(whoWantsIt))
+	    if (name.empty() || (*it)->name() == name)
 	    {
-		ret = false;
+		if (!it->status().setSoftLock(whoWantsIt))
+		{
+		    ret = false;
+		}
 	    }
 	}
+    }
+    catch (...)
+    {
+	return YCPBoolean(false);
     }
 
     return YCPBoolean(ret);
@@ -301,128 +315,134 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
     }
 
     std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
-    
-    for (zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(kind);
-	it != zypp_ptr->pool().byKindEnd(kind);
-	++it)
-    {
-	if ((nm.empty() || nm == (*it)->name())
-	    && (vers.empty() || vers == (*it)->edition().asString()))
+   
+   try
+   { 
+	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(kind);
+	    it != zypp_ptr()->pool().byKindEnd(kind);
+	    ++it)
 	{
-	    YCPMap info;
-
-	    info->add(YCPString("name"), YCPString((*it)->name()));
-	    info->add(YCPString("version"), YCPString((*it)->edition().asString()));
-	    info->add(YCPString("arch"), YCPString((*it)->arch().asString()));
-	    info->add(YCPString("description"), YCPString((*it)->description()));
-	    info->add(YCPString("summary"), YCPString((*it)->summary()));
-
-	    // status
-	    std::string stat;
-
-	    if (it->status().isInstalled())
+	    if ((nm.empty() || nm == (*it)->name())
+		&& (vers.empty() || vers == (*it)->edition().asString()))
 	    {
-		stat = "installed";
-	    }
-	    else if (it->status().isToBeInstalled())
-	    {
-		stat = "selected";
-	    }
-	    else
-	    {
-		stat = "available";
-	    }
+		YCPMap info;
 
-	    info->add(YCPString("status"), YCPSymbol(stat));
+		info->add(YCPString("name"), YCPString((*it)->name()));
+		info->add(YCPString("version"), YCPString((*it)->edition().asString()));
+		info->add(YCPString("arch"), YCPString((*it)->arch().asString()));
+		info->add(YCPString("description"), YCPString((*it)->description()));
+		info->add(YCPString("summary"), YCPString((*it)->summary()));
 
-	    // source
-	    zypp::Source_Ref res_src = (*it)->source();
-	    unsigned src_index; 
-	    bool found = false;
+		// status
+		std::string stat;
 
-	    // find index of the source
-	    // TODO optimize it by using hash<Source, index>?
-	    for (std::list<zypp::SourceManager::SourceId>::const_iterator idxit = source_ids.begin()
-		; idxit != source_ids.end()
-		; idxit++)
-	    {
-		zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource((*idxit));
-		
-		if (src == res_src)
+		if (it->status().isInstalled())
 		{
-		    found = true;
-		    src_index = (*idxit);
-		    break;
+		    stat = "installed";
 		}
-	    }
-
-	    info->add(YCPString("source"), YCPInteger((found) ? src_index : -1LL));
-
-	    // product specific info
-	    if( req_kind == "product" ) {
-		zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(it->resolvable());
-		info->add(YCPString("category"), YCPString(product->category()));
-		info->add(YCPString("vendor"), YCPString(product->vendor()));
-		info->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
-		info->add(YCPString("display_name"), YCPString(product->summary()));
-		YCPList flags;
-		std::list<std::string> pflags = product->flags();
-		for (std::list<std::string>::const_iterator flag_it = pflags.begin();
-		    flag_it != pflags.end(); ++flag_it)
+		else if (it->status().isToBeInstalled())
 		{
-		    flags->add(YCPString(*flag_it));
+		    stat = "selected";
 		}
-		info->add(YCPString("flags"), flags);
-	    }
+		else
+		{
+		    stat = "available";
+		}
 
-	    // pattern specific info
-	    if ( req_kind == "pattern" ) {
-		zypp::Pattern::constPtr pattern = boost::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable());
-		info->add(YCPString("category"), YCPString(pattern->category()));
-		info->add(YCPString("user_visible"), YCPBoolean(pattern->userVisible()));
-		info->add(YCPString("default"), YCPBoolean(pattern->isDefault()));
-		info->add(YCPString("icon"), YCPString(pattern->icon().asString()));
-		info->add(YCPString("script"), YCPString(pattern->script().asString()));
-	    }
+		info->add(YCPString("status"), YCPSymbol(stat));
 
-	    // dependency info
-	    if (dependencies)
-	    {
-                std::set<std::string> _kinds;
-                _kinds.insert("provides");
-                _kinds.insert("prerequires");
-                _kinds.insert("requires");
-                _kinds.insert("conflicts");
-                _kinds.insert("obsoletes");
-                _kinds.insert("recommends");
-                _kinds.insert("suggests");
-                _kinds.insert("freshens");
-                _kinds.insert("enhances");
-                _kinds.insert("supplements");
-                YCPList ycpdeps;
-                for (std::set<std::string>::const_iterator kind_it = _kinds.begin();
-                    kind_it != _kinds.end(); ++kind_it)
-                {
-                    try {
-                        zypp::Dep depkind(*kind_it);
-                        zypp::CapSet deps = it->resolvable()->dep(depkind);
-                        for (zypp::CapSet::const_iterator d = deps.begin(); d != deps.end(); ++d)
-                        {
-                            YCPMap ycpdep;
-                            ycpdep->add (YCPString ("res_kind"), YCPString (d->refers().asString()));
-                            ycpdep->add (YCPString ("name"), YCPString (d->asString()));
-                            ycpdep->add (YCPString ("dep_kind"), YCPString (*kind_it));
-                            ycpdeps->add (ycpdep);
-                        }
-    
-                    }
-                    catch (...)
-                    {}
-                }
-                info->add (YCPString ("dependencies"), ycpdeps);
+		// source
+		zypp::Source_Ref res_src = (*it)->source();
+		unsigned src_index; 
+		bool found = false;
+
+		// find index of the source
+		// TODO optimize it by using hash<Source, index>?
+		for (std::list<zypp::SourceManager::SourceId>::const_iterator idxit = source_ids.begin()
+		    ; idxit != source_ids.end()
+		    ; idxit++)
+		{
+		    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource((*idxit));
+		    
+		    if (src == res_src)
+		    {
+			found = true;
+			src_index = (*idxit);
+			break;
+		    }
+		}
+
+		info->add(YCPString("source"), YCPInteger((found) ? src_index : -1LL));
+
+		// product specific info
+		if( req_kind == "product" ) {
+		    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(it->resolvable());
+		    info->add(YCPString("category"), YCPString(product->category()));
+		    info->add(YCPString("vendor"), YCPString(product->vendor()));
+		    info->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
+		    info->add(YCPString("display_name"), YCPString(product->summary()));
+		    YCPList flags;
+		    std::list<std::string> pflags = product->flags();
+		    for (std::list<std::string>::const_iterator flag_it = pflags.begin();
+			flag_it != pflags.end(); ++flag_it)
+		    {
+			flags->add(YCPString(*flag_it));
+		    }
+		    info->add(YCPString("flags"), flags);
+		}
+
+		// pattern specific info
+		if ( req_kind == "pattern" ) {
+		    zypp::Pattern::constPtr pattern = boost::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable());
+		    info->add(YCPString("category"), YCPString(pattern->category()));
+		    info->add(YCPString("user_visible"), YCPBoolean(pattern->userVisible()));
+		    info->add(YCPString("default"), YCPBoolean(pattern->isDefault()));
+		    info->add(YCPString("icon"), YCPString(pattern->icon().asString()));
+		    info->add(YCPString("script"), YCPString(pattern->script().asString()));
+		}
+
+		// dependency info
+		if (dependencies)
+		{
+		    std::set<std::string> _kinds;
+		    _kinds.insert("provides");
+		    _kinds.insert("prerequires");
+		    _kinds.insert("requires");
+		    _kinds.insert("conflicts");
+		    _kinds.insert("obsoletes");
+		    _kinds.insert("recommends");
+		    _kinds.insert("suggests");
+		    _kinds.insert("freshens");
+		    _kinds.insert("enhances");
+		    _kinds.insert("supplements");
+		    YCPList ycpdeps;
+		    for (std::set<std::string>::const_iterator kind_it = _kinds.begin();
+			kind_it != _kinds.end(); ++kind_it)
+		    {
+			try {
+			    zypp::Dep depkind(*kind_it);
+			    zypp::CapSet deps = it->resolvable()->dep(depkind);
+			    for (zypp::CapSet::const_iterator d = deps.begin(); d != deps.end(); ++d)
+			    {
+				YCPMap ycpdep;
+				ycpdep->add (YCPString ("res_kind"), YCPString (d->refers().asString()));
+				ycpdep->add (YCPString ("name"), YCPString (d->asString()));
+				ycpdep->add (YCPString ("dep_kind"), YCPString (*kind_it));
+				ycpdeps->add (ycpdep);
+			    }
+	
+			}
+			catch (...)
+			{}
+		    }
+		    info->add (YCPString ("dependencies"), ycpdeps);
+		}
+		ret->add(info);
 	    }
-	    ret->add(info);
 	}
+    }
+    catch (...)
+    {
     }
 
     return ret;
@@ -439,27 +459,38 @@ YCPValue
 PkgModuleFunctions::ResolvablePreselectPatches ()
 {
     YCPBoolean ret = true;
-    // pseudo code from
-    // http://svn.suse.de/trac/zypp/wiki/ZMD/YaST/update/yast
-    const zypp::ResPool & pool = zypp_ptr->pool();
-    zypp::ResPool::const_iterator
-	b = pool.begin (),
-	e = pool.end (),
-	i;
-    for (i = b; i != e; ++i)
-    {
-	if (i->status().isNeeded()) {	// uninstalled
-	    zypp::Patch::constPtr pch = zypp::asKind<zypp::Patch>(i->resolvable());
-	    if (pch && pch->category () != "optional") {
-		// dont auto-install optional patches
 
-		stringstream str; 
-		str << *i << endl;
-		y2milestone( "Setting '%s' to transact", str.str().c_str() );
-		i->status().setTransact(true, whoWantsIt); // schedule for installation
+    try
+    {
+	const zypp::ResPool & pool = zypp_ptr()->pool();
+
+	// pseudo code from
+	// http://svn.suse.de/trac/zypp/wiki/ZMD/YaST/update/yast
+
+	zypp::ResPool::const_iterator
+	    b = pool.begin (),
+	    e = pool.end (),
+	    i;
+	for (i = b; i != e; ++i)
+	{
+	    if (i->status().isNeeded()) {	// uninstalled
+		zypp::Patch::constPtr pch = zypp::asKind<zypp::Patch>(i->resolvable());
+		if (pch && pch->category () != "optional") {
+		    // dont auto-install optional patches
+
+		    stringstream str; 
+		    str << *i << endl;
+		    y2milestone( "Setting '%s' to transact", str.str().c_str() );
+		    i->status().setTransact(true, whoWantsIt); // schedule for installation
+		}
+		
 	    }
-	    
 	}
     }
+    catch (...)
+    {
+	ret = false;
+    }
+
     return ret;
 }

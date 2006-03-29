@@ -95,7 +95,7 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	    {
 		zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(*it);
 		if( src.enabled() )
-			zypp_ptr->addResolvables (src.resolvables());
+			zypp_ptr()->addResolvables (src.resolvables());
 	    }
 	}
     }
@@ -950,7 +950,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 
 	    src.enable();
 
-    	    zypp_ptr->addResolvables (src.resolvables());
+    	    zypp_ptr()->addResolvables (src.resolvables());
 
 	    // return the id of the first product
 	    if ( ret == -1 )
@@ -975,7 +975,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 
 	src.enable();
 
-    	zypp_ptr->addResolvables (src.resolvables());
+    	zypp_ptr()->addResolvables (src.resolvables());
     }
     catch ( const zypp::Exception& excpt)
     {
@@ -1117,7 +1117,7 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
 {
     try
     {
-	zypp_ptr->removeResolvables(
+	zypp_ptr()->removeResolvables(
 	    zypp::SourceManager::sourceManager()->
 		findSource(id->asInteger()->value()).resolvables());
 

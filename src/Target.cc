@@ -56,8 +56,8 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& /*unuse
 
     try
     {
-	zypp_ptr->initTarget(r);
-	zypp_ptr->target()->enableStorage(r);
+	zypp_ptr()->initTarget(r);
+	zypp_ptr()->target()->enableStorage(r);
     }
     catch (zypp::Exception & excpt)
     {
@@ -107,7 +107,7 @@ PkgModuleFunctions::TargetFinish ()
 {
     try
     {
-	zypp_ptr->finishTarget();
+	zypp_ptr()->finishTarget();
     }
     catch (zypp::Exception & excpt)
     {
@@ -137,7 +137,7 @@ PkgModuleFunctions::TargetInstall(const YCPString& filename)
 {
     try
     {
-	zypp_ptr->target()->rpmDb().installPackage(filename->value());
+	zypp_ptr()->target()->rpmDb().installPackage(filename->value());
     }
     catch (zypp::Exception & excpt)
     {
@@ -166,7 +166,7 @@ PkgModuleFunctions::TargetRemove(const YCPString& name)
 {
     try
     {
-	zypp_ptr->target()->rpmDb().removePackage(name->value());
+	zypp_ptr()->target()->rpmDb().removePackage(name->value());
     }
     catch (zypp::Exception & excpt)
     {
@@ -191,7 +191,7 @@ PkgModuleFunctions::TargetLogfile (const YCPString& name)
 {
     try
     {
-	return YCPBoolean (zypp_ptr->target()->setInstallationLogfile (name->value()));
+	return YCPBoolean (zypp_ptr()->target()->setInstallationLogfile (name->value()));
     }
     catch (zypp::Exception & excpt)
     {
@@ -293,22 +293,28 @@ PkgModuleFunctions::TargetProducts ()
 {
     YCPList products;
 
-    for(zypp::ResPool::byKind_iterator it = zypp_ptr->pool().byKindBegin(zypp::ResTraits<zypp::Product>::kind)
-	; it != zypp_ptr->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind)
-	; ++it)
+    try
     {
-	zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
-
-	if (it->status().isInstalled() )
+	for(zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Product>::kind)
+	    ; it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind)
+	    ; ++it)
 	{
-	    YCPMap prod;
+	    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
+
+	    if (it->status().isInstalled() )
+	    {
+		YCPMap prod;
 #warning TargetProducts does not return all keys
-	    // see also PkgModuleFunctions::Descr2Map and Product.ycp::Product
-	    prod->add( YCPString("name"), YCPString( product->name() ) );
-	    prod->add( YCPString("version"), YCPString( product->edition().version() ) );
-	    prod->add( YCPString("relnotesurl"), YCPString( product->releaseNotesUrl().asString() ) );
-	    products->add(prod);
+		// see also PkgModuleFunctions::Descr2Map and Product.ycp::Product
+		prod->add( YCPString("name"), YCPString( product->name() ) );
+		prod->add( YCPString("version"), YCPString( product->edition().version() ) );
+		prod->add( YCPString("relnotesurl"), YCPString( product->releaseNotesUrl().asString() ) );
+		products->add(prod);
+	    }
 	}
+    }
+    catch(...)
+    {
     }
 
     return products;
@@ -327,7 +333,7 @@ PkgModuleFunctions::TargetRebuildDB ()
 {
     try
     {
-	zypp_ptr->target()->rpmDb().rebuildDatabase();
+	zypp_ptr()->target()->rpmDb().rebuildDatabase();
     }
     catch (zypp::Exception & excpt)
     {
@@ -449,7 +455,13 @@ PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
 	mount_points.insert(mpoint);
     }
 
-    zypp_ptr->setPartitions(mount_points);
+    try
+    {
+	zypp_ptr()->setPartitions(mount_points);
+    }
+    catch (...)
+    {
+    }
 
     return YCPVoid();
 }
@@ -480,40 +492,46 @@ PkgModuleFunctions::TargetGetDU ()
 {
     YCPMap dirmap;
 
-    zypp::DiskUsageCounter::MountPointSet mps = zypp_ptr->diskUsage();
-
-    if (mps.empty())
+    try
     {
-	// mount points have not been defined
-	y2warning("Pkg::TargetDUInit() has not been called, using data from system...");
+	zypp::DiskUsageCounter::MountPointSet mps = zypp_ptr()->diskUsage();
 
-	// read data from system
-	zypp::DiskUsageCounter::MountPointSet system = zypp::DiskUsageCounter::detectMountPoints();
+	if (mps.empty())
+	{
+	    // mount points have not been defined
+	    y2warning("Pkg::TargetDUInit() has not been called, using data from system...");
 
-	// set the mount points
-	zypp_ptr->setPartitions(system);
-    
-	// try again
-	mps = zypp_ptr->diskUsage();
+	    // read data from system
+	    zypp::DiskUsageCounter::MountPointSet system = zypp::DiskUsageCounter::detectMountPoints();
+
+	    // set the mount points
+	    zypp_ptr()->setPartitions(system);
+	
+	    // try again
+	    mps = zypp_ptr()->diskUsage();
+	}
+
+	// create result data structure from the stored info and calculated disk usage
+	for (zypp::DiskUsageCounter::MountPointSet::const_iterator mpit = mps.begin();
+	    mpit != mps.end();
+	    mpit++)
+	{
+	    YCPList sizelist;
+	    // partition size
+	    sizelist->add (YCPInteger (mpit->total_size));
+	    // already used
+	    sizelist->add (YCPInteger (mpit->used_size));
+	    // used size after PkgCommit()
+	    sizelist->add (YCPInteger (mpit->pkg_size));
+	    // readonly flag
+	    sizelist->add (YCPInteger (mpit->readonly ? 1 : 0));
+
+	    // add the map
+	    dirmap->add (YCPString(mpit->dir), sizelist);
+	}
     }
-
-    // create result data structure from the stored info and calculated disk usage
-    for (zypp::DiskUsageCounter::MountPointSet::const_iterator mpit = mps.begin();
-	mpit != mps.end();
-	mpit++)
+    catch (...)
     {
-	YCPList sizelist;
-	// partition size
-	sizelist->add (YCPInteger (mpit->total_size));
-	// already used
-	sizelist->add (YCPInteger (mpit->used_size));
-	// used size after PkgCommit()
-	sizelist->add (YCPInteger (mpit->pkg_size));
-	// readonly flag
-	sizelist->add (YCPInteger (mpit->readonly ? 1 : 0));
-
-	// add the map
-	dirmap->add (YCPString(mpit->dir), sizelist);
     }
 
     return dirmap;
@@ -532,6 +550,14 @@ PkgModuleFunctions::TargetGetDU ()
 YCPBoolean
 PkgModuleFunctions::TargetFileHasOwner (const YCPString& filepath)
 {
-    return YCPBoolean (zypp_ptr->target()->whoOwnsFile(filepath->value()));
+    try
+    {
+	return YCPBoolean (zypp_ptr()->target()->whoOwnsFile(filepath->value()));
+    }
+    catch (...)
+    {
+    }
+
+    return YCPBoolean(false);
 }
 

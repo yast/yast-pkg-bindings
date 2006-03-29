@@ -62,10 +62,12 @@ class PkgModuleFunctions : public Y2Namespace
 
 	zypp::Pathname _target_root;
 
+	zypp::ZYpp::Ptr zypp_pointer;
+
 	/** 
 	 * ZYPP
 	 */
-	zypp::ZYpp::Ptr zypp_ptr;
+	zypp::ZYpp::Ptr zypp_ptr();
 
 
     private: // source related
@@ -117,6 +119,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue LastErrorId ();
 	/* TYPEINFO: boolean() */
 	YCPValue Init ();
+	/* TYPEINFO: boolean() */
+	YCPValue Connect ();
 
 	// callbacks
 	/* TYPEINFO: void(string) */
@@ -459,12 +463,5 @@ class PkgModuleFunctions : public Y2Namespace
 	}
 
 	virtual Y2Function* createFunctionCall (const string name, constFunctionTypePtr type);
-
-	// is zypp library initialized?
-	bool ZyppInitialized();
-
-	// initialize zypp library unless it's already initialized
-	void ZyppInit();
-
 };
 #endif // PkgModuleFunctions_h

@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue Mar 28 16:06:07 CEST 2006 - lslezak@suse.cz
+
+- new binding Pkg::ResolvableSetSoftLock() (#159466)
+- initialize zypp when it's needed, retry initialization when
+  it fails, new binding Pkg::Connect() (#160319)
+- call DoneProvide callback when resolvable download
+  fails (#160966)
+
+-------------------------------------------------------------------
 Tue Mar 28 09:59:19 CEST 2006 - visnov@suse.cz
 
 - fix compile
