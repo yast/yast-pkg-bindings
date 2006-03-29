@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Mar 29 15:47:19 CEST 2006 - mvidner@suse.cz
+
+- Find zypp using pkg-config (enables prefix builds).
+- 2.13.43
+
+-------------------------------------------------------------------
 Tue Mar 28 16:06:07 CEST 2006 - lslezak@suse.cz
 
 - new binding Pkg::ResolvableSetSoftLock() (#159466)

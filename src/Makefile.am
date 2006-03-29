@@ -38,9 +38,9 @@ libpy2Pkg_la_LIBADD = \
 	-lycp		\
 	-ly2		\
 	-ly2util	\
-	-lzypp
+	${ZYPP_LIBS}
 
-INCLUDES = -I$(includedir)
+INCLUDES = -I$(includedir) ${ZYPP_CFLAGS}
 
 BUILT_SOURCES = PkgBuiltinTable.h PkgBuiltinCalls.h
 
