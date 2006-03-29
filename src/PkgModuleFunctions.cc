@@ -248,7 +248,15 @@ void PkgModuleFunctions::registerFunctions()
 YCPValue
 PkgModuleFunctions::Connect()
 {
-    return YCPBoolean(zypp_ptr() != NULL);
+    try
+    {
+	return YCPBoolean(zypp_ptr() != NULL);
+    }
+    catch(...)
+    {
+    }
+
+    return YCPBoolean(false);
 }
 
 /**
