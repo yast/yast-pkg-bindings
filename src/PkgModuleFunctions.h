@@ -183,6 +183,8 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue CallbackStopConvertDb (const YCPString& func);
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackResolvableReport( const YCPString& func );
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackImportGpgKey( const YCPString& func );	
 
 	// source related
 	/* TYPEINFO: boolean(boolean)*/

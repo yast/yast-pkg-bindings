@@ -30,6 +30,7 @@
 #include <zypp/ZYppCallbacks.h>
 #include <zypp/Package.h>
 #include <zypp/Product.h>
+#include <zypp/KeyRing.h>
 
 // FIXME: do this nicer, source create use this to avoid user feedback
 // on probing of source type
@@ -784,6 +785,28 @@ namespace ZyppRecipients {
 	    }
 	}
     };
+
+    struct KeyRingReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::KeyRingReport>
+    {
+	KeyRingReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual bool askUserToTrustKey( const std::string keyid
+	    , const std::string keyname )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ImportGpgKey) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(keyid);
+		callback.addStr(keyname);
+
+		return callback.evaluateBool();
+	    }
+	    
+	    return zypp::KeyRingReport::askUserToTrustKey(keyid, keyname);
+	}
+    };
+
 ///////////////////////////////////////////////////////////////////
 }; // namespace ZyppRecipients
 ///////////////////////////////////////////////////////////////////
@@ -818,6 +841,9 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 
     // resolvable report
     ZyppRecipients::ResolvableReport _resolvableReport;
+    
+    // key ring callback
+    ZyppRecipients::KeyRingReceive _keyRingReceive;
 
   public:
 
@@ -833,6 +859,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
       , _sourceRefreshReceive( *this )
       , _createSourceReceive( *this )
       , _resolvableReport( *this )
+      , _keyRingReceive( *this )
     {
 	// connect the receivers
 	_convertDbReceive.connect();
@@ -845,6 +872,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_sourceRefreshReceive.connect();
 	_createSourceReceive.connect();
 	_resolvableReport.connect();
+	_keyRingReceive.connect();
     }
 
     virtual ~ZyppReceive()
@@ -860,6 +888,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_sourceRefreshReceive.disconnect();
 	_createSourceReceive.disconnect();
 	_resolvableReport.disconnect();
+	_keyRingReceive.disconnect();
     }
   public:
 
@@ -947,6 +976,10 @@ YCPValue PkgModuleFunctions::CallbackDoneSourceRefresh( const YCPString& args ) 
 
 YCPValue PkgModuleFunctions::CallbackResolvableReport( const YCPString& args ) {
   return SET_YCP_CB( CB_ResolvableReport, args );
+}
+
+YCPValue PkgModuleFunctions::CallbackImportGpgKey( const YCPString& args ) {
+  return SET_YCP_CB( CB_ImportGpgKey, args );
 }
 
 YCPValue PkgModuleFunctions::CallbackMediaChange( const YCPString& args ) {

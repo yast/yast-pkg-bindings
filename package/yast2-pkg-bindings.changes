@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Mar 29 18:25:12 CEST 2006 - visnov@suse.cz
+
+- new callback Pkg::CallbackImportGpgKey
+
+-------------------------------------------------------------------
 Wed Mar 29 16:40:14 CEST 2006 - visnov@suse.cz
 
 - return correct type in SourceCreate and SourceScan if URL wrong 

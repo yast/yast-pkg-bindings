@@ -81,7 +81,8 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_YouMessage,
       CB_YouLog,
       CB_YouExecuteYcpScript,
-      CB_YouScriptProgress
+      CB_YouScriptProgress,
+      CB_ImportGpgKey
     };
 
     /**
@@ -122,6 +123,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( YouExecuteYcpScript );
 	ENUM_OUT( YouScriptProgress );
 	ENUM_OUT( ResolvableReport );
+	ENUM_OUT( ImportGpgKey );
 #undef ENUM_OUT
 	// no default! let compiler warn missing values
       }
