@@ -1833,7 +1833,7 @@ PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
     catch (const zypp::Exception& excpt)
     {
 	y2error("An error occurred during Pkg::PkgSolve.");
-	_last_error.setLastError(excpt.asUserString(), _("See /var/log/YaST2/badlist for more information."));
+	_last_error.setLastError(excpt.asUserString(), "See /var/log/YaST2/badlist for more information.");
     }
 
     // save information about failed dependencies to file
@@ -1901,7 +1901,7 @@ PkgModuleFunctions::PkgEstablish ()
     catch (const zypp::Exception& excpt)
     {
 	y2error("An error occurred during Pkg::PkgEstablish.");
-	_last_error.setLastError(excpt.asUserString(), _("See /var/log/YaST2/badlist for more information."));
+	_last_error.setLastError(excpt.asUserString(), "See /var/log/YaST2/badlist for more information.");
     }
 
     // save information about failed dependencies to file
