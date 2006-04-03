@@ -82,7 +82,12 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_YouLog,
       CB_YouExecuteYcpScript,
       CB_YouScriptProgress,
-      CB_ImportGpgKey
+      CB_ImportGpgKey,
+      CB_AcceptUnknownGpgKey,
+      CB_AcceptUnsignedFile,
+      CB_AcceptVerificationFailed,
+      CB_TrustedKeyAdded,
+      CB_TrustedKeyRemoved
     };
 
     /**
@@ -124,6 +129,11 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( YouScriptProgress );
 	ENUM_OUT( ResolvableReport );
 	ENUM_OUT( ImportGpgKey );
+	ENUM_OUT( AcceptUnknownGpgKey );
+	ENUM_OUT( AcceptUnsignedFile );
+	ENUM_OUT( AcceptVerificationFailed );
+	ENUM_OUT( TrustedKeyAdded );
+	ENUM_OUT( TrustedKeyRemoved );
 #undef ENUM_OUT
 	// no default! let compiler warn missing values
       }

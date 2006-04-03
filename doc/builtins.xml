@@ -49,5 +49,6 @@
     &PkgModuleFunctionsResolvable;
     &PkgModuleFunctionsTarget;
     &PkgModuleFunctionsPatch;
+    &PkgModuleCallbacks;
 
 </book>

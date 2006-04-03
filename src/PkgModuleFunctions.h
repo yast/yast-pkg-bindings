@@ -185,6 +185,16 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue CallbackResolvableReport( const YCPString& func );
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackImportGpgKey( const YCPString& func );	
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackAcceptUnknownGpgKey( const YCPString& func );	
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackAcceptUnsignedFile( const YCPString& func );	
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackAcceptVerificationFailed( const YCPString& func );	
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackTrustedKeyAdded( const YCPString& func );	
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackTrustedKeyRemoved( const YCPString& func );	
 
 	// source related
 	/* TYPEINFO: boolean(boolean)*/

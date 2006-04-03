@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Mon Apr  3 15:17:25 CEST 2006 - lslezak@suse.cz
+
+- new callbacks: Pkg::CallbackAcceptUnknownGpgKey(),
+  Pkg::CallbackAcceptUnsignedFile(),
+  Pkg::CallbackAcceptVerificationFailed(),
+  Pkg::CallbackTrustedKeyAdded(),
+  Pkg::CallbackTrustedKeyRemoved() (#162858)
+- 2.13.44
+
+-------------------------------------------------------------------
 Wed Mar 29 18:25:12 CEST 2006 - visnov@suse.cz
 
 - new callback Pkg::CallbackImportGpgKey

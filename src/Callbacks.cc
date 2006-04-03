@@ -14,8 +14,10 @@
 
    Author:	Klaus Kaempf <kkaempf@suse.de>
    Maintainer:  Klaus Kaempf <kkaempf@suse.de>
+   Summary:     Register Package Manager callbacks
+   Namespace:   Pkg
 
-   Purpose:	Implement callbacks from Y2PM to UI/WFM.
+   Purpose:	Implement callbacks from ZYpp to UI/WFM.
 
 /-*/
 
@@ -786,6 +788,9 @@ namespace ZyppRecipients {
 	}
     };
 
+    ///////////////////////////////////////////////////////////////////
+    // KeyRingReport handler
+    ///////////////////////////////////////////////////////////////////
     struct KeyRingReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::KeyRingReport>
     {
 	KeyRingReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
@@ -805,7 +810,85 @@ namespace ZyppRecipients {
 	    
 	    return zypp::KeyRingReport::askUserToTrustKey(keyid, keyname);
 	}
+
+	virtual bool askUserToAcceptUnknownKey( const std::string &keyid,
+	    const std::string &keyname )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnknownGpgKey) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(keyid);
+		callback.addStr(keyname);
+
+		return callback.evaluateBool();
+	    }
+	    
+	    return zypp::KeyRingReport::askUserToAcceptUnknownKey(keyid, keyname);
+	}
+
+	virtual bool askUserToAcceptUnsignedFile( const zypp::Pathname &file )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnsignedFile) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(file.asString());
+
+		return callback.evaluateBool();
+	    }
+	    
+	    return zypp::KeyRingReport::askUserToAcceptUnsignedFile(file);
+	}
+	
+	virtual bool askUserToAcceptVerificationFailed( const zypp::Pathname &file,
+	    const std::string &keyid, const std::string &keyname )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_AcceptVerificationFailed) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(file.asString());
+		callback.addStr(keyid);
+		callback.addStr(keyname);
+
+		return callback.evaluateBool();
+	    }
+	    
+	    return zypp::KeyRingReport::askUserToAcceptVerificationFailed(file, keyid, keyname);
+	}
     };
+
+    ///////////////////////////////////////////////////////////////////
+    // KeyRingSignals handler
+    ///////////////////////////////////////////////////////////////////
+    struct KeyRingSignal : public Recipient, public zypp::callback::ReceiveReport<zypp::KeyRingSignals>
+    {
+	KeyRingSignal ( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual void trustedKeyAdded( const zypp::KeyRing &keyring, const std::string &keyid, const std::string &keyname )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_TrustedKeyAdded) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(keyid);
+		callback.addStr(keyname);
+	    }
+	}
+
+	virtual void trustedKeyRemoved( const zypp::KeyRing &keyring, const std::string &keyid, const std::string &keyname )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_TrustedKeyRemoved) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(keyid);
+		callback.addStr(keyname);
+	    }
+	}
+    };
+
 
 ///////////////////////////////////////////////////////////////////
 }; // namespace ZyppRecipients
@@ -845,6 +928,9 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
     // key ring callback
     ZyppRecipients::KeyRingReceive _keyRingReceive;
 
+    // key ring signal callback
+    ZyppRecipients::KeyRingSignal _keyRingSignal;
+
   public:
 
     ZyppReceive( const YCPCallbacks & ycpcb_r )
@@ -860,6 +946,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
       , _createSourceReceive( *this )
       , _resolvableReport( *this )
       , _keyRingReceive( *this )
+      , _keyRingSignal( *this )
     {
 	// connect the receivers
 	_convertDbReceive.connect();
@@ -873,6 +960,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_createSourceReceive.connect();
 	_resolvableReport.connect();
 	_keyRingReceive.connect();
+	_keyRingSignal.connect();
     }
 
     virtual ~ZyppReceive()
@@ -889,6 +977,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_createSourceReceive.disconnect();
 	_resolvableReport.disconnect();
 	_keyRingReceive.disconnect();
+	_keyRingSignal.disconnect();
     }
   public:
 
@@ -978,8 +1067,64 @@ YCPValue PkgModuleFunctions::CallbackResolvableReport( const YCPString& args ) {
   return SET_YCP_CB( CB_ResolvableReport, args );
 }
 
+/**
+ * @builtin CallbackImportGpgKey
+ * @short Register callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string keyid, string keyname)</code>. The callback function should ask user whether the key is trusted, returned true value means the key is trusted.
+ * @return void
+ */
 YCPValue PkgModuleFunctions::CallbackImportGpgKey( const YCPString& args ) {
   return SET_YCP_CB( CB_ImportGpgKey, args );
+}
+
+/**
+ * @builtin CallbackAcceptUnknownGpgKey
+ * @short Register callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string keyid, string keyname)</code>. The callback function should ask user whether the unknown key can be accepted, returned true value means to accept the file.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackAcceptUnknownGpgKey( const YCPString& args ) {
+  return SET_YCP_CB( CB_AcceptUnknownGpgKey, args );
+}
+
+/**
+ * @builtin CallbackAcceptUnsignedFile
+ * @short Register callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename)</code>. The callback function should ask user whether the unsigned file can be accepted, returned true value means to accept the file.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackAcceptUnsignedFile( const YCPString& args ) {
+  return SET_YCP_CB( CB_AcceptUnsignedFile, args );
+}
+
+/**
+ * @builtin CallbackAcceptVerificationFailed
+ * @short Register callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, string keyid, string keyname)</code>. The callback function should ask user whether the unsigned file can be accepted, returned true value means to accept the file.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackAcceptVerificationFailed( const YCPString& args ) {
+  return SET_YCP_CB( CB_AcceptVerificationFailed, args );
+}
+
+/**
+ * @builtin CallbackTrustedKeyAdded
+ * @short Register callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>void(string keyid, string keyname)</code>. The callback function should inform user that a trusted key has been added.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackTrustedKeyAdded( const YCPString& args ) {
+  return SET_YCP_CB( CB_TrustedKeyAdded, args );
+}
+
+/**
+ * @builtin CallbackTrustedKeyRemoved
+ * @short Register callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>void(string keyid, string keyname)</code>. The callback function should inform user that a trusted key has been removed.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackTrustedKeyRemoved( const YCPString& args ) {
+  return SET_YCP_CB( CB_TrustedKeyRemoved, args );
 }
 
 YCPValue PkgModuleFunctions::CallbackMediaChange( const YCPString& args ) {
