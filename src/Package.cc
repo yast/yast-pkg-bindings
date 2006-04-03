@@ -1937,6 +1937,66 @@ PkgModuleFunctions::PkgEstablish ()
 
 
 /**
+   @builtin PkgFreshen
+   @short check all package freshens and schedule matching ones for installation
+   @return boolean
+
+   Returns true. (If no pool item 'transacts')
+
+   The pool should NOT have any items set to 'transact' (scheduled for installation
+   or removal)
+   If it has, dependencies will be solved and the returned result might be false.
+
+*/
+
+YCPBoolean
+PkgModuleFunctions::PkgFreshen()
+{
+    bool result = false;
+    
+    try
+    {
+	result = zypp_ptr()->resolver()->freshenPool();
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	y2error("An error occurred during Pkg::PkgFreshen.");
+	_last_error.setLastError(excpt.asUserString(), "See /var/log/YaST2/badlist for more information.");
+    }
+
+    // save information about failed dependencies to file
+    if (!result)
+    {
+	try
+	{
+	    zypp::ResolverProblemList problems = zypp_ptr()->resolver()->problems();
+	    int problem_size = problems.size();
+
+	    if (problem_size > 0)
+	    {
+		y2error ("PkgSolve: %d packages failed (see /var/log/YaST2/badlist)", problem_size);
+
+		std::ofstream out ("/var/log/YaST2/badlist");
+
+		out << problem_size << " packages failed" << std::endl;
+		for(zypp::ResolverProblemList::const_iterator p = problems.begin();
+		     p != problems.end(); ++p )
+		{
+		    out << (*p)->description() << std::endl;
+		}
+	    }
+	}
+	catch (...)
+	{
+	    return YCPBoolean(false);
+	}
+    }
+
+    return YCPBoolean(result);
+}
+
+
+/**
    @builtin PkgSolveCheckTargetOnly
 
    @short Solve packages currently installed on target system.

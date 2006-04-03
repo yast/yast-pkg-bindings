@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Apr  3 19:25:55 CEST 2006 - kkaempf@suse.de
+
+- new callback: Pkg::PkgFreshen() (#156980)
+- 2.13.45
+
+-------------------------------------------------------------------
 Mon Apr  3 15:17:25 CEST 2006 - lslezak@suse.cz
 
 - new callbacks: Pkg::CallbackAcceptUnknownGpgKey(),

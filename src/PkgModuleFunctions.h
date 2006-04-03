@@ -375,6 +375,8 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: boolean()*/
 	YCPBoolean PkgEstablish ();
 	/* TYPEINFO: boolean()*/
+	YCPBoolean PkgFreshen ();
+	/* TYPEINFO: boolean()*/
 	YCPBoolean PkgSolveCheckTargetOnly ();
 	/* TYPEINFO: integer()*/
 	YCPValue PkgSolveErrors ();
