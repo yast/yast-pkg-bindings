@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Apr  4 14:23:40 CEST 2006 - mvidner@suse.cz
+
+- libzypp API change: use location instead of plainRpm.
+
+-------------------------------------------------------------------
 Mon Apr  3 19:25:55 CEST 2006 - kkaempf@suse.de
 
 - new callback: Pkg::PkgFreshen() (#156980)

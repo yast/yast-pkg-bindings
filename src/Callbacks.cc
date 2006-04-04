@@ -207,7 +207,7 @@ namespace ZyppRecipients {
 	    
 	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
 	  if (callback._set) {
-	    callback.addStr(res->plainRpm());
+	    callback.addStr(res->location());
 	    callback.addStr(res->summary());
 	    callback.addInt(res->size());
 	    callback.addBool(false);	// is_delete = false (package installation)
