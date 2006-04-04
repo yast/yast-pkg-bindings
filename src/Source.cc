@@ -253,7 +253,8 @@ PkgModuleFunctions::SourceFinishAll ()
  * "autorefresh": YCPBoolean,
  * "product_dir": YCPString,
  * "type"	: YCPString,
- * "url"	: YCPString
+ * "url"	: YCPString,
+ * "alias"	: YCPString,
  * ];
  *
  * </code>
@@ -287,6 +288,7 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
     // if password is required then use this parameter:
     // asString(url::ViewOptions() + url::ViewOptions::WITH_PASSWORD);
     data->add( YCPString("url"),		YCPString(src.url().asString()));
+    data->add( YCPString("alias"),		YCPString(src.alias()));
     return data;
 }
 

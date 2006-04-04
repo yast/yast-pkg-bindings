@@ -1,7 +1,9 @@
 -------------------------------------------------------------------
-Tue Apr  4 14:23:40 CEST 2006 - mvidner@suse.cz
+Tue Apr  4 14:33:53 CEST 2006 - mvidner@suse.cz
 
+- Added "alias" to Pkg::SourceGeneralData (#156030).
 - libzypp API change: use location instead of plainRpm.
+- 2.13.46
 
 -------------------------------------------------------------------
 Mon Apr  3 19:25:55 CEST 2006 - kkaempf@suse.de
