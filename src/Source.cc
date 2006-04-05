@@ -37,6 +37,7 @@
 #include <zypp/SourceFactory.h>
 #include <zypp/Source.h>
 #include <zypp/Product.h>
+#include <zypp/media/MediaManager.h>
 
 #include <stdio.h> // snprintf
 
@@ -611,33 +612,31 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
 YCPValue
 PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 {
+    zypp::Source_Ref src;
+    try {
+	src = zypp::SourceManager::sourceManager()->findSource(id->value());
+    }
+    catch (const zypp::Exception & excpt)
+    {
+	_last_error.setLastError(excpt.asUserString());
+        y2error ("Source ID %lld not found: %s", id->asInteger()->value(), excpt.msg().c_str());
+	return YCPBoolean(false);
+    }
 
-#warning SourceChangeUrl is not implemented
-    /* TODO FIXME
-  YCPList args;
-  args->add (id);
-  args->add (u);
-
-  //-------------------------------------------------------------------------------------//
-  YcpArgLoad decl(__FUNCTION__);
-
-  InstSrcManager::ISrcId & source_id( decl.arg<YT_INTEGER, InstSrcManager::ISrcId>() );
-  Url &                    url      ( decl.arg<YT_STRING, Url>() );
-
-  if ( ! decl.load( args ) ) {
-    return pkgError_bad_args;
-  }
-  //-------------------------------------------------------------------------------------//
-
-  if ( ! source_id )
-    return pkgError( InstSrcError::E_bad_id );
-
-  PMError err = _y2pm.instSrcManager().rewriteUrl( source_id, url );
-
-  if ( err )
-    return pkgError( err );
-*/
-  return YCPBoolean( true );
+    try {
+	zypp::Pathname pth = src.path();
+	zypp::Url url = zypp::Url(u->value ());
+	zypp::media::MediaManager media_mgr;
+	zypp::media::MediaAccessId media_id = media_mgr.open(url);
+	src.changeMedia(media_id, pth);
+    }
+    catch (const zypp::Exception & excpt)
+    {
+	_last_error.setLastError(excpt.asUserString());
+        y2error ("Cannot change media for source %lld: %s", id->asInteger()->value(), excpt.msg().c_str());
+	return YCPBoolean(false);
+    }
+    return YCPBoolean(true);
 }
 
 /****************************************************************************************
