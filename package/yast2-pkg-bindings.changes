@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Apr  5 16:28:24 CEST 2006 - lslezak@suse.cz
+
+- updated keyring callbacks
+- 2.13.47
+
+-------------------------------------------------------------------
 Tue Apr  4 14:33:53 CEST 2006 - mvidner@suse.cz
 
 - Added "alias" to Pkg::SourceGeneralData (#156030).
