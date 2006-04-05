@@ -795,8 +795,8 @@ namespace ZyppRecipients {
     {
 	KeyRingReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual bool askUserToTrustKey( const std::string keyid
-	    , const std::string keyname )
+	virtual bool askUserToTrustKey( const std::string &keyid
+	    , const std::string &keyname, const std::string &keydetails )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ImportGpgKey) );
 
@@ -804,27 +804,29 @@ namespace ZyppRecipients {
 	    {
 		callback.addStr(keyid);
 		callback.addStr(keyname);
+		callback.addStr(keydetails);
 
 		return callback.evaluateBool();
 	    }
 	    
-	    return zypp::KeyRingReport::askUserToTrustKey(keyid, keyname);
+	    return zypp::KeyRingReport::askUserToTrustKey(keyid, keyname, keydetails);
 	}
 
-	virtual bool askUserToAcceptUnknownKey( const std::string &keyid,
-	    const std::string &keyname )
+	virtual bool askUserToAcceptUnknownKey( const zypp::Pathname &path,
+	    const std::string &keyid, const std::string &keyname )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnknownGpgKey) );
 
 	    if (callback._set)
 	    {
+		callback.addStr(path.asString());
 		callback.addStr(keyid);
 		callback.addStr(keyname);
 
 		return callback.evaluateBool();
 	    }
 	    
-	    return zypp::KeyRingReport::askUserToAcceptUnknownKey(keyid, keyname);
+	    return zypp::KeyRingReport::askUserToAcceptUnknownKey(path, keyid, keyname);
 	}
 
 	virtual bool askUserToAcceptUnsignedFile( const zypp::Pathname &file )
@@ -1070,7 +1072,7 @@ YCPValue PkgModuleFunctions::CallbackResolvableReport( const YCPString& args ) {
 /**
  * @builtin CallbackImportGpgKey
  * @short Register callback function
- * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string keyid, string keyname)</code>. The callback function should ask user whether the key is trusted, returned true value means the key is trusted.
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string keyid, string keyname, string keydetails)</code>. The callback function should ask user whether the key is trusted, returned true value means the key is trusted.
  * @return void
  */
 YCPValue PkgModuleFunctions::CallbackImportGpgKey( const YCPString& args ) {
@@ -1080,7 +1082,7 @@ YCPValue PkgModuleFunctions::CallbackImportGpgKey( const YCPString& args ) {
 /**
  * @builtin CallbackAcceptUnknownGpgKey
  * @short Register callback function
- * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string keyid, string keyname)</code>. The callback function should ask user whether the unknown key can be accepted, returned true value means to accept the file.
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, string keyid, string keyname)</code>. The callback function should ask user whether the unknown key can be accepted, returned true value means to accept the file.
  * @return void
  */
 YCPValue PkgModuleFunctions::CallbackAcceptUnknownGpgKey( const YCPString& args ) {
