@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Apr  6 18:59:37 CEST 2006 - kkaempf@suse.de
+
+- more debug for DoProvideNameKind()
+
+-------------------------------------------------------------------
 Thu Apr  6 18:29:40 CEST 2006 - schubi@suse.de
 
 - Bug 162745 - Updating from beta8 does not update the kernel sources
