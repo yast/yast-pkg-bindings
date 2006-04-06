@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Apr  6 18:29:40 CEST 2006 - schubi@suse.de
+
+- Bug 162745 - Updating from beta8 does not update the kernel sources
+
+-------------------------------------------------------------------
 Thu Apr  6 15:50:05 CEST 2006 - lslezak@suse.cz
 
 - added Pkg::ImportGPGKey() (#164001)
