@@ -364,7 +364,7 @@ namespace ZyppRecipients {
 
 	  if ( zypp::isKind<zypp::Package> (resolvable_ptr) )
 	  {
-	    zypp::Package::Ptr pkg = 
+	    zypp::Package::constPtr pkg = 
 		zypp::asKind<zypp::Package>(resolvable_ptr);
 
 	    size = pkg->archivesize();
