@@ -28,6 +28,7 @@ libpy2Pkg_la_SOURCES =				\
 	Selection.cc				\
 	Target.cc				\
 	Source.cc				\
+	Keyring.cc				\
 	Callbacks.h				\
 	Callbacks.YCP.h				\
 	Callbacks.cc

@@ -442,6 +442,10 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: boolean()*/
 	YCPValue ResolvablePreselectPatches ();
 
+	// keyring related
+	/* TYPEINFO: void(string,boolean)*/
+	YCPValue ImportGPGKey(const YCPString& filename, const YCPBoolean& trusted);
+
 	/* TYPEINFO: boolean()*/
 	YCPValue SourceReleaseAll ();
 	/* TYPEINFO: boolean(string)*/

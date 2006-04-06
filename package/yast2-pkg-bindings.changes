@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Apr  6 15:50:05 CEST 2006 - lslezak@suse.cz
+
+- added Pkg::ImportGPGKey() (#164001)
+- 2.13.49
+
+-------------------------------------------------------------------
 Thu Apr  6 15:11:38 CEST 2006 - visnov@suse.cz
 
 - implemented SourceCleanupBroken (#157100) 
