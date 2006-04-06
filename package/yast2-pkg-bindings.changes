@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Apr  6 20:26:26 CEST 2006 - visnov@suse.cz
+
+- invoke SourceChange callback (#161298)
+- 2.13.51
+
+-------------------------------------------------------------------
 Thu Apr  6 20:26:27 CEST 2006 - jsrain@suse.de
 
 - fixed YCP signature of Pkg::SourceCleanupBroken

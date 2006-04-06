@@ -2104,6 +2104,10 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 
     zypp::ZYpp::CommitResult result;
 
+    // clean the last reported source
+    DownloadResolvableReceive::last_source_id = -1;
+    DownloadResolvableReceive::last_source_media = -1;
+
     try
     {
 	result = zypp_ptr()->commit(medianr);

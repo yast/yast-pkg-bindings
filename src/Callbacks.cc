@@ -33,6 +33,7 @@
 #include <zypp/Package.h>
 #include <zypp/Product.h>
 #include <zypp/KeyRing.h>
+#include <zypp/SourceManager.h>
 
 // FIXME: do this nicer, source create use this to avoid user feedback
 // on probing of source type
@@ -342,6 +343,9 @@ namespace ZyppRecipients {
     ///////////////////////////////////////////////////////////////////
     struct DownloadResolvableReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::DownloadResolvableReport>
     {
+	static int last_source_id;
+	static int last_source_media;
+
 	DownloadResolvableReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 	int last_reported;
 
@@ -357,11 +361,28 @@ namespace ZyppRecipients {
 	{
 	  unsigned size = 0;
 	  last_reported = 0;
-	  
+
 	  if ( zypp::isKind<zypp::Package> (resolvable_ptr) )
 	  {
-	    size = (zypp::asKind<zypp::Package>(resolvable_ptr))->archivesize();
+	    zypp::Package::Ptr pkg = 
+		zypp::asKind<zypp::Package>(resolvable_ptr);
+
+	    size = pkg->archivesize();
+
+	    int source_id = pkg->source().numericId();
+	    int media_nr = pkg->mediaId();
+
+	    if( source_id != last_source_id || media_nr != last_source_media )
+	    {
+	      CB callback( ycpcb( YCPCallbacks::CB_SourceChange ) );
+	      if (callback._set) {
+	        callback.addInt( source_id );
+	        callback.addInt( media_nr );
+	        callback.evaluate();
+	      }
+            }	  
 	  }
+
 	  CB callback( ycpcb( YCPCallbacks::CB_StartProvide ) );
 	  if (callback._set) {
 	    bool remote = url.getScheme() != "cd" && url.getScheme() != "dvd" 
@@ -422,6 +443,9 @@ namespace ZyppRecipients {
 	}
 
     };
+
+    int DownloadResolvableReceive::last_source_id = -1;
+    int DownloadResolvableReceive::last_source_media = -1;
 
 /*
   ///////////////////////////////////////////////////////////////////
