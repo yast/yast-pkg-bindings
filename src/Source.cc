@@ -37,6 +37,7 @@
 #include <zypp/SourceFactory.h>
 #include <zypp/Source.h>
 #include <zypp/Product.h>
+#include <zypp/target/store/PersistentStorage.h>
 #include <zypp/media/MediaManager.h>
 
 #include <stdio.h> // snprintf
@@ -105,6 +106,7 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	// FIXME: assuming the sources are already initialized
 	y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
 	_last_error.setLastError(excpt.asUserString());
+	_broken_sources = excpt.aliases();
 	success = false;
     }
     catch (const zypp::SourcesAlreadyRestoredException& excpt)
@@ -148,6 +150,38 @@ PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
     SourceStartManager(enabled);
 
     return SourceGetCurrent(enabled);
+}
+
+/****************************************************************************************
+ * @builtin SourceCleanupBroken
+ *
+ * @short Clean up all sources that were not properly restored on the last
+ * call of SourceStartManager or SourceStartCache.
+ *
+ * @return boolean
+ **/
+YCPValue
+PkgModuleFunctions::SourceCleanupBroken ()
+{
+    bool success = true;
+
+    zypp::storage::PersistentStorage store;
+    store.init( _target_root );
+    
+    for( std::set<std::string>::const_iterator it = _broken_sources.begin() ;
+	it != _broken_sources.end() ; ++it )
+    {
+	try {
+	    store.deleteSource( *it );
+	} catch( const zypp::Exception& excpt )
+	{
+	    success = false;
+	}
+    }
+    
+    _broken_sources.clear();
+    
+    return YCPBoolean(success);
 }
 
 /****************************************************************************************

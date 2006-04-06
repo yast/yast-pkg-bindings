@@ -61,6 +61,8 @@ class PkgModuleFunctions : public Y2Namespace
   protected:
 
 	zypp::Pathname _target_root;
+	
+	std::set<std::string> _broken_sources;
 
 	zypp::ZYpp::Ptr zypp_pointer;
 
@@ -203,6 +205,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue SourceCreate (const YCPString&, const YCPString&);
 	/* TYPEINFO: list<integer>(boolean)*/
 	YCPValue SourceStartCache (const YCPBoolean&);
+	/* TYPEINFO: boolean(void)*/
+	YCPValue SourceCleanupBroken ();
 	/* TYPEINFO: list<integer>(boolean)*/
 	YCPValue SourceGetCurrent (const YCPBoolean& enabled);
 	/* TYPEINFO: boolean(integer)*/

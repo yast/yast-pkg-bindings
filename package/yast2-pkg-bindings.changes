@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Apr  6 15:11:38 CEST 2006 - visnov@suse.cz
+
+- implemented SourceCleanupBroken (#157100) 
+
+-------------------------------------------------------------------
 Wed Apr  5 18:41:03 CEST 2006 - jsrain@suse.de
 
 - implemented SourceChangeUrl (#163748)
