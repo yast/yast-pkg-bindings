@@ -543,17 +543,21 @@ struct ProvideProcess
         // 3. best edition
         //  see QueueItemRequire in zypp/solver/detail, RequireProcess
 
-        if (!provider->arch().compatibleWith( _architecture )) {
-            MIL << "provider " << provider << " has incompatible arch '" << provider->arch() << "'" << endl;
-        }
-	else if (!item) {						// no provider yet
-	    item = provider;
-	}
-	else if (item->arch().compare( provider->arch() ) < 0) {	// provider has better arch
-	    item = provider;
-	}
-	else if (item->edition().compare( provider->edition() ) < 0) {
-	    item = provider;						// provider has better edition
+	if (!provider.status().isInstalled())
+	{
+	    // regarding items which are installable only
+	    if (!provider->arch().compatibleWith( _architecture )) {
+		MIL << "provider " << provider << " has incompatible arch '" << provider->arch() << "'" << endl;
+	    }
+	    else if (!item) {						// no provider yet
+		item = provider;
+	    }
+	    else if (item->arch().compare( provider->arch() ) < 0) {	// provider has better arch
+		item = provider;
+	    }
+	    else if (item->edition().compare( provider->edition() ) < 0) {
+		item = provider;						// provider has better edition
+	    }
 	}
 
 	return true;
