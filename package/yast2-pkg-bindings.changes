@@ -2,6 +2,7 @@
 Thu Apr  6 20:26:27 CEST 2006 - jsrain@suse.de
 
 - fixed YCP signature of Pkg::SourceCleanupBroken
+- 2.13.50
 
 -------------------------------------------------------------------
 Thu Apr  6 18:59:37 CEST 2006 - kkaempf@suse.de
