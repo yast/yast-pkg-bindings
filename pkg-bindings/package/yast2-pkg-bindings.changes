@@ -1,0 +1,675 @@
+-------------------------------------------------------------------
+Thu Apr  6 15:50:05 CEST 2006 - lslezak@suse.cz
+
+- added Pkg::ImportGPGKey() (#164001)
+- 2.13.49
+
+-------------------------------------------------------------------
+Thu Apr  6 15:11:38 CEST 2006 - visnov@suse.cz
+
+- implemented SourceCleanupBroken (#157100) 
+
+-------------------------------------------------------------------
+Wed Apr  5 18:41:03 CEST 2006 - jsrain@suse.de
+
+- implemented SourceChangeUrl (#163748)
+- 2.13.48
+
+-------------------------------------------------------------------
+Wed Apr  5 16:28:24 CEST 2006 - lslezak@suse.cz
+
+- updated keyring callbacks
+- 2.13.47
+
+-------------------------------------------------------------------
+Tue Apr  4 14:33:53 CEST 2006 - mvidner@suse.cz
+
+- Added "alias" to Pkg::SourceGeneralData (#156030).
+- libzypp API change: use location instead of plainRpm.
+- 2.13.46
+
+-------------------------------------------------------------------
+Mon Apr  3 19:25:55 CEST 2006 - kkaempf@suse.de
+
+- new callback: Pkg::PkgFreshen() (#156980)
+- 2.13.45
+
+-------------------------------------------------------------------
+Mon Apr  3 15:17:25 CEST 2006 - lslezak@suse.cz
+
+- new callbacks: Pkg::CallbackAcceptUnknownGpgKey(),
+  Pkg::CallbackAcceptUnsignedFile(),
+  Pkg::CallbackAcceptVerificationFailed(),
+  Pkg::CallbackTrustedKeyAdded(),
+  Pkg::CallbackTrustedKeyRemoved() (#162858)
+- 2.13.44
+
+-------------------------------------------------------------------
+Wed Mar 29 18:25:12 CEST 2006 - visnov@suse.cz
+
+- new callback Pkg::CallbackImportGpgKey
+
+-------------------------------------------------------------------
+Wed Mar 29 16:40:14 CEST 2006 - visnov@suse.cz
+
+- return correct type in SourceCreate and SourceScan if URL wrong 
+
+-------------------------------------------------------------------
+Wed Mar 29 15:47:19 CEST 2006 - mvidner@suse.cz
+
+- Find zypp using pkg-config (enables prefix builds).
+- 2.13.43
+
+-------------------------------------------------------------------
+Tue Mar 28 16:06:07 CEST 2006 - lslezak@suse.cz
+
+- new binding Pkg::ResolvableSetSoftLock() (#159466)
+- initialize zypp when it's needed, retry initialization when
+  it fails, new binding Pkg::Connect() (#160319)
+- call DoneProvide callback when resolvable download
+  fails (#160966)
+
+-------------------------------------------------------------------
+Tue Mar 28 09:59:19 CEST 2006 - visnov@suse.cz
+
+- fix compile
+- catch media exception if source cannot be reattached
+  to get source product information
+- 2.13.42 
+
+-------------------------------------------------------------------
+Mon Mar 27 16:14:51 CEST 2006 - lslezak@suse.cz
+
+- new binding Pkg::ResolvableNeutral() (#159466)
+- 2.13.41
+
+-------------------------------------------------------------------
+Mon Mar 27 15:26:17 CEST 2006 - lslezak@suse.cz
+
+- 2.13.40
+
+-------------------------------------------------------------------
+Mon Mar 27 15:12:28 CEST 2006 - lslezak@suse.cz
+
+- remove all transactions in PkgTaboo, prevent from installing
+  unconfirmed packages (#160588)
+
+-------------------------------------------------------------------
+Sat Mar 25 22:36:37 CET 2006 - jsrain@suse.de
+
+- do not report repeated SourceStartManager as error
+- 2.13.39
+
+-------------------------------------------------------------------
+Fri Mar 24 15:35:45 CET 2006 - visnov@suse.cz
+
+- mark only patches in ResolvablePreselectPatches (#160573)
+- 2.13.38 
+
+-------------------------------------------------------------------
+Thu Mar 23 13:11:45 CET 2006 - lslezak@suse.cz
+
+- return package licenses correctly (#160028)
+- 2.13.37
+
+-------------------------------------------------------------------
+Wed Mar 22 19:29:45 CET 2006 - visnov@suse.cz
+
+- 2.13.36 
+
+-------------------------------------------------------------------
+Wed Mar 22 17:04:56 CET 2006 - lslezak@suse.cz
+
+- new builtin Pkg::CallbackResolvableReport (#160015)
+- adapted to new libzypp API
+
+-------------------------------------------------------------------
+Wed Mar 22 14:29:13 CET 2006 - lslezak@suse.cz
+
+- added `removed option in GetPackages builtin
+  (required for #156638)
+
+-------------------------------------------------------------------
+Tue Mar 21 10:14:16 CET 2006 - visnov@suse.cz
+
+- fix build
+- 2.13.35 
+
+-------------------------------------------------------------------
+Tue Mar 21 08:58:48 CET 2006 - visnov@suse.cz
+
+- allow more choices how the media change callback behave (#159116)
+- 2.13.34 
+
+-------------------------------------------------------------------
+Mon Mar 20 18:28:03 CET 2006 - lslezak@suse.cz
+
+- new SourceProvideOptionalFile() binding (#159116)
+- 2.13.33
+
+-------------------------------------------------------------------
+Mon Mar 20 09:09:16 CET 2006 - visnov@suse.cz
+
+- adapt for latest libzypp
+- 2.13.32 
+
+-------------------------------------------------------------------
+Sat Mar 18 02:18:40 CET 2006 - kkaempf@suse.de
+
+- fix Pkg::IsSelected (and others) to check the right
+  item of the pool (#158602)
+- 2.13.31
+
+-------------------------------------------------------------------
+Thu Mar 16 20:10:48 CET 2006 - jsrain@suse.de
+
+- let products provide their flags
+
+-------------------------------------------------------------------
+Thu Mar 16 18:18:53 CET 2006 - jsrain@suse.de
+
+- added Pkg::ResolvableDependencies
+- 2.13.30
+
+-------------------------------------------------------------------
+Thu Mar 16 17:48:32 CET 2006 - mvidner@suse.cz
+
+- added Pkg::ResolvablePreselectPatches to select Needed items
+- 2.13.29
+
+-------------------------------------------------------------------
+Wed Mar 15 22:47:35 CET 2006 - kkaempf@suse.de
+
+- add PkgEstablish() to calculate needed/unneeded patches.
+
+-------------------------------------------------------------------
+Wed Mar 15 09:02:40 CET 2006 - visnov@suse.cz
+
+- set alias when creating a source
+- 2.13.28 
+
+-------------------------------------------------------------------
+Tue Mar 14 19:12:11 CET 2006 - mvidner@suse.cz
+
+- Use APPL_HIGH level instead of USER for Pkg:: (#156875, thanks ma)
+- 2.13.27
+
+-------------------------------------------------------------------
+Tue Mar 14 15:21:22 CET 2006 - mvidner@suse.cz
+
+- Provide Product::version via TargetProducts,
+  fixing crypto update (#153576).
+- Use product(name+edition)+current timestamp
+  to set the source alias in SourceCreate and SourceScan (#154913).
+- 2.13.26
+
+-------------------------------------------------------------------
+Tue Mar 14 10:43:52 CET 2006 - visnov@suse.cz
+
+- added TargetDisableSources to disable configured sources
+  at the target system (#154850)
+- if no products found by libzypp, try also the base URL 
+  in SourceScan and SourceCreate (#157442)
+
+-------------------------------------------------------------------
+Sat Mar 11 14:23:11 CET 2006 - kkaempf@suse.de
+
+- fix the build.
+- 2.13.25
+
+-------------------------------------------------------------------
+Thu Mar  9 10:53:10 CET 2006 - lslezak@suse.cz
+
+- new pattern related builtins: GetPatterns and PatternData
+  (similar to GetSelections and SelectionData)
+- use zypp::SourceManager::SourceId instead of 'int' for source ID
+
+-------------------------------------------------------------------
+Wed Mar  8 10:57:53 CET 2006 - lslezak@suse.cz
+
+- create unique alias for a new installation source,
+  use URL + src ID as alias (#154913)
+
+-------------------------------------------------------------------
+Tue Mar  7 19:12:44 CET 2006 - jsrain@suse.de
+
+- handle installation abort properly (#154936)
+- 2.13.24
+
+-------------------------------------------------------------------
+Tue Mar  7 15:28:42 CET 2006 - kkaempf@suse.de
+
+- bail out early from SourceFinishAll() if there are no enabled
+  sources (#155459)
+- 2.13.23
+
+-------------------------------------------------------------------
+Tue Mar  7 14:51:03 CET 2006 - lslezak@suse.cz
+
+- implemented PkgSrcInstall
+
+-------------------------------------------------------------------
+Mon Mar  6 10:32:58 CET 2006 - lslezak@suse.cz
+
+- implemented PkgSolveCheckTargetOnly
+- 2.13.22
+
+-------------------------------------------------------------------
+Fri Mar  3 20:10:09 CET 2006 - jsrain@suse.de
+
+- fixed Pkg::SourceMoveDownloadArea according to changes in libzypp
+
+-------------------------------------------------------------------
+Fri Mar  3 16:52:55 CET 2006 - lslezak@suse.cz
+
+- error handling: PkgLastError(), LastErrorDetails(), remember
+  error messages
+- TargetGetDU - use current system paritioning if TargetInitDU
+  has not been called
+
+-------------------------------------------------------------------
+Fri Mar  3 10:34:15 CET 2006 - visnov@suse.cz
+
+- new builtin Pkg::Init() 
+- catch Url exceptions in source creation
+- SourceRefreshNow()
+
+-------------------------------------------------------------------
+Fri Mar  3 01:01:32 CET 2006 - jsrain@suse.de
+
+- new builting Pkg::SourceMoveDownloadArea (#151862)
+
+-------------------------------------------------------------------
+Thu Mar  2 16:32:19 CET 2006 - visnov@suse.cz
+
+- initialize only resolvables from the enabled sources
+- catch the restore source exception
+- don't initialize all resolvables to get the products from source
+- 2.13.21
+
+-------------------------------------------------------------------
+Thu Mar  2 15:19:17 CET 2006 - visnov@suse.cz
+
+- report user-abort from ProgressPackage callback (#150379) 
+
+-------------------------------------------------------------------
+Thu Mar  2 12:03:27 CET 2006 - kkaempf@suse.de
+
+- assure that PkgInstall always gets the best architecture.
+  (#154627)
+- assure that PkgRemove removes installed package.
+
+-------------------------------------------------------------------
+Thu Mar  2 09:09:51 CET 2006 - lslezak@suse.cz
+
+- added missing disconnect()s (#154331)
+
+-------------------------------------------------------------------
+Wed Mar  1 18:44:24 CET 2006 - jsrain@suse.de
+
+- provide description and summary via generic interface (#153713)
+- provide more information about products and patterns
+- release all medias after commit (#152709)
+- add builtin to release all medias (#154348)
+- 2.13.20
+
+-------------------------------------------------------------------
+Tue Feb 28 16:22:15 CET 2006 - lslezak@suse.cz
+
+- call YCP callbacks only when progress value has changed more
+  than 5% since the last call (lowers CPU usage by Yast during
+  installation)
+- 2.13.19
+
+-------------------------------------------------------------------
+Mon Feb 27 10:40:33 CET 2006 - lslezak@suse.cz
+
+- 2.13.18
+
+-------------------------------------------------------------------
+Mon Feb 27 10:28:05 CET 2006 - visnov@suse.cz
+
+- implement missing download progress callback 
+
+-------------------------------------------------------------------
+Fri Feb 24 18:47:57 CET 2006 - lslezak@suse.cz
+
+- fixed PkgProperties()
+- new builtin PkgPropertiesAll()
+
+-------------------------------------------------------------------
+Fri Feb 24 13:03:36 CET 2006 - lslezak@suse.cz
+
+- catch SourceManager::findSource() exceptions (#153323)
+
+-------------------------------------------------------------------
+Fri Feb 24 09:17:17 CET 2006 - lslezak@suse.cz
+
+- IsManualSelection, PkgReset, PkgMarkLicenseConfirmed
+- fixed PkgGetLicensesToConfirm, PkgGetLicenseToConfirm
+- PkgCommit updated to the new commit() API (#153294)
+- don't pack libpy2Pkg.la file
+- 2.13.17
+
+-------------------------------------------------------------------
+Fri Feb 24 08:44:18 CET 2006 - visnov@suse.cz
+
+- properly report if source restore failed
+
+-------------------------------------------------------------------
+Wed Feb 22 17:26:58 CET 2006 - jsrain@suse.de
+
+- TargetLogfile
+- 2.13.16
+
+-------------------------------------------------------------------
+Wed Feb 22 14:49:34 CET 2006 - lslezak@suse.cz
+
+- TargetInitDU
+- TargetGetDU
+- 2.13.15
+
+-------------------------------------------------------------------
+Wed Feb 22 10:01:46 CET 2006 - kkaempf@suse.de
+
+- DoProvide now returns the best (architecture/edition) match
+  instead of the first.
+- 2.13.14
+
+-------------------------------------------------------------------
+Wed Feb 22 08:56:01 CET 2006 - visnov@suse.cz
+
+- Don't generate doxygen documentation, this is not a C++ library 
+
+-------------------------------------------------------------------
+Tue Feb 21 18:28:20 CET 2006 - visnov@suse.cz
+
+- start of PkgTargetDU (#151430)
+- survive if no products found on a media (#152521)
+- 2.13.13 
+
+-------------------------------------------------------------------
+Mon Feb 20 17:49:31 CET 2006 - lslezak@suse.cz
+
+- fixed package location in PkgLocation and in PkgProperties
+- new builtin PkgPath - returns package name with path relative
+  to source root directory
+- 2.13.12
+
+-------------------------------------------------------------------
+Sun Feb 19 20:44:14 CET 2006 - kkaempf@suse.de
+
+- adapt SourceManager::store() call
+- 2.13.11
+
+-------------------------------------------------------------------
+Fri Feb 17 17:05:13 CET 2006 - visnov@suse.cz
+
+- 2.13.10 
+
+-------------------------------------------------------------------
+Fri Feb 17 14:05:58 CET 2006 - visnov@suse.cz
+
+- adapt for new pool iterators 
+
+-------------------------------------------------------------------
+Thu Feb 16 14:19:35 CET 2006 - lslezak@suse.cz
+
+- new builtins ResolvableInstall, ResolvableRemove,
+  ResolvableProperties
+- 2.13.9
+
+-------------------------------------------------------------------
+Thu Feb 16 09:53:41 CET 2006 - visnov@suse.cz
+
+- Don't report a package installation twice if it needs to
+  use different rpm parameters
+- Callback cleanup 
+
+-------------------------------------------------------------------
+Wed Feb 15 09:32:02 CET 2006 - visnov@suse.cz
+
+- PkgMediaCount, PkgMediaSizes, PkgMediaNames
+- Callback size fixes
+- this makes the download progress behave nicely 
+- 2.13.8
+
+-------------------------------------------------------------------
+Tue Feb 14 20:04:04 CET 2006 - visnov@suse.cz
+
+- compile fixes
+- SetLocale, GetLocale, SetAdditionalLocales, GetAdditionalLocales, 
+  updated SelectionContent, SelectionData 
+- 2.13.7
+
+-------------------------------------------------------------------
+Tue Feb 14 09:55:06 CET 2006 - visnov@suse.cz
+
+- Pkg::SourceScan, Pkg::SourceEditGet, Pkg::SourceGeneralData improvements
+
+-------------------------------------------------------------------
+Tue Feb 14 08:18:52 CET 2006 - visnov@suse.cz
+
+- use ZYpp linewriter to log into y2log (#149001)
+- Pkg::SourceProductData enhanced to return product name and 
+  version (#150209)
+- 2.13.6 
+
+-------------------------------------------------------------------
+Mon Feb 13 17:15:45 CET 2006 - visnov@suse.cz
+
+- Pkg::SourceProductData basic support
+- define LOGGROUP
+- 2.13.5
+
+-------------------------------------------------------------------
+Mon Feb 13 11:32:26 CET 2006 - visnov@suse.cz
+
+- connect also for source data parser and avoid media callback 
+- 2.13.4
+
+-------------------------------------------------------------------
+Sun Feb 12 19:00:02 CET 2006 - visnov@suse.cz
+
+- adapt for new libzypp 
+- 2.13.3
+
+-------------------------------------------------------------------
+Fri Feb 10 14:37:19 CET 2006 - lslezak@suse.cz
+
+- enable storage in TargetInit (#149869)
+- TargetInstall, TargetRemove
+- TargetProducts
+- version 2.13.2
+
+-------------------------------------------------------------------
+Thu Feb  9 11:42:06 CET 2006 - kkaempf@suse.de
+
+- honor kind when choosing resolvables
+- 2.13.1.10
+
+-------------------------------------------------------------------
+Thu Feb  9 10:04:48 CET 2006 - visnov@suse.cz
+
+- redirect zypp.log to the location of YaST log
+- set pool entries to transact
+- 2.13.1.9
+
+-------------------------------------------------------------------
+Wed Feb  8 17:39:08 CET 2006 - kkaempf@suse.de
+
+- Qt UI adaptions
+- 2.13.1.8
+
+-------------------------------------------------------------------
+Tue Feb  7 19:38:43 CET 2006 - visnov@suse.cz
+
+- All callback handlers implemented
+- 2.13.1.7 
+
+-------------------------------------------------------------------
+Tue Feb  7 08:55:46 CET 2006 - visnov@suse.cz
+
+- Store/restore source cache
+- More information in install callback
+- SourceStartManager, SourceStartCache, SourceGetCurrent
+
+-------------------------------------------------------------------
+Mon Feb  6 14:33:59 CET 2006 - visnov@suse.cz
+
+- Renamed files 
+- MediaChange callback fixes
+- RPM install problem callback
+- PkgQueryProvides
+- Selection interface cleaned up
+- 2.13.1.6
+
+-------------------------------------------------------------------
+Mon Feb  6 10:00:44 CET 2006 - visnov@suse.cz
+
+- Adapt for new libzypp 
+- 2.13.1.5
+
+-------------------------------------------------------------------
+Fri Feb  3 10:38:13 CET 2006 - visnov@suse.cz
+
+- Fix build for YaST modules using Pkg
+- Adapt for new libzypp
+- 2.13.1.4 
+
+-------------------------------------------------------------------
+Thu Feb  2 18:42:08 CET 2006 - lslezak@suse.cz
+
+- DownloadProgressCallback
+- MediaChangeCallback
+- changed Y2PM names (variables, namespaces...) to ZYPP
+- 2.13.1.3
+
+-------------------------------------------------------------------
+Thu Feb  2 15:56:06 CET 2006 - lslezak@suse.cz
+
+- removed yast2-packagemanager-devel from BuildRequires
+- don't compile/link PkgModuleError.* files
+- RebuildDbCallback
+- 2.13.1.2
+
+-------------------------------------------------------------------
+Thu Feb  2 14:04:53 CET 2006 - visnov@suse.cz
+
+- first drop for ZYPP
+- 2.13.1.1 
+
+-------------------------------------------------------------------
+Fri Dec  2 11:59:47 CET 2005 - ma@suse.de
+
+- Remember values sent on CB_StartSourceRefresh, and repeat them
+  in subsequent SourceRefresh callbacks. (#133811)
+- 2.13.1
+
+-------------------------------------------------------------------
+Tue Oct  4 15:16:26 CEST 2005 - ma@suse.de
+
+- Changed signature of ProgressProvide and ProgressDownload callbacks.
+  Both are now expected to return YCPBoolean. Iff the callback returns
+  YCPBoolean(FALSE), current download is aborted. (#115534)
+- 2.13.0
+
+-------------------------------------------------------------------
+Fri Aug 19 15:33:10 CEST 2005 - ma@suse.de
+
+- Provide installation source attribute 'autorefresh' in
+  PKG::SourceGeneralData.
+- 2.12.7
+
+-------------------------------------------------------------------
+Wed Aug 17 15:56:31 CEST 2005 - ma@suse.de
+
+- Removed obsolete 'TargetUpdateInf'. That's old YaST(1)
+  stuff.
+- 2.12.6
+
+-------------------------------------------------------------------
+Thu Aug  4 00:42:42 CEST 2005 - ma@suse.de
+
+- Added YCP {Start,Error,Done}SourceRefresh callbacks.
+- 2.12.5
+
+-------------------------------------------------------------------
+Wed Jul 27 22:13:12 CEST 2005 - ma@suse.de
+
+- Fixed conversion from YCPMap to InstSrcManager::SrcStateVector.
+- 2.12.4
+
+-------------------------------------------------------------------
+Mon Jul 25 14:03:11 CEST 2005 - ma@suse.de
+
+- Provide new installation source attribute 'autorefresh' in
+  PKG::SourceEditGet/SourceEditSet.
+- New builtin PKG::SourceRefreshNow.
+- 2.12.3
+
+-------------------------------------------------------------------
+Wed Jul 20 10:46:53 CEST 2005 - ma@suse.de
+
+- Adapt build requirements for libxml2
+
+-------------------------------------------------------------------
+Fri Jul  8 15:49:40 CEST 2005 - visnov@suse.cz
+
+- Adapt build requirements for blocxx
+- 2.12.2
+
+-------------------------------------------------------------------
+Fri Jun 10 11:08:40 CEST 2005 - ma@suse.de
+
+- Adapt to changes in base classes we use from liby2.
+- 2.12.1
+
+-------------------------------------------------------------------
+Tue Feb 15 14:44:35 CET 2005 - ma@suse.de
+
+- Extended statistics returned from Pkg::PkgUpdateAll. The builtin
+  now returns map<symbol,integer>. (#37073)
+- 2.11.6
+
+-------------------------------------------------------------------
+Tue Feb  8 18:01:35 CET 2005 - nashif@suse.de
+
+- Fixed neededforbuild: added sgml-skel
+
+-------------------------------------------------------------------
+Sat Feb  5 21:15:23 CET 2005 - ma@suse.de
+
+- Base selctions are mutual exclusive. If a new base selection
+  is set to install, take care the old one gets deleted. (#46998)
+- 2.11.4
+
+-------------------------------------------------------------------
+Mon Jan 24 17:43:30 CET 2005 - ma@suse.de
+
+- Code cleanup. Explicit casts removed.
+- 2.11.3
+
+-------------------------------------------------------------------
+Fri Jan 21 16:51:19 CET 2005 - nashif@suse.de
+
+- Fixed packages needed for build
+
+-------------------------------------------------------------------
+Fri Jan 21 13:49:58 CET 2005 - ma@suse.de
+
+- Updated media change callback to allow to provide more
+  information via callback.
+- 2.11.2
+
+-------------------------------------------------------------------
+Fri Oct 29 16:01:19 CEST 2004 - mvidner@suse.cz
+
+- Added pkgconfig support.
+- 2.11.1
+
+-------------------------------------------------------------------
+Wed Oct 13 13:34:19 2004 - visnov@suse.de
+
+- Initial version
+

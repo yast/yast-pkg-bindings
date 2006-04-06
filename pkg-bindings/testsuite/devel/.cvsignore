@@ -1,0 +1,10 @@
+Makefile
+Makefile.in
+tmp.*
+.deps
+.libs
+*.log
+*.sum
+*.bin
+*.test
+Y2LOGFILE
