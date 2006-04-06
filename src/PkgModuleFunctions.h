@@ -205,7 +205,7 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue SourceCreate (const YCPString&, const YCPString&);
 	/* TYPEINFO: list<integer>(boolean)*/
 	YCPValue SourceStartCache (const YCPBoolean&);
-	/* TYPEINFO: boolean(void)*/
+	/* TYPEINFO: boolean()*/
 	YCPValue SourceCleanupBroken ();
 	/* TYPEINFO: list<integer>(boolean)*/
 	YCPValue SourceGetCurrent (const YCPBoolean& enabled);
