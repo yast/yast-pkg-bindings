@@ -49,6 +49,7 @@
 #include <zypp/ResPoolManager.h>
 
 #include <fstream>
+#include <sstream>
 
 ///////////////////////////////////////////////////////////////////
 
@@ -582,8 +583,12 @@ PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvabl
 	if (!info.item) 
 	    return false;
 
-	bool result = info.item.status().setToBeInstalled(whoWantsIt);
-	y2milestone ("DoProvideNameKind %s -> %s\n", name.c_str(), (result ? "Ok" : "Bad"));
+	bool result = info.item.status().setToBeInstalled( whoWantsIt );
+	if (!result) {
+	    std::ostringstream os;
+	    os << info.item;
+	    y2milestone( "DoProvideNameKind failed for %s\n", os.str().c_str() );
+	}
 	return true;
     }
     catch (...)
