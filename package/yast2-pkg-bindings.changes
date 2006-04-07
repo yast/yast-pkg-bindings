@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Apr  7 23:56:06 CEST 2006 - jsrain@suse.de
+
+- let product provide short_name via ResolvableProperties (#163702)
+
+-------------------------------------------------------------------
 Thu Apr  6 22:38:39 CEST 2006 - visnov@suse.cz
 
 - fix build
