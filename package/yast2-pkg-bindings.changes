@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Apr 10 11:07:57 CEST 2006 - mvidner@suse.cz
+
+- Added update_urls to Pkg::ResolvableProperties (#163192).
+- 2.13.55
+
+-------------------------------------------------------------------
 Mon Apr 10 09:10:11 CEST 2006 - visnov@suse.cz
 
 - fix ImportGPGKey

@@ -382,6 +382,15 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 		    info->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
 		    info->add(YCPString("display_name"), YCPString(product->summary()));
 		    info->add(YCPString("short_name"), product->shortName().size() > 0 ? YCPString(product->shortName()) : YCPString(product->summary()));
+
+		    YCPList updateUrls;
+		    std::list<zypp::Url> pupdateUrls = product->updateUrls();
+		    for (std::list<zypp::Url>::const_iterator it = pupdateUrls.begin(); it != pupdateUrls.end(); ++it)
+		    {
+			updateUrls->add(YCPString(it->asString()));
+		    }
+		    info->add(YCPString("update_urls"), updateUrls);
+
 		    YCPList flags;
 		    std::list<std::string> pflags = product->flags();
 		    for (std::list<std::string>::const_iterator flag_it = pflags.begin();
