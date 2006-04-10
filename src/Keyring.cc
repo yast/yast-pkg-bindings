@@ -55,7 +55,7 @@ PkgModuleFunctions::ImportGPGKey(const YCPString& filename, const YCPBoolean& tr
     }
     catch (...)
     {
-	y2error("Key %s: Import failed", file);
+	y2error("Key %s: Import failed", file.c_str());
     }
 
     return YCPVoid();
