@@ -393,7 +393,7 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue PkgMediaSizes ();
 	/* TYPEINFO: list<list<integer>>()*/
 	YCPValue PkgMediaCount();
-	/* TYPEINFO: list<string>()*/
+	/* TYPEINFO: list<list<any>>()*/
 	YCPValue PkgMediaNames ();
 
 	/* TYPEINFO: string(string)*/

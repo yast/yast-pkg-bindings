@@ -184,8 +184,8 @@ inline std::string join( const std::list<std::string> & lines_r, const std::stri
 /**
  *  @builtin PkgMediaNames
  *  @short Return names of sources in installation order
- *  @return list<string> Names of Sources
- *  @usage Pkg::PkgMediaNames () -> [ "source_1_name", "source_2_name", ...]
+ *  @return list< list<any> > Names and ids of Sources
+ *  @usage Pkg::PkgMediaNames () -> [ ["source_1_name", source_1_id] , ["source_2_name", source_2_id], ...]
  */
 YCPValue
 PkgModuleFunctions::PkgMediaNames ()
@@ -218,7 +218,11 @@ PkgModuleFunctions::PkgMediaNames ()
 		{
 		    y2debug ("Found");
 		    
-		    res->add( YCPString ( product->summary() ) );
+		    YCPList src_desc;
+		    src_desc->add( YCPString( product->summary() ) );
+		    src_desc->add( YCPInteger( src.numericId() ) );
+		
+		    res->add( src_desc );
 		    break; 
 		}
 	    }
@@ -227,7 +231,11 @@ PkgModuleFunctions::PkgMediaNames ()
 	    {
 		y2error ("Product for source '%d' not found", id);
 		
-		res->add( YCPString( src.url().asString() ) );
+		YCPList src_desc;
+		src_desc->add( YCPString( src.url().asString() ) );
+		src_desc->add( YCPInteger( src.numericId() ) );
+		
+		res->add( src_desc );
 	    }
 	}
 	catch (...)

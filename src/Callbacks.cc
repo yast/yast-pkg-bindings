@@ -380,6 +380,8 @@ namespace ZyppRecipients {
 	        callback.addInt( media_nr );
 	        callback.evaluate();
 	      }
+	      last_source_id = source_id;
+	      last_source_media = media_nr;
             }	  
 	  }
 

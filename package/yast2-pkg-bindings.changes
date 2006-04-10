@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Apr 10 16:47:36 CEST 2006 - visnov@suse.cz
+
+- Modified PkgMediaNames to return also the installation source
+  ID (#161298)
+- 2.13.56 
+
+-------------------------------------------------------------------
 Mon Apr 10 11:07:57 CEST 2006 - mvidner@suse.cz
 
 - Added update_urls to Pkg::ResolvableProperties (#163192).
