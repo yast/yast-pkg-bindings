@@ -1020,6 +1020,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
     }
   }
 
+  PkgFreshen();
   return YCPInteger(ret);
 }
 
@@ -1052,6 +1053,7 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
     if (enabled)
     {
 	src.enable();
+	PkgFreshen();
     }
     else
     {
@@ -1283,6 +1285,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 #warning SourceEditSet ordering not implemented yet
   }
 
+  PkgFreshen();
   return YCPBoolean( true );
 }
 
