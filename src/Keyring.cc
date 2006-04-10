@@ -47,7 +47,7 @@ PkgModuleFunctions::ImportGPGKey(const YCPString& filename, const YCPBoolean& tr
     bool trusted_key = trusted->value();
     std::string file = filename->value();
 
-    y2milestone("importing %s key: %s", (trusted_key) ? "trusted" : "untrusted", file);
+    y2milestone("importing %s key: %s", (trusted_key) ? "trusted" : "untrusted", file.c_str());
 
     try
     {
