@@ -44,7 +44,7 @@
 // exit
 #include <cstdlib>
 
-class Y2PkgFunction: public Y2Function 
+class Y2PkgFunction: public Y2Function
 {
     unsigned int m_position;
     PkgModuleFunctions* m_instance;
@@ -55,7 +55,7 @@ class Y2PkgFunction: public Y2Function
     string m_name;
 public:
 
-    Y2PkgFunction (string name, PkgModuleFunctions* instance, unsigned int pos);    
+    Y2PkgFunction (string name, PkgModuleFunctions* instance, unsigned int pos);
     bool attachParameter (const YCPValue& arg, const int position);
     constTypePtr wantedParameterType () const;
     bool appendParameter (const YCPValue& arg);
@@ -76,27 +76,27 @@ public:
 	, m_name (name)
     {
     };
-    
+
     bool Y2PkgFunction::attachParameter (const YCPValue& arg, const int position)
     {
 	switch (position)
 	{
-	    case 0: m_param1 = arg; break; 
-	    case 1: m_param2 = arg; break; 
-	    case 2: m_param3 = arg; break; 
-	    case 3: m_param4 = arg; break; 
+	    case 0: m_param1 = arg; break;
+	    case 1: m_param2 = arg; break;
+	    case 2: m_param3 = arg; break;
+	    case 3: m_param4 = arg; break;
 	    default: return false;
 	}
 
 	return true;
     }
-    
+
     constTypePtr Y2PkgFunction::wantedParameterType () const
     {
 	y2internal ("wantedParameterType not implemented");
 	return Type::Unspec;
     }
-    
+
     bool Y2PkgFunction::appendParameter (const YCPValue& arg)
     {
 	if (m_param1.isNull ())
@@ -119,13 +119,13 @@ public:
 	y2internal ("appendParameter > 3 not implemented");
 	return false;
     }
-    
+
     bool Y2PkgFunction::finishParameters ()
     {
 	y2internal ("finishParameters not implemented");
 	return true;
     }
-    
+
     YCPValue Y2PkgFunction::evaluateCall ()
     {
 	ycpmilestone ("Pkg Builtin called: %s", name().c_str() );
@@ -133,10 +133,10 @@ public:
 	switch (m_position) {
 #include "PkgBuiltinCalls.h"
 	}
-	
+
 	return YCPNull ();
     }
-    
+
     bool Y2PkgFunction::reset ()
     {
 	m_param1 = YCPNull ();
@@ -225,7 +225,7 @@ Y2Function* PkgModuleFunctions::createFunctionCall (const string name, constFunc
 	y2error ("No such function %s", name.c_str ());
 	return NULL;
     }
-    
+
     return new Y2PkgFunction (name, this, it - _registered_functions.begin ());
 }
 
@@ -275,7 +275,7 @@ PkgModuleFunctions::InstSysMode ()
 
 
 /**
- * @builtin SetLocale 
+ * @builtin SetLocale
  * @short Set Prefered Locale
  * @description
  * set the given locale as the "preferred" locale
@@ -359,9 +359,9 @@ PkgModuleFunctions::SetAdditionalLocales (YCPList langycplist)
  * @builtin GetAdditionalLocales
  *
  * @short return list of additional locales
- * @return list<string> 
+ * @return list<string>
  * @usage Pkg::GetAdditionalLocales() -> ["de_DE"];
- * 
+ *
  */
 YCPValue
 PkgModuleFunctions::GetAdditionalLocales ()
@@ -444,15 +444,13 @@ PkgModuleFunctions::Init ()
 {
     try {
 	zypp::SourceManager::sourceManager()->reset();
-	
-	zypp_ptr()->reset();
     }
     catch( const zypp::Exception & expt )
     {
 	y2error( "Initialization of libzypp failed" );
 	return YCPBoolean(false);
     }
-    
+
     return YCPBoolean(true);
 }
 
