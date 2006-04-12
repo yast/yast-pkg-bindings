@@ -44,8 +44,8 @@
 #include <zypp/SourceManager.h>
 #include <zypp/UpgradeStatistics.h>
 #include <zypp/target/rpm/RpmDb.h>
-#include <zypp/target/TargetImpl.h>
-#include <zypp/ZYppCommitResult.h>
+#include <zypp/target/TargetException.h>
+#include <zypp/ZYppCommit.h>
 #include <zypp/ResPoolManager.h>
 
 #include <fstream>
@@ -2118,7 +2118,9 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 
     try
     {
-	result = zypp_ptr()->commit(medianr);
+	zypp::ZYppCommitPolicy policy;
+	policy.restrictToMedia( medianr );
+	result = zypp_ptr()->commit(policy);
     }
     catch (const zypp::target::TargetAbortedException & excpt)
     {
