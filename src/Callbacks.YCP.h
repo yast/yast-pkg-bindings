@@ -133,6 +133,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( AcceptUnknownGpgKey );
 	ENUM_OUT( AcceptUnsignedFile );
 	ENUM_OUT( AcceptVerificationFailed );
+	ENUM_OUT( AcceptFileWithoutChecksum );
 	ENUM_OUT( TrustedKeyAdded );
 	ENUM_OUT( TrustedKeyRemoved );
 #undef ENUM_OUT
