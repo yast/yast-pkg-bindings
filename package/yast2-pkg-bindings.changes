@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Apr 13 15:51:18 CEST 2006 - lslezak@suse.cz
+
+- Pkg::ResolvableProperties - return patch specific values
+
+-------------------------------------------------------------------
 Thu Apr 13 13:00:00 CEST 2006 - lslezak@suse.cz
 
 - fixed disk usage counting - non-root dirs should not contain

@@ -411,6 +411,16 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 		    info->add(YCPString("script"), YCPString(pattern->script().asString()));
 		}
 
+		// patch specific info
+		if ( req_kind == "patch" )
+		{
+		    zypp::Patch::constPtr patch_ptr = boost::dynamic_pointer_cast<const zypp::Patch>(it->resolvable());
+		    
+		    info->add(YCPString("interactive"), YCPBoolean(patch_ptr->interactive()));
+		    info->add(YCPString("reboot_needed"), YCPBoolean(patch_ptr->reboot_needed()));
+		    info->add(YCPString("affects_pkg_manager"), YCPBoolean(patch_ptr->affects_pkg_manager()));
+		}
+
 		// dependency info
 		if (dependencies)
 		{
