@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Thu Apr 13 13:00:00 CEST 2006 - lslezak@suse.cz
+
+- fixed disk usage counting - non-root dirs should not contain
+  / at the beginning (#163199)
+- updated Pkg::ResolvablePreselectPatches - return number of
+  patches, added 'kind' argument (#165540)
+- new binding Pkg::CallbackAcceptFileWithoutChecksum() (#165125)
+- 2.13.58
+
+-------------------------------------------------------------------
 Mon Apr 10 17:43:19 CEST 2006 - jsrain@suse.de
 
 - call PkgRefresh when added or enabled a source (#156980)
