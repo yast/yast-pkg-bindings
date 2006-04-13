@@ -441,8 +441,8 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue ResolvableProperties(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version);
 	/* TYPEINFO: list<map<string,any> >(string,symbol,string)*/
         YCPValue ResolvableDependencies(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version);
-	/* TYPEINFO: boolean()*/
-	YCPValue ResolvablePreselectPatches ();
+	/* TYPEINFO: integer(symbol)*/
+	YCPValue ResolvablePreselectPatches(const YCPSymbol& kind_r);
 
 	// keyring related
 	/* TYPEINFO: void(string,boolean)*/

@@ -463,12 +463,22 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 /**
    @builtin ResolvablePreselectPatches
    @short Preselect patches for auto online update during the installation
-   @return boolean false if failed
+   @description
+   Only non-optional patches are selected (even when `all parameter is passed!)
+   @param kind_r kind of preselected patches, can be `all, `interactive, `reboot_needed or `affects_pkg_manager
+   @return integer number of preselected patches
 */
 YCPValue
-PkgModuleFunctions::ResolvablePreselectPatches ()
+PkgModuleFunctions::ResolvablePreselectPatches (const YCPSymbol& kind_r)
 {
-    YCPBoolean ret = true;
+    long long selected_patches = 0LL;
+    std::string kind = kind_r->symbol();
+
+    if (kind != "all" && kind != "interactive" && kind != "reboot_needed"
+	 && kind != "affects_pkg_manager")
+    {
+	return YCPError("Pkg::ResolvablePreselectPatches: Wrong parameter '" + kind + "', use: `all, `interactive, `reboot_needed or `affects_pkg_manager", YCPInteger(0LL));
+    }
 
     try
     {
@@ -485,22 +495,43 @@ PkgModuleFunctions::ResolvablePreselectPatches ()
 	{
 	    if (i->status().isNeeded()) {	// uninstalled
 		zypp::Patch::constPtr pch = zypp::asKind<zypp::Patch>(i->resolvable());
-		if (pch && pch->category () != "optional") {
+		if (pch)
+		{
 		    // dont auto-install optional patches
-
-		    stringstream str; 
-		    str << *i << endl;
-		    y2milestone( "Setting '%s' to transact", str.str().c_str() );
-		    i->status().setTransact(true, whoWantsIt); // schedule for installation
+		    if (pch->category () != "optional")
+		    {
+			if (kind == "all"
+			    || (kind == "interactive" && pch->interactive())
+			    || (kind == "affects_pkg_manager" && pch->affects_pkg_manager())
+			    || (kind == "reboot_needed" && pch->reboot_needed())
+			)
+			{
+			    stringstream str; 
+			    str << *i << endl;
+			    y2milestone( "Setting '%s' to transact", str.str().c_str() );
+			    if (i->status().setTransact(true, whoWantsIt)) // schedule for installation
+			    {
+				// selected successfully - increase the counter
+				selected_patches++;
+			    }
+			}
+			else
+			{
+			    y2milestone("Ignoring patch id: %s", pch->id().c_str());
+			}
+		    }
+		    else
+		    {
+			y2milestone("Ignoring optional patch (id): %s", pch->id().c_str());
+		    }
 		}
-		
 	    }
 	}
     }
     catch (...)
     {
-	ret = false;
+	y2error("An error occurred during patch selection.");
     }
 
-    return ret;
+    return YCPInteger(selected_patches);
 }
