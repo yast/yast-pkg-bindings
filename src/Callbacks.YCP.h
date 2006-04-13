@@ -85,6 +85,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_ImportGpgKey,
       CB_AcceptUnknownGpgKey,
       CB_AcceptUnsignedFile,
+      CB_AcceptFileWithoutChecksum,
       CB_AcceptVerificationFailed,
       CB_TrustedKeyAdded,
       CB_TrustedKeyRemoved

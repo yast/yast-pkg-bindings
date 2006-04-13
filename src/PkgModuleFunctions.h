@@ -197,6 +197,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue CallbackTrustedKeyAdded( const YCPString& func );	
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackTrustedKeyRemoved( const YCPString& func );	
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackAcceptFileWithoutChecksum( const YCPString& func );	
 
 	// source related
 	/* TYPEINFO: boolean(boolean)*/

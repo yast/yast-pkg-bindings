@@ -868,6 +868,20 @@ namespace ZyppRecipients {
 	    
 	    return zypp::KeyRingReport::askUserToAcceptUnsignedFile(file);
 	}
+
+	virtual bool askUserToAcceptFileWithoutChecksum( const zypp::Pathname &file )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_AcceptFileWithoutChecksum) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(file.asString());
+
+		return callback.evaluateBool();
+	    }
+	    
+	    return zypp::KeyRingReport::askUserToAcceptFileWithoutChecksum(file);
+	}
 	
 	virtual bool askUserToAcceptVerificationFailed( const zypp::Pathname &file,
 	    const std::string &keyid, const std::string &keyname )
@@ -1123,6 +1137,16 @@ YCPValue PkgModuleFunctions::CallbackAcceptUnknownGpgKey( const YCPString& args 
  */
 YCPValue PkgModuleFunctions::CallbackAcceptUnsignedFile( const YCPString& args ) {
   return SET_YCP_CB( CB_AcceptUnsignedFile, args );
+}
+
+/**
+ * @builtin CallbackAcceptFileWithoutChecksum
+ * @short Register callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename)</code>. The callback function should ask user whether the unsigned file can be accepted, returned true value means to accept the file.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackAcceptFileWithoutChecksum( const YCPString& args ) {
+  return SET_YCP_CB( CB_AcceptFileWithoutChecksum, args );
 }
 
 /**
