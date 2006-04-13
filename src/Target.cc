@@ -403,8 +403,11 @@ PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
 	    && partmap->value(YCPString("name"))->isString())
 	{
 	    dname = partmap->value(YCPString("name"))->asString()->value();
-	    if (dname[0] != '/')
-		dname = "/" + dname;
+	    if (dname[0] == '/' && dname.size() > 1)
+	    {
+		// remove the first character (/)
+		dname.erase(dname.begin());
+	    }
 	}
 	else
 	{
@@ -450,7 +453,7 @@ PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
 	    continue;
 	}
 
-	y2internal("Adding %s", dname.c_str());
+	y2milestone("Adding %s", dname.c_str());
 
 	long long dirsize = dfree + dused;
 
@@ -529,6 +532,12 @@ PkgModuleFunctions::TargetGetDU ()
 	    sizelist->add (YCPInteger (mpit->pkg_size));
 	    // readonly flag
 	    sizelist->add (YCPInteger (mpit->readonly ? 1 : 0));
+
+	    std::string dir = mpit->dir;
+	    if (dir.size() > 1 && dir[0] != '/')
+	    {
+		dir.insert(dir.begin(), '/');
+	    }
 
 	    // add the map
 	    dirmap->add (YCPString(mpit->dir), sizelist);
