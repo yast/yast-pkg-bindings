@@ -33,6 +33,7 @@
 #include <zypp/Package.h>
 #include <zypp/Product.h>
 #include <zypp/KeyRing.h>
+#include <zypp/Digest.h>
 #include <zypp/SourceManager.h>
 
 // FIXME: do this nicer, source create use this to avoid user feedback
@@ -815,6 +816,29 @@ namespace ZyppRecipients {
     };
 
     ///////////////////////////////////////////////////////////////////
+    // DigestReport handler
+    ///////////////////////////////////////////////////////////////////
+    struct DigestReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::DigestReport>
+    {
+	DigestReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual bool askUserToAcceptNoDigest( const zypp::Pathname &file )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_AcceptFileWithoutChecksum) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(file.asString());
+
+		return callback.evaluateBool();
+	    }
+	    
+	    return zypp::DigestReport::askUserToAcceptNoDigest(file);
+	}
+    };
+
+
+    ///////////////////////////////////////////////////////////////////
     // KeyRingReport handler
     ///////////////////////////////////////////////////////////////////
     struct KeyRingReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::KeyRingReport>
@@ -867,20 +891,6 @@ namespace ZyppRecipients {
 	    }
 	    
 	    return zypp::KeyRingReport::askUserToAcceptUnsignedFile(file);
-	}
-
-	virtual bool askUserToAcceptFileWithoutChecksum( const zypp::Pathname &file )
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_AcceptFileWithoutChecksum) );
-
-	    if (callback._set)
-	    {
-		callback.addStr(file.asString());
-
-		return callback.evaluateBool();
-	    }
-	    
-	    return zypp::KeyRingReport::askUserToAcceptFileWithoutChecksum(file);
 	}
 	
 	virtual bool askUserToAcceptVerificationFailed( const zypp::Pathname &file,
@@ -966,7 +976,10 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 
     // resolvable report
     ZyppRecipients::ResolvableReport _resolvableReport;
-    
+
+    // digest callback   
+    ZyppRecipients::DigestReceive _digestReceive;
+ 
     // key ring callback
     ZyppRecipients::KeyRingReceive _keyRingReceive;
 
@@ -987,6 +1000,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
       , _sourceRefreshReceive( *this )
       , _createSourceReceive( *this )
       , _resolvableReport( *this )
+      , _digestReceive( *this )
       , _keyRingReceive( *this )
       , _keyRingSignal( *this )
     {
@@ -1001,6 +1015,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_sourceRefreshReceive.connect();
 	_createSourceReceive.connect();
 	_resolvableReport.connect();
+ 	_digestReceive.connect();
 	_keyRingReceive.connect();
 	_keyRingSignal.connect();
     }
@@ -1018,6 +1033,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_sourceRefreshReceive.disconnect();
 	_createSourceReceive.disconnect();
 	_resolvableReport.disconnect();
+	_digestReceive.disconnect();
 	_keyRingReceive.disconnect();
 	_keyRingSignal.disconnect();
     }
