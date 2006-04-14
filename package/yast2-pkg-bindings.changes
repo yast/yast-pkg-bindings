@@ -2,6 +2,7 @@
 Fri Apr 14 16:07:19 CEST 2006 - visnov@suse.cz
 
 - Adapt for new digest callbacks in ZYPP 
+- 2.13.59
 
 -------------------------------------------------------------------
 Thu Apr 13 15:51:18 CEST 2006 - lslezak@suse.cz
