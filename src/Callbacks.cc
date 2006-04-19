@@ -278,6 +278,12 @@ namespace ZyppRecipients {
 
 	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, std::string reason, zypp::target::rpm::InstallResolvableReport::RpmLevel level)
 	{
+	    if (error != zypp::target::rpm::InstallResolvableReport::NO_ERROR && level != zypp::target::rpm::InstallResolvableReport::RPM_NODEPS_FORCE)
+	    {
+		y2milestone( "Skipping finish due to retrying installation problem with too low severity (%d)", level);
+		return;
+	    }
+	    
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
 		callback.addInt( level == zypp::target::rpm::InstallResolvableReport::RPM_NODEPS_FORCE ? error : NO_ERROR);

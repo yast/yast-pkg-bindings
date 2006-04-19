@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Apr 19 10:33:33 CEST 2006 - visnov@suse.cz
+
+- ignore finish with errors in DonePackage callback to be retried (#161298)
+- 2.13.60
+
+-------------------------------------------------------------------
 Fri Apr 14 16:07:19 CEST 2006 - visnov@suse.cz
 
 - Adapt for new digest callbacks in ZYPP 
