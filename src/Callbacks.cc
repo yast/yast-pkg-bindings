@@ -852,7 +852,7 @@ namespace ZyppRecipients {
 	KeyRingReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
 	virtual bool askUserToTrustKey( const std::string &keyid
-	    , const std::string &keyname, const std::string &keydetails )
+            , const std::string &keyname, const std::string &fingerprint )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ImportGpgKey) );
 
@@ -860,16 +860,16 @@ namespace ZyppRecipients {
 	    {
 		callback.addStr(keyid);
 		callback.addStr(keyname);
-		callback.addStr(keydetails);
-
+                callback.addStr(fingerprint);
+                
 		return callback.evaluateBool();
 	    }
 	    
-	    return zypp::KeyRingReport::askUserToTrustKey(keyid, keyname, keydetails);
+	    return zypp::KeyRingReport::askUserToTrustKey(keyid, keyname, fingerprint);
 	}
 
 	virtual bool askUserToAcceptUnknownKey( const zypp::Pathname &path,
-	    const std::string &keyid, const std::string &keyname )
+            const std::string &keyid, const std::string &keyname, const std::string &fingerprint )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnknownGpgKey) );
 
@@ -878,11 +878,12 @@ namespace ZyppRecipients {
 		callback.addStr(path.asString());
 		callback.addStr(keyid);
 		callback.addStr(keyname);
+                callback.addStr(fingerprint);
 
 		return callback.evaluateBool();
 	    }
 	    
-	    return zypp::KeyRingReport::askUserToAcceptUnknownKey(path, keyid, keyname);
+	    return zypp::KeyRingReport::askUserToAcceptUnknownKey(path, keyid, keyname, fingerprint );
 	}
 
 	virtual bool askUserToAcceptUnsignedFile( const zypp::Pathname &file )
@@ -900,7 +901,7 @@ namespace ZyppRecipients {
 	}
 	
 	virtual bool askUserToAcceptVerificationFailed( const zypp::Pathname &file,
-	    const std::string &keyid, const std::string &keyname )
+            const std::string &keyid, const std::string &keyname, const std::string &fingerprint )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptVerificationFailed) );
 
@@ -909,11 +910,12 @@ namespace ZyppRecipients {
 		callback.addStr(file.asString());
 		callback.addStr(keyid);
 		callback.addStr(keyname);
+                callback.addStr(fingerprint);
 
 		return callback.evaluateBool();
 	    }
 	    
-	    return zypp::KeyRingReport::askUserToAcceptVerificationFailed(file, keyid, keyname);
+	    return zypp::KeyRingReport::askUserToAcceptVerificationFailed(file, keyid, keyname, fingerprint);
 	}
     };
 
@@ -924,7 +926,7 @@ namespace ZyppRecipients {
     {
 	KeyRingSignal ( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual void trustedKeyAdded( const zypp::KeyRing &keyring, const std::string &keyid, const std::string &keyname )
+        virtual void trustedKeyAdded( const zypp::KeyRing &keyring, const std::string &keyid, const std::string &keyname, const std::string &fingerprint )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_TrustedKeyAdded) );
 
@@ -932,10 +934,11 @@ namespace ZyppRecipients {
 	    {
 		callback.addStr(keyid);
 		callback.addStr(keyname);
+                callback.addStr(fingerprint);
 	    }
 	}
 
-	virtual void trustedKeyRemoved( const zypp::KeyRing &keyring, const std::string &keyid, const std::string &keyname )
+        virtual void trustedKeyRemoved( const zypp::KeyRing &keyring, const std::string &keyid, const std::string &keyname, const std::string &fingerprint )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_TrustedKeyRemoved) );
 
@@ -943,6 +946,7 @@ namespace ZyppRecipients {
 	    {
 		callback.addStr(keyid);
 		callback.addStr(keyname);
+                callback.addStr(fingerprint);
 	    }
 	}
     };
