@@ -71,7 +71,9 @@ bool YcpArgLoad::load( const YCPList & args_r )
   }
 
   if ( !ret ) {
-    INT << *this << ": " << errstr << endl;
+    std::ostringstream os;
+    os << *this << ": " << errstr << endl;
+    y2internal( "%s", os.str().c_str() );
   }
   return ret;
 }

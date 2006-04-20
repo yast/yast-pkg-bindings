@@ -555,9 +555,7 @@ struct ProvideProcess
 	{
 	    // regarding items which are installable only
 	    if (!provider->arch().compatibleWith( _architecture )) {
-		y2milestone ("provider %s has incompatible arch '%s'", "FIXME_provider_FIXME", provider->arch().asString().c_str());
-#warning component provider into the message above
-//		MIL << "provider " << provider << " has incompatible arch '" << provider->arch() << "'" << endl;
+		y2milestone ("provider %s has incompatible arch '%s'", provider->name().c_str(), provider->arch().asString().c_str());
 	    }
 	    else if (!item) {						// no provider yet
 		item = provider;

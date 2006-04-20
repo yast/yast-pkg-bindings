@@ -326,9 +326,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	  bool expecting( YCPValueType exp_r ) const {
 	    if ( _result->valuetype() == exp_r )
 	      return true;
-	    y2internal ("Wrong return type %s: Expected %s", "FIXME__result->valuetype()_FIXME", "FIXME_exp_r_FIXME");
-#warning put the values into code above
-//	    INT << "Wrong return type " << _result->valuetype() << ": Expected " << exp_r << endl;
+	    y2internal ("Wrong return type %s: Expected %s", Type::vt2type(_result->valuetype())->toString().c_str(), Type::vt2type(exp_r)->toString().c_str());
 	    return false;
 	  }
 
