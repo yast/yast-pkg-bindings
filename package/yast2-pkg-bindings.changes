@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Apr 21 23:06:34 CEST 2006 - jsrain@suse.de
+
+- SourceCreateBase (#160585)
+
+-------------------------------------------------------------------
 Fri Apr 21 11:10:24 CEST 2006 - lslezak@suse.cz
 
 - Pkg::ResolvableNeutral() - added force argument (#168278)

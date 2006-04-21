@@ -39,6 +39,7 @@
 #include <zypp/Product.h>
 #include <zypp/target/store/PersistentStorage.h>
 #include <zypp/media/MediaManager.h>
+#include <zypp/Pathname.h>
 
 #include <stdio.h> // snprintf
 
@@ -765,9 +766,10 @@ static std::string timestamp ()
 */
 zypp::SourceManager::SourceId
 createManagedSource( const zypp::Url & url_r,
-		     const zypp::Pathname & path_r )
+		     const zypp::Pathname & path_r,
+		     const bool base_source )
 {
-  zypp::Source_Ref newsrc = zypp::SourceFactory().createFrom(url_r, path_r);
+  zypp::Source_Ref newsrc = zypp::SourceFactory().createFrom(url_r, path_r, string(""), zypp::filesystem::Pathname(), base_source);
   
   // use product name+edition as the alias
   // (URL is not enough for different sources in the same DVD drive)
@@ -881,7 +883,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     {
 	try
 	{
-	    id = createManagedSource(url, it->_dir);
+	    id = createManagedSource(url, it->_dir, false);
 	    ids->add( YCPInteger(id) );
 	}
 	catch ( const zypp::Exception& excpt)
@@ -896,7 +898,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 
     try
     {
-	id = createManagedSource(url, pn);
+	id = createManagedSource(url, pn, false);
 	ids->add( YCPInteger(id) );
     }
     catch ( const zypp::Exception& excpt)
@@ -930,6 +932,18 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
  **/
 YCPValue
 PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
+{
+  return SourceCreateEx (media, pd, false);
+}
+
+YCPValue
+PkgModuleFunctions::SourceCreateBase (const YCPString& media, const YCPString& pd)
+{
+  return SourceCreateEx (media, pd, true);
+}
+
+YCPValue
+PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool base)
 {
   y2debug("Creating source...");
 
@@ -979,7 +993,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
     {
 	try
 	{
-	    unsigned id = createManagedSource(url, it->_dir);
+	    unsigned id = createManagedSource(url, it->_dir, base);
 
 	    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id);
 
@@ -1004,7 +1018,7 @@ PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 
     try
     {
-	ret = createManagedSource(url, pn);
+	ret = createManagedSource(url, pn, base);
 
 	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(ret);
 
