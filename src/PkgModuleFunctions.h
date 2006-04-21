@@ -433,8 +433,8 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: boolean(string,symbol)*/
         YCPValue ResolvableRemove( const YCPString& name_r, const YCPSymbol& kind_r );
-	/* TYPEINFO: boolean(string,symbol)*/
-        YCPValue ResolvableNeutral( const YCPString& name_r, const YCPSymbol& kind_r );
+	/* TYPEINFO: boolean(string,symbol,boolean)*/
+        YCPValue ResolvableNeutral( const YCPString& name_r, const YCPSymbol& kind_r, const YCPBoolean& force_r );
 	/* TYPEINFO: boolean(string,symbol)*/
         YCPValue ResolvableSetSoftLock( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: list<map<string,any> >(string,symbol,string)*/

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Apr 21 11:10:24 CEST 2006 - lslezak@suse.cz
+
+- Pkg::ResolvableNeutral() - added force argument (#168278)
+- 2.13.63
+
+-------------------------------------------------------------------
 Thu Apr 20 10:16:37 CEST 2006 - lslezak@suse.cz
 
 - fixed logging

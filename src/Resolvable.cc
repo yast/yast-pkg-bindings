@@ -137,15 +137,17 @@ PkgModuleFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol&
    @short Remove all transactions from all resolvables with selected name and kind
    @param name_r name of the resolvable, if empty ("") use all resolvables of the kind 
    @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @param force_r remove the transactions even on USER level - default is APPL_HIGH (use true value only if really needed!)
    @return boolean false if failed
 */
 YCPValue
-PkgModuleFunctions::ResolvableNeutral ( const YCPString& name_r, const YCPSymbol& kind_r )
+PkgModuleFunctions::ResolvableNeutral ( const YCPString& name_r, const YCPSymbol& kind_r, const YCPBoolean& force_r )
 {
     zypp::Resolvable::Kind kind;
     
     std::string req_kind = kind_r->symbol();
     std::string name = name_r->value();
+    bool force = force_r->value();
 
     if( req_kind == "product" ) {
 	kind = zypp::ResTraits<zypp::Product>::kind;
@@ -179,6 +181,12 @@ PkgModuleFunctions::ResolvableNeutral ( const YCPString& name_r, const YCPSymbol
 	    if (name.empty() || (*it)->name() == name)
 	    {
 		if (!it->status().setTransact(false, whoWantsIt))
+		{
+		    ret = false;
+		}
+
+		// force neutralization on the user level
+		if (force && !it->status().setTransact(false, zypp::ResStatus::USER))
 		{
 		    ret = false;
 		}
