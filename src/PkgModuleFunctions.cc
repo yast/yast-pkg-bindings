@@ -287,7 +287,16 @@ PkgModuleFunctions::SetLocale (const YCPString &locale)
 {
     try
     {
-	zypp_ptr()->setTextLocale(zypp::Locale(locale->value()));
+	zypp::Locale loc = zypp::Locale(locale->value());
+	zypp_ptr()->setTextLocale(loc);
+
+	// add packages for the preferred locale
+	zypp::ZYpp::LocaleSet lset;
+	lset.insert(loc);
+	zypp_ptr()->setRequestedLocales(lset);
+
+	// remember the main locale
+	preferred_locale = loc;
     }
     catch(...)
     {
@@ -344,6 +353,12 @@ PkgModuleFunctions::SetAdditionalLocales (YCPList langycplist)
 	i++;
     }
 
+    // add the main locale if it's initialized
+    if (preferred_locale != zypp::Locale::noCode)
+    {
+	lset.insert(preferred_locale);
+    }
+
     try
     {
 	zypp_ptr()->setRequestedLocales(lset);
@@ -375,7 +390,11 @@ PkgModuleFunctions::GetAdditionalLocales ()
 	for (zypp::ZYpp::LocaleSet::const_iterator it = lset.begin();
 	     it != lset.end(); ++it)
 	{
-	  langycplist->add (YCPString(it->code()));
+	  // ignore the main locale
+	  if (*it != preferred_locale)
+	  {
+	    langycplist->add (YCPString(it->code()));
+	  }
 	}
     }
     catch(...)

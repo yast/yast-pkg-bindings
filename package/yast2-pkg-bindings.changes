@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Apr 24 10:56:35 CEST 2006 - lslezak@suse.cz
+
+- select language packages in SetLocale(), handle the main locale
+  when processing additional locales (#162064)
+- 2.13.65
+
+-------------------------------------------------------------------
 Fri Apr 21 23:06:34 CEST 2006 - jsrain@suse.de
 
 - SourceCreateBase (#160585)

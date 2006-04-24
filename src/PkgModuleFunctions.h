@@ -66,6 +66,10 @@ class PkgModuleFunctions : public Y2Namespace
 
 	zypp::ZYpp::Ptr zypp_pointer;
 
+	// remember the main locale (set by SetLocale) for SetAdditionalLocales,
+	// add the main locale to the additional ones
+	zypp::Locale preferred_locale;
+
 	/** 
 	 * ZYPP
 	 */
