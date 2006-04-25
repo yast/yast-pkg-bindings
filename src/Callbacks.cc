@@ -868,14 +868,13 @@ namespace ZyppRecipients {
 	    return zypp::KeyRingReport::askUserToTrustKey(keyid, keyname, fingerprint);
 	}
 
-	virtual bool askUserToAcceptUnknownKey( const zypp::Pathname &path,
-            const std::string &keyid, const std::string &keyname, const std::string &fingerprint )
+	virtual bool askUserToAcceptUnknownKey(const std::string &file, const std::string &keyid, const std::string &keyname, const std::string &fingerprint)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnknownGpgKey) );
 
 	    if (callback._set)
 	    {
-		callback.addStr(path.asString());
+		callback.addStr(file);
 		callback.addStr(keyid);
 		callback.addStr(keyname);
                 callback.addStr(fingerprint);
@@ -883,16 +882,16 @@ namespace ZyppRecipients {
 		return callback.evaluateBool();
 	    }
 	    
-	    return zypp::KeyRingReport::askUserToAcceptUnknownKey(path, keyid, keyname, fingerprint );
+	    return zypp::KeyRingReport::askUserToAcceptUnknownKey(file, keyid, keyname, fingerprint );
 	}
 
-	virtual bool askUserToAcceptUnsignedFile( const zypp::Pathname &file )
+	virtual bool askUserToAcceptUnsignedFile(const std::string &file)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnsignedFile) );
 
 	    if (callback._set)
 	    {
-		callback.addStr(file.asString());
+		callback.addStr(file);
 
 		return callback.evaluateBool();
 	    }
@@ -900,14 +899,14 @@ namespace ZyppRecipients {
 	    return zypp::KeyRingReport::askUserToAcceptUnsignedFile(file);
 	}
 	
-	virtual bool askUserToAcceptVerificationFailed( const zypp::Pathname &file,
-            const std::string &keyid, const std::string &keyname, const std::string &fingerprint )
+	virtual bool askUserToAcceptVerificationFailed(const std::string &file,
+	    const std::string &keyid, const std::string &keyname, const std::string &fingerprint)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptVerificationFailed) );
 
 	    if (callback._set)
 	    {
-		callback.addStr(file.asString());
+		callback.addStr(file);
 		callback.addStr(keyid);
 		callback.addStr(keyname);
                 callback.addStr(fingerprint);
