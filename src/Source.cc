@@ -89,18 +89,6 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 
 	    success = false;
 	}
-
-	if( enable->value() )
-	{
-	    // go over all sources and get resolvables
-	    std::list<zypp::SourceManager::SourceId> ids = zypp::SourceManager::sourceManager()->enabledSources();
-	    for( std::list<zypp::SourceManager::SourceId>::iterator it = ids.begin(); it != ids.end(); ++it)
-	    {
-		zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(*it);
-		if( src.enabled() )
-			zypp_ptr()->addResolvables (src.resolvables());
-	    }
-	}
     }
     catch (const zypp::FailedSourcesRestoreException& excpt)
     {
@@ -121,6 +109,40 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
 	_last_error.setLastError(excpt.asUserString());
 	success = false;
+    }
+
+    if( enable->value() )
+    {
+	std::list<zypp::SourceManager::SourceId> ids;
+
+	// go over all sources and get resolvables
+	try
+	{
+	    ids = zypp::SourceManager::sourceManager()->enabledSources();
+	}
+	catch (const zypp::Exception& excpt)
+	{
+	    y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
+	    _last_error.setLastError(excpt.asUserString());
+	    success = false;
+	}
+	
+	for( std::list<zypp::SourceManager::SourceId>::iterator it = ids.begin(); it != ids.end(); ++it)
+	{
+	    try
+	    {
+		zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(*it);
+
+		if( src.enabled() )
+			zypp_ptr()->addResolvables (src.resolvables());
+	    }
+	    catch (const zypp::Exception& excpt)
+	    {
+		y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
+		_last_error.setLastError(excpt.asUserString());
+		success = false;
+	    }
+	}
     }
 
     return YCPBoolean( success );

@@ -332,7 +332,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 
 	  bool evaluate() {
 	    if ( _set && _func ) {
-	      y2debug ("Evaluating callback");
+	      y2debug ("Evaluating callback (registered funciton: %s)", _func->name().c_str());
 	      _result = _func->evaluateCall ();
 
 	      delete _func;
