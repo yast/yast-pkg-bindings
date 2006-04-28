@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Apr 28 15:12:41 CEST 2006 - lslezak@suse.cz
+
+- fixed reset in PkgReset() and in ResolvableNeutral() builtin
+  (#170643)
+- 2.13.68
+
+-------------------------------------------------------------------
 Wed Apr 26 12:53:42 CEST 2006 - lslezak@suse.cz
 
 - use other valid sources when a broken source is found (#168632)

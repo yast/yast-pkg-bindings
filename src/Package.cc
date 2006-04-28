@@ -1817,7 +1817,7 @@ PkgModuleFunctions::PkgReset ()
 	    ; ++it)
 	{
 	    // reset all transaction flags
-	    it->status().resetTransact(zypp::ResStatus::USER) ; // the highest level
+	    it->status().resetTransact(whoWantsIt);
 	}
 
 	return YCPBoolean (true);

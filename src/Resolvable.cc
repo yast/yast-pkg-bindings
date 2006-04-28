@@ -180,13 +180,13 @@ PkgModuleFunctions::ResolvableNeutral ( const YCPString& name_r, const YCPSymbol
 	{
 	    if (name.empty() || (*it)->name() == name)
 	    {
-		if (!it->status().setTransact(false, whoWantsIt))
+		if (!it->status().resetTransact(whoWantsIt))
 		{
 		    ret = false;
 		}
 
 		// force neutralization on the user level
-		if (force && !it->status().setTransact(false, zypp::ResStatus::USER))
+		if (force && !it->status().resetTransact(zypp::ResStatus::USER))
 		{
 		    ret = false;
 		}
