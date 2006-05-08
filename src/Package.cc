@@ -575,8 +575,7 @@ struct ProvideProcess
 
 
 /**
- * helper function, install a package which provides tag (as a
- *   package name, a provided tag, or a provided file
+ * helper function, install a resolvable with a specific name and kind
 */
 
 bool
@@ -655,6 +654,8 @@ PkgModuleFunctions::DoRemoveAllKind(zypp::Resolvable::Kind kind)
 /**
  * helper function, deinstall a kind which provides tag (as a
  *   kind name, a provided tag, or a provided file
+ *
+ * !!!!**** WARNING: This is different from DoProvideNameKind ****!!!!
 */
 
 bool
