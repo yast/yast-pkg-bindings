@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue May  9 18:23:51 CEST 2006 - visnov@suse.cz
+
+- Do not try to evaluate the same callback twice, the parameters 
+  are discarded after the first call (#173291)
+- 2.13.70 
+
+-------------------------------------------------------------------
 Tue May  9 18:06:39 CEST 2006 - mvidner@suse.cz
 
 - When creating a source, prefer an alias that may be passed as a

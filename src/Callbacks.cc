@@ -434,8 +434,6 @@ namespace ZyppRecipients {
 		callback.addInt( error );
 		callback.addStr( description );
 		callback.addStr( std::string() ); // FIXME: on error name, for OK, local path
-		callback.evaluateStr(); // return value ignored by RpmDb
-
                 std::string ret = callback.evaluateStr();
 
                 // "R" =  retry
