@@ -823,21 +823,21 @@ createManagedSource( const zypp::Url & url_r,
   
   if (alias.empty ())
   {
-  // use product name+edition as the alias
-  // (URL is not enough for different sources in the same DVD drive)
-  // alias must be unique, add timestamp
-  zypp::ResStore products = newsrc.resolvables (zypp::Product::TraitsType::kind);
-  zypp::ResStore::iterator
+    // use product name+edition as the alias
+    // (URL is not enough for different sources in the same DVD drive)
+    // alias must be unique, add timestamp
+    zypp::ResStore products = newsrc.resolvables (zypp::Product::TraitsType::kind);
+    zypp::ResStore::iterator
       b = products.begin (),
       e = products.end ();  
-  if (b != e)
-  {
+    if (b != e)
+    {
       zypp::ResObject::Ptr p = *b;
       alias = p->name () + '-' + p->edition ().asString () + '-';
-  }
-  alias += timestamp ();
+    }
+    alias += timestamp ();
   
-  newsrc.setAlias( alias );
+    newsrc.setAlias( alias );
   }
 
   zypp::SourceManager::SourceId id = zypp::SourceManager::sourceManager()->addSource( newsrc );
