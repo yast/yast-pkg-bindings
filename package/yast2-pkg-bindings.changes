@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Tue May  9 18:06:39 CEST 2006 - mvidner@suse.cz
+
+- When creating a source, prefer an alias that may be passed as a
+  query parameter of the URL.
+  This is an adaptation for the new output of suseRegister-1.0-59,
+  ensuring proper synchronization of YaST and Zenworks for enterprise
+  updates (#158850#c17).
+- 2.13.69
+
+-------------------------------------------------------------------
 Fri Apr 28 15:12:41 CEST 2006 - lslezak@suse.cz
 
 - fixed reset in PkgReset() and in ResolvableNeutral() builtin

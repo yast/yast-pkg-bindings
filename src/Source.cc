@@ -782,6 +782,28 @@ static std::string timestamp ()
     return outstr;
 }
 
+/**
+ * Take the ?alias=foo part of old_url, if any, and return it,
+ * putting the rest to new_url.
+ * \throws Exception on malformed URLs I guess
+ */
+static std::string removeAlias (const zypp::Url & old_url,
+				zypp::Url & new_url)
+{
+  std::string alias;
+  new_url = old_url;
+  zypp::url::ParamMap query = new_url.getQueryStringMap ();
+  zypp::url::ParamMap::iterator alias_it = query.find ("alias");
+  if (alias_it != query.end ())
+  {
+    alias = alias_it->second;
+    query.erase (alias_it);
+    new_url.setQueryStringMap (query);
+  }
+  return alias;
+}
+
+
 /** Create a Source and immediately put it into the SourceManager.
  * \return the SourceId
  * \throws Exception if Source creation fails
@@ -791,8 +813,16 @@ createManagedSource( const zypp::Url & url_r,
 		     const zypp::Pathname & path_r,
 		     const bool base_source )
 {
-  zypp::Source_Ref newsrc = zypp::SourceFactory().createFrom(url_r, path_r, string(""), zypp::filesystem::Pathname(), base_source);
+  y2milestone ("Original URL: %s", url_r.asString().c_str());
+
+  // #158850#c17, if the URL contains an alias, we use that
+  zypp::Url new_url;
+  string alias = removeAlias (url_r, new_url);
+
+  zypp::Source_Ref newsrc = zypp::SourceFactory().createFrom(new_url, path_r, alias, zypp::filesystem::Pathname(), base_source);
   
+  if (alias.empty ())
+  {
   // use product name+edition as the alias
   // (URL is not enough for different sources in the same DVD drive)
   // alias must be unique, add timestamp
@@ -800,7 +830,6 @@ createManagedSource( const zypp::Url & url_r,
   zypp::ResStore::iterator
       b = products.begin (),
       e = products.end ();  
-  string alias;
   if (b != e)
   {
       zypp::ResObject::Ptr p = *b;
@@ -809,9 +838,10 @@ createManagedSource( const zypp::Url & url_r,
   alias += timestamp ();
   
   newsrc.setAlias( alias );
+  }
 
   zypp::SourceManager::SourceId id = zypp::SourceManager::sourceManager()->addSource( newsrc );
-  y2milestone("Added source %lu: %s (alias %s)", id, (url_r.asString()+path_r.asString()).c_str(), alias.c_str() );
+  y2milestone("Added source %lu: %s %s (alias %s)", id, new_url.asString().c_str(), path_r.asString().c_str(), alias.c_str() );
   return id;
 }
 
