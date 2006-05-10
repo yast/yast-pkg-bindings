@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed May 10 12:49:36 CEST 2006 - lslezak@suse.cz
+
+- ResolvableProperties: don't add empty product description
+  (#148625)
+- 2.13.71
+
+-------------------------------------------------------------------
 Tue May  9 18:23:51 CEST 2006 - visnov@suse.cz
 
 - Do not try to evaluate the same callback twice, the parameters 

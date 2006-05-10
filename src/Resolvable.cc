@@ -339,7 +339,12 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 		info->add(YCPString("version"), YCPString((*it)->edition().asString()));
 		info->add(YCPString("arch"), YCPString((*it)->arch().asString()));
 		info->add(YCPString("description"), YCPString((*it)->description()));
-		info->add(YCPString("summary"), YCPString((*it)->summary()));
+
+		std::string resolvable_summary = (*it)->summary();
+		if (resolvable_summary.size() > 0)
+		{
+		    info->add(YCPString("summary"), YCPString((*it)->summary()));
+		}
 
 		// status
 		std::string stat;
@@ -388,8 +393,24 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 		    info->add(YCPString("category"), YCPString(product->category()));
 		    info->add(YCPString("vendor"), YCPString(product->vendor()));
 		    info->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
-		    info->add(YCPString("display_name"), YCPString(product->summary()));
-		    info->add(YCPString("short_name"), product->shortName().size() > 0 ? YCPString(product->shortName()) : YCPString(product->summary()));
+
+		    std::string product_summary = product->summary();
+		    if (product_summary.size() > 0)
+		    {
+			info->add(YCPString("display_name"), YCPString(product_summary));
+		    }
+
+		    std::string product_shortname = product->shortName();
+		    if (product_shortname.size() > 0)
+		    {
+			info->add(YCPString("short_name"), YCPString(product_shortname));
+		    }
+		    // use summary for the short name if it's defined
+		    else if (product_summary.size() > 0)
+		    {
+			info->add(YCPString("short_name"), YCPString(product_summary));
+		    }
+
 
 		    YCPList updateUrls;
 		    std::list<zypp::Url> pupdateUrls = product->updateUrls();
