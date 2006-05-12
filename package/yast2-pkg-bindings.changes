@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri May 12 15:02:58 CEST 2006 - lslezak@suse.cz
+
+- PkgMediaSizes, PkgMediaCount: don't count packages with
+  mediaId == 0, array index was -1 in this case (#174841)
+- 2.13.72
+
+-------------------------------------------------------------------
 Wed May 10 12:49:36 CEST 2006 - lslezak@suse.cz
 
 - ResolvableProperties: don't add empty product description

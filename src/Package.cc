@@ -297,7 +297,7 @@ PkgModuleFunctions::PkgMediaSizes ()
     {
 	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
-	if( it->status().isToBeInstalled() )
+	if( it->status().isToBeInstalled() && pkg->mediaId() > 0)
 	{
 	    zypp::ByteCount size = pkg->size();
 	    result[ source_map[pkg->source()] ]
@@ -372,7 +372,7 @@ PkgModuleFunctions::PkgMediaCount()
     {
 	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
-	if( pkg && it->status().isToBeInstalled() )
+	if( pkg && it->status().isToBeInstalled() && pkg->mediaId() > 0)
 	    result[ source_map[pkg->source()] ]
 	      [pkg->mediaId()-1]++ ;	// media are numbered from 1
     }
