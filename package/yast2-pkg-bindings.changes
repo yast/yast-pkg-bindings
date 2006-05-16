@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue May 16 22:16:48 CEST 2006 - ma@suse.de
+
+- Adapt to libzypp-1.0.0
+- 2.13.75
+
+-------------------------------------------------------------------
 Tue May 16 09:56:18 CEST 2006 - mvidner@suse.cz
 
 - SourceDelete: no need to remove resolvables from pool if the source

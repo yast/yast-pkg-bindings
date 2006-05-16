@@ -40,7 +40,7 @@
 // on probing of source type
 
 ZyppRecipients::MediaChangeSensitivity _silent_probing = ZyppRecipients::MEDIA_CHANGE_FULL;
- 
+
 ///////////////////////////////////////////////////////////////////
 namespace ZyppRecipients {
 ///////////////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ namespace ZyppRecipients {
 	}
 
 	virtual bool progress(int value, zypp::Pathname pth)
-	{		
+	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressConvertDb ) );
 	    if (callback._set) {
 		callback.addInt( value );
@@ -151,7 +151,7 @@ namespace ZyppRecipients {
 	}
 
 	virtual bool progress(int value, zypp::Pathname pth)
-	{		
+	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressRebuildDb ) );
 	    if ( callback._set ) {
 		// report changed values
@@ -181,8 +181,8 @@ namespace ZyppRecipients {
     {
 	zypp::Resolvable::constPtr _last;
 	int last_reported;
-	
-	InstallPkgReceive(RecipientCtl & construct_r) : Recipient(construct_r) 
+
+	InstallPkgReceive(RecipientCtl & construct_r) : Recipient(construct_r)
 	{
 	}
 
@@ -193,20 +193,20 @@ namespace ZyppRecipients {
 	virtual void reportend()
 	{
 	}
-	
+
 	virtual void start(zypp::Resolvable::constPtr resolvable)
 	{
 	  // initialize the counter
 	  last_reported = 0;
 
 #warning install non-package
-	  zypp::Package::constPtr res = 
+	  zypp::Package::constPtr res =
 	    zypp::asKind<zypp::Package>(resolvable);
-	    
+
 	  // if we have started this resolvable already, don't do it again
 	  if( _last == resolvable )
 	    return;
-	    
+
 	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
 	  if (callback._set) {
 	    callback.addStr(res->location());
@@ -215,12 +215,12 @@ namespace ZyppRecipients {
 	    callback.addBool(false);	// is_delete = false (package installation)
 	    callback.evaluateBool();
 	  }
-	  
+
 	  _last = resolvable;
 	}
-				  
+
 	virtual bool progress(int value, zypp::Resolvable::constPtr resolvable)
-	{		
+	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
 	    // call the callback function only if the difference since the last call is at least 5%
 	    // or if 100% is reached
@@ -231,7 +231,7 @@ namespace ZyppRecipients {
 
 		if( !res )
 		    y2milestone( "Package installation callback returned abort" );
-		
+
 		last_reported = value;
 		return res;
 	    }
@@ -245,16 +245,16 @@ namespace ZyppRecipients {
           , zypp::target::rpm::InstallResolvableReport::Error error
           , std::string description
           , zypp::target::rpm::InstallResolvableReport::RpmLevel level
-        ) 
+        )
 	{
 	    if (level != zypp::target::rpm::InstallResolvableReport::RPM_NODEPS_FORCE)
 	    {
 		y2milestone( "Retrying installation problem with too low severity (%d)", level);
 		return zypp::target::rpm::InstallResolvableReport::ABORT;
 	    }
-	    
+
 	    _last = zypp::Resolvable::constPtr();
- 
+
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
 		callback.addInt( error );
@@ -283,7 +283,7 @@ namespace ZyppRecipients {
 		y2milestone( "Skipping finish due to retrying installation problem with too low severity (%d)", level);
 		return;
 	    }
-	    
+
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
 		callback.addInt( level == zypp::target::rpm::InstallResolvableReport::RPM_NODEPS_FORCE ? error : NO_ERROR);
@@ -320,9 +320,9 @@ namespace ZyppRecipients {
 	    callback.evaluateBool();
 	  }
 	}
-				  
+
 	virtual bool progress(int value, zypp::Resolvable::constPtr resolvable)
-	{		
+	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
 	    if (callback._set) {
 		callback.addInt( value );
@@ -371,13 +371,13 @@ namespace ZyppRecipients {
 
 	  if ( zypp::isKind<zypp::Package> (resolvable_ptr) )
 	  {
-	    zypp::Package::constPtr pkg = 
+	    zypp::Package::constPtr pkg =
 		zypp::asKind<zypp::Package>(resolvable_ptr);
 
 	    size = pkg->archivesize();
 
 	    int source_id = pkg->source().numericId();
-	    int media_nr = pkg->mediaId();
+	    int media_nr = pkg->sourceMediaNr();
 
 	    if( source_id != last_source_id || media_nr != last_source_media )
 	    {
@@ -389,12 +389,12 @@ namespace ZyppRecipients {
 	      }
 	      last_source_id = source_id;
 	      last_source_media = media_nr;
-            }	  
+            }
 	  }
 
 	  CB callback( ycpcb( YCPCallbacks::CB_StartProvide ) );
 	  if (callback._set) {
-	    bool remote = url.getScheme() != "cd" && url.getScheme() != "dvd" 
+	    bool remote = url.getScheme() != "cd" && url.getScheme() != "dvd"
 		&& url.getScheme() != "nfs";
 	    callback.addStr(resolvable_ptr->name());
 	    callback.addInt( size );
@@ -402,7 +402,7 @@ namespace ZyppRecipients {
 	    callback.evaluateBool();
 	  }
 	}
-				  
+
 	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::source::DownloadResolvableReport::Error error, std::string reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
@@ -415,7 +415,7 @@ namespace ZyppRecipients {
 	}
 
         virtual bool progress(int value, zypp::Resolvable::constPtr resolvable_ptr)
-        { 
+        {
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressProvide) );
 	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100))
 	    {
@@ -423,7 +423,7 @@ namespace ZyppRecipients {
 		callback.addInt( value );
 		return callback.evaluateBool(); // return value ignored by RpmDb
 	    }
-	    
+
 	    return zypp::source::DownloadResolvableReport::progress(value, resolvable_ptr);
 	}
 
@@ -540,7 +540,7 @@ namespace ZyppRecipients {
 			arg->add( YCPString("product_dir"), YCPString( source.path().asString() ) );
 		    }
 		}
-		
+
 
 		callback.addMap( arg );
 		startArgs = arg; //remember
@@ -602,13 +602,13 @@ namespace ZyppRecipients {
 
 	virtual Action requestMedia(zypp::Source_Ref source, unsigned mediumNr, zypp::media::MediaChangeReport::Error error, std::string description)
 	{
-	    if ( _silent_probing == MEDIA_CHANGE_DISABLE ) 
+	    if ( _silent_probing == MEDIA_CHANGE_DISABLE )
 		return zypp::media::MediaChangeReport::ABORT;
-		
-	    if ( _silent_probing == MEDIA_CHANGE_OPTIONALFILE 
+
+	    if ( _silent_probing == MEDIA_CHANGE_OPTIONALFILE
 	      && error == zypp::media::MediaChangeReport::NOT_FOUND )
 	        return zypp::media::MediaChangeReport::ABORT;
-		
+
 	    CB callback( ycpcb( YCPCallbacks::CB_MediaChange ) );
 	    if ( callback._set )
 	    {
@@ -627,9 +627,9 @@ namespace ZyppRecipients {
 		    {
 			product_name = (*it)->summary();
 			break;
-		    }	
+		    }
 		}
-		
+
 		// current product name
 		callback.addStr( product_name );
 
@@ -661,7 +661,7 @@ namespace ZyppRecipients {
 
 		// "E" = eject media
 		if (ret == "E") return zypp::media::MediaChangeReport::EJECT;
-		
+
 		// "S" = skip (ignore) this media
 		if (ret == "S") return zypp::media::MediaChangeReport::IGNORE;
 
@@ -678,7 +678,7 @@ namespace ZyppRecipients {
 		    return zypp::media::MediaChangeReport::RETRY;
 		}
 	    }
-	   
+
 	    // return default value from the parent class
 	    return zypp::media::MediaChangeReport::requestMedia(source, mediumNr, error, description);
 	}
@@ -806,7 +806,7 @@ namespace ZyppRecipients {
 	    if (callback._set)
 	    {
 		zypp::Patch::constPtr patch = message->patch();
-		
+
 		// patch name
 		callback.addStr(patch ? patch->name() : message->name());
 		// patch summary
@@ -836,7 +836,7 @@ namespace ZyppRecipients {
 
 		return callback.evaluateBool();
 	    }
-	    
+
 	    return zypp::DigestReport::askUserToAcceptNoDigest(file);
 	}
     };
@@ -859,10 +859,10 @@ namespace ZyppRecipients {
 		callback.addStr(keyid);
 		callback.addStr(keyname);
                 callback.addStr(fingerprint);
-                
+
 		return callback.evaluateBool();
 	    }
-	    
+
 	    return zypp::KeyRingReport::askUserToTrustKey(keyid, keyname, fingerprint);
 	}
 
@@ -879,7 +879,7 @@ namespace ZyppRecipients {
 
 		return callback.evaluateBool();
 	    }
-	    
+
 	    return zypp::KeyRingReport::askUserToAcceptUnknownKey(file, keyid, keyname, fingerprint );
 	}
 
@@ -893,10 +893,10 @@ namespace ZyppRecipients {
 
 		return callback.evaluateBool();
 	    }
-	    
+
 	    return zypp::KeyRingReport::askUserToAcceptUnsignedFile(file);
 	}
-	
+
 	virtual bool askUserToAcceptVerificationFailed(const std::string &file,
 	    const std::string &keyid, const std::string &keyname, const std::string &fingerprint)
 	{
@@ -911,7 +911,7 @@ namespace ZyppRecipients {
 
 		return callback.evaluateBool();
 	    }
-	    
+
 	    return zypp::KeyRingReport::askUserToAcceptVerificationFailed(file, keyid, keyname, fingerprint);
 	}
     };
@@ -984,9 +984,9 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
     // resolvable report
     ZyppRecipients::ResolvableReport _resolvableReport;
 
-    // digest callback   
+    // digest callback
     ZyppRecipients::DigestReceive _digestReceive;
- 
+
     // key ring callback
     ZyppRecipients::KeyRingReceive _keyRingReceive;
 

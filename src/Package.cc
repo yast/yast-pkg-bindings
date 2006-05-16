@@ -54,7 +54,7 @@
 ///////////////////////////////////////////////////////////////////
 
 namespace zypp {
-	typedef std::list<PoolItem> PoolItemList; 
+	typedef std::list<PoolItem> PoolItemList;
 }
 
 // ------------------------
@@ -141,7 +141,7 @@ PkgModuleFunctions::PkgQueryProvides( const YCPString& tag )
 	    {
 		onSystem = "CAND";
 	    }
-    
+
 	    // create list item
 	    YCPList item;
 	    item->add(YCPString(pkgname));
@@ -195,13 +195,13 @@ PkgModuleFunctions::PkgMediaNames ()
     std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
 
     YCPList res;
-    
-    // initialize    
+
+    // initialize
     for( std::list<zypp::SourceManager::SourceId>::const_iterator sit = source_ids.begin();
 	sit != source_ids.end(); ++sit)
     {
 	unsigned id = *sit;
-	
+
 	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
 
 	try
@@ -217,24 +217,24 @@ PkgModuleFunctions::PkgMediaNames ()
 		if( product->source() == src )
 		{
 		    y2debug ("Found");
-		    
+
 		    YCPList src_desc;
 		    src_desc->add( YCPString( product->summary() ) );
 		    src_desc->add( YCPInteger( src.numericId() ) );
-		
+
 		    res->add( src_desc );
-		    break; 
+		    break;
 		}
 	    }
 
 	    if( it == zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind) )
 	    {
 		y2error ("Product for source '%d' not found", id);
-		
+
 		YCPList src_desc;
 		src_desc->add( YCPString( src.url().asString() ) );
 		src_desc->add( YCPInteger( src.numericId() ) );
-		
+
 		res->add( src_desc );
 	    }
 	}
@@ -245,7 +245,7 @@ PkgModuleFunctions::PkgMediaNames ()
     }
 
     y2milestone( "Pkg::PkgMediaNames result: %s", res->toString().c_str());
-    
+
     return res;
 }
 
@@ -270,59 +270,59 @@ PkgModuleFunctions::PkgMediaSizes ()
 
     // all enabled sources
     std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
-    
-    // map SourceId -> [ number_of_media, total_size ] 
+
+    // map SourceId -> [ number_of_media, total_size ]
     std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> > result;
-    
+
     // map zypp::Source -> SourceID
     std::map<zypp::Source_Ref, zypp::SourceManager::SourceId> source_map;
 
-    // initialize    
+    // initialize
     for( std::list<zypp::SourceManager::SourceId>::const_iterator sit = source_ids.begin();
 	sit != source_ids.end(); ++sit)
     {
 	zypp::SourceManager::SourceId id = *sit;
-	
+
 	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
 	unsigned media = src.numberOfMedia();
-	
+
 	result[id] = std::vector<zypp::ByteCount>(media,0);
-	
+
 	source_map[ src ] = id;
     }
-    
+
     for( zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin<zypp::Package>()
 	; it != zypp_ptr()->pool().byKindEnd<zypp::Package>()
 	; ++it )
     {
 	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
-	if( it->status().isToBeInstalled() && pkg->mediaId() > 0)
+	if( it->status().isToBeInstalled() && pkg->sourceMediaNr() > 0)
 	{
 	    zypp::ByteCount size = pkg->size();
 	    result[ source_map[pkg->source()] ]
-	      [pkg->mediaId()-1] += size ;	// media are numbered from 1
+	      [pkg->sourceMediaNr()-1] += size ;	// media are numbered from 1
 	}
     }
-    
+
     YCPList res;
-    
+
     for(std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> >::const_iterator it =
 	result.begin(); it != result.end() ; ++it)
     {
 	std::vector<zypp::ByteCount> values = it->second;
 	YCPList source;
-	
+
 	for( unsigned i = 0 ; i < values.size() ; i++ )
 	{
 	    source->add( YCPInteger( values[i] ) );
 	}
-	
+
 	res->add( source );
     }
-    
+
     y2milestone( "Pkg::PkgMediaSize result: %s", res->toString().c_str());
-    
+
     return res;
 }
 
@@ -344,57 +344,57 @@ PkgModuleFunctions::PkgMediaCount()
 
     // all enabled sources
     std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
-    
-    // map SourceId -> [ number_of_media, total_size ] 
+
+    // map SourceId -> [ number_of_media, total_size ]
     std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> > result;
-    
+
     // map zypp::Source -> SourceID
     std::map<zypp::Source_Ref, zypp::SourceManager::SourceId> source_map;
 
 
-    // initialize    
+    // initialize
     for( std::list<zypp::SourceManager::SourceId>::const_iterator sit = source_ids.begin();
 	sit != source_ids.end(); ++sit)
     {
 	zypp::SourceManager::SourceId id = *sit;
-	
+
 	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
 	unsigned media = src.numberOfMedia();
-	
+
 	result[id] = std::vector<zypp::ByteCount>(media,0);
-	
+
 	source_map[ src ] = id;
     }
-    
+
     for( zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin<zypp::Package>()
 	; it != zypp_ptr()->pool().byKindEnd<zypp::Package>()
 	; ++it )
     {
 	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
-	if( pkg && it->status().isToBeInstalled() && pkg->mediaId() > 0)
+	if( pkg && it->status().isToBeInstalled() && pkg->sourceMediaNr() > 0)
 	    result[ source_map[pkg->source()] ]
-	      [pkg->mediaId()-1]++ ;	// media are numbered from 1
+	      [pkg->sourceMediaNr()-1]++ ;	// media are numbered from 1
     }
-    
+
     YCPList res;
-    
+
     for(std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> >::const_iterator it =
 	result.begin(); it != result.end() ; ++it)
     {
 	const std::vector<zypp::ByteCount> &values = it->second;
 	YCPList source;
-	
+
 	for( unsigned i = 0 ; i < values.size() ; i++ )
 	{
 	    source->add( YCPInteger( values[i] ) );
 	}
-	
+
 	res->add( source );
     }
-    
+
     y2milestone( "Pkg::PkgMediaCount result: %s", res->toString().c_str());
-    
+
     return res;
 }
 
@@ -588,10 +588,10 @@ PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvabl
 	invokeOnEach( zypp_ptr()->pool().byNameBegin( name ),
 		      zypp_ptr()->pool().byNameEnd( name ),
 		      zypp::resfilter::ByKind( kind ),
-		      zypp::functor::functorRef<bool,zypp::PoolItem> (info) 
+		      zypp::functor::functorRef<bool,zypp::PoolItem> (info)
 	);
-		    
-	if (!info.item) 
+
+	if (!info.item)
 	    return false;
 
 	bool result = info.item.status().setToBeInstalled( whoWantsIt );
@@ -678,9 +678,9 @@ PkgModuleFunctions::DoRemoveNameKind( const std::string & name, zypp::Resolvable
 	return false;
     }
 
-    if 	(!match.item) 
+    if 	(!match.item)
 	return false;
-	
+
     bool result = match.item.status().setToBeUninstalled( whoWantsIt );
     y2milestone ("DoRemoveNameKind %s -> %s\n", name.c_str(), (result ? "Ok" : "Bad"));
 
@@ -724,7 +724,7 @@ PkgModuleFunctions::DoProvide (const YCPList& tags)
             }
         }
     }
-# warning error handling - return value    
+# warning error handling - return value
     return ret;
 }
 
@@ -966,7 +966,7 @@ PkgModuleFunctions::PkgProp( zypp::PoolItem_Ref item )
     }
 
     data->add( YCPString("arch"), YCPString( pkg->arch().asString() ) );
-    data->add( YCPString("medianr"), YCPInteger( pkg->mediaId() ) );
+    data->add( YCPString("medianr"), YCPInteger( pkg->sourceMediaNr() ) );
 
     zypp::Source_Ref pkg_src = pkg->source();
     zypp::SourceManager::SourceId srcid = 0;
@@ -1090,7 +1090,7 @@ PkgModuleFunctions::PkgPropertiesAll (const YCPString& p)
 	{
 	}
     }
-    
+
     return data;
 }
 
@@ -1114,7 +1114,7 @@ PkgModuleFunctions::GetPkgLocation (const YCPString& p, bool full_path)
     catch (...)
     {
     }
-    
+
     return YCPVoid();
 }
 
@@ -1219,7 +1219,7 @@ YCPList PkgModuleFunctions::PkgGetFilelist( const YCPString & package, const YCP
 	{
 	}
     }
-  
+
     return ret;
 }
 
@@ -1335,7 +1335,7 @@ PkgModuleFunctions::PkgAnyToDelete ()
     bool ret = false;
 
     try
-    {    
+    {
 	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
 	    it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Package>::kind);
 	    ++it)
@@ -1368,7 +1368,7 @@ YCPValue
 PkgModuleFunctions::PkgAnyToInstall ()
 {
     bool ret = false;
-    
+
     try
     {
 	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
@@ -1392,7 +1392,7 @@ PkgModuleFunctions::PkgAnyToInstall ()
 // ------------------------
 
 
-/* helper function */ 
+/* helper function */
 static void
 pkg2list (YCPList &list, const zypp::ResPool::byKind_iterator& it, bool names_only)
 {
@@ -1710,9 +1710,9 @@ PkgModuleFunctions::PkgDelete (const YCPString& p)
 	      )
 	);
 
-	
+
 	// set the status to uninstalled
-	return YCPBoolean( (it != zypp_ptr()->pool().byNameEnd(name)) 
+	return YCPBoolean( (it != zypp_ptr()->pool().byNameEnd(name))
 	    && it->status().setToBeUninstalled(whoWantsIt) );
     }
     catch (...)
@@ -1750,7 +1750,7 @@ PkgModuleFunctions::PkgTaboo (const YCPString& p)
 	);
 
 	// remove the transactions, lock the status
-	return YCPBoolean( (it != zypp_ptr()->pool().byNameEnd(name)) 
+	return YCPBoolean( (it != zypp_ptr()->pool().byNameEnd(name))
 	    && it->status().resetTransact(whoWantsIt)
 	    && it->status().setLock(true, whoWantsIt)
 	);
@@ -1789,7 +1789,7 @@ PkgModuleFunctions::PkgNeutral (const YCPString& p)
 	);
 
 	// reset all transactions
-	return YCPBoolean( (it != zypp_ptr()->pool().byNameEnd(name)) 
+	return YCPBoolean( (it != zypp_ptr()->pool().byNameEnd(name))
 	    && it->status().resetTransact(whoWantsIt) );
     }
     catch (...)
@@ -1843,7 +1843,7 @@ YCPBoolean
 PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
 {
     bool result = false;
-    
+
     try
     {
 	result = zypp_ptr()->resolver()->resolvePool();
@@ -1911,7 +1911,7 @@ YCPBoolean
 PkgModuleFunctions::PkgEstablish ()
 {
     bool result = false;
-    
+
     try
     {
 	result = zypp_ptr()->resolver()->establishPool();
@@ -1971,7 +1971,7 @@ YCPBoolean
 PkgModuleFunctions::PkgFreshen()
 {
     bool result = false;
-    
+
     try
     {
 	result = zypp_ptr()->resolver()->freshenPool();
@@ -2279,7 +2279,7 @@ YCPString PkgModuleFunctions::PkgGetLicenseToConfirm( const YCPString & package 
 	{
 	}
     }
-  
+
     return YCPString("");
 }
 
@@ -2348,7 +2348,7 @@ YCPMap PkgModuleFunctions::PkgGetLicensesToConfirm( const YCPList & packages )
 YCPBoolean PkgModuleFunctions::PkgMarkLicenseConfirmed (const YCPString & package)
 {
     std::string pkgname = package->value();
-    
+
     if (!pkgname.empty())
     {
 	try
