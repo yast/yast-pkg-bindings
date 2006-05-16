@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue May 16 09:56:18 CEST 2006 - mvidner@suse.cz
+
+- SourceDelete: no need to remove resolvables from pool if the source
+  has not seen any resolvables yet. Fixes deleting corrupt sources
+  (#174840).
+- 2.13.74
+
+-------------------------------------------------------------------
 Tue May 16 08:39:47 CEST 2006 - jsrain@suse.cz
 
 - fixed resetting resolvable status (#175711, #175451)

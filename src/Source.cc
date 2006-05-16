@@ -1218,13 +1218,22 @@ PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceDelete (const YCPInteger& id)
 {
+    zypp::SourceManager::SourceId src_id = id->value();
     try
     {
-	zypp_ptr()->removeResolvables(
-	    zypp::SourceManager::sourceManager()->
-		findSource(id->asInteger()->value()).resolvables());
+	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->
+	    findSource(src_id);
+	// If the source cache is corrupt for any reason, inst_source
+	// would first try to access the resolvables only now,
+	// preventing the deletion of the broken source.  But we do
+	// not need to remove resolvables that never got to the pool
+	// in the first place. #174840.
+	if (src.resStoreInitialized ())
+	{
+	    zypp_ptr()->removeResolvables(src.resolvables());
+	}
 
-	zypp::SourceManager::sourceManager()->removeSource(id->asInteger()->value());
+	zypp::SourceManager::sourceManager()->removeSource(src_id);
     }
     catch (const zypp::Exception& excpt)
     {
