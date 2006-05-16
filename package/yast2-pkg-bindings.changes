@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue May 16 08:39:47 CEST 2006 - jsrain@suse.cz
+
+- fixed resetting resolvable status (#175711, #175451)
+
+-------------------------------------------------------------------
 Fri May 12 15:02:58 CEST 2006 - lslezak@suse.cz
 
 - PkgMediaSizes, PkgMediaCount: don't count packages with

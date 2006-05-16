@@ -1751,7 +1751,7 @@ PkgModuleFunctions::PkgTaboo (const YCPString& p)
 
 	// remove the transactions, lock the status
 	return YCPBoolean( (it != zypp_ptr()->pool().byNameEnd(name)) 
-	    && it->status().setTransact(false, whoWantsIt)
+	    && it->status().resetTransact(whoWantsIt)
 	    && it->status().setLock(true, whoWantsIt)
 	);
     }
@@ -1790,7 +1790,7 @@ PkgModuleFunctions::PkgNeutral (const YCPString& p)
 
 	// reset all transactions
 	return YCPBoolean( (it != zypp_ptr()->pool().byNameEnd(name)) 
-	    && it->status().setTransact(false, whoWantsIt) );
+	    && it->status().resetTransact(whoWantsIt) );
     }
     catch (...)
     {
@@ -1818,7 +1818,7 @@ PkgModuleFunctions::PkgReset ()
 	    ; ++it)
 	{
 	    // reset all transaction flags
-	    it->status().resetTransact(whoWantsIt);
+	    it->status().resetTransact(zypp::ResStatus::USER);
 	}
 
 	return YCPBoolean (true);
