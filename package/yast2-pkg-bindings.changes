@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed May 17 08:43:28 CEST 2006 - jsrain@suse.cz
+
+- one more fix of reseting resolvable status (#175451)
+
+-------------------------------------------------------------------
 Tue May 16 22:16:48 CEST 2006 - ma@suse.de
 
 - Adapt to libzypp-1.0.0
@@ -13,6 +18,7 @@ Tue May 16 09:56:18 CEST 2006 - mvidner@suse.cz
 - 2.13.74
 
 -------------------------------------------------------------------
+>>>>>>> .r30956
 Tue May 16 08:39:47 CEST 2006 - jsrain@suse.cz
 
 - fixed resetting resolvable status (#175711, #175451)
