@@ -153,15 +153,22 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	{
 	    try
 	    {
-		zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(*it);
-
-		if( src.enabled() )
+		zypp::Source_Ref src = logFindSource(*it);
+		try
+		{
+		    if( src.enabled() )
 			zypp_ptr()->addResolvables (src.resolvables());
+		}
+		catch (const zypp::Exception& excpt)
+		{
+		    std::string url = src.url().asString();
+		    y2error ("Error for %s: %s", url.c_str(), excpt.asString().c_str());
+		    _last_error.setLastError(url + ": " + excpt.asUserString());
+		    success = false;
+		}
 	    }
 	    catch (const zypp::Exception& excpt)
 	    {
-		y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
-		_last_error.setLastError(excpt.asUserString());
 		success = false;
 	    }
 	}

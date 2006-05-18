@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu May 18 16:49:53 CEST 2006 - hh@suse.cz
+
+- Say also the URL of a failed source in SourceStartManager (#175153).
+
+-------------------------------------------------------------------
 Wed May 17 08:43:28 CEST 2006 - jsrain@suse.cz
 
 - one more fix of reseting resolvable status (#175451)
