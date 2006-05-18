@@ -43,6 +43,28 @@
 
 #include <stdio.h> // snprintf
 
+/**
+ * Logging helper:
+ * call zypp::SourceManager::sourceManager()->findSource
+ * and in case of exception, log error and setLastError AND RETHROW
+ */
+zypp::Source_Ref PkgModuleFunctions::logFindSource (zypp::SourceManager::SourceId id)
+{
+    zypp::Source_Ref src;
+
+    try
+    {
+	src = zypp::SourceManager::sourceManager()->findSource(id);
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	y2error("Cannot find source %ld: %s",id, excpt.msg().c_str() );
+	_last_error.setLastError(excpt.asUserString());
+	throw;
+    }
+    return src;
+}
+
 /****************************************************************************************
  * @builtin SourceSetRamCache
  * @short Allow/prevent InstSrces from caching package metadata on ramdisk
@@ -327,13 +349,10 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 
     try
     {
-	src = zypp::SourceManager::sourceManager()->findSource(id->value());
+	src = logFindSource(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
-	y2error("Cannot find source '%lld': %s"
-		,id->value(), excpt.msg().c_str() );
-	_last_error.setLastError(excpt.asUserString());
 	return YCPVoid ();
     }
 
@@ -375,13 +394,11 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
 
     try
     {
-	src = zypp::SourceManager::sourceManager()->findSource(id->value());
+	src = logFindSource(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
-	y2error ("Source ID %lld not found: %s", id->asInteger()->value(), excpt.msg().c_str());
-	_last_error.setLastError(excpt.asUserString());
-        return YCPVoid();
+	return YCPVoid ();
     }
 
   data->add( YCPString("media_count"),	YCPInteger(src.numberOfMedia()));
@@ -428,13 +445,11 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
   zypp::Source_Ref src;
 
   try {
-	src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+	src = logFindSource(id->value());
   }
   catch (const zypp::Exception& excpt)
   {
-	y2error ("Source ID not found: %lld", id->asInteger()->value());
-	_last_error.setLastError(excpt.asUserString());
-	return YCPVoid();
+      return YCPVoid ();
   }
 
 #warning product category handling???
@@ -523,13 +538,11 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
     zypp::Source_Ref src;
 
     try {
-	src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+	src = logFindSource(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
-	y2error ("Source ID not found: %lld", id->asInteger()->value());
-	return YCPVoid();
+	return YCPVoid ();
     }
 
     zypp::filesystem::Pathname path;
@@ -577,13 +590,11 @@ PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPIn
     zypp::Source_Ref src;
 
     try {
-	src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+	src = logFindSource(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
-	y2error ("Source ID not found: %lld", id->asInteger()->value());
-	return YCPVoid();
+	return YCPVoid ();
     }
 
     zypp::filesystem::Pathname path;
@@ -631,13 +642,11 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
 
     try
     {
-	src = zypp::SourceManager::sourceManager()->findSource(id->value());
+	src = logFindSource(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
-        y2error ("Source ID %lld not found: %s", id->asInteger()->value(), excpt.msg().c_str());
-	return YCPVoid();
+	return YCPVoid ();
     }
 
     zypp::filesystem::Pathname path;
@@ -671,12 +680,10 @@ PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 {
     zypp::Source_Ref src;
     try {
-	src = zypp::SourceManager::sourceManager()->findSource(id->value());
+	src = logFindSource(id->value());
     }
-    catch (const zypp::Exception & excpt)
+    catch (const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
-        y2error ("Source ID %lld not found: %s", id->asInteger()->value(), excpt.msg().c_str());
 	return YCPBoolean(false);
     }
 
@@ -1107,12 +1114,10 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
     bool enabled = e->value();
 
     try {
-	src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
+	src = logFindSource(id->value());
     }
-    catch(const zypp::Exception& excpt)
+    catch (const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
-	y2error ("Source ID not found: %lld", id->asInteger()->value());
 	return YCPBoolean(false);
     }
 
@@ -1146,12 +1151,10 @@ PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean
 
     try
     {
-	src = zypp::SourceManager::sourceManager()->findSource(id->value());
+	src = logFindSource(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
-	y2error ("Source ID %lld not found: %s", id->asInteger()->value(), excpt.msg().c_str());
-	_last_error.setLastError(excpt.asUserString());
 	return YCPVoid();
     }
 
@@ -1189,9 +1192,10 @@ PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
     zypp::Source_Ref src;
 
     try {
-	src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
-    } catch( const zypp::Exception & expt ) {
-	y2error ("Source ID not found: %lld", id->asInteger()->value());
+	src = logFindSource(id->value());
+    }
+    catch (const zypp::Exception& excpt)
+    {
 	return YCPBoolean(false);
     }
 
@@ -1385,9 +1389,10 @@ PkgModuleFunctions::SourceRaisePriority (const YCPInteger& id)
     zypp::Source_Ref src;
 
     try {
-	src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
-    } catch(...) {
-	y2error ("Source ID not found: %lld", id->asInteger()->value());
+	src = logFindSource(id->value());
+    }
+    catch (const zypp::Exception& excpt)
+    {
 	return YCPBoolean(false);
     }
 
@@ -1412,9 +1417,10 @@ PkgModuleFunctions::SourceLowerPriority (const YCPInteger& id)
     zypp::Source_Ref src;
 
     try {
-	src = zypp::SourceManager::sourceManager()->findSource(id->asInteger()->value());
-    } catch(...) {
-	y2error ("Source ID not found: %lld", id->asInteger()->value());
+	src = logFindSource(id->value());
+    }
+    catch (const zypp::Exception& excpt)
+    {
 	return YCPBoolean(false);
     }
 

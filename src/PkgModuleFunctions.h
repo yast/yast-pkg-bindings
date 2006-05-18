@@ -42,6 +42,7 @@
 #include <zypp/Pathname.h>
 #include <zypp/Url.h>
 #include <zypp/DiskUsageCounter.h>
+#include <zypp/SourceManager.h>
 
 #include "PkgError.h"
 
@@ -104,6 +105,13 @@ class PkgModuleFunctions : public Y2Namespace
       CallbackHandler & _callbackHandler;
 
       PkgError _last_error;
+
+      /**
+       * Logging helper:
+       * call zypp::SourceManager::sourceManager()->findSource
+       * and in case of exception, log error and setLastError AND RETHROW
+       */
+      zypp::Source_Ref logFindSource (zypp::SourceManager::SourceId id);
 
     public:
 	// general
