@@ -1,5 +1,13 @@
 -------------------------------------------------------------------
-Thu May 18 16:49:53 CEST 2006 - hh@suse.cz
+Fri May 19 09:49:38 CEST 2006 - lslezak@suse.cz
+
+- ignore installed selections in Pkg::GetSelections() when asking
+  for available selections (#170537), the same fix has been
+  implemented also in Pkg::GetPatterns()
+- 2.13.77
+
+-------------------------------------------------------------------
+Thu May 18 16:49:53 CEST 2006 - mvidner@suse.cz
 
 - Say also the URL of a failed source in SourceStartManager (#175153).
 - 2.13.76
@@ -24,7 +32,6 @@ Tue May 16 09:56:18 CEST 2006 - mvidner@suse.cz
 - 2.13.74
 
 -------------------------------------------------------------------
->>>>>>> .r30956
 Tue May 16 08:39:47 CEST 2006 - jsrain@suse.cz
 
 - fixed resetting resolvable status (#175711, #175451)

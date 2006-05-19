@@ -93,9 +93,17 @@ PkgModuleFunctions::GetSelections (const YCPSymbol& stat, const YCPString& cat)
 	{
 	    string selection;
 
-	    if (status == "all" || status == "available")
+	    if (status == "all")
 	    {
 		selection = it->resolvable()->name();
+	    }
+	    else if (status == "available")
+	    {
+		// ignore installed selections
+		zypp::Source_Ref src = (*it)->source();
+
+		if (src != zypp::Source_Ref::noSource)
+		    selection = it->resolvable()->name();
 	    }
 	    else if (status == "selected")
 	    {
@@ -186,9 +194,17 @@ PkgModuleFunctions::GetPatterns(const YCPSymbol& stat, const YCPString& cat)
 	{
 	    std::string pattern;
 
-	    if (status == "all" || status == "available")
+	    if (status == "all")
 	    {
 		pattern = it->resolvable()->name();
+	    }
+	    else if (status == "available")
+	    {
+		// ignore installed patterns
+		zypp::Source_Ref src = (*it)->source();
+
+		if (src != zypp::Source_Ref::noSource)
+		    pattern = it->resolvable()->name();
 	    }
 	    else if (status == "selected")
 	    {
