@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon May 22 13:23:48 CEST 2006 - lslezak@suse.cz
+
+- Pkg::DoProvide - select only the newest item for installation,
+  remove the flag from other versions (#176854)
+- 2.13.79
+
+-------------------------------------------------------------------
 Mon May 22 10:51:44 CEST 2006 - jsrain@suse.cz
 
 - added PkgApplReset builtin (#176788)

@@ -539,9 +539,10 @@ struct ProvideProcess
 {
     zypp::PoolItem_Ref item;
     zypp::Arch _architecture;
+    zypp::ResStatus::TransactByValue whoWantsIt;
 
     ProvideProcess( zypp::Arch arch )
-	: _architecture( arch )
+	: _architecture( arch ), whoWantsIt(zypp::ResStatus::APPL_HIGH)
     { }
 
     bool operator()( zypp::PoolItem provider )
@@ -553,6 +554,13 @@ struct ProvideProcess
 
 	if (!provider.status().isInstalled())
 	{
+	    // deselect the item if it's already selected,
+	    // only one item should be selected
+	    if (provider.status().isToBeInstalled())
+	    {
+		provider.status().resetTransact(whoWantsIt);
+	    }
+
 	    // regarding items which are installable only
 	    if (!provider->arch().compatibleWith( _architecture )) {
 		y2milestone ("provider %s has incompatible arch '%s'", provider->name().c_str(), provider->arch().asString().c_str());
@@ -584,6 +592,7 @@ PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvabl
     try
     {
 	ProvideProcess info( zypp_ptr()->architecture() );
+	info.whoWantsIt = whoWantsIt;
 
 	invokeOnEach( zypp_ptr()->pool().byNameBegin( name ),
 		      zypp_ptr()->pool().byNameEnd( name ),
