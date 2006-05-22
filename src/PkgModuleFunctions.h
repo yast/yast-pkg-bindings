@@ -391,6 +391,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue PkgNeutral (const YCPString& p);
 	/* TYPEINFO: boolean()*/
 	YCPValue PkgReset ();
+	/* TYPEINFO: boolean()*/
+	YCPValue PkgApplReset ();
 	/* TYPEINFO: boolean(boolean)*/
 	YCPBoolean PkgSolve (const YCPBoolean& filter);
 	/* TYPEINFO: boolean()*/

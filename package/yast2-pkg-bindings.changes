@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon May 22 10:51:44 CEST 2006 - jsrain@suse.cz
+
+- added PkgApplReset builtin (#176788)
+
+-------------------------------------------------------------------
 Fri May 19 09:49:38 CEST 2006 - lslezak@suse.cz
 
 - ignore installed selections in Pkg::GetSelections() when asking

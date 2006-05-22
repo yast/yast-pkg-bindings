@@ -1804,7 +1804,6 @@ PkgModuleFunctions::PkgNeutral (const YCPString& p)
  * @builtin Reset
  *
  * @short Reset most internal stuff on the package manager.
-   @param string package
    @return boolean
  */
 
@@ -1821,6 +1820,37 @@ PkgModuleFunctions::PkgReset ()
              if (it->status().isByUser())
                  it->status().setLock(false, zypp::ResStatus::USER);
 	    it->status().resetTransact(zypp::ResStatus::USER);
+	}
+
+	return YCPBoolean (true);
+    }
+    catch (...)
+    {
+    }
+
+    return YCPBoolean (false);
+}
+
+
+/**
+ * @builtin Reset
+ *
+ * @short Reset most internal stuff on the package manager.
+   Reset only packages set by the application, not by the user
+   @return boolean
+ */
+
+YCPValue
+PkgModuleFunctions::PkgApplReset ()
+{
+    try
+    {
+	for (zypp::ResPool::const_iterator it = zypp_ptr()->pool().begin()
+	    ; it != zypp_ptr()->pool().end()
+	    ; ++it)
+	{
+	    // reset all transaction flags
+	    it->status().resetTransact(zypp::ResStatus::APPL_HIGH);
 	}
 
 	return YCPBoolean (true);
