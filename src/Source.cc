@@ -289,10 +289,39 @@ PkgModuleFunctions::SourceReleaseAll ()
     return YCPBoolean(true);
 }
 
+/******************************************************************************
+ * @builtin SourceSaveAll
+ *
+ * @short Save all InstSrces.
+ * @return boolean
+ **/
+YCPValue
+PkgModuleFunctions::SourceSaveAll ()
+{
+    try
+    {
+	y2milestone( "Storing the source setup in %s", _target_root.asString().c_str()) ;
+	zypp::SourceManager::sourceManager()->store( _target_root, true );
+    }
+    catch (zypp::Exception & excpt)
+    {
+	y2error("Pkg::SourceSaveAll has failed: %s", excpt.msg().c_str() );
+	_last_error.setLastError(excpt.asUserString());
+	return YCPBoolean(false);
+    }
+
+    y2milestone( "All sources saved");
+
+    return YCPBoolean(true);
+}
+
 /****************************************************************************************
  * @builtin SourceFinishAll
  *
- * @short Disable all InstSrces.
+ * @short Save and then disable all InstSrces.
+ * @description
+ * If there are no enabled sources, do nothing
+ * (idempotence hack, broken design: #155459, #176013, use SourceSaveAll).
  * @return boolean
  **/
 YCPValue

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu May 25 17:41:32 CEST 2006 - mvidner@suse.cz
+
+- Added SourceSaveAll which always saves and does not disable (#176013).
+- 2.13.80
+
+-------------------------------------------------------------------
 Mon May 22 13:23:48 CEST 2006 - lslezak@suse.cz
 
 - Pkg::DoProvide - select only the newest item for installation,

@@ -229,6 +229,8 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: boolean(integer)*/
 	YCPValue SourceFinish (const YCPInteger&);
 	/* TYPEINFO: boolean()*/
+	YCPValue SourceSaveAll ();
+	/* TYPEINFO: boolean()*/
 	YCPValue SourceFinishAll ();
 	/* TYPEINFO: map<string,any>(integer)*/
 	YCPValue SourceGeneralData (const YCPInteger&);
