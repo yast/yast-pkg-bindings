@@ -977,41 +977,9 @@ PkgModuleFunctions::PkgProp( zypp::PoolItem_Ref item )
     data->add( YCPString("arch"), YCPString( pkg->arch().asString() ) );
     data->add( YCPString("medianr"), YCPInteger( pkg->sourceMediaNr() ) );
 
-    zypp::Source_Ref pkg_src = pkg->source();
-    zypp::SourceManager::SourceId srcid = 0;
-    bool found = false;
-    std::list<zypp::SourceManager::SourceId> enabled_srcs = zypp::SourceManager::sourceManager()->enabledSources();
-
-    // search source
-    for( std::list<zypp::SourceManager::SourceId>::const_iterator src_it = enabled_srcs.begin()
-	; src_it != enabled_srcs.end()
-	; src_it++)
-    {
-	zypp::Source_Ref src;
-
-	try
-	{
-	    src = zypp::SourceManager::sourceManager()->findSource(*src_it);
-	}
-	catch (...)
-	{
-	    y2error("cannot find source %lu", *src_it);
-	    continue;
-	}
-
-	if (src == pkg_src)
-	{
-	    found = true;
-	    srcid = *src_it;
-	    break;
-	}
-    }
-
-    if (found)
-    {
-	// src has been found
-	data->add( YCPString("srcid"), YCPInteger( srcid ) );
-    }
+    y2internal("getting the ID...");
+    y2internal("srcId: %ld", pkg->source().numericId() );
+    data->add( YCPString("srcid"), YCPInteger( pkg->source().numericId() ) );
 
     std::string status("available");
     if (item.status().isInstalled())

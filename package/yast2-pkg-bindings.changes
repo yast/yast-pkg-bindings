@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Jun  1 09:33:07 CEST 2006 - lslezak@suse.cz
+
+- get source ID by numericId() call (do not search in all available
+  sources) (#179410, #163609)
+- 2.13.81
+
+-------------------------------------------------------------------
 Thu May 25 17:41:32 CEST 2006 - mvidner@suse.cz
 
 - Added SourceSaveAll which always saves and does not disable (#176013).

@@ -306,44 +306,7 @@ PkgModuleFunctions::PatternData (const YCPString& pat)
 	    data->add (YCPString ("script"), YCPString (pattern->script().asString()));
 	    data->add (YCPString ("version"), YCPString((*it)->edition().asString()));
 	    data->add (YCPString ("arch"), YCPString((*it)->arch().asString()));
-
-	    // add source ID
-	    zypp::Source_Ref pkg_src = (*it)->source();
-	    zypp::SourceManager::SourceId srcid = 0;
-	    bool found = false;
-	    std::list<zypp::SourceManager::SourceId> enabled_srcs = zypp::SourceManager::sourceManager()->enabledSources();
-
-	    // search source
-	    for( std::list<zypp::SourceManager::SourceId>::const_iterator src_it = enabled_srcs.begin()
-		; src_it != enabled_srcs.end()
-		; src_it++)
-	    {
-		y2error("testing source %lu", *src_it);
-		zypp::Source_Ref src;
-
-		try
-		{
-		    src = zypp::SourceManager::sourceManager()->findSource(*src_it);
-		}
-		catch (...)
-		{
-		    y2error("cannot find source %lu", *src_it);
-		    continue;
-		}
-
-		if (src == pkg_src)
-		{
-		    found = true;
-		    srcid = *src_it;
-		    break;
-		}
-	    }
-
-	    if (found)
-	    {
-		// src has been found
-		data->add( YCPString("srcid"), YCPInteger(srcid));
-	    }
+	    data->add (YCPString ("srcid"), YCPInteger((*it)->source().numericId()));
 	}
 	else
 	{

@@ -366,26 +366,7 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 
 		// source
 		zypp::Source_Ref res_src = (*it)->source();
-		unsigned src_index; 
-		bool found = false;
-
-		// find index of the source
-		// TODO optimize it by using hash<Source, index>?
-		for (std::list<zypp::SourceManager::SourceId>::const_iterator idxit = source_ids.begin()
-		    ; idxit != source_ids.end()
-		    ; idxit++)
-		{
-		    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource((*idxit));
-		    
-		    if (src == res_src)
-		    {
-			found = true;
-			src_index = (*idxit);
-			break;
-		    }
-		}
-
-		info->add(YCPString("source"), YCPInteger((found) ? src_index : -1LL));
+		info->add(YCPString("source"), YCPInteger(res_src.numericId()));
 
 		// product specific info
 		if( req_kind == "product" ) {
