@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Jun  5 15:33:17 CEST 2006 - lslezak@suse.cz
+
+- updated documentation - descriptions of the functions,
+  added obsoleted/don't use notes
+- 2.13.82
+
+-------------------------------------------------------------------
 Thu Jun  1 09:33:07 CEST 2006 - lslezak@suse.cz
 
 - get source ID by numericId() call (do not search in all available

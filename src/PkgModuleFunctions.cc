@@ -261,9 +261,7 @@ PkgModuleFunctions::Connect()
 
 /**
  * @builtin InstSysMode
- * @short Set packagemanager to "inst-sys" mode
- * @description Set packagemanager to "inst-sys" mode - dont use local caches (ramdisk!)
- * OBSOLETED!
+ * @short obsoleted - do not use
  * @return void
  */
 YCPValue
@@ -431,7 +429,7 @@ PkgModuleFunctions::LastErrorDetails ()
 
 /**
  * @builtin LastErrorId
- * @short get current error as id string
+ * @short Obsoleted function, do not use
  * @return string
  */
 YCPValue

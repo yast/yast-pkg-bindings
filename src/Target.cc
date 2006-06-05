@@ -289,6 +289,9 @@ PkgModuleFunctions::TargetBlockSize (const YCPString& dir)
  * @description
  * return list of maps of all installed products in reverse
  * installation order (product installed last comes first)
+ *
+ * Deprecated, will be replaced by ResolvableProperties() in the future.
+ *
  * @return list
  */
 

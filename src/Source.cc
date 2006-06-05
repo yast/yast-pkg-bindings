@@ -67,12 +67,8 @@ zypp::Source_Ref PkgModuleFunctions::logFindSource (zypp::SourceManager::SourceI
 
 /****************************************************************************************
  * @builtin SourceSetRamCache
- * @short Allow/prevent InstSrces from caching package metadata on ramdisk
- * @description
- * In InstSys: Allow/prevent InstSrces from caching package metadata on ramdisk.
- * If no cache is used the media cannot be unmounted, i.e. no CD change possible.
- *
- * @param boolean allow  If true, allow caching
+ * @short Obsoleted function, do not use
+ * @param boolean
  * @return boolean
  **/
 YCPValue
@@ -527,26 +523,10 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& id)
 
 /****************************************************************************************
  * @builtin SourceProduct
- * @short Get Product info
- * @param integer SrcId Specifies the InstSrc to query.
- *
- * <code>
- * $[
- *   "baseproduct":"",
- *   "baseversion":"",
- *   "defaultbase":"i386",
- *   "distproduct":"SuSE-Linux-DVD",
- *   "distversion":"10.0",
- *   "flags":"update",
- *   "name":"SUSE LINUX",
- *   "product":"SUSE LINUX 10.0",
- *   "relnotesurl":"http://www.suse.com/relnotes/i386/SUSE-LINUX/10.0/release-notes.rpm",
- *   "requires":"suse-release-10.0",
- *   "vendor":"SUSE LINUX Products GmbH, Nuernberg, Germany",
- *   "version":"10.0"
- * ]
- * </code>
- * @return map Product info as a map
+ * @short Obsoleted function, do not use, see SourceProductData builtin
+ * @deprecated
+ * @param integer
+ * @return map empty map
  **/
 YCPValue
 PkgModuleFunctions::SourceProduct (const YCPInteger& id)
@@ -742,9 +722,7 @@ PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 /****************************************************************************************
  * @builtin SourceInstallOrder
  *
- * @short Explicitly set an install order.
- * @param map order_map A map of 'int order : int source_id'. source_ids are expected to
- * denote known and enabled sources.
+ * @short not implemented, do not use (Explicitly set an install order.)
  * @return boolean
  **/
 YCPValue
@@ -1469,12 +1447,13 @@ PkgModuleFunctions::SourceLowerPriority (const YCPInteger& id)
 /****************************************************************************************
  * Pkg::SourceSaveRanks () -> boolean
  *
- * Save ranks to disk. Return true on success, false on error.
+ * @short Obsoleted function, do not use
+ * @return boolean true
  **/
 YCPValue
 PkgModuleFunctions::SourceSaveRanks ()
 {
-    y2internal( "SourceSaveRanks not implemented yet, please, report" );
+  y2error( "SourceSaveRanks not implemented" );
 
   return YCPBoolean( true );
 }

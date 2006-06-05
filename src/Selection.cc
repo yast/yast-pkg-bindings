@@ -51,7 +51,7 @@ using std::string;
 /**
    @builtin GetSelections
 
-   @short Return list of selections matching given status
+   @short Return list of selections matching given status - obsoleted, use ResolvableProperties() instead
    @description
    returns a list of selection names matching the status symbol
      and the category.
@@ -156,7 +156,7 @@ PkgModuleFunctions::GetSelections (const YCPSymbol& stat, const YCPString& cat)
 /**
    @builtin GetPatterns
 
-   @short Return list of patterns matching given status
+   @short Return list of patterns matching given status (obsoleted, use ResolvableProperties())
    @description
    returns a list of pattern names matching the status symbol
      and the category.
@@ -251,6 +251,7 @@ PkgModuleFunctions::GetPatterns(const YCPSymbol& stat, const YCPString& cat)
    @short Get Pattern Data
    @description
 
+   This builtin will be replaced by ResolvableProperties() in the future.
    Return information about pattern
 
    <code>
@@ -327,6 +328,8 @@ PkgModuleFunctions::PatternData (const YCPString& pat)
 
    @short Get Selection Data
    @description
+
+   This builtin will be replaced by ResolvableProperties() in the future.
 
    Return information about selection
 
@@ -499,16 +502,12 @@ PkgModuleFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to
 /**
    @builtin SetSelection
 
-   @short Set a new selection
+   @short Set a new selection - obsoleted, use ResolvableInstall() instead
    @description
-   If the selection is a base selection,
-   this effetively resets the current package selection to
-   the packages of the newly selected base selection
-   Usually returns true
+   Mark the selection for installation
    @param string selection
    @return boolean Returns false if the given string does not match
    a known selection.
-
 */
 YCPBoolean
 PkgModuleFunctions::SetSelection (const YCPString& selection)
@@ -520,11 +519,9 @@ PkgModuleFunctions::SetSelection (const YCPString& selection)
 /**
    @builtin ClearSelection
 
-   @short Clear a selected selection
+   @short Clear a selected selection - obsoleted, use ResolvableRemove() instead
    @param string selection
    @return boolean
-
-
 */
 YCPValue
 PkgModuleFunctions::ClearSelection (const YCPString& selection)
@@ -538,14 +535,9 @@ PkgModuleFunctions::ClearSelection (const YCPString& selection)
 /**
    @builtin ActivateSelections
 
-   @short Activate all selected selections
-   @description
-   To be called when user is done with selections and wants
-   to continue on the package level (or finish)
+   @short Activate all selected selections - obsoleted, use PkgSolve() instead
 
-   This will transfer the selection status to package status
-
-   @return boolean
+   @return boolean true
    
    @deprecated Use Pkg::PkgSolve instead, selections are solvable now
 */

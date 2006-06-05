@@ -42,10 +42,8 @@ using std::endl;
 //-------------------------------------------------------------
 /**   
    @builtin YouStatus
-
-   @short get map with status information
-   @return map
-
+   @short obsoleted, do not use
+   @return map empty map
 */
 YCPMap
 PkgModuleFunctions::YouStatus ()
@@ -76,14 +74,8 @@ PkgModuleFunctions::YouStatus ()
 
 /**
    @builtin YouSetServer
-
-   @short Set server to be used for getting patches.
-   @param map  you server map as returned from YouGetServers.
-   @return string ""      success
-   
-           "args"  wrong arguments
-
-           "error" other error
+   @short obsoleted, do not use
+   @return string empty string
 */
 YCPValue
 PkgModuleFunctions::YouSetServer (const YCPMap& servers)
@@ -102,9 +94,8 @@ PkgModuleFunctions::YouSetServer (const YCPMap& servers)
 
 /**
    @builtin YouGetUserPassword
-
-   @short Get username and password needed for access to server.
-   @return map "username" success, "password" password
+   @short obsoleted, do not use
+   @return map empty map
 */
 YCPValue
 PkgModuleFunctions::YouGetUserPassword ()
@@ -114,24 +105,15 @@ PkgModuleFunctions::YouGetUserPassword ()
 
     you.readUserPassword();
     */
-    string username = "you.username()";
-    string password = "you.password()";
-
     YCPMap result;
-    result->add( YCPString( "username" ), YCPString( username ) );
-    result->add( YCPString( "password" ), YCPString( password ) );
 
     return result;
 }
 
 /**
    @builtin YouSetUserPassword
-
-   @short Set username and password needed for access to server.
-   @param string  username
-   @param string  password
-   @param boolean save  true, if username/password should be saved to disk
-   @return string success if empty, "args"  wrong arguments, "error" other error
+   @short obsoleted, do not use
+   @return string empty string
 */
 YCPValue
 PkgModuleFunctions::YouSetUserPassword (const YCPString& user, const YCPString& passwd, const YCPBoolean& p)
@@ -157,14 +139,8 @@ PkgModuleFunctions::YouSetUserPassword (const YCPString& user, const YCPString& 
 // ------------------------
 /**
    @builtin YouGetServers
-
-   @short get urls of patch servers
-
-   @param list<map>  list of maps where results are stored. The maps have the following fields
-                     set: "url" -> URL of server. "name" -> Descriptive name of server.  
-                     "directory" -> Directory file used to get list of patches.
-   @return string empty for success, "args"  bad args, "get"  error getting file from server
-           "write" error writing file to disk and "read"  error reading file after download
+   @short obsoleted, do not use
+   @return string empty string
 */
 YCPString
 PkgModuleFunctions::YouGetServers (YCPReference strings)
@@ -201,11 +177,8 @@ PkgModuleFunctions::YouGetServers (YCPReference strings)
 
 /**
   @builtin YouGetDirectory
-
-  @short retrieve directory file listing all available patches
-
-  @return string empty string for success, "url" ->  url not valid, "login" -> login failed
-          "error"-> other error
+   @short obsoleted, do not use
+  @return string empty string
 */
 YCPValue
 PkgModuleFunctions::YouGetDirectory ()
@@ -225,20 +198,12 @@ PkgModuleFunctions::YouGetDirectory ()
 
 /**   
   @builtin YouRetrievePatchInfo
-
-  @short retrieve patches
-  @param boolean download_again   true if patches should be downloaded again
-  @param boolean check_signatures  true if signatures should be checked.
-  
-  @return string empty string for success, "args" for  bad args, "media" for media error
-          "sig" for  signature check failed, "abort" for user aborted operation, 
-          "url" for  url not valid and "login" for login failed
+   @short obsoleted, do not use
+  @return string empty string
 */
 YCPValue
 PkgModuleFunctions::YouRetrievePatchInfo (const YCPBoolean& download, const YCPBoolean& sig)
 {
-    bool reload = download->value();
-    bool checkSig = sig->value();
 
     /* TODO FIXME
     InstYou &you = _y2pm.youPatchManager().instYou();
@@ -260,10 +225,9 @@ PkgModuleFunctions::YouRetrievePatchInfo (const YCPBoolean& download, const YCPB
 }
 
 /**   
-   @builtin YouProcessPatches
-   @short Download and install patches.
-   @return boolean
-
+   @builtin YouProcessPatche
+   @short obsoleted, do not use
+   @return boolean true
 */
 YCPValue
 PkgModuleFunctions::YouProcessPatches ()
@@ -277,10 +241,8 @@ PkgModuleFunctions::YouProcessPatches ()
 
 /**   
    @builtin YouSelectPatches
-
-   @short select patches based on types.
+   @short obsoleted, do not use
    @return void
-
 */
 YCPValue
 PkgModuleFunctions::YouSelectPatches ()
@@ -322,9 +284,8 @@ PkgModuleFunctions::YouPatch( const PMYouPatchPtr &patch )
 
 /**
    @builtin YouRemovePackages
-
-   @short remove downloaded packages.
-   @return boolean
+   @short  - obsoleted, do not use
+   @return boolean true
 */
 YCPValue
 PkgModuleFunctions::YouRemovePackages ()

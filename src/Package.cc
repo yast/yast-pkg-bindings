@@ -1203,7 +1203,7 @@ YCPList PkgModuleFunctions::PkgGetFilelist( const YCPString & package, const YCP
 // ------------------------
 /**
    @builtin SaveState
-   @short Save the current selection state
+   @short Save the current selection state - do not use, not implemented
    @description
    save the current package selection status for later
    retrieval via Pkg::RestoreState()
@@ -1223,7 +1223,7 @@ PkgModuleFunctions::SaveState ()
 /**
    @builtin RestoreState
 
-   @short Restore Saved state
+   @short Restore Saved state - do not use, not implemented
    @description
    restore the package selection status from a former
    call to Pkg::SaveState()
@@ -1251,7 +1251,7 @@ PkgModuleFunctions::RestoreState (const YCPBoolean& ch)
 /**
    @builtin ClearSaveState
 
-   @short clear a saved state (to reduce memory consumption)
+   @short clear a saved state (to reduce memory consumption) - do not use, not implemented
    @return boolean
 
 */
