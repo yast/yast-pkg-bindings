@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Jun  6 16:11:20 CEST 2006 - lslezak@suse.cz
+
+- added new callback bindings (CallbackProgressSourceRefresh(),
+  CallbackAcceptWrongDigest(), CallbackAcceptUnknownDigest())
+- 2.13.83
+
+-------------------------------------------------------------------
 Mon Jun  5 15:33:17 CEST 2006 - lslezak@suse.cz
 
 - updated documentation - descriptions of the functions,

@@ -71,7 +71,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_StartProvide, CB_ProgressProvide, CB_DoneProvide,
       CB_StartPackage, CB_ProgressPackage, CB_DonePackage,
       CB_StartDownload, CB_ProgressDownload, CB_DoneDownload,
-      CB_StartSourceRefresh, CB_ErrorSourceRefresh, CB_DoneSourceRefresh,
+      CB_StartSourceRefresh, CB_ErrorSourceRefresh, CB_DoneSourceRefresh, CB_ProgressSourceRefresh,
       CB_MediaChange,
       CB_SourceChange,
       CB_ResolvableReport,
@@ -87,6 +87,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_AcceptUnsignedFile,
       CB_AcceptFileWithoutChecksum,
       CB_AcceptVerificationFailed,
+      CB_AcceptWrongDigest, CB_AcceptUnknownDigest,
       CB_TrustedKeyAdded,
       CB_TrustedKeyRemoved
     };
@@ -119,6 +120,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
         ENUM_OUT( StartSourceRefresh );
         ENUM_OUT( ErrorSourceRefresh );
         ENUM_OUT( DoneSourceRefresh );
+	ENUM_OUT( ProgressSourceRefresh );
 	ENUM_OUT( MediaChange );
 	ENUM_OUT( SourceChange );
 	ENUM_OUT( YouProgress );
@@ -136,6 +138,8 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( AcceptFileWithoutChecksum );
 	ENUM_OUT( TrustedKeyAdded );
 	ENUM_OUT( TrustedKeyRemoved );
+	ENUM_OUT( AcceptWrongDigest );
+	ENUM_OUT( AcceptUnknownDigest );
 #undef ENUM_OUT
 	// no default! let compiler warn missing values
       }

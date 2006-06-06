@@ -591,6 +591,22 @@ namespace ZyppRecipients {
 		callback.evaluate();
 	    }
 	}
+
+	virtual bool progress(int value, zypp::Source_Ref source)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressSourceRefresh) );
+
+	    if (callback._set)
+	    {
+		callback.addInt( value );
+		callback.addInt( source.numericId() );
+		return callback.evaluateBool();
+	    }
+
+	    // return default value from the parent class
+	    return zypp::source::RefreshSourceReport::progress(value, source);
+	}
+	    
     };
 
     ///////////////////////////////////////////////////////////////////
@@ -839,6 +855,38 @@ namespace ZyppRecipients {
 
 	    return zypp::DigestReport::askUserToAcceptNoDigest(file);
 	}
+
+	virtual bool askUserToAccepUnknownDigest( const zypp::Pathname &file, const std::string &name )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnknownDigest) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(file.asString());
+		callback.addStr(name);
+
+		return callback.evaluateBool();
+	    }
+
+	    return zypp::DigestReport::askUserToAccepUnknownDigest(file, name);
+	}
+
+	virtual bool askUserToAcceptWrongDigest( const zypp::Pathname &file, const std::string &requested, const std::string &found )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_AcceptWrongDigest) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(file.asString());
+		callback.addStr(requested);
+		callback.addStr(found);
+
+		return callback.evaluateBool();
+	    }
+
+	    return zypp::DigestReport::askUserToAcceptWrongDigest(file, requested, found);
+	}
+		
     };
 
 
@@ -1121,6 +1169,16 @@ YCPValue PkgModuleFunctions::CallbackDoneDownload( const YCPString& args ) {
 YCPValue PkgModuleFunctions::CallbackStartSourceRefresh( const YCPString& args ) {
   return SET_YCP_CB( CB_StartSourceRefresh, args );
 }
+/**
+ * @builtin CallbackProgressSourceRefresh
+ * @short Register a callback function
+ * @param string args Name of the callback handler function. Required callback
+ *  prototype is <code>boolean(integer value, integer sourceId)</code>.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackProgressSourceRefresh( const YCPString& args ) {
+  return SET_YCP_CB( CB_ProgressSourceRefresh, args );
+}
 YCPValue PkgModuleFunctions::CallbackErrorSourceRefresh( const YCPString& args ) {
   return SET_YCP_CB( CB_ErrorSourceRefresh, args );
 }
@@ -1180,6 +1238,28 @@ YCPValue PkgModuleFunctions::CallbackAcceptFileWithoutChecksum( const YCPString&
  */
 YCPValue PkgModuleFunctions::CallbackAcceptVerificationFailed( const YCPString& args ) {
   return SET_YCP_CB( CB_AcceptVerificationFailed, args );
+}
+
+/**
+ * @builtin CallbackAcceptWrongDigest
+ * @short Register callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, string requested_digest, string found_digest)</code>. The callback function should ask user whether the wrong digest can be accepted, returned true value means to accept the file.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackAcceptWrongDigest( const YCPString& func)
+{
+  return SET_YCP_CB( CB_AcceptWrongDigest, func );
+}
+
+/**
+ * @builtin CallbackAcceptUnknownDigest
+ * @short Register callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, string name)</code>. The callback function should ask user whether the uknown digest can be accepted, returned true value means to accept the digest.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackAcceptUnknownDigest( const YCPString& func)
+{
+  return SET_YCP_CB( CB_AcceptUnknownDigest, func );
 }
 
 /**

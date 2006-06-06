@@ -158,6 +158,8 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: void(string) */
         YCPValue CallbackStartSourceRefresh( const YCPString& func);
 	/* TYPEINFO: void(string) */
+        YCPValue CallbackProgressSourceRefresh( const YCPString& func);
+	/* TYPEINFO: void(string) */
         YCPValue CallbackErrorSourceRefresh( const YCPString& func);
 	/* TYPEINFO: void(string) */
         YCPValue CallbackDoneSourceRefresh( const YCPString& func);
@@ -205,6 +207,10 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue CallbackAcceptUnsignedFile( const YCPString& func );	
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackAcceptVerificationFailed( const YCPString& func );	
+	/* TYPEINFO: void(string) */
+        YCPValue CallbackAcceptWrongDigest( const YCPString& func);
+	/* TYPEINFO: void(string) */
+        YCPValue CallbackAcceptUnknownDigest( const YCPString& func);
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackTrustedKeyAdded( const YCPString& func );	
 	/* TYPEINFO: void(string) */
