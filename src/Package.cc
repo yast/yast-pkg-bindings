@@ -1794,9 +1794,7 @@ PkgModuleFunctions::PkgReset ()
 	    ; ++it)
 	{
 	    // reset all transaction flags
-             if (it->status().isByUser())
-                 it->status().setLock(false, zypp::ResStatus::USER);
-	    it->status().resetTransact(zypp::ResStatus::USER);
+	    it->statusReset();
 	}
 
 	return YCPBoolean (true);
