@@ -130,8 +130,19 @@ public:
     {
 	ycpmilestone ("Pkg Builtin called: %s", name().c_str() );
 
-	switch (m_position) {
+	try
+	{
+	    switch (m_position) {
 #include "PkgBuiltinCalls.h"
+	    }
+	}
+	catch (const std::exception& excpt)
+	{
+	    y2internal("Catched unhandled exception: %s", excpt.what());
+	}
+	catch (...)
+	{
+	    y2internal("Catched unhandled exception");
 	}
 
 	return YCPNull ();
@@ -288,8 +299,16 @@ PkgModuleFunctions::SetLocale (const YCPString &locale)
 	zypp::Locale loc = zypp::Locale(locale->value());
 	zypp_ptr()->setTextLocale(loc);
 
-	// add packages for the preferred locale
-	zypp::ZYpp::LocaleSet lset;
+	// add packages for the preferred locale, preserve additional locales
+	zypp::ZYpp::LocaleSet lset = zypp_ptr()->getRequestedLocales();
+
+	// remove the previous locale
+	if (preferred_locale != zypp::Locale::noCode)
+	{
+	    lset.erase(preferred_locale);
+	}
+
+	// add the new locale
 	lset.insert(loc);
 	zypp_ptr()->setRequestedLocales(lset);
 

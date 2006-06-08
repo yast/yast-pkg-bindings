@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Jun  8 12:58:40 CEST 2006 - lslezak@suse.cz
+
+- fixed SetLocale() - do not reset additional locales (#172223)
+- catch all uncaught exceptions on the global level (prevents
+  from crashing yast)
+
+-------------------------------------------------------------------
 Thu Jun  8 12:51:28 CEST 2006 - jsrain@suse.cz
 
 - fixed reseting SW selection (#177469)
