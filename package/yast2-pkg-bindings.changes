@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Jun  8 08:19:18 CEST 2006 - lslezak@suse.cz
+
+- fixed the crash when yast is running as non-root user - catch
+  an exception in SourceStartCache() (#182390)
+
+-------------------------------------------------------------------
 Tue Jun  6 16:11:20 CEST 2006 - lslezak@suse.cz
 
 - added new callback bindings (CallbackProgressSourceRefresh(),

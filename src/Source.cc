@@ -195,9 +195,29 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 YCPValue
 PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
 {
-    SourceStartManager(enabled);
+    try
+    {
+	SourceStartManager(enabled);
 
-    return SourceGetCurrent(enabled);
+	return SourceGetCurrent(enabled);
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	y2error ("Error in SourceStartCache: %s", excpt.asString().c_str());
+	_last_error.setLastError(excpt.asUserString());
+    }
+    // catch an exception from boost (e.g. a file cannot be read by non-root user)
+    catch (const std::exception& err)
+    {
+	y2error ("Error in SourceStartCache: %s", err.what());
+	_last_error.setLastError(err.what());
+    }
+    catch (...)
+    {
+	y2error("Unknown error in SourceStartCache");
+    }
+
+    return YCPList();
 }
 
 /****************************************************************************************
