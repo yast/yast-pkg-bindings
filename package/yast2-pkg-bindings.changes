@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jun  9 09:44:32 CEST 2006 - jsrain@suse.cz
+
+- report also type of resolvable not installed during 1st stage
+  (#181198)
+
+-------------------------------------------------------------------
 Thu Jun  8 12:58:40 CEST 2006 - lslezak@suse.cz
 
 - fixed SetLocale() - do not reset additional locales (#172223)

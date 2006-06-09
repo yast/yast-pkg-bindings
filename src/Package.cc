@@ -39,6 +39,7 @@
 
 #include <zypp/ResPool.h>
 #include <zypp/Package.h>
+#include <zypp/Patch.h>
 #include <zypp/SrcPackage.h>
 #include <zypp/Product.h>
 #include <zypp/SourceManager.h>
@@ -2167,7 +2168,24 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
     YCPList remlist;
     for (zypp::PoolItemList::const_iterator it = result._remaining.begin(); it != result._remaining.end(); ++it)
     {
-	remlist->add(YCPString(it->resolvable()->name()));
+	YCPMap resolvable;
+	resolvable->add (YCPString ("name"),
+	    YCPString(it->resolvable()->name()));
+	if (zypp::isKind<zypp::Product>(it->resolvable()))
+	    resolvable->add (YCPString ("kind"), YCPSymbol ("product"));
+	else if (zypp::isKind<zypp::Pattern>(it->resolvable()))
+	    resolvable->add (YCPString ("kind"), YCPSymbol ("pattern"));
+	else if (zypp::isKind<zypp::Selection>(it->resolvable()))
+	    resolvable->add (YCPString ("kind"), YCPSymbol ("selection"));
+	else if (zypp::isKind<zypp::Script>(it->resolvable()))
+	    resolvable->add (YCPString ("kind"), YCPSymbol ("script"));
+	else if (zypp::isKind<zypp::Message>(it->resolvable()))
+	    resolvable->add (YCPString ("kind"), YCPSymbol ("message"));
+	else if (zypp::isKind<zypp::Patch>(it->resolvable()))
+	    resolvable->add (YCPString ("kind"), YCPSymbol ("patch"));
+	else
+	    resolvable->add (YCPString ("kind"), YCPSymbol ("package"));
+	remlist->add(resolvable);
     }
     ret->add(remlist);
 
