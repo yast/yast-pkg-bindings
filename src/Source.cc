@@ -385,7 +385,7 @@ PkgModuleFunctions::SourceFinishAll ()
  * "autorefresh": YCPBoolean,
  * "product_dir": YCPString,
  * "type"	: YCPString,
- * "url"	: YCPString,
+ * "url"	: YCPString (without password, but see SourceURL),
  * "alias"	: YCPString,
  * ];
  *
@@ -412,13 +412,34 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
     data->add( YCPString("autorefresh"),	YCPBoolean(src.autorefresh()));
     data->add( YCPString("type"),		YCPString(src.type()));
     data->add( YCPString("product_dir"),	YCPString(src.path().asString()));
-
-#warning SourceGeneralData returns URL without password
-    // if password is required then use this parameter:
-    // asString(url::ViewOptions() + url::ViewOptions::WITH_PASSWORD);
     data->add( YCPString("url"),		YCPString(src.url().asString()));
     data->add( YCPString("alias"),		YCPString(src.alias()));
     return data;
+}
+
+/******************************************************************************
+ * @builtin SourceURL
+ *
+ * @short Get full source URL, including password
+ * @param integer SrcId Specifies the InstSrc to query.
+ * @return string or nil on failure
+ **/
+YCPValue
+PkgModuleFunctions::SourceURL (const YCPInteger& id)
+{
+    zypp::Source_Ref src;
+
+    try
+    {
+	src = logFindSource(id->value());
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	return YCPVoid ();
+    }
+
+    // #186842
+    return YCPString(src.url().asCompleteString());
 }
 
 /****************************************************************************************

@@ -240,6 +240,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue SourceFinishAll ();
 	/* TYPEINFO: map<string,any>(integer)*/
 	YCPValue SourceGeneralData (const YCPInteger&);
+	/* TYPEINFO: string(integer)*/
+	YCPValue SourceURL (const YCPInteger&);
 	/* TYPEINFO: map<string,any>(integer)*/
 	YCPValue SourceMediaData (const YCPInteger&);
 	/* TYPEINFO: map<string,any>(integer)*/
