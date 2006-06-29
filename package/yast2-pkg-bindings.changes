@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Jun 29 09:28:20 CEST 2006 - lslezak@suse.cz
+
+- ResolvableProperties(): return "is_needed" property of a patch
+  (#188541)
+- 2.13.88
+
+-------------------------------------------------------------------
 Mon Jun 26 16:50:50 CEST 2006 - mvidner@suse.cz
 
 - Fixed links in the docs (locilka)
