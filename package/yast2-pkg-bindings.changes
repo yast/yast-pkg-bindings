@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Jun 26 16:50:50 CEST 2006 - mvidner@suse.cz
+
+- Fixed links in the docs (locilka)
+- 2.13.87
+
+-------------------------------------------------------------------
 Wed Jun 21 09:37:09 CEST 2006 - mvidner@suse.cz
 
 - Added Pkg::SourceURL that includes the password (#186842).

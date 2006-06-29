@@ -1,153 +1,200 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <section id="package-bindings">
-    <title>Using the package manager</title>
-    
-    <section>
-        <title>Introduction</title>
+ <title>Using the package manager</title>
 
-        <para>
-This is a short introduction into using the package manager
-interface from within YCP code.</para>
-<para>
-It describes the required <emphasis>Pkg</emphasis> calls and how to use them
-in actual code.</para>
-</section>
-<section>
-    <title>Implementation</title>
+ <section>
+  <title>Introduction</title>
 
-    <para>
-The new package manager does all package related handling inside
-C++ code and uses callbacks for user interaction.</para>
-<para>
-This reduces the amount of ycp code needed for package installation
-(or removal) to a few lines.</para>
-<para>
-The package manager keeps a list of installed (on the system) and
-available (on the CD or other installation media) packages and
-their status (install, delete, no change). YCP code can query the
-package manager for installed or available packages and set their
-status. The actual package installation or deletion takes place
-with a final commit call.</para>
-<para>
-This call goes through the package list and deletes all packages
-marked as such. Then it orderes the packages marked for
-installation according to their "PreRequires" rpm tag and the media
-number (so you usually install CDs in ascending order).</para>
-<para>
-All user interaction is done via callbacks from inside the package
-manager. If no callback is defined, the user doesn't see anything
-and also isn't requested to change CDs. Especially the latter case
-makes it important to set up appropriate callbacks.</para>
-</section>
-<section>
-<title>Querying the package manager</title>
+  <para>
+   This is a short introduction into using the package manager interface from
+   within YCP code.
+  </para>
 
-<section><title>Checking an installed package</title>
+  <para>
+   It describes the required <emphasis>Pkg</emphasis> calls and how to use them
+   in actual code.
+  </para>
+ </section>
 
-    <para>
-<link linkend="PkgModuleFunctionsPackage_IsProvided">Pkg::IsProvided</link> checks if a rpm tag (a
-package name or any other symbolic name provided by a package) is
-installed.</para>
-<para>
-It does a '<command>rpm -q</command>' and if this fails a '<command>rpm -q
-    --whatprovides</command>' for the given tag.</para>
-<para>It does <emphasis>not</emphasis> start the complete package manager.</para>
-</section>
-<section>
-    <title>Checking the installation sources</title>
+ <section>
+  <title>Implementation</title>
 
-    <para>
-<link linkend="PkgModuleFunctionsPackage_IsAvailable">Pkg::IsAvailable</link> checks if a rpm package
-is available for installation.
-(It currently does not check for other tags provided, this will be
-implemented in a future version.)</para>
-<para>
-It starts the package manager if it isn't running already. Starting
-the package manager may take some time since it must read all it's
-caches about the installation sources and set up the internal data
-structures.</para>
+  <para>
+   The new package manager does all package related handling inside
+   <emphasis>C++</emphasis> code and uses callbacks for user interaction.
+  </para>
 
-</section>
-<section>
-    <title>Deleting a package</title>
-    <para>
-<link linkend="PkgModuleFunctionsPackage_PkgDelete">Pkg::PkgDelete</link> marks an installed package
-for deletion. It does <emphasis>not</emphasis> immediately run '<emphasis>rpm -e</emphasis>'
-but just sets the internal status of the package in the package
-manager.</para>
-<para>
-The actual deletion must be triggered with
-<link linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link>().</para>
+  <para>
+   This reduces the amount of ycp code needed for package installation
+   (or removal) to a few lines.
+  </para>
 
-</section>
-<section>
+  <para>
+   The package manager keeps a list of installed (on the system) and available
+   (on the CD or other installation media) packages and their status
+   (install, delete, no change). YCP code can query the package manager
+   for installed or available packages and set their status. The actual package
+   installation or deletion takes place with a final commit call.
+  </para>
 
-<title>Installing a package</title>
-<para>
-<link linkend="PkgModuleFunctionsPackage_PkgInstall">Pkg::PkgInstall</link> marks an available
-package for installation. It does <emphasis>not</emphasis> immediately run
-'<emphasis>rpm -Uhv</emphasis>' but just sets the internal status of the
-package in the package manager.</para>
-<para>
-The actual installation must be triggered with
-<link linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link>().</para>
+  <para>
+   This call goes through the package list and deletes all packages marked
+   as such. Then it orderes the packages marked for installation according
+   to their "<emphasis>PreRequires</emphasis>" rpm tag and the media number
+   (so you usually install CDs in ascending order).
+  </para>
 
-</section>
-<section>
+  <para>
+   All user interaction is done via callbacks from inside the package manager.
+   If no callback is defined, the user doesn't see anything and also isn't
+   requested to change CDs. Especially the latter case makes it important
+   to set up appropriate callbacks.
+  </para>
+ </section>
 
-<title>Solving dependencies</title>
-<para>
+ <section>
+  <title>Querying the package manager</title>
 
-<link linkend="PkgModuleFunctionsPackage_PkgSolve">Pkg::PkgSolve</link>() tries to solve open package
-dependencies and marks other (dependant) packages for
-installation/deletion.</para>
-<para>
-(It currently does an automatic solving without user interaction.
-Callbacks for user interaction will be added later.)</para>
-</section>
-<section>
+  <section>
+   <title>Checking an installed package</title>
 
-<title>Committing the changes</title>
+   <para>
+    <literal
+    id="PkgModuleFunctionsPackage_IsProvided">Pkg::IsProvided</literal>
+    checks if a rpm tag (a package name or any other symbolic name provided
+    by a package) is installed.
+   </para>
 
-<para>
-<link linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link> does the '<emphasis>rpm</emphasis>'
-calls needed to install or delete packages.</para>
-<para>
-It sorts the packages according to their pre-requires and their
-location on the media (CD order), handles mouting/unmounting of the
-media, does the package download (if the media is an ftp or http
-server), and calls rpm.</para>
-<para>
-All these actions might trigger callbacks for user information or
-user actions (i.e. media change).</para>
-<para>
-The module <emphasis>PackageCallbacks</emphasis> from
-<emphasis>yast2-packager.rpm</emphasis> defined default callbacks for all these
-actions and should be imported by any code using
-<link linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link>(0).</para>
-<para>
-The integer parameter given to <link linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link>(0) must be
-zero for the normal usage. Non-zero values are only allowed during
-system installation when no media change is possible.</para>
-</section>
-</section>
-<section>
-    <title>Example code</title>
+   <para>
+    It does a '<command>rpm -q</command>' and if this fails a '<command>rpm -q
+    --whatprovides</command>' for the given tag.
+   </para>
 
-    <informalexample>
-<programlisting>
-{
+   <para>
+    It does <emphasis>not</emphasis> start the complete package manager.
+   </para>
+  </section>
+
+  <section>
+   <title>Checking the installation sources</title>
+
+   <para>
+    <literal
+    id="PkgModuleFunctionsPackage_IsAvailable">Pkg::IsAvailable</literal>
+    checks if a rpm package is available for installation.
+    (It currently does not check for other tags provided, this will be
+    implemented in a future version.)
+   </para>
+
+   <para>
+    It starts the package manager if it isn't running already. Starting
+    the package manager may take some time since it must read all it's
+    caches about the installation sources and set up the internal data
+    structures.
+   </para>
+  </section>
+
+  <section>
+   <title>Deleting a package</title>
+
+   <para>
+    <literal
+    id="PkgModuleFunctionsPackage_PkgDelete">Pkg::PkgDelete</literal>
+    marks an installed package for deletion. It does <emphasis>not</emphasis>
+    immediately run '<emphasis>rpm -e</emphasis>' but just sets the internal
+    status of the package in the package manager.
+   </para>
+
+   <para>
+    The actual deletion must be triggered with <link
+    linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link>().
+   </para>
+  </section>
+
+  <section>
+   <title>Installing a package</title>
+
+   <para>
+    <literal
+    id="PkgModuleFunctionsPackage_PkgInstall">Pkg::PkgInstall</literal>
+    marks an available package for installation.
+    It does <emphasis>not</emphasis> immediately run
+    '<emphasis>rpm -Uhv</emphasis>' but just sets the internal status
+    of the package in the package manager.
+   </para>
+
+   <para>
+    The actual installation must be triggered with <link
+    linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link>().
+   </para>
+  </section>
+
+  <section>
+   <title>Solving dependencies</title>
+
+   <para>
+    <literal id="PkgModuleFunctionsPackage_PkgSolve">Pkg::PkgSolve</literal>()
+    tries to solve open package dependencies and marks other (dependant)
+    packages for installation/deletion.
+   </para>
+
+   <para>
+    (It currently does an automatic solving without user interaction. Callbacks
+    for user interaction will be added later.)
+   </para>
+  </section>
+
+  <section>
+   <title>Committing the changes</title>
+
+   <para>
+    <literal id="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</literal>
+    does the '<emphasis>rpm</emphasis>' calls needed to install or delete
+    packages.
+   </para>
+
+   <para>
+    It sorts the packages according to their pre-requires and their location
+    on the media (CD order), handles mouting/unmounting of the media, does
+    the package download (if the media is an ftp or http server),
+    and calls rpm.
+   </para>
+
+   <para>
+    All these actions might trigger callbacks for user information
+    or user actions (i.e. media change).
+   </para>
+
+   <para>
+    The module <emphasis>PackageCallbacks</emphasis> from
+    <emphasis>yast2-packager.rpm</emphasis> defined default callbacks for all
+    these actions and should be imported by any code using <link
+    linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link>(0).
+   </para>
+
+   <para>
+    The integer parameter given to <link
+    linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link>(0)
+    must be zero for the normal usage. Non-zero values are only allowed during
+    system installation when no media change is possible.
+   </para>
+  </section>
+ </section>
+
+ <section>
+  <title>Example code</title>
+
+  <informalexample>
+   <programlisting>{
     import "PackageCallbacks";
 
     // installing netscape and cups
-
     <link linkend="PkgModuleFunctionsPackage_PkgInstall">Pkg::PkgInstall</link> ("netscape");
     <link linkend="PkgModuleFunctionsPackage_PkgInstall">Pkg::PkgInstall</link> ("cups");
 
     // deleting lprng if it is installed
-
     if (<link linkend="PkgModuleFunctionsPackage_IsProvided">Pkg::IsProvided</link> ("lprng"))
-        <link linkend="PkgModuleFunctionsPackage_PkgDelete">Pkg::PkgDelete</link> ("lprng");
+    <link linkend="PkgModuleFunctionsPackage_PkgDelete">Pkg::PkgDelete</link> ("lprng");
 
     // fill open dependencies
     <link linkend="PkgModuleFunctionsPackage_PkgSolve">Pkg::PkgSolve</link>();
@@ -155,10 +202,7 @@ system installation when no media change is possible.</para>
     // do the rpm calls
     <link linkend="PkgModuleFunctionsPackage_PkgCommit">Pkg::PkgCommit</link>();
 
-}
-</programlisting>
-</informalexample>
+}</programlisting>
+  </informalexample>
+ </section>
 </section>
-</section>
-
-
