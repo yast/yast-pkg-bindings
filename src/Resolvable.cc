@@ -479,8 +479,21 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
     return ret;
 }
 
+/**
+   @builtin ResolvableCountPatches
+   @short Count patches which will be selected by ResolvablePreselectPatches() function
+   @description
+   Only non-optional patches are selected (even when `all parameter is passed!)
+   @param kind_r kind of preselected patches, can be `all, `interactive, `reboot_needed or `affects_pkg_manager
+   @return integer number of preselected patches
+*/
+YCPValue
+PkgModuleFunctions::ResolvableCountPatches (const YCPSymbol& kind_r)
+{
+    // only count the patches
+    return ResolvableSetPatches(kind_r, false);
+}
 
-// ------------------------
 /**
    @builtin ResolvablePreselectPatches
    @short Preselect patches for auto online update during the installation
@@ -491,6 +504,14 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 */
 YCPValue
 PkgModuleFunctions::ResolvablePreselectPatches (const YCPSymbol& kind_r)
+{
+    // preselect the patches
+    return ResolvableSetPatches(kind_r, true);
+}
+
+// helper function
+YCPValue
+PkgModuleFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselect)
 {
     long long selected_patches = 0LL;
     std::string kind = kind_r->symbol();
@@ -527,11 +548,15 @@ PkgModuleFunctions::ResolvablePreselectPatches (const YCPSymbol& kind_r)
 			    || (kind == "reboot_needed" && pch->reboot_needed())
 			)
 			{
-			    stringstream str; 
-			    str << *i << endl;
-			    y2milestone( "Setting '%s' to transact", str.str().c_str() );
-			    if (i->status().setTransact(true, whoWantsIt)) // schedule for installation
+			    if (!preselect)
 			    {
+				selected_patches++;
+			    }
+			    else if (i->status().setTransact(true, whoWantsIt)) // schedule for installation
+			    {
+				stringstream str; 
+				str << *i << endl;
+				y2milestone( "Setting '%s' to transact", str.str().c_str() );
 				// selected successfully - increase the counter
 				selected_patches++;
 			    }

@@ -470,6 +470,8 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue ResolvableDependencies(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version);
 	/* TYPEINFO: integer(symbol)*/
 	YCPValue ResolvablePreselectPatches(const YCPSymbol& kind_r);
+	/* TYPEINFO: integer(symbol)*/
+	YCPValue ResolvableCountPatches(const YCPSymbol& kind_r);
 
 	// keyring related
 	/* TYPEINFO: void(string,boolean)*/
@@ -481,6 +483,7 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue SourceMoveDownloadArea (const YCPString & path);
 
         YCPValue ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies);
+	YCPValue ResolvableSetPatches(const YCPSymbol& kind_r, bool preselect);
 
 	/**
 	 * Constructor.

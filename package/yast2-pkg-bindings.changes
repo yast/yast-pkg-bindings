@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Jul 13 10:05:43 CEST 2006 - lslezak@suse.cz
+
+- new binding Pkg::ResolvableCountPatches() - count available
+  patches which can be installed
+- 2.13.89
+
+-------------------------------------------------------------------
 Thu Jun 29 09:28:20 CEST 2006 - lslezak@suse.cz
 
 - ResolvableProperties(): return "is_needed" property of a patch
