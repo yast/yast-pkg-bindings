@@ -16,7 +16,7 @@ html_DATA =			\
 	$(htmlfiles)
 
 html/index.html:  $(xmlfiles) builtins.xml
-	XML_CATALOG_FILES=@XML_CATALOG@\
+	XML_CATALOG_FILES=@XML_CATALOG@ \
 	@XSLTPROC@ --xinclude \
 	@STYLESHEET_HTML@ builtins.xml
 
