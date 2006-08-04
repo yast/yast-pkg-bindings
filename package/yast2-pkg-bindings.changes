@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Aug  4 15:32:22 CEST 2006 - dmacvicar@suse.de
+
+- add TargetInitialize, TargetLoad, deprecate TargetInit.
+- port TargetProduct to new zypp api 
+- 2.13.90
+
+-------------------------------------------------------------------
 Thu Jul 13 10:05:43 CEST 2006 - lslezak@suse.cz
 
 - new binding Pkg::ResolvableCountPatches() - count available
