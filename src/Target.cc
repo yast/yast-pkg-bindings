@@ -41,23 +41,26 @@
 #include <zypp/SourceManager.h>
 #include <zypp/DiskUsageCounter.h>
 
+using namespace zypp;
+
 /** ------------------------
  *
  * @builtin TargetInit
- * @short Initialize Target
+ * @deprecated
+ * @short Initialize Target and load resolvables
  * @param string root Root Directory
  * @param boolean new If true, initialize new rpm database
  * @return boolean
  */
 YCPValue
-PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& /*unused*/ )
+PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unused_and_broken*/)
 {
     std::string r = root->value();
 
     try
     {
 	zypp_ptr()->initTarget(r);
-	zypp_ptr()->target()->enableStorage(r);
+        zypp_ptr()->addResolvables( zypp_ptr()->target()->resolvables(), true );
     }
     catch (zypp::Exception & excpt)
     {
@@ -72,6 +75,61 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean& /*unuse
     // is no longer valid
     _broken_sources.clear();
 
+    return YCPBoolean(true);
+}
+
+/** ------------------------
+ *
+ * @builtin TargetInitialize
+ * @short Initialize Target, read the keys.
+ * @param string root Root Directory
+ * @return boolean
+ */
+YCPValue
+PkgModuleFunctions::TargetInitialize (const YCPString& root)
+{
+    std::string r = root->value();
+
+    try
+    {
+        zypp_ptr()->initTarget(r);
+    }
+    catch (zypp::Exception & excpt)
+    {
+        _last_error.setLastError(excpt.asUserString());
+        ycperror("TargetInit has failed: %s", excpt.msg().c_str() );
+        return YCPError(excpt.msg().c_str(), YCPBoolean(false));
+    }
+    
+    _target_root = zypp::Pathname(root->value());
+    
+    // we have moved to a different target, the broken source information
+    // is no longer valid
+    _broken_sources.clear();
+
+    return YCPBoolean(true);
+}
+
+/** ------------------------
+ *
+ * @builtin TargetLoad
+ * @short Load target resolvables into the pool
+ * @return boolean
+ */
+YCPValue
+PkgModuleFunctions::TargetLoad ()
+{
+    try
+    {
+        zypp_ptr()->addResolvables( zypp_ptr()->target()->resolvables(), true );
+    }
+    catch (zypp::Exception & excpt)
+    {
+        _last_error.setLastError(excpt.asUserString());
+        ycperror("TargetLoad has failed: %s", excpt.msg().c_str() );
+        return YCPError(excpt.msg().c_str(), YCPBoolean(false));
+    }
+    
     return YCPBoolean(true);
 }
 
@@ -302,23 +360,19 @@ PkgModuleFunctions::TargetProducts ()
 
     try
     {
-	for(zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Product>::kind)
-	    ; it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind)
-	    ; ++it)
-	{
-	    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
-
-	    if (it->status().isInstalled() )
-	    {
-		YCPMap prod;
+        ResStore target_prods = zypp_ptr()->target()->resolvablesByKind(ResTraits<Product>::kind);
+        
+        for (ResStore::const_iterator it = target_prods.begin(); it != target_prods.end(); ++it)
+        {
+          zypp::Product::constPtr product = asKind<const zypp::Product>( *it );
 #warning TargetProducts does not return all keys
-		// see also PkgModuleFunctions::Descr2Map and Product.ycp::Product
-		prod->add( YCPString("name"), YCPString( product->name() ) );
-		prod->add( YCPString("version"), YCPString( product->edition().version() ) );
-		prod->add( YCPString("relnotesurl"), YCPString( product->releaseNotesUrl().asString() ) );
-		products->add(prod);
-	    }
-	}
+          YCPMap prod;
+          // see also PkgModuleFunctions::Descr2Map and Product.ycp::Product
+          prod->add( YCPString("name"), YCPString( product->name() ) );
+          prod->add( YCPString("version"), YCPString( product->edition().version() ) );
+          prod->add( YCPString("relnotesurl"), YCPString( product->releaseNotesUrl().asString() ) );
+          products->add(prod);
+        }
     }
     catch(...)
     {

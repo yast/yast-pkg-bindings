@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Aug  7 16:11:25 CEST 2006 - dmacvicar@suse.de
+
+- add TargetInitialize, TargetLoad, deprecate TargetInit.
+- port TargetProduct to new zypp api
+- 2.13.91 
+
+-------------------------------------------------------------------
 Thu Aug  3 09:13:50 CEST 2006 - mvidner@suse.cz
 
 - Fixed makefiles for make 3.81

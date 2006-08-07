@@ -285,7 +285,11 @@ class PkgModuleFunctions : public Y2Namespace
 
 	// target related
 	/* TYPEINFO: boolean(string,boolean)*/
-	YCPValue TargetInit (const YCPString& root, const YCPBoolean& n);
+	YCPValue TargetInit (const YCPString& root, const YCPBoolean& unused);
+        /* TYPEINFO: boolean(string)*/
+        YCPValue TargetInitialize (const YCPString& root);
+        /* TYPEINFO: boolean()*/
+        YCPValue TargetLoad ();
 	/* TYPEINFO: boolean()*/
 	YCPBoolean TargetDisableSources ();
 	/* TYPEINFO: boolean()*/
