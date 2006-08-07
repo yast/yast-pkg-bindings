@@ -1,7 +1,8 @@
 -------------------------------------------------------------------
 Mon Aug  7 18:09:34 CEST 2006 - dmacvicar@suse.de
 
-- use the new initializeTarget method for TargetInitialize 
+- use the new initializeTarget method for TargetInitialize
+- require zypp version 2.0.0 
 
 -------------------------------------------------------------------
 Mon Aug  7 17:01:56 CEST 2006 - lslezak@suse.cz
