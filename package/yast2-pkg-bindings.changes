@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Aug  7 18:09:34 CEST 2006 - dmacvicar@suse.de
+
+- use the new initializeTarget method for TargetInitialize 
+
+-------------------------------------------------------------------
 Mon Aug  7 17:01:56 CEST 2006 - lslezak@suse.cz
 
 - new built-in ResolvableInstallArch() - select architecture of

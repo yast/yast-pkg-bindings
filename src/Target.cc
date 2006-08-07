@@ -92,7 +92,7 @@ PkgModuleFunctions::TargetInitialize (const YCPString& root)
 
     try
     {
-        zypp_ptr()->initTarget(r);
+        zypp_ptr()->initializeTarget(r);
     }
     catch (zypp::Exception & excpt)
     {

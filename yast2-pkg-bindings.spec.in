@@ -1,7 +1,9 @@
 @HEADER-COMMENT@
 
 @HEADER@
-BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer rpm-devel sgml-skel yast2-core-devel yast2-devtools libzypp libzypp-devel boost boost-devel dbus-1-devel hal-devel
+BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer rpm-devel sgml-skel yast2-core-devel yast2-devtools boost boost-devel dbus-1-devel hal-devel
+BuildRequires: libzypp-devel >= 2.0.0
+BuildRequires: libzypp >= 2.0.0
 
 Summary:	-
 
