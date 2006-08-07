@@ -588,11 +588,11 @@ struct ProvideProcess
 */
 
 bool
-PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind)
+PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture)
 {
     try
     {
-	ProvideProcess info( zypp_ptr()->architecture() );
+	ProvideProcess info( architecture );
 	info.whoWantsIt = whoWantsIt;
 
 	invokeOnEach( zypp_ptr()->pool().byNameBegin( name ),
@@ -726,7 +726,7 @@ PkgModuleFunctions::DoProvide (const YCPList& tags)
         {
             if (tags->value(i)->isString())
             {
-                DoProvideNameKind (tags->value(i)->asString()->value(), zypp::ResTraits<zypp::Package>::kind);
+                DoProvideNameKind (tags->value(i)->asString()->value(), zypp::ResTraits<zypp::Package>::kind, zypp_ptr()->architecture());
             }
             else
             {
@@ -1634,9 +1634,8 @@ PkgModuleFunctions::PkgInstall (const YCPString& p)
 
     // ensure installation of the 'best' architecture
 
-    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::Package>::kind) );
+    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::Package>::kind, zypp_ptr()->architecture()) );
 }
-
 
 /**
    @builtin PkgSrcInstall
@@ -1655,7 +1654,7 @@ PkgModuleFunctions::PkgSrcInstall (const YCPString& p)
 
     // ensure installation of the 'best' architecture
 
-    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::SrcPackage>::kind) );
+    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::SrcPackage>::kind, zypp_ptr()->architecture() ) );
 }
 
 

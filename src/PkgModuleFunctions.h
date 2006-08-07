@@ -41,6 +41,7 @@
 #include <zypp/ZYpp.h>
 #include <zypp/Pathname.h>
 #include <zypp/Url.h>
+#include <zypp/Arch.h>
 #include <zypp/DiskUsageCounter.h>
 #include <zypp/SourceManager.h>
 
@@ -79,7 +80,7 @@ class PkgModuleFunctions : public Y2Namespace
 
     private: // source related
 
-      bool DoProvideNameKind( const std::string & name , zypp::Resolvable::Kind kind);
+      bool DoProvideNameKind( const std::string & name , zypp::Resolvable::Kind kind, zypp::Arch architecture);
       bool DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind);
       bool DoProvideAllKind(zypp::Resolvable::Kind kind);
       bool DoRemoveAllKind(zypp::Resolvable::Kind kind);
@@ -462,6 +463,8 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue YouRemovePackages ();
 	/* TYPEINFO: boolean(string,symbol)*/
         YCPValue ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r );
+	/* TYPEINFO: boolean(string,symbol,string)*/
+	YCPValue ResolvableInstallArch( const YCPString& name_r, const YCPSymbol& kind_r, const YCPString& arch );
 	/* TYPEINFO: boolean(string,symbol)*/
         YCPValue ResolvableRemove( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: boolean(string,symbol,boolean)*/

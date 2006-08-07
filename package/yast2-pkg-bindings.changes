@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Aug  7 17:01:56 CEST 2006 - lslezak@suse.cz
+
+- new built-in ResolvableInstallArch() - select architecture of
+  the installed resolvable (#186912)
+
+-------------------------------------------------------------------
 Mon Aug  7 16:11:25 CEST 2006 - dmacvicar@suse.de
 
 - add TargetInitialize, TargetLoad, deprecate TargetInit.

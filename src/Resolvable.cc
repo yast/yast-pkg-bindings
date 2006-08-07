@@ -46,18 +46,26 @@
 
 // ------------------------
 /**
-   @builtin ResolvableInstall
-   @short Install all resolvables with selected name and kind
+   @builtin ResolvableInstallArch
+   @short Install all resolvables with selected name, architecture and kind. Use it only in a special case, ResolvableInstall() should be prefrerred.
    @param name_r name of the resolvable, if empty ("") install all resolvables of the kind 
    @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @param arch architecture of the resolvable
    @return boolean false if failed
 */
 YCPValue
-PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r )
+PkgModuleFunctions::ResolvableInstallArch( const YCPString& name_r, const YCPSymbol& kind_r, const YCPString& arch )
 {
     zypp::Resolvable::Kind kind;
     
     std::string req_kind = kind_r->symbol ();
+
+    std::string arch_str = arch->value();
+    if (arch_str.empty())
+	return YCPBoolean (false);
+
+    // ensure installation of the required architecture
+    zypp::Arch architecture(arch_str);
 
     if( req_kind == "product" ) {
 	kind = zypp::ResTraits<zypp::Product>::kind;
@@ -83,10 +91,23 @@ PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol&
     return YCPBoolean(
 	(name_r->value().empty())
 	    ? DoProvideAllKind(kind)
-	    : DoProvideNameKind (name_r->value(), kind)
+	    : DoProvideNameKind (name_r->value(), kind, architecture)
     );
 }
 
+// ------------------------
+/**
+   @builtin ResolvableInstall
+   @short Install all resolvables with selected name and kind
+   @param name_r name of the resolvable, if empty ("") install all resolvables of the kind 
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @return boolean false if failed
+*/
+YCPValue
+PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r )
+{
+    return ResolvableInstallArch(name_r, kind_r, YCPString(zypp_ptr()->architecture().asString()));
+}
 
 // ------------------------
 /**
