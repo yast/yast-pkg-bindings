@@ -360,9 +360,7 @@ PkgModuleFunctions::TargetProducts ()
 
     try
     {
-        ResStore target_prods = zypp_ptr()->target()->resolvablesByKind(ResTraits<Product>::kind);
-        
-        for (ResStore::const_iterator it = target_prods.begin(); it != target_prods.end(); ++it)
+        for (ResStore::resfilter_const_iterator it = zypp_ptr()->target()->byKindBegin(ResTraits<Product>::kind); it != zypp_ptr()->target()->byKindEnd(ResTraits<Product>::kind); ++it)
         {
           zypp::Product::constPtr product = asKind<const zypp::Product>( *it );
 #warning TargetProducts does not return all keys
