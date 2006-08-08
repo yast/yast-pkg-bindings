@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Aug  8 12:40:00 CEST 2006 - jsrain@suse.cz
+
+- let PkgCommit return more data about remaining resolvables
+  (#186912)
+
+-------------------------------------------------------------------
 Mon Aug  7 18:09:34 CEST 2006 - dmacvicar@suse.de
 
 - use the new initializeTarget method for TargetInitialize

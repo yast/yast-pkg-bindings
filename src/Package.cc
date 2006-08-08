@@ -2184,6 +2184,10 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 	    resolvable->add (YCPString ("kind"), YCPSymbol ("patch"));
 	else
 	    resolvable->add (YCPString ("kind"), YCPSymbol ("package"));
+	resolvable->add (YCPString ("arch"),
+	    YCPString (it->resolvable()->arch().asString()));
+	resolvable->add (YCPString ("version"),
+	    YCPString (it->resolvable()->edition().asString()));
 	remlist->add(resolvable);
     }
     ret->add(remlist);
