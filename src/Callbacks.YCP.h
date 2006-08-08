@@ -72,6 +72,9 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_StartPackage, CB_ProgressPackage, CB_DonePackage,
       CB_StartDownload, CB_ProgressDownload, CB_DoneDownload,
       CB_StartSourceRefresh, CB_ErrorSourceRefresh, CB_DoneSourceRefresh, CB_ProgressSourceRefresh,
+      CB_StartDeltaDownload, CB_ProgressDeltaDownload, CB_ProblemDeltaDownload,
+      CB_StartDeltaApply, CB_ProgressDeltaApply, CB_ProblemDeltaApply,
+      CB_StartPatchDownload, CB_ProgressPatchDownload, CB_ProblemPatchDownload,
       CB_MediaChange,
       CB_SourceChange,
       CB_ResolvableReport,
@@ -121,6 +124,15 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
         ENUM_OUT( ErrorSourceRefresh );
         ENUM_OUT( DoneSourceRefresh );
 	ENUM_OUT( ProgressSourceRefresh );
+	ENUM_OUT( StartDeltaDownload );
+	ENUM_OUT( ProgressDeltaDownload );
+	ENUM_OUT( ProblemDeltaDownload );
+	ENUM_OUT( StartDeltaApply );
+	ENUM_OUT( ProgressDeltaApply );
+	ENUM_OUT( ProblemDeltaApply );
+	ENUM_OUT( StartPatchDownload );
+	ENUM_OUT( ProgressPatchDownload );
+	ENUM_OUT( ProblemPatchDownload );
 	ENUM_OUT( MediaChange );
 	ENUM_OUT( SourceChange );
 	ENUM_OUT( YouProgress );

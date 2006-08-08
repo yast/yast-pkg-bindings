@@ -164,6 +164,26 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue CallbackErrorSourceRefresh( const YCPString& func);
 	/* TYPEINFO: void(string) */
         YCPValue CallbackDoneSourceRefresh( const YCPString& func);
+
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackStartDeltaDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressDeltaDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProblemDeltaDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackStartDeltaApply( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressDeltaApply( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProblemDeltaApply( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackStartPatchDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressPatchDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProblemPatchDownload( const YCPString& func);
+
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackMediaChange (const YCPString& func);
 	/* TYPEINFO: void(string) */

@@ -355,6 +355,9 @@ namespace ZyppRecipients {
 
 	DownloadResolvableReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 	int last_reported;
+	int last_reported_delta_download;
+	int last_reported_delta_apply;
+	int last_reported_patch_download;
 
 	virtual void reportbegin()
 	{
@@ -447,6 +450,132 @@ namespace ZyppRecipients {
 
             // return the default value from the parent class
 	    return zypp::source::DownloadResolvableReport::problem(resolvable_ptr, error, description);
+	}
+
+	// Download delta rpm:
+	// - path below url reported on start()
+	// - expected download size (0 if unknown)
+	// - download is interruptable
+	// - problems are just informative
+	virtual void startDeltaDownload( const zypp::Pathname & filename, const zypp::ByteCount & downloadsize )
+	{
+	    // reset the counter
+	    last_reported_delta_download = 0;
+
+	    CB callback( ycpcb( YCPCallbacks::CB_StartDeltaDownload) );
+	    if (callback._set) {
+		callback.addStr( filename.asString() );
+		callback.addInt( downloadsize );
+
+		callback.evaluate();
+	    }
+	}
+
+	virtual bool progressDeltaDownload( int value )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDeltaDownload) );
+	    if (callback._set && (value - last_reported_delta_download >= 5 || last_reported_delta_download - value >= 5 || value == 100))
+	    {
+		last_reported_delta_download = value;
+		callback.addInt( value );
+
+		return callback.evaluateBool();
+	    }
+
+	    return zypp::source::DownloadResolvableReport::progressDeltaDownload(value);
+	}
+
+	virtual void problemDeltaDownload( std::string description )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProblemDeltaDownload ) );
+	    if (callback._set) {
+		callback.addStr( description );
+
+		callback.evaluate();
+	    }
+	}
+
+	// Apply delta rpm:
+	// - local path of downloaded delta
+	// - apply is not interruptable
+	// - problems are just informative
+	virtual void startDeltaApply( const zypp::Pathname & filename )
+	{
+	    // reset the counter
+	    last_reported_delta_apply = 0;
+
+	    CB callback( ycpcb( YCPCallbacks::CB_StartDeltaApply) );
+	    if (callback._set) {
+		callback.addStr( filename.asString() );
+
+		callback.evaluate();
+	    }
+	}
+
+	virtual void progressDeltaApply( int value )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDeltaApply ) );
+	    if (callback._set && (value - last_reported_delta_apply >= 5 || last_reported_delta_apply - value >= 5 || value == 100))
+	    {
+		last_reported_delta_apply = value;
+		callback.addInt( value );
+
+		callback.evaluate();
+	    }
+	}
+
+	virtual void problemDeltaApply( std::string description )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProblemDeltaApply ) );
+
+	    if (callback._set) {
+		callback.addStr( description );
+
+		callback.evaluate();
+	    }
+	}
+
+	// Download patch rpm:
+	// - path below url reported on start()
+	// - expected download size (0 if unknown)
+	// - download is interruptable
+	virtual void startPatchDownload( const zypp::Pathname & filename, const zypp::ByteCount & downloadsize )
+	{
+	    // reset the counter
+	    last_reported_patch_download = 0;
+
+	    CB callback( ycpcb( YCPCallbacks::CB_StartPatchDownload ) );
+	    if (callback._set) {
+		callback.addStr( filename.asString() );
+		callback.addInt( downloadsize );
+
+		callback.evaluate();
+	    }
+	}
+
+	virtual bool progressPatchDownload( int value )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPatchDownload) );
+	    if (callback._set && (value - last_reported_patch_download >= 5 || last_reported_patch_download - value >= 5 || value == 100))
+	    {
+		last_reported_patch_download = value;
+		callback.addInt( value );
+
+		return callback.evaluateBool();
+	    }
+
+	    return zypp::source::DownloadResolvableReport::progressPatchDownload(value);
+	}
+
+	virtual void problemPatchDownload( std::string description )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProblemPatchDownload ) );
+
+	    if (callback._set) {
+		callback.addStr( description );
+
+		callback.evaluate();
+	    }
 	}
 
     };
@@ -1345,5 +1474,97 @@ YCPValue PkgModuleFunctions::CallbackNotifyConvertDb( const YCPString& args ) {
 YCPValue PkgModuleFunctions::CallbackStopConvertDb( const YCPString& args ) {
   return SET_YCP_CB( CB_StopConvertDb, args );
 }
+
+
+/**
+ * @builtin CallbackStartDeltaDownload
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string filename, integer download_size)</code>. If the download size is unknown download_size is 0. The callback function is evaluated when a delta RPM download has been started.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackStartDeltaDownload( const YCPString& func ) {
+  return SET_YCP_CB( CB_StartDeltaDownload, func );
+}
+
+/**
+ * @builtin CallbackProgressDeltaDownload
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>boolean (integer value)</code>. The callback function is evaluated when more than 5% of the size has been downloaded since the last evaluation. If the handler returns false the download is aborted.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackProgressDeltaDownload( const YCPString& func ) {
+  return SET_YCP_CB( CB_ProgressDeltaDownload, func );
+}
+
+/**
+ * @builtin CallbackProblemDeltaDownload
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string description)</code>. The callback function should inform user that a problem has occurred during delta file download. This is not fatal, it still may be possible to download the full RPM instead.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackProblemDeltaDownload( const YCPString& func ) {
+  return SET_YCP_CB( CB_ProblemDeltaDownload, func );
+}
+
+/**
+ * @builtin CallbackStartDeltaApply
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string filename)</code>. The callback function should inform user that a delta application has been started.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackStartDeltaApply( const YCPString& func ) {
+  return SET_YCP_CB( CB_StartDeltaApply, func );
+}
+
+/**
+ * @builtin CallbackProgressDeltaApply
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(integer value)</code>. The callback function is evaluated when more than 5% of the delta size has been applied since the last evaluation.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackProgressDeltaApply( const YCPString& func ) {
+  return SET_YCP_CB( CB_ProgressDeltaApply, func );
+}
+
+/**
+ * @builtin CallbackProblemDeltaApply
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string description)</code>. The callback function should inform user that a problem has occurred during delta file application. This is not fatal, it still may be possible to use the full RPM instead.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackProblemDeltaApply( const YCPString& func ) {
+  return SET_YCP_CB( CB_ProblemDeltaApply, func );
+}
+
+/**
+ * @builtin CallbackStartPatchDownload
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string filename, integer download_size)</code>. If the download size is unknown download_size is 0. The callback function is evaluated when a patch download has been started.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackStartPatchDownload( const YCPString& func ) {
+  return SET_YCP_CB( CB_StartPatchDownload, func );
+}
+
+/**
+ * @builtin CallbackProgressPatchDownload
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>boolean(integer value)</code>. The callback function is evaluated when more than 5% of the patch size has been downloaded since the last evaluation. If the handler returns false the download is aborted.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackProgressPatchDownload( const YCPString& func ) {
+  return SET_YCP_CB( CB_ProgressPatchDownload, func );
+}
+
+/**
+ * @builtin CallbackProblemPatchDownload
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string description)</code>. The callback function should inform user that a problem has occurred during download of the patch.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackProblemPatchDownload( const YCPString& func ) {
+  return SET_YCP_CB( CB_ProblemPatchDownload, func );
+}
+
 
 #undef SET_YCP_CB

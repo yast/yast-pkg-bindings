@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Aug  8 14:03:16 CEST 2006 - lslezak@suse.cz
+
+- new callbacks: patch and delta file progress
+
+-------------------------------------------------------------------
 Tue Aug  8 12:40:00 CEST 2006 - jsrain@suse.cz
 
 - let PkgCommit return more data about remaining resolvables
