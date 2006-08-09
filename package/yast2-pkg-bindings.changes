@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Aug  9 14:53:24 CEST 2006 - jsrain@suse.cz
+
+- let TargetProducts return more data (#66046)
+
+-------------------------------------------------------------------
 Wed Aug  9 09:23:26 CEST 2006 - lslezak@suse.cz
 
 - built-in ResolvableInstallArch() has been changed to

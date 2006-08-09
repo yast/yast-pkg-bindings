@@ -366,9 +366,51 @@ PkgModuleFunctions::TargetProducts ()
 #warning TargetProducts does not return all keys
           YCPMap prod;
           // see also PkgModuleFunctions::Descr2Map and Product.ycp::Product
+// FIXME unify with code in Pkg::ResolvablePropertiesEx
           prod->add( YCPString("name"), YCPString( product->name() ) );
           prod->add( YCPString("version"), YCPString( product->edition().version() ) );
-          prod->add( YCPString("relnotesurl"), YCPString( product->releaseNotesUrl().asString() ) );
+	  prod->add(YCPString("category"), YCPString(product->category()));
+	  prod->add(YCPString("vendor"), YCPString(product->vendor()));
+	  prod->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
+	  std::string product_summary = product->summary();
+	  if (product_summary.size() > 0)
+	  {
+	    prod->add(YCPString("display_name"), YCPString(product_summary));
+	  }
+	  std::string product_shortname = product->shortName();
+	  if (product_shortname.size() > 0)
+	  {
+	    prod->add(YCPString("short_name"), YCPString(product_shortname));
+	  }
+	  // use summary for the short name if it's defined
+	  else if (product_summary.size() > 0)
+	  {
+	    prod->add(YCPString("short_name"), YCPString(product_summary));
+	  }
+	  prod->add(YCPString("description"), YCPString((*it)->description()));
+
+	  std::string resolvable_summary = (*it)->summary();
+	  if (resolvable_summary.size() > 0)
+	  {
+	    prod->add(YCPString("summary"), YCPString((*it)->summary()));
+	  }
+	  YCPList updateUrls;
+	  std::list<zypp::Url> pupdateUrls = product->updateUrls();
+	  for (std::list<zypp::Url>::const_iterator it = pupdateUrls.begin(); it != pupdateUrls.end(); ++it)
+	  {
+	    updateUrls->add(YCPString(it->asString()));
+	  }
+	  prod->add(YCPString("update_urls"), updateUrls);
+
+	  YCPList flags;
+	  std::list<std::string> pflags = product->flags();
+	  for (std::list<std::string>::const_iterator flag_it = pflags.begin();
+	    flag_it != pflags.end(); ++flag_it)
+	  {
+	    flags->add(YCPString(*flag_it));
+	  }
+	  prod->add(YCPString("flags"), flags);
+
           products->add(prod);
         }
     }
