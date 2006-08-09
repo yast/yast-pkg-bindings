@@ -46,15 +46,16 @@
 
 // ------------------------
 /**
-   @builtin ResolvableInstallArch
+   @builtin ResolvableInstallArchVersion
    @short Install all resolvables with selected name, architecture and kind. Use it only in a special case, ResolvableInstall() should be prefrerred.
    @param name_r name of the resolvable, if empty ("") install all resolvables of the kind 
    @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
    @param arch architecture of the resolvable
+   @param vers Required version of the resolvable, empty string means any version
    @return boolean false if failed
 */
 YCPValue
-PkgModuleFunctions::ResolvableInstallArch( const YCPString& name_r, const YCPSymbol& kind_r, const YCPString& arch )
+PkgModuleFunctions::ResolvableInstallArchVersion( const YCPString& name_r, const YCPSymbol& kind_r, const YCPString& arch, const YCPString& vers )
 {
     zypp::Resolvable::Kind kind;
     
@@ -88,10 +89,12 @@ PkgModuleFunctions::ResolvableInstallArch( const YCPString& name_r, const YCPSym
 	return YCPBoolean(false);
     }
 
+   std::string version_str = vers->value();
+
     return YCPBoolean(
 	(name_r->value().empty())
 	    ? DoProvideAllKind(kind)
-	    : DoProvideNameKind (name_r->value(), kind, architecture)
+	    : DoProvideNameKind (name_r->value(), kind, architecture, version_str)
     );
 }
 
@@ -106,7 +109,7 @@ PkgModuleFunctions::ResolvableInstallArch( const YCPString& name_r, const YCPSym
 YCPValue
 PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r )
 {
-    return ResolvableInstallArch(name_r, kind_r, YCPString(zypp_ptr()->architecture().asString()));
+    return ResolvableInstallArchVersion(name_r, kind_r, YCPString(zypp_ptr()->architecture().asString()), YCPString(""));
 }
 
 // ------------------------
