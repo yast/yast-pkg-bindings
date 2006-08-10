@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Aug 10 13:58:56 CEST 2006 - lslezak@suse.cz
+
+- new callbacks: CallbackSourceCreate*() functions
+
+-------------------------------------------------------------------
 Wed Aug  9 14:53:24 CEST 2006 - jsrain@suse.cz
 
 - let TargetProducts return more data (#66046)
