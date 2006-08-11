@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Aug 11 10:01:44 CEST 2006 - lslezak@suse.cz
+
+- new finish callbacks: Callback{Delta,Patch}Finish*()
+
+-------------------------------------------------------------------
 Thu Aug 10 13:58:56 CEST 2006 - lslezak@suse.cz
 
 - new callbacks: CallbackSourceCreate*() functions

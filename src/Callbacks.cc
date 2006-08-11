@@ -495,6 +495,17 @@ namespace ZyppRecipients {
 	    }
 	}
 
+	virtual void finishDeltaDownload()
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_FinishDeltaDownload ) );
+
+	    if (callback._set)
+	    {
+		callback.evaluate();
+	    }
+	}
+	
+
 	// Apply delta rpm:
 	// - local path of downloaded delta
 	// - apply is not interruptable
@@ -535,6 +546,17 @@ namespace ZyppRecipients {
 	    }
 	}
 
+	virtual void finishDeltaApply()
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_FinishDeltaApply ) );
+
+	    if (callback._set)
+	    {
+		callback.evaluate();
+	    }
+	}
+	
+
 	// Download patch rpm:
 	// - path below url reported on start()
 	// - expected download size (0 if unknown)
@@ -574,6 +596,16 @@ namespace ZyppRecipients {
 	    if (callback._set) {
 		callback.addStr( description );
 
+		callback.evaluate();
+	    }
+	}
+
+	virtual void finishPatchDownload()
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_FinishPatchDownload ) );
+
+	    if (callback._set)
+	    {
 		callback.evaluate();
 	    }
 	}
@@ -1653,6 +1685,40 @@ YCPValue PkgModuleFunctions::CallbackProgressPatchDownload( const YCPString& fun
  */
 YCPValue PkgModuleFunctions::CallbackProblemPatchDownload( const YCPString& func ) {
   return SET_YCP_CB( CB_ProblemPatchDownload, func );
+}
+
+
+/**
+ * @builtin CallbackFinishDeltaDownload
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void()</code>. The callback function is evaluated when the delta download has been finished.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackFinishDeltaDownload( const YCPString& func)
+{
+    return SET_YCP_CB( CB_FinishDeltaDownload, func );
+}
+
+/**
+ * @builtin CallbackFinishDeltaApply
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void()</code>. The callback function is evaluated when the delta download has been applied.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackFinishDeltaApply( const YCPString& func)
+{
+    return SET_YCP_CB( CB_FinishDeltaApply, func );
+}
+
+/**
+ * @builtin CallbackFinishPatchDownload
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void()</code>. The callback function is evaluated when the patch download has been finished.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackFinishPatchDownload( const YCPString& func)
+{
+    return SET_YCP_CB( CB_FinishPatchDownload, func );
 }
 
 
