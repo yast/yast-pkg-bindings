@@ -46,18 +46,27 @@
 
 // ------------------------
 /**
-   @builtin ResolvableInstall
-   @short Install all resolvables with selected name and kind
+   @builtin ResolvableInstallArchVersion
+   @short Install all resolvables with selected name, architecture and kind. Use it only in a special case, ResolvableInstall() should be prefrerred.
    @param name_r name of the resolvable, if empty ("") install all resolvables of the kind 
    @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @param arch architecture of the resolvable
+   @param vers Required version of the resolvable, empty string means any version
    @return boolean false if failed
 */
 YCPValue
-PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r )
+PkgModuleFunctions::ResolvableInstallArchVersion( const YCPString& name_r, const YCPSymbol& kind_r, const YCPString& arch, const YCPString& vers )
 {
     zypp::Resolvable::Kind kind;
     
     std::string req_kind = kind_r->symbol ();
+
+    std::string arch_str = arch->value();
+    if (arch_str.empty())
+	return YCPBoolean (false);
+
+    // ensure installation of the required architecture
+    zypp::Arch architecture(arch_str);
 
     if( req_kind == "product" ) {
 	kind = zypp::ResTraits<zypp::Product>::kind;
@@ -80,13 +89,28 @@ PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol&
 	return YCPBoolean(false);
     }
 
+   std::string version_str = vers->value();
+
     return YCPBoolean(
 	(name_r->value().empty())
 	    ? DoProvideAllKind(kind)
-	    : DoProvideNameKind (name_r->value(), kind)
+	    : DoProvideNameKind (name_r->value(), kind, architecture, version_str)
     );
 }
 
+// ------------------------
+/**
+   @builtin ResolvableInstall
+   @short Install all resolvables with selected name and kind
+   @param name_r name of the resolvable, if empty ("") install all resolvables of the kind 
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @return boolean false if failed
+*/
+YCPValue
+PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r )
+{
+    return ResolvableInstallArchVersion(name_r, kind_r, YCPString(zypp_ptr()->architecture().asString()), YCPString(""));
+}
 
 // ------------------------
 /**
@@ -479,8 +503,21 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
     return ret;
 }
 
+/**
+   @builtin ResolvableCountPatches
+   @short Count patches which will be selected by ResolvablePreselectPatches() function
+   @description
+   Only non-optional patches are selected (even when `all parameter is passed!)
+   @param kind_r kind of preselected patches, can be `all, `interactive, `reboot_needed or `affects_pkg_manager
+   @return integer number of preselected patches
+*/
+YCPValue
+PkgModuleFunctions::ResolvableCountPatches (const YCPSymbol& kind_r)
+{
+    // only count the patches
+    return ResolvableSetPatches(kind_r, false);
+}
 
-// ------------------------
 /**
    @builtin ResolvablePreselectPatches
    @short Preselect patches for auto online update during the installation
@@ -491,6 +528,14 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 */
 YCPValue
 PkgModuleFunctions::ResolvablePreselectPatches (const YCPSymbol& kind_r)
+{
+    // preselect the patches
+    return ResolvableSetPatches(kind_r, true);
+}
+
+// helper function
+YCPValue
+PkgModuleFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselect)
 {
     long long selected_patches = 0LL;
     std::string kind = kind_r->symbol();
@@ -527,11 +572,15 @@ PkgModuleFunctions::ResolvablePreselectPatches (const YCPSymbol& kind_r)
 			    || (kind == "reboot_needed" && pch->reboot_needed())
 			)
 			{
-			    stringstream str; 
-			    str << *i << endl;
-			    y2milestone( "Setting '%s' to transact", str.str().c_str() );
-			    if (i->status().setTransact(true, whoWantsIt)) // schedule for installation
+			    if (!preselect)
 			    {
+				selected_patches++;
+			    }
+			    else if (i->status().setTransact(true, whoWantsIt)) // schedule for installation
+			    {
+				stringstream str; 
+				str << *i << endl;
+				y2milestone( "Setting '%s' to transact", str.str().c_str() );
 				// selected successfully - increase the counter
 				selected_patches++;
 			    }

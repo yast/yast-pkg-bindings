@@ -41,6 +41,7 @@
 #include <zypp/ZYpp.h>
 #include <zypp/Pathname.h>
 #include <zypp/Url.h>
+#include <zypp/Arch.h>
 #include <zypp/DiskUsageCounter.h>
 #include <zypp/SourceManager.h>
 
@@ -79,7 +80,7 @@ class PkgModuleFunctions : public Y2Namespace
 
     private: // source related
 
-      bool DoProvideNameKind( const std::string & name , zypp::Resolvable::Kind kind);
+      bool DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture, const std::string& version);
       bool DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind);
       bool DoProvideAllKind(zypp::Resolvable::Kind kind);
       bool DoRemoveAllKind(zypp::Resolvable::Kind kind);
@@ -156,6 +157,18 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackDoneDownload (const YCPString& func);
 	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateStart( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateStartProbe( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateEndProbe( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateProgressData( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateError( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateEnd( const YCPString& func);
+	/* TYPEINFO: void(string) */
         YCPValue CallbackStartSourceRefresh( const YCPString& func);
 	/* TYPEINFO: void(string) */
         YCPValue CallbackProgressSourceRefresh( const YCPString& func);
@@ -163,6 +176,32 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue CallbackErrorSourceRefresh( const YCPString& func);
 	/* TYPEINFO: void(string) */
         YCPValue CallbackDoneSourceRefresh( const YCPString& func);
+
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackStartDeltaDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressDeltaDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProblemDeltaDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackStartDeltaApply( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressDeltaApply( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProblemDeltaApply( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackStartPatchDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressPatchDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProblemPatchDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackFinishDeltaDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackFinishDeltaApply( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackFinishPatchDownload( const YCPString& func);
+
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackMediaChange (const YCPString& func);
 	/* TYPEINFO: void(string) */
@@ -458,6 +497,8 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue YouRemovePackages ();
 	/* TYPEINFO: boolean(string,symbol)*/
         YCPValue ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r );
+	/* TYPEINFO: boolean(string,symbol,string,string)*/
+	YCPValue ResolvableInstallArchVersion( const YCPString& name_r, const YCPSymbol& kind_r, const YCPString& arch, const YCPString& vers );
 	/* TYPEINFO: boolean(string,symbol)*/
         YCPValue ResolvableRemove( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: boolean(string,symbol,boolean)*/
@@ -470,6 +511,8 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue ResolvableDependencies(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version);
 	/* TYPEINFO: integer(symbol)*/
 	YCPValue ResolvablePreselectPatches(const YCPSymbol& kind_r);
+	/* TYPEINFO: integer(symbol)*/
+	YCPValue ResolvableCountPatches(const YCPSymbol& kind_r);
 
 	// keyring related
 	/* TYPEINFO: void(string,boolean)*/
@@ -481,6 +524,7 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue SourceMoveDownloadArea (const YCPString & path);
 
         YCPValue ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies);
+	YCPValue ResolvableSetPatches(const YCPSymbol& kind_r, bool preselect);
 
 	/**
 	 * Constructor.

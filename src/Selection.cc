@@ -512,7 +512,7 @@ PkgModuleFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to
 YCPBoolean
 PkgModuleFunctions::SetSelection (const YCPString& selection)
 {
-    return DoProvideNameKind( selection->value(), zypp::ResTraits<zypp::Selection>::kind);
+    return DoProvideNameKind( selection->value(), zypp::ResTraits<zypp::Selection>::kind, zypp_ptr()->architecture(), "");
 }
 
 // ------------------------
