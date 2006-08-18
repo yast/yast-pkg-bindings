@@ -78,24 +78,20 @@ PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
     return YCPBoolean( true );
 }
 
+
 /****************************************************************************************
- * @builtin SourceStartManager
+ * @builtin SourceRestore
  *
- * @short Make sure the InstSrcManager is up and knows all available InstSrces.
+ * @short Restore the sources from the persistent store
  * @description
- * Make sure the InstSrcManager is up and knows all available InstSrces.
- * Depending on the value of autoEnable, InstSources may be enabled on the
- * fly. It's safe to call this multiple times, and once the InstSources are
- * actually enabled, it's even cheap (enabling an InstSrc is expensive).
+ * Make sure the Source Manager is up and knows all available installation sources.
+ * It's safe to call this multiple times, and once the installation sources are
+ * actually enabled, it's even cheap
  *
- * @param boolean autoEnable If true, all InstSrces are enabled according to their default.
- * If false, InstSrces will be created in disabled state, and remain unchanged if
- * the InstSrcManager is already up.
- *
- * @return boolean
+ * @return boolean True on success
  **/
 YCPValue
-PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
+PkgModuleFunctions::SourceRestore()
 {
     bool success = true;
 
@@ -129,48 +125,95 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	success = false;
     }
 
-    if( enable->value() )
-    {
-	std::list<zypp::SourceManager::SourceId> ids;
+    return YCPBoolean(success);
+}
 
-	// go over all sources and get resolvables
+
+/****************************************************************************************
+ * @builtin SourceLoad
+ *
+ * @short Load resolvables from the enabled installation sources
+ * @description
+ * Load resolvables from the enabled sources.
+ * @return boolean True on success
+ **/
+YCPValue
+PkgModuleFunctions::SourceLoad()
+{
+    bool success = true;
+
+    std::list<zypp::SourceManager::SourceId> ids;
+
+    // get all enabled sources
+    try
+    {
+	ids = zypp::SourceManager::sourceManager()->enabledSources();
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
+	_last_error.setLastError(excpt.asUserString());
+	success = false;
+    }
+   
+    // load resolvables the enabled sources 
+    for( std::list<zypp::SourceManager::SourceId>::iterator it = ids.begin(); it != ids.end(); ++it)
+    {
 	try
 	{
-	    ids = zypp::SourceManager::sourceManager()->enabledSources();
-	}
-	catch (const zypp::Exception& excpt)
-	{
-	    y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
-	    _last_error.setLastError(excpt.asUserString());
-	    success = false;
-	}
-	
-	for( std::list<zypp::SourceManager::SourceId>::iterator it = ids.begin(); it != ids.end(); ++it)
-	{
+	    zypp::Source_Ref src = logFindSource(*it);
 	    try
 	    {
-		zypp::Source_Ref src = logFindSource(*it);
-		try
-		{
-		    if( src.enabled() )
-			zypp_ptr()->addResolvables (src.resolvables());
-		}
-		catch (const zypp::Exception& excpt)
-		{
-		    std::string url = src.url().asString();
-		    y2error ("Error for %s: %s", url.c_str(), excpt.asString().c_str());
-		    _last_error.setLastError(url + ": " + excpt.asUserString());
-		    success = false;
-		}
+		if( src.enabled() )
+		    zypp_ptr()->addResolvables (src.resolvables());
 	    }
 	    catch (const zypp::Exception& excpt)
 	    {
+		std::string url = src.url().asString();
+		y2error ("Error for %s: %s", url.c_str(), excpt.asString().c_str());
+		_last_error.setLastError(url + ": " + excpt.asUserString());
 		success = false;
 	    }
 	}
+	catch (const zypp::Exception& excpt)
+	{
+	    success = false;
+	}
     }
 
-    return YCPBoolean( success );
+    return YCPBoolean(success);
+}
+
+
+/****************************************************************************************
+ * @builtin SourceStartManager
+ *
+ * @short Start the source manager - restore the sources and load the resolvables
+ * @description
+ * Calls SourceRestore(), if argument enable is true SourceLoad() is called.
+ * @param boolean enable If true the resolvables are loaded from the enabled sources
+ *
+ * @return boolean
+ **/
+YCPValue
+PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
+{
+    YCPValue success = SourceRestore();
+
+    // the restoration has failed
+    if (!success->asBoolean()->value())
+    {
+	// return false
+	return success;
+    }
+
+    if( enable->value() )
+    {
+	// enable all sources and load the resolvables
+	success = SourceLoad();
+    }
+
+    return success;
 }
 
 /****************************************************************************************
