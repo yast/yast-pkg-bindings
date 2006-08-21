@@ -88,6 +88,8 @@ class PkgModuleFunctions : public Y2Namespace
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);
       YCPValue PkgProp( zypp::PoolItem_Ref item );
 
+      void SetCurrentDU();
+
       // builtin handling
       void registerFunctions ();
       vector<string> _registered_functions;

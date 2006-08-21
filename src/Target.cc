@@ -446,6 +446,17 @@ PkgModuleFunctions::TargetRebuildDB ()
     return YCPBoolean(true);
 }
 
+// helper funtion
+// initialize the disk usage counter with the current values from the system
+void PkgModuleFunctions::SetCurrentDU()
+{
+    // read data from system
+    zypp::DiskUsageCounter::MountPointSet system = zypp::DiskUsageCounter::detectMountPoints();
+
+    // set the mount points
+    zypp_ptr()->setPartitions(system);
+}
+	
 
 /** ------------------------
  *
@@ -471,7 +482,9 @@ PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
     // remember partitioning
     if (dirlist->size() == 0)
     {
-	return YCPError ("Bad args to Pkg::TargetInitDU");
+	y2milestone("Initializing Disk Usage couter from the system");
+	SetCurrentDU();
+	return YCPVoid();
     }
 
     zypp::DiskUsageCounter::MountPointSet mount_points;
@@ -605,13 +618,10 @@ PkgModuleFunctions::TargetGetDU ()
 	    // mount points have not been defined
 	    y2warning("Pkg::TargetDUInit() has not been called, using data from system...");
 
-	    // read data from system
-	    zypp::DiskUsageCounter::MountPointSet system = zypp::DiskUsageCounter::detectMountPoints();
+	    // set the values from the system
+	    SetCurrentDU();
 
-	    // set the mount points
-	    zypp_ptr()->setPartitions(system);
-	
-	    // try again
+	    // try it again
 	    mps = zypp_ptr()->diskUsage();
 	}
 
