@@ -165,7 +165,18 @@ PkgModuleFunctions::SourceLoad()
 	    try
 	    {
 		if( src.enabled() )
+		{
 		    zypp_ptr()->addResolvables (src.resolvables());
+		}
+		else
+		{
+		    // remove the resolvables if they have been added
+		    if (src.resStoreInitialized ())
+		    {
+		        zypp_ptr()->removeResolvables(src.resolvables());
+		    }
+		}
+			
 	    }
 	    catch (const zypp::Exception& excpt)
 	    {
