@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Aug 21 11:06:29 CEST 2006 - lslezak@suse.cz
+
+- new bindings SourceRestore() and SourceLoad() (#199738)
+- TargetInitDU([]) sets the current disk usage (#197497)
+- 2.13.93
+
+-------------------------------------------------------------------
 Tue Aug 15 12:48:52 CEST 2006 - lslezak@suse.cz
 
 - 2.13.92

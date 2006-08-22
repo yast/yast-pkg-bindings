@@ -107,7 +107,7 @@ PkgModuleFunctions::SourceRestore()
     catch (const zypp::FailedSourcesRestoreException& excpt)
     {
 	// FIXME: assuming the sources are already initialized
-	y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
+	y2error ("Error in SourceRestore: %s", excpt.asString().c_str());
 	_last_error.setLastError(excpt.asUserString());
 	_broken_sources = excpt.aliases();
 	success = false;
@@ -120,7 +120,7 @@ PkgModuleFunctions::SourceRestore()
     catch (const zypp::Exception& excpt)
     {
 	// FIXME: assuming the sources are already initialized
-	y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
+	y2error ("Error in SourceRestore: %s", excpt.asString().c_str());
 	_last_error.setLastError(excpt.asUserString());
 	success = false;
     }
@@ -132,9 +132,9 @@ PkgModuleFunctions::SourceRestore()
 /****************************************************************************************
  * @builtin SourceLoad
  *
- * @short Load resolvables from the enabled installation sources
+ * @short Load resolvables from the installation sources
  * @description
- * Load resolvables from the enabled sources.
+ * Refresh the pool - Add/remove resolvables from the enabled/disabled sources.
  * @return boolean True on success
  **/
 YCPValue
@@ -151,7 +151,7 @@ PkgModuleFunctions::SourceLoad()
     }
     catch (const zypp::Exception& excpt)
     {
-	y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
+	y2error ("Error in SourceLoad: %s", excpt.asString().c_str());
 	_last_error.setLastError(excpt.asUserString());
 	success = false;
     }
