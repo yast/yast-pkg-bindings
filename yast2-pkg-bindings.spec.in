@@ -3,6 +3,9 @@
 @HEADER@
 BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer rpm-devel sgml-skel yast2-core-devel yast2-devtools libzypp libzypp-devel boost boost-devel dbus-1-devel hal-devel
 
+# delta and patch rpms
+Requires:	libzypp >= 1.3.1
+
 Summary:	-
 
 %description

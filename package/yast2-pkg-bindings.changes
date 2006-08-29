@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Aug 29 18:51:05 CEST 2006 - mvidner@suse.cz
+
+- Added a properly versioned dependency on libzypp (#202397).
+- 2.13.88.2
+
+-------------------------------------------------------------------
 Tue Aug 15 12:27:17 CEST 2006 - lslezak@suse.cz
 
 - backported changes from SP1 branch (version 2.13.92)
