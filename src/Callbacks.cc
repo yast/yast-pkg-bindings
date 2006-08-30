@@ -981,7 +981,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-        virtual bool progressData(int value, zypp::Url url)
+        virtual bool progress(int value, zypp::Url url)
         {
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateProgressData ) );
 
@@ -995,7 +995,7 @@ namespace ZyppRecipients {
 		return callback.evaluateBool();
 	    }
 
-	    return zypp::source::CreateSourceReport::progressData(value, url);
+	    return zypp::source::CreateSourceReport::progress(value, url);
 	}
 
 	std::string CreateSrcErrorAsString(zypp::source::CreateSourceReport::Error error)
