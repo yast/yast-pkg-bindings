@@ -152,32 +152,6 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue CallbackProgressPackage (const YCPString& func);
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackDonePackage (const YCPString& func);
-	/* TYPEINFO: void(string) */
-	YCPValue CallbackStartDownload (const YCPString& func);
-	/* TYPEINFO: void(string) */
-	YCPValue CallbackProgressDownload (const YCPString& func);
-	/* TYPEINFO: void(string) */
-	YCPValue CallbackDoneDownload (const YCPString& func);
-	/* TYPEINFO: void(string) */
-	YCPValue CallbackSourceCreateStart( const YCPString& func);
-	/* TYPEINFO: void(string) */
-	YCPValue CallbackSourceCreateStartProbe( const YCPString& func);
-	/* TYPEINFO: void(string) */
-	YCPValue CallbackSourceCreateEndProbe( const YCPString& func);
-	/* TYPEINFO: void(string) */
-	YCPValue CallbackSourceCreateProgressData( const YCPString& func);
-	/* TYPEINFO: void(string) */
-	YCPValue CallbackSourceCreateError( const YCPString& func);
-	/* TYPEINFO: void(string) */
-	YCPValue CallbackSourceCreateEnd( const YCPString& func);
-	/* TYPEINFO: void(string) */
-        YCPValue CallbackStartSourceRefresh( const YCPString& func);
-	/* TYPEINFO: void(string) */
-        YCPValue CallbackProgressSourceRefresh( const YCPString& func);
-	/* TYPEINFO: void(string) */
-        YCPValue CallbackErrorSourceRefresh( const YCPString& func);
-	/* TYPEINFO: void(string) */
-        YCPValue CallbackDoneSourceRefresh( const YCPString& func);
 
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackStartDeltaDownload( const YCPString& func);
@@ -203,6 +177,37 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue CallbackFinishDeltaApply( const YCPString& func);
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackFinishPatchDownload( const YCPString& func);
+
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateStart( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateProgress( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateError( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateEnd( const YCPString& func);
+
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceProbeStart( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceProbeFailed( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceProbeSucceeded( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceProbeEnd( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceProbeProgress( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceProbeError( const YCPString& func);
+
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceReportStart( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceReportProgress( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceReportError( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceReportEnd( const YCPString& func);
 
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackMediaChange (const YCPString& func);

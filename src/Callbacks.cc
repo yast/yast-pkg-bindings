@@ -666,111 +666,6 @@ namespace ZyppRecipients {
 */
 
     ///////////////////////////////////////////////////////////////////
-    // SourceRefreshCallback
-    ///////////////////////////////////////////////////////////////////
-    struct SourceRefreshReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::RefreshSourceReport>
-    {
-	YCPMap startArgs;
-
-	SourceRefreshReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
-
-	virtual void reportbegin() {
-	  startArgs = YCPMap();
-	}
-	virtual void reportend()   {
-	  startArgs = YCPMap();
-	}
-
-	virtual void start(zypp::Source_Ref source, zypp::Url url)
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_StartSourceRefresh ) );
-	    if ( callback._set )
-	    {
-		YCPMap arg;
-		arg->add( YCPString("url"), YCPString( url.asString() ) );
-
-		// search product
-		zypp::ResStore store = source.resolvables();
-		for (zypp::ResStore::const_iterator it = store.begin();
-		   it != store.end();
-		   it++)
-		{
-		    if (zypp::isKind<zypp::Product>(*it))
-		    {
-			arg->add( YCPString("label"), YCPString( (*it)->name() ) );
-			arg->add( YCPString("product_dir"), YCPString( source.path().asString() ) );
-		    }
-		}
-
-
-		callback.addMap( arg );
-		startArgs = arg; //remember
-		callback.evaluate();
-	    }
-	}
-
-	virtual Action problem(zypp::Source_Ref source, zypp::source::RefreshSourceReport::Error error, std::string description)
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_ErrorSourceRefresh ) );
-	    if ( callback._set )
-	    {
-		YCPMap arg = startArgs;
-// TODO		arg->add( YCPString( "error" ),	YCPSymbol( asString( error_r ) ) );
-		arg->add( YCPString( "detail" ),	YCPString( description ) );
-		callback.addMap( arg );
-		std::string result = callback.evaluateSymbol();
-
-		if ( result == "RETRY" ) return zypp::source::RefreshSourceReport::RETRY;
-		if ( result == "SKIP_REFRESH" ) return zypp::source::RefreshSourceReport::IGNORE;
-		if ( result == "DISABLE_SOURCE" )
-		{
-		    source.disable();
-		    return zypp::source::RefreshSourceReport::IGNORE;
-		}
-
-		// still here?
-		y2error("Unexpected Symbol '%s' returned from callback.", result.c_str());
-		// return default
-	    }
-
-	    // return default implementation
-	    return zypp::source::RefreshSourceReport::problem(source, error, description);
-	}
-
-	virtual void finish(zypp::Source_Ref source, zypp::source::RefreshSourceReport::Error error, std::string reason)
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_DoneSourceRefresh ) );
-	    if ( callback._set )
-	    {
-		YCPMap arg = startArgs;
-/* TODO
-		arg->add( YCPString( "result" ),	YCPSymbol( asString( result_r ) ) );
-		arg->add( YCPString( "cause" ),	YCPSymbol( asString( cause_r ) ) );
-*/
-		arg->add( YCPString( "detail" ),	YCPString( reason ) );
-		callback.addMap( arg ),
-		callback.evaluate();
-	    }
-	}
-
-	virtual bool progress(int value, zypp::Source_Ref source)
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_ProgressSourceRefresh) );
-
-	    if (callback._set)
-	    {
-		callback.addInt( value );
-		callback.addInt( source.numericId() );
-		return callback.evaluateBool();
-	    }
-
-	    // return default value from the parent class
-	    return zypp::source::RefreshSourceReport::progress(value, source);
-	}
-	    
-    };
-
-    ///////////////////////////////////////////////////////////////////
     // MediaChangeCallback
     ///////////////////////////////////////////////////////////////////
     struct MediaChangeReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::media::MediaChangeReport>
@@ -861,144 +756,37 @@ namespace ZyppRecipients {
 	}
     };
 
-
-    ///////////////////////////////////////////////////////////////////
-    // DownloadProgressCallback
-    ///////////////////////////////////////////////////////////////////
-    struct DownloadProgressReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::DownloadFileReport>
+    struct SourceCreateReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::SourceCreateReport>
     {
-	DownloadProgressReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
-	int last_reported;
+	SourceCreateReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual void reportbegin()
+	virtual void start( const zypp::Url &url )
 	{
-	}
-
-        virtual void reportend()
-	{
-	}
-
-	virtual void start( zypp::Source_Ref source, zypp::Url url)
-	{
-	    last_reported = 0;
-	    CB callback( ycpcb( YCPCallbacks::CB_StartDownload ) );
-
-	    if ( callback._set )
-	    {
-		callback.addStr( url.asString() );
-		callback.addStr( source.path() );
-		callback.evaluate();
-	    }
-	}
-
-	virtual bool progress(int value, zypp::Url url)
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDownload ) );
-	    // call the callback function only if the difference since the last call is at least 5%
-	    // or if 100% is reached
-	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100))
-	    {
-		last_reported = value;
-		// report changed values
-		callback.addInt( value );
-		callback.addInt( 100  );
-		return callback.evaluateBool( true ); // default == continue
-	    }
-
-	    return zypp::source::DownloadFileReport::progress(value, url);
-	}
-
-	virtual Action problem( zypp::Url url, zypp::source::DownloadFileReport::Error error, std::string description )
-	{
-	    return zypp::source::DownloadFileReport::ABORT;
-	}
-
-	virtual void finish( zypp::Url url, zypp::source::DownloadFileReport::Error error, std::string reason)
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_DoneDownload ) );
-
-	    if ( callback._set ) {
-		callback.addInt( error );
-		callback.addStr( reason );
-		callback.evaluate();
-	    }
-	}
-    };
-
-    ///////////////////////////////////////////////////////////////////
-    // CreateSourceReport
-    ///////////////////////////////////////////////////////////////////
-    struct CreateSourceReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::CreateSourceReport>
-    {
-	CreateSourceReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
-	int last_reported;
-
-	virtual void reportbegin()
-	{
-	}
-
-        virtual void reportend()
-	{
-	}
-
-        virtual void startData(zypp::Url source_url)
-	{
-	    _silent_probing = MEDIA_CHANGE_DISABLE;
-
-	    last_reported = 0;
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateStart ) );
 
 	    if (callback._set)
 	    {
-		callback.addStr(source_url);
+		callback.addStr(url);
+
 		callback.evaluate();
 	    }
 	}
 
-        virtual void startProbe(zypp::Url url)
+	virtual bool progress( int value )
 	{
-	    _silent_probing = MEDIA_CHANGE_DISABLE;
-
-	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateStartProbe ) );
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateProgress ) );
 
 	    if (callback._set)
 	    {
-		callback.addStr(url);
-		callback.evaluate();
-	    }
-	}
-
-        virtual void endProbe(zypp::Url url)
-	{
-	    _silent_probing = MEDIA_CHANGE_FULL;
-
-	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateEndProbe ) );
-
-	    if (callback._set)
-	    {
-		callback.addStr(url);
-		callback.evaluate();
-	    }
-	}
-
-        virtual bool progress(int value, zypp::Url url)
-        {
-	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateProgressData ) );
-
-	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100))
-	    {
-		callback.addStr(url);
 		callback.addInt(value);
-
-		last_reported = value;
 
 		return callback.evaluateBool();
 	    }
 
-	    return zypp::source::CreateSourceReport::progress(value, url);
+	    return zypp::source::SourceCreateReport::progress(value);
 	}
 
-	std::string CreateSrcErrorAsString(zypp::source::CreateSourceReport::Error error)
+	std::string CreateSrcErrorAsString(zypp::source::SourceCreateReport::Error error)
 	{
 	    // convert enum to string
 	    std::string error_str;
@@ -1006,20 +794,23 @@ namespace ZyppRecipients {
 	    switch(error)
 	    {
 		// no error
-		case zypp::source::CreateSourceReport::NO_ERROR	: error_str = "NO_ERROR"; break;
+		case zypp::source::SourceCreateReport::NO_ERROR	: error_str = "NO_ERROR"; break;
 		// the requested Url was not found
-		case zypp::source::CreateSourceReport::NOT_FOUND	: error_str = "NOT_FOUND"; break;
+		case zypp::source::SourceCreateReport::NOT_FOUND	: error_str = "NOT_FOUND"; break;
 		// IO error
-		case zypp::source::CreateSourceReport::IO		: error_str = "IO"; break;
+		case zypp::source::SourceCreateReport::IO		: error_str = "IO"; break;
 		// the source is invalid
-		case zypp::source::CreateSourceReport::INVALID	: error_str = "INVALID"; break;
+		case zypp::source::SourceCreateReport::INVALID	: error_str = "INVALID"; break;
+		// rejected
+		case zypp::source::SourceCreateReport::REJECTED	: error_str = "REJECTED"; break;
+		// unknown error
+		case zypp::source::SourceCreateReport::UNKNOWN	: error_str = "UNKNOWN"; break;
 	    }
 
 	    return error_str;
 	}
 
-
-        virtual Action problem(zypp::Url url, zypp::source::CreateSourceReport::Error error, std::string description)
+	virtual Action problem( const zypp::Url &url, zypp::source::SourceCreateReport::Error error, std::string description )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateError ) );
 
@@ -1032,8 +823,8 @@ namespace ZyppRecipients {
 		std::string result = callback.evaluateSymbol();
 
 		// check the returned symbol
-		if ( result == "ABORT" ) return zypp::source::CreateSourceReport::ABORT;
-		if ( result == "RETRY" ) return zypp::source::CreateSourceReport::RETRY;
+		if ( result == "ABORT" ) return zypp::source::SourceCreateReport::ABORT;
+		if ( result == "RETRY" ) return zypp::source::SourceCreateReport::RETRY;
 
 		// still here?
 		y2error("Unexpected symbol '%s' returned from callback.", result.c_str());
@@ -1041,13 +832,11 @@ namespace ZyppRecipients {
 	    }
 
 	    // return the default implementation
-	    return zypp::source::CreateSourceReport::problem(url, error, description);
+	    return zypp::source::SourceCreateReport::problem(url, error, description);
 	}
 
-        virtual void finishData( zypp::Url url, zypp::source::CreateSourceReport::Error error, std::string reason)
+	virtual void finish( const zypp::Url &url, zypp::source::SourceCreateReport::Error error, std::string reason )
 	{
-	    _silent_probing = MEDIA_CHANGE_FULL;
-
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateEnd ) );
 
 	    if (callback._set)
@@ -1060,6 +849,230 @@ namespace ZyppRecipients {
 	    }
 	}
     };
+
+
+    ///////////////////////////////////////////////////////////////////
+    // ProbeSourceReport
+    ///////////////////////////////////////////////////////////////////
+    struct ProbeSourceReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::ProbeSourceReport>
+    {
+	ProbeSourceReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual void start(const zypp::Url &url)
+	{
+	    _silent_probing = MEDIA_CHANGE_DISABLE;
+	    
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceProbeStart ) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(url);
+
+		callback.evaluate();
+	    }
+	}
+
+	virtual void failedProbe( const zypp::Url &url, const std::string &type )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceProbeFailed ) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(url);
+		callback.addStr(type);
+
+		callback.evaluate();
+	    }
+	}
+
+	virtual void successProbe( const zypp::Url &url, const std::string &type )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceProbeSucceeded ) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(url);
+		callback.addStr(type);
+
+		callback.evaluate();
+	    }
+	}
+
+	std::string ProbeSrcErrorAsString(zypp::source::ProbeSourceReport::Error error)
+	{
+	    // convert enum to string
+	    std::string error_str;
+
+	    switch(error)
+	    {
+		// no error
+		case zypp::source::ProbeSourceReport::NO_ERROR	: error_str = "NO_ERROR"; break;
+		// the requested Url was not found
+		case zypp::source::ProbeSourceReport::NOT_FOUND	: error_str = "NOT_FOUND"; break;
+		// IO error
+		case zypp::source::ProbeSourceReport::IO	: error_str = "IO"; break;
+		// the source is invalid
+		case zypp::source::ProbeSourceReport::INVALID	: error_str = "INVALID"; break;
+		// unknow error
+		case zypp::source::ProbeSourceReport::UNKNOWN	: error_str = "UNKNOWN"; break;
+	    }
+
+	    return error_str;
+	}
+
+	virtual void finish(const zypp::Url &url, zypp::source::ProbeSourceReport::Error error, const std::string &reason )
+	{
+	    _silent_probing = MEDIA_CHANGE_FULL;
+
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceProbeEnd ) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(url);
+		callback.addStr(ProbeSrcErrorAsString(error));
+		callback.addStr(reason);
+
+		callback.evaluate();
+	    }
+	}
+
+	virtual bool progress(const zypp::Url &url, int value)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceProbeProgress ) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(url);
+		callback.addInt(value);
+
+		return callback.evaluateBool();
+	    }
+
+	    return zypp::source::ProbeSourceReport::progress(url, value);
+	}
+
+	virtual zypp::source::ProbeSourceReport::Action problem( const zypp::Url &url, zypp::source::ProbeSourceReport::Error error, const std::string &description )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceProbeError ) );
+
+	    if ( callback._set )
+	    {
+		callback.addStr(url);
+		callback.addStr(ProbeSrcErrorAsString(error));
+		callback.addStr(description);
+
+		std::string result = callback.evaluateSymbol();
+
+		// check the returned symbol
+		if ( result == "ABORT" ) return zypp::source::ProbeSourceReport::ABORT;
+		if ( result == "RETRY" ) return zypp::source::ProbeSourceReport::RETRY;
+
+		// still here?
+		y2error("Unexpected symbol '%s' returned from callback.", result.c_str());
+		// return default
+	    }
+
+	    // return the default value
+	    return zypp::source::ProbeSourceReport::problem(url, error, description);
+	}
+    };
+
+    struct SourceReport : public Recipient, public zypp::callback::ReceiveReport<zypp::source::SourceReport>
+    {
+	SourceReport( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual void start( zypp::Source_Ref source, const std::string &task )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportStart ) );
+
+	    if (callback._set)
+	    {
+		callback.addInt(source.numericId());
+		callback.addStr(source.url());
+		callback.addStr(task);
+
+		callback.evaluate();
+	    }
+	}
+
+	virtual bool progress( int value )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportProgress ) );
+
+	    if (callback._set)
+	    {
+		callback.addInt(value);
+
+		return callback.evaluateBool();
+	    }
+
+	    return zypp::source::SourceReport::progress(value);
+	}
+
+	std::string SrcReportErrorAsString(zypp::source::SourceReport::Error error)
+	{
+	    // convert enum to string
+	    std::string error_str;
+
+	    switch(error)
+	    {
+		// no error
+		case zypp::source::SourceReport::NO_ERROR	: error_str = "NO_ERROR"; break;
+		// the requested Url was not found
+		case zypp::source::SourceReport::NOT_FOUND	: error_str = "NOT_FOUND"; break;
+		// IO error
+		case zypp::source::SourceReport::IO		: error_str = "IO"; break;
+		// the source is invalid
+		case zypp::source::SourceReport::INVALID	: error_str = "INVALID"; break;
+	    }
+
+	    return error_str;
+	}
+
+	virtual zypp::source::SourceReport::Action problem( zypp::Source_Ref source, zypp::source::SourceReport::Error error, const std::string &description )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportError ) );
+
+	    if ( callback._set )
+	    {
+		callback.addInt(source.numericId());
+		callback.addStr(source.url());
+		callback.addStr(SrcReportErrorAsString(error));
+		callback.addStr(description);
+
+		std::string result = callback.evaluateSymbol();
+
+		// check the returned symbol
+		if ( result == "ABORT" ) return zypp::source::SourceReport::ABORT;
+		if ( result == "RETRY" ) return zypp::source::SourceReport::RETRY;
+		if ( result == "IGNORE" ) return zypp::source::SourceReport::IGNORE;
+
+		// still here?
+		y2error("Unexpected symbol '%s' returned from callback.", result.c_str());
+		// return default
+	    }
+
+	    // return the default value
+	    return zypp::source::SourceReport::problem(source, error, description);
+	}
+
+	virtual void finish( zypp::Source_Ref source, const std::string &task, zypp::source::SourceReport::Error error, const std::string &reason )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportEnd ) );
+
+	    if (callback._set)
+	    {
+		callback.addInt(source.numericId());
+		callback.addStr(source.url());
+		callback.addStr(task);
+		callback.addStr(SrcReportErrorAsString(error));
+		callback.addStr(reason);
+
+		callback.evaluate();
+	    }
+	}
+    };
+
 
     struct ResolvableReport : public Recipient, public zypp::callback::ReceiveReport<zypp::target::MessageResolvableReport>
     {
@@ -1272,12 +1285,12 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
     ZyppRecipients::DownloadResolvableReceive _providePkgReceive;
 
     // media callback
-    ZyppRecipients::DownloadProgressReceive _downloadProgressReceive;
     ZyppRecipients::MediaChangeReceive   _mediaChangeReceive;
 
     // source manager callback
-    ZyppRecipients::SourceRefreshReceive _sourceRefreshReceive;
-    ZyppRecipients::CreateSourceReceive _createSourceReceive;
+    ZyppRecipients::SourceCreateReceive _sourceCreateReceive;
+    ZyppRecipients::SourceReport	_sourceReport;
+    ZyppRecipients::ProbeSourceReceive _probeSourceReceive;
 
     // resolvable report
     ZyppRecipients::ResolvableReport _resolvableReport;
@@ -1300,10 +1313,10 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
       , _installPkgReceive( *this )
       , _removePkgReceive( *this )
       , _providePkgReceive( *this )
-      , _downloadProgressReceive( *this )
       , _mediaChangeReceive( *this )
-      , _sourceRefreshReceive( *this )
-      , _createSourceReceive( *this )
+      , _sourceCreateReceive( *this )
+      , _sourceReport( *this )
+      , _probeSourceReceive( *this )
       , _resolvableReport( *this )
       , _digestReceive( *this )
       , _keyRingReceive( *this )
@@ -1316,9 +1329,9 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_removePkgReceive.connect();
 	_providePkgReceive.connect();
 	_mediaChangeReceive.connect();
-	_downloadProgressReceive.connect();
-	_sourceRefreshReceive.connect();
-	_createSourceReceive.connect();
+	_sourceCreateReceive.connect();
+	_sourceReport.connect();
+	_probeSourceReceive.connect();
 	_resolvableReport.connect();
  	_digestReceive.connect();
 	_keyRingReceive.connect();
@@ -1334,9 +1347,9 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_removePkgReceive.disconnect();
 	_providePkgReceive.disconnect();
 	_mediaChangeReceive.disconnect();
-	_downloadProgressReceive.disconnect();
-	_sourceRefreshReceive.disconnect();
-	_createSourceReceive.disconnect();
+	_sourceCreateReceive.disconnect();
+	_sourceReport.disconnect();
+	_probeSourceReceive.disconnect();
 	_resolvableReport.disconnect();
 	_digestReceive.disconnect();
 	_keyRingReceive.disconnect();
@@ -1404,36 +1417,6 @@ YCPValue PkgModuleFunctions::CallbackProgressPackage( const YCPString& args ) {
 }
 YCPValue PkgModuleFunctions::CallbackDonePackage( const YCPString& args ) {
   return SET_YCP_CB( CB_DonePackage, args );
-}
-
-YCPValue PkgModuleFunctions::CallbackStartDownload( const YCPString& args ) {
-  return SET_YCP_CB( CB_StartDownload, args );
-}
-YCPValue PkgModuleFunctions::CallbackProgressDownload( const YCPString& args ) {
-  return SET_YCP_CB( CB_ProgressDownload, args );
-}
-YCPValue PkgModuleFunctions::CallbackDoneDownload( const YCPString& args ) {
-  return SET_YCP_CB( CB_DoneDownload, args );
-}
-
-YCPValue PkgModuleFunctions::CallbackStartSourceRefresh( const YCPString& args ) {
-  return SET_YCP_CB( CB_StartSourceRefresh, args );
-}
-/**
- * @builtin CallbackProgressSourceRefresh
- * @short Register a callback function
- * @param string args Name of the callback handler function. Required callback
- *  prototype is <code>boolean(integer value, integer sourceId)</code>.
- * @return void
- */
-YCPValue PkgModuleFunctions::CallbackProgressSourceRefresh( const YCPString& args ) {
-  return SET_YCP_CB( CB_ProgressSourceRefresh, args );
-}
-YCPValue PkgModuleFunctions::CallbackErrorSourceRefresh( const YCPString& args ) {
-  return SET_YCP_CB( CB_ErrorSourceRefresh, args );
-}
-YCPValue PkgModuleFunctions::CallbackDoneSourceRefresh( const YCPString& args ) {
-  return SET_YCP_CB( CB_DoneSourceRefresh, args );
 }
 
 YCPValue PkgModuleFunctions::CallbackResolvableReport( const YCPString& args ) {
@@ -1735,36 +1718,14 @@ YCPValue PkgModuleFunctions::CallbackSourceCreateStart( const YCPString& func)
 
 
 /**
- * @builtin CallbackSourceCreateStartProbe
- * @short Register callback function
- * @param string func Name of the callback handler function. Required callback prototype is <code>void(string url)</code>. The callback is evaluated when a source type (YUM/SUSE) probing has been started.
- * @return void
- */
-YCPValue PkgModuleFunctions::CallbackSourceCreateStartProbe( const YCPString& func)
-{
-    return SET_YCP_CB( CB_SourceCreateStartProbe, func );
-}
-
-/**
- * @builtin CallbackSourceCreateEndProbe
- * @short Register callback function
- * @param string func Name of the callback handler function. Required callback prototype is <code>void(string url)</code>. The callback is evaluated when a source type (YUM/SUSE) probing has been finished.
- * @return void
- */
-YCPValue PkgModuleFunctions::CallbackSourceCreateEndProbe( const YCPString& func)
-{
-    return SET_YCP_CB( CB_SourceCreateEndProbe, func );
-}
-
-/**
  * @builtin CallbackSourceProgressData
  * @short Register callback function
  * @param string func Name of the callback handler function. Required callback prototype is <code>boolean(integer value)</code>. The callback function is evaluated when more than 5% of the data has been processed since the last evaluation. If the handler returns false the download is aborted.
  * @return void
  */
-YCPValue PkgModuleFunctions::CallbackSourceCreateProgressData( const YCPString& func)
+YCPValue PkgModuleFunctions::CallbackSourceCreateProgress( const YCPString& func)
 {
-    return SET_YCP_CB( CB_SourceCreateProgressData, func );
+    return SET_YCP_CB( CB_SourceCreateProgress, func );
 }
 
 /**
@@ -1787,6 +1748,55 @@ YCPValue PkgModuleFunctions::CallbackSourceCreateError( const YCPString& func)
 YCPValue PkgModuleFunctions::CallbackSourceCreateEnd( const YCPString& func)
 {
     return SET_YCP_CB( CB_SourceCreateEnd, func );
+}
+
+
+
+YCPValue PkgModuleFunctions::CallbackSourceProbeStart( const YCPString& func)
+{
+    return SET_YCP_CB( CB_SourceProbeStart, func );
+}
+YCPValue PkgModuleFunctions::CallbackSourceProbeFailed( const YCPString& func)
+{
+    return SET_YCP_CB( CB_SourceProbeFailed, func );
+}
+YCPValue PkgModuleFunctions::CallbackSourceProbeSucceeded( const YCPString& func)
+{
+    return SET_YCP_CB( CB_SourceProbeSucceeded, func );
+}
+YCPValue PkgModuleFunctions::CallbackSourceProbeEnd( const YCPString& func)
+{
+    return SET_YCP_CB( CB_SourceProbeEnd, func );
+}
+YCPValue PkgModuleFunctions::CallbackSourceProbeProgress( const YCPString& func)
+{
+    return SET_YCP_CB( CB_SourceProbeProgress, func );
+}
+YCPValue PkgModuleFunctions::CallbackSourceProbeError( const YCPString& func)
+{
+    return SET_YCP_CB( CB_SourceProbeError, func );
+}
+
+
+
+YCPValue PkgModuleFunctions::CallbackSourceReportStart( const YCPString& func)
+{
+    return SET_YCP_CB( CB_SourceReportStart, func );
+}
+
+YCPValue PkgModuleFunctions::CallbackSourceReportProgress( const YCPString& func)
+{
+    return SET_YCP_CB( CB_SourceReportProgress, func );
+}
+
+YCPValue PkgModuleFunctions::CallbackSourceReportError( const YCPString& func)
+{
+    return SET_YCP_CB( CB_SourceReportError, func );
+}
+
+YCPValue PkgModuleFunctions::CallbackSourceReportEnd( const YCPString& func)
+{
+    return SET_YCP_CB( CB_SourceReportEnd, func );
 }
 
 #undef SET_YCP_CB
