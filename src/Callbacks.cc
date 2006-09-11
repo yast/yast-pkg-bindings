@@ -1731,7 +1731,7 @@ YCPValue PkgModuleFunctions::CallbackSourceCreateProgress( const YCPString& func
 /**
  * @builtin CallbackSourceCreateError
  * @short Register callback function
- * @param string func Name of the callback handler function. Required callback prototype is <code>void(string url, string err_code, string description)</code>. err_code is "NO_ERROR", "NOT_FOUND" (the URL was not found), "IO" (I/O error) or "INVALID" (the source is not valid). The callback function is evaluated when an error occurrs during creation of the source.
+ * @param string func Name of the callback handler function. Required callback prototype is <code>string(string url, string err_code, string description)</code>. err_code is "NO_ERROR", "NOT_FOUND" (the URL was not found), "IO" (I/O error) or "INVALID" (the source is not valid). The callback function must return "ABORT" or "RETRY". The callback function is evaluated when an error occurrs during creation of the source.
  * @return void
  */
 YCPValue PkgModuleFunctions::CallbackSourceCreateError( const YCPString& func)
@@ -1752,26 +1752,68 @@ YCPValue PkgModuleFunctions::CallbackSourceCreateEnd( const YCPString& func)
 
 
 
+
+/**
+ * @builtin CallbackSourceProbeStart
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string url)</code>. The callback function is evaluated when source probing has been started.
+ * @return void
+ */
 YCPValue PkgModuleFunctions::CallbackSourceProbeStart( const YCPString& func)
 {
     return SET_YCP_CB( CB_SourceProbeStart, func );
 }
+
+/**
+ * @builtin CallbackSourceProbeFailed
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string url, string type)</code>. The callback function is evaluated when the probed source has different type.
+ * @return void
+ */
 YCPValue PkgModuleFunctions::CallbackSourceProbeFailed( const YCPString& func)
 {
     return SET_YCP_CB( CB_SourceProbeFailed, func );
 }
+
+/**
+ * @builtin CallbackSourceProbeSucceeded
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string url, string type)</code>. The callback function is evaluated when the probed source has type <code>type</code>.
+ * @return void
+ */
 YCPValue PkgModuleFunctions::CallbackSourceProbeSucceeded( const YCPString& func)
 {
     return SET_YCP_CB( CB_SourceProbeSucceeded, func );
 }
+
+/**
+ * @builtin CallbackSourceProbeEnd
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string url, string error, string reason)</code>. The callback function is evaluated when source probing has been finished.
+ * @return void
+ */
 YCPValue PkgModuleFunctions::CallbackSourceProbeEnd( const YCPString& func)
 {
     return SET_YCP_CB( CB_SourceProbeEnd, func );
 }
+
+/**
+ * @builtin CallbackSourceProbeProgress
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>boolean(integer value)</code>. If the handler returns false the refresh is aborted.
+ * @return void
+ */
 YCPValue PkgModuleFunctions::CallbackSourceProbeProgress( const YCPString& func)
 {
     return SET_YCP_CB( CB_SourceProbeProgress, func );
 }
+
+/**
+ * @builtin CallbackSourceProbeError
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>string(string url, string error, string reason)</code>. The callback function is evaluated when an error occurrs. The callback function must return string "ABORT" or "RETRY".
+ * @return void
+ */
 YCPValue PkgModuleFunctions::CallbackSourceProbeError( const YCPString& func)
 {
     return SET_YCP_CB( CB_SourceProbeError, func );
@@ -1779,24 +1821,79 @@ YCPValue PkgModuleFunctions::CallbackSourceProbeError( const YCPString& func)
 
 
 
+/**
+ * @builtin CallbackSourceProbeStart
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(integer source_id, string url, string task)</code>.
+ * @return void
+ */
 YCPValue PkgModuleFunctions::CallbackSourceReportStart( const YCPString& func)
 {
     return SET_YCP_CB( CB_SourceReportStart, func );
 }
 
+/**
+ * @builtin CallbackSourceReportProgress
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>boolean(integer value)</code>. If the handler returns false the task is aborted.
+ * @return void
+ */
 YCPValue PkgModuleFunctions::CallbackSourceReportProgress( const YCPString& func)
 {
     return SET_YCP_CB( CB_SourceReportProgress, func );
 }
 
+/**
+ * @builtin CallbackSourceReportError
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>string(integer numeric_id, string url, string error, string reason)</code>. Parameter error is "NO_ERROR", "NOT_FOUND", "IO" or "INVALID". The callback function is evaluated when an error occurrs. The callback function must return string "ABORT", "IGNORE" or "RETRY".
+ * @return void
+ */
 YCPValue PkgModuleFunctions::CallbackSourceReportError( const YCPString& func)
 {
     return SET_YCP_CB( CB_SourceReportError, func );
 }
 
+/**
+ * @builtin CallbackSourceReportEnd
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(integer numeric_id, string url, string error, string reason)</code>. Parameter error is "NO_ERROR", "NOT_FOUND", "IO" or "INVALID". The callback function is evaluated when an error occurrs. The callback function must return string "ABORT", "IGNORE" or "RETRY".
+ * @return void
+ */
 YCPValue PkgModuleFunctions::CallbackSourceReportEnd( const YCPString& func)
 {
     return SET_YCP_CB( CB_SourceReportEnd, func );
+}
+
+
+YCPValue PkgModuleFunctions::CallbackStartDownload( const YCPString& args ) {
+    y2error("depracted callback, don't use it!");
+    return YCPVoid();
+}
+YCPValue PkgModuleFunctions::CallbackProgressDownload( const YCPString& args ) {
+    y2error("depracted callback, don't use it!");
+    return YCPVoid();
+}
+YCPValue PkgModuleFunctions::CallbackDoneDownload( const YCPString& args ) {
+    y2error("depracted callback, don't use it!");
+    return YCPVoid();
+}
+
+YCPValue PkgModuleFunctions::CallbackStartSourceRefresh( const YCPString& args ) {
+    y2error("depracted callback, don't use it!");
+    return YCPVoid();
+}
+YCPValue PkgModuleFunctions::CallbackProgressSourceRefresh( const YCPString& args ) {
+    y2error("depracted callback, don't use it!");
+    return YCPVoid();
+}
+YCPValue PkgModuleFunctions::CallbackErrorSourceRefresh( const YCPString& args ) {
+    y2error("depracted callback, don't use it!");
+    return YCPVoid();
+}
+YCPValue PkgModuleFunctions::CallbackDoneSourceRefresh( const YCPString& args ) {
+    y2error("depracted callback, don't use it!");
+    return YCPVoid();
 }
 
 #undef SET_YCP_CB
