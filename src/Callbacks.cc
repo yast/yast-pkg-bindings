@@ -276,7 +276,7 @@ namespace ZyppRecipients {
 		(resolvable, error, description, level);
 	}
 
-	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, std::string reason, zypp::target::rpm::InstallResolvableReport::RpmLevel level)
+	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, const std::string &reason, zypp::target::rpm::InstallResolvableReport::RpmLevel level)
 	{
 	    if (error != zypp::target::rpm::InstallResolvableReport::NO_ERROR && level != zypp::target::rpm::InstallResolvableReport::RPM_NODEPS_FORCE)
 	    {
@@ -367,7 +367,7 @@ namespace ZyppRecipients {
 	{
 	}
 
-	virtual void start( zypp::Resolvable::constPtr resolvable_ptr, zypp::Url url)
+	virtual void start( zypp::Resolvable::constPtr resolvable_ptr, const zypp::Url &url)
 	{
 	  unsigned size = 0;
 	  last_reported = 0;
@@ -406,7 +406,7 @@ namespace ZyppRecipients {
 	  }
 	}
 
-	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::source::DownloadResolvableReport::Error error, std::string reason)
+	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::source::DownloadResolvableReport::Error error, const std::string &reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
 	    if (callback._set) {
@@ -430,7 +430,7 @@ namespace ZyppRecipients {
 	    return zypp::source::DownloadResolvableReport::progress(value, resolvable_ptr);
 	}
 
-	virtual Action problem(zypp::Resolvable::constPtr resolvable_ptr, zypp::source::DownloadResolvableReport::Error error, std::string description)
+	virtual Action problem(zypp::Resolvable::constPtr resolvable_ptr, zypp::source::DownloadResolvableReport::Error error, const std::string &description)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
 	    if (callback._set) {
@@ -485,7 +485,7 @@ namespace ZyppRecipients {
 	    return zypp::source::DownloadResolvableReport::progressDeltaDownload(value);
 	}
 
-	virtual void problemDeltaDownload( std::string description )
+	virtual void problemDeltaDownload( const std::string &description )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProblemDeltaDownload ) );
 	    if (callback._set) {
@@ -535,7 +535,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual void problemDeltaApply( std::string description )
+	virtual void problemDeltaApply( const std::string &description )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProblemDeltaApply ) );
 
@@ -589,7 +589,7 @@ namespace ZyppRecipients {
 	    return zypp::source::DownloadResolvableReport::progressPatchDownload(value);
 	}
 
-	virtual void problemPatchDownload( std::string description )
+	virtual void problemPatchDownload( const std::string &description )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProblemPatchDownload ) );
 
@@ -810,7 +810,7 @@ namespace ZyppRecipients {
 	    return error_str;
 	}
 
-	virtual Action problem( const zypp::Url &url, zypp::source::SourceCreateReport::Error error, std::string description )
+	virtual Action problem( const zypp::Url &url, zypp::source::SourceCreateReport::Error error, const std::string &description )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateError ) );
 
@@ -835,7 +835,7 @@ namespace ZyppRecipients {
 	    return zypp::source::SourceCreateReport::problem(url, error, description);
 	}
 
-	virtual void finish( const zypp::Url &url, zypp::source::SourceCreateReport::Error error, std::string reason )
+	virtual void finish( const zypp::Url &url, zypp::source::SourceCreateReport::Error error, const std::string &reason )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateEnd ) );
 
@@ -1032,6 +1032,13 @@ namespace ZyppRecipients {
 	virtual zypp::source::SourceReport::Action problem( zypp::Source_Ref source, zypp::source::SourceReport::Error error, const std::string &description )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportError ) );
+   
+	    // the file is optional, ignore the error 
+	    if (_silent_probing == ZyppRecipients::MEDIA_CHANGE_OPTIONALFILE)
+	    {
+		y2milestone("The file is optional, ignoring the error");
+		return zypp::source::SourceReport::IGNORE;
+	    }
 
 	    if ( callback._set )
 	    {

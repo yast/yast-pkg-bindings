@@ -32,6 +32,7 @@
 #include <PkgModuleFunctions.h>
 
 #include <Callbacks.h>
+#include <Callbacks.YCP.h>
 
 #include <zypp/SourceManager.h>
 #include <zypp/SourceFactory.h>
@@ -42,6 +43,11 @@
 #include <zypp/Pathname.h>
 
 #include <stdio.h> // snprintf
+
+
+/*
+  Textdomain "pkg-bindings"
+*/
 
 /**
  * Logging helper:
@@ -93,6 +99,20 @@ PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
 YCPValue
 PkgModuleFunctions::SourceRestore()
 {
+    // get the YCP callback handler
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportStart);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// add parameters
+	ycp_handler->appendParameter( YCPInteger(0LL) );
+	ycp_handler->appendParameter( YCPString("") );
+	ycp_handler->appendParameter( YCPString(_("Downloading files...")) );
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+
     bool success = true;
 
     try {
@@ -125,6 +145,22 @@ PkgModuleFunctions::SourceRestore()
 	success = false;
     }
 
+    // get the YCP callback handler for end event
+    ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportEnd);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// add parameters
+	ycp_handler->appendParameter( YCPInteger(0LL) );
+	ycp_handler->appendParameter( YCPString("") );
+	ycp_handler->appendParameter( YCPString(_("Downloading files...")) );
+	ycp_handler->appendParameter( YCPString("NO_ERROR") );
+	ycp_handler->appendParameter( YCPString("") );
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+
     return YCPBoolean(success);
 }
 
@@ -141,6 +177,21 @@ YCPValue
 PkgModuleFunctions::SourceLoad()
 {
     bool success = true;
+
+    // get the YCP callback handler
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportStart);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// add parameters
+	ycp_handler->appendParameter( YCPInteger(0LL) );
+	ycp_handler->appendParameter( YCPString("") );
+	ycp_handler->appendParameter( YCPString(_("Parsing files...")) );
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+
 
     std::list<zypp::SourceManager::SourceId> ids;
 
@@ -190,6 +241,22 @@ PkgModuleFunctions::SourceLoad()
 	{
 	    success = false;
 	}
+    }
+
+    // get the YCP callback handler for end event
+    ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportEnd);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// add parameters
+	ycp_handler->appendParameter( YCPInteger(0LL) );
+	ycp_handler->appendParameter( YCPString("") );
+	ycp_handler->appendParameter( YCPString(_("Parsing files...")) );
+	ycp_handler->appendParameter( YCPString("NO_ERROR") );
+	ycp_handler->appendParameter( YCPString("") );
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
     }
 
     return YCPBoolean(success);
@@ -627,6 +694,7 @@ YCPValue
 PkgModuleFunctions::SourceProduct (const YCPInteger& id)
 {
     /* TODO FIXME */
+  y2warning("Pkg::SourceProduct() is obsoleted!");
   return YCPMap();
 }
 
@@ -646,29 +714,68 @@ PkgModuleFunctions::SourceProduct (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
+    // get the YCP callback handler
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportStart);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// add parameters
+	ycp_handler->appendParameter( YCPInteger(0LL) );
+	ycp_handler->appendParameter( YCPString("") );
+	ycp_handler->appendParameter( YCPString(_("Downloading file...")) );
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+
     zypp::Source_Ref src;
+    bool found = true;
 
     try {
 	src = logFindSource(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
-	return YCPVoid ();
+	found = false;
     }
 
     zypp::filesystem::Pathname path;
 
-    try {
-    	path = src.provideFile(f->value(), mid->asInteger()->value());
-    }
-    catch (const zypp::Exception& excpt)
+    if (found)
     {
-	_last_error.setLastError(excpt.asUserString());
-	y2milestone ("File not found: %s", f->value_cstr());
+	try {
+	    path = src.provideFile(f->value(), mid->asInteger()->value());
+	}
+	catch (const zypp::Exception& excpt)
+	{
+	    _last_error.setLastError(excpt.asUserString());
+	    y2milestone ("File not found: %s", f->value_cstr());
+	    found = false;
+	}
+    }
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// add parameters
+	ycp_handler->appendParameter( YCPInteger(0LL) );
+	ycp_handler->appendParameter( YCPString("") );
+	ycp_handler->appendParameter( YCPString(_("Downloading file...")) );
+	ycp_handler->appendParameter( YCPString("NO_ERROR") );
+	ycp_handler->appendParameter( YCPString("") );
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+
+    if (found)
+    {
+	return YCPString(path.asString());
+    }
+    else
+    {
 	return YCPVoid();
     }
 
-    return YCPString(path.asString());
 }
 
 /****************************************************************************************
@@ -688,6 +795,21 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
 YCPValue
 PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
+    // get the YCP callback handler
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportStart);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// add parameters
+	ycp_handler->appendParameter( YCPInteger(0LL) );
+	ycp_handler->appendParameter( YCPString("") );
+	ycp_handler->appendParameter( YCPString(_("Downloading files...")));
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+
+
     YCPValue ret;
 
     extern ZyppRecipients::MediaChangeSensitivity _silent_probing;
@@ -699,30 +821,49 @@ PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPIn
     _silent_probing = ZyppRecipients::MEDIA_CHANGE_OPTIONALFILE;
 
     zypp::Source_Ref src;
+    bool found = true;
 
     try {
 	src = logFindSource(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
-	return YCPVoid ();
+	found = false;
     }
 
     zypp::filesystem::Pathname path;
-    bool found = true;
 
-    try {
-    	path = src.provideFile(f->value(), mid->asInteger()->value());
-    }
-    catch (const zypp::Exception& excpt)
+    if (found)
     {
-	found = false;
-	// the file is optional, don't set error flag here
+	try {
+	    path = src.provideFile(f->value(), mid->asInteger()->value());
+	}
+	catch (const zypp::Exception& excpt)
+	{
+	    found = false;
+	    // the file is optional, don't set error flag here
+	}
     }
 
  
     // set the original probing value
     _silent_probing = _silent_probing_old;
+
+    // get the YCP callback handler for end event
+    ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportEnd);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// add parameters
+	ycp_handler->appendParameter( YCPInteger(0LL) );
+	ycp_handler->appendParameter( YCPString("") );
+	ycp_handler->appendParameter( YCPString(_("Downloading files...")) );
+	ycp_handler->appendParameter( YCPString("NO_ERROR") );
+	ycp_handler->appendParameter( YCPString("") );
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
 
     if (found)
     {
