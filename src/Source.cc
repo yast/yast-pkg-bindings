@@ -754,6 +754,8 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
 	}
     }
 
+    ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportEnd);
+
     // is the callback registered?
     if (ycp_handler != NULL)
     {
