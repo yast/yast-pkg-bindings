@@ -49,6 +49,42 @@
   Textdomain "pkg-bindings"
 */
 
+void PkgModuleFunctions::CallSourceReportStart(const std::string &text)
+{
+    // get the YCP callback handler
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportStart);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// add parameters
+	ycp_handler->appendParameter( YCPInteger(0LL) );
+	ycp_handler->appendParameter( YCPString("") );
+	ycp_handler->appendParameter( YCPString(text) );
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+}
+
+void PkgModuleFunctions::CallSourceReportEnd(const std::string &text)
+{
+    // get the YCP callback handler for end event
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportEnd);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// add parameters
+	ycp_handler->appendParameter( YCPInteger(0LL) );
+	ycp_handler->appendParameter( YCPString("") );
+	ycp_handler->appendParameter( YCPString(text) );
+	ycp_handler->appendParameter( YCPString("NO_ERROR") );
+	ycp_handler->appendParameter( YCPString("") );
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+}
+
 /**
  * Logging helper:
  * call zypp::SourceManager::sourceManager()->findSource
@@ -99,19 +135,7 @@ PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
 YCPValue
 PkgModuleFunctions::SourceRestore()
 {
-    // get the YCP callback handler
-    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportStart);
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
-    {
-	// add parameters
-	ycp_handler->appendParameter( YCPInteger(0LL) );
-	ycp_handler->appendParameter( YCPString("") );
-	ycp_handler->appendParameter( YCPString(_("Downloading files...")) );
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
-    }
+    CallSourceReportStart(_("Downloading files..."));
 
     bool success = true;
 
@@ -145,21 +169,7 @@ PkgModuleFunctions::SourceRestore()
 	success = false;
     }
 
-    // get the YCP callback handler for end event
-    ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportEnd);
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
-    {
-	// add parameters
-	ycp_handler->appendParameter( YCPInteger(0LL) );
-	ycp_handler->appendParameter( YCPString("") );
-	ycp_handler->appendParameter( YCPString(_("Downloading files...")) );
-	ycp_handler->appendParameter( YCPString("NO_ERROR") );
-	ycp_handler->appendParameter( YCPString("") );
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
-    }
+    CallSourceReportEnd(_("Downloading files..."));
 
     return YCPBoolean(success);
 }
@@ -178,20 +188,7 @@ PkgModuleFunctions::SourceLoad()
 {
     bool success = true;
 
-    // get the YCP callback handler
-    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportStart);
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
-    {
-	// add parameters
-	ycp_handler->appendParameter( YCPInteger(0LL) );
-	ycp_handler->appendParameter( YCPString("") );
-	ycp_handler->appendParameter( YCPString(_("Parsing files...")) );
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
-    }
-
+    CallSourceReportStart(_("Parsing files..."));
 
     std::list<zypp::SourceManager::SourceId> ids;
 
@@ -243,21 +240,7 @@ PkgModuleFunctions::SourceLoad()
 	}
     }
 
-    // get the YCP callback handler for end event
-    ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportEnd);
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
-    {
-	// add parameters
-	ycp_handler->appendParameter( YCPInteger(0LL) );
-	ycp_handler->appendParameter( YCPString("") );
-	ycp_handler->appendParameter( YCPString(_("Parsing files...")) );
-	ycp_handler->appendParameter( YCPString("NO_ERROR") );
-	ycp_handler->appendParameter( YCPString("") );
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
-    }
+    CallSourceReportEnd(_("Parsing files..."));
 
     return YCPBoolean(success);
 }
@@ -714,19 +697,7 @@ PkgModuleFunctions::SourceProduct (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
-    // get the YCP callback handler
-    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportStart);
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
-    {
-	// add parameters
-	ycp_handler->appendParameter( YCPInteger(0LL) );
-	ycp_handler->appendParameter( YCPString("") );
-	ycp_handler->appendParameter( YCPString(_("Downloading file...")) );
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
-    }
+    CallSourceReportStart(_("Downloading file..."));
 
     zypp::Source_Ref src;
     bool found = true;
@@ -754,20 +725,7 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
 	}
     }
 
-    ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportEnd);
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
-    {
-	// add parameters
-	ycp_handler->appendParameter( YCPInteger(0LL) );
-	ycp_handler->appendParameter( YCPString("") );
-	ycp_handler->appendParameter( YCPString(_("Downloading file...")) );
-	ycp_handler->appendParameter( YCPString("NO_ERROR") );
-	ycp_handler->appendParameter( YCPString("") );
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
-    }
+    CallSourceReportEnd(_("Downloading file..."));
 
     if (found)
     {
@@ -797,20 +755,7 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
 YCPValue
 PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
-    // get the YCP callback handler
-    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportStart);
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
-    {
-	// add parameters
-	ycp_handler->appendParameter( YCPInteger(0LL) );
-	ycp_handler->appendParameter( YCPString("") );
-	ycp_handler->appendParameter( YCPString(_("Downloading files...")));
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
-    }
-
+    CallSourceReportStart(_("Downloading files..."));
 
     YCPValue ret;
 
@@ -851,21 +796,8 @@ PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPIn
     // set the original probing value
     _silent_probing = _silent_probing_old;
 
-    // get the YCP callback handler for end event
-    ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportEnd);
 
-    // is the callback registered?
-    if (ycp_handler != NULL)
-    {
-	// add parameters
-	ycp_handler->appendParameter( YCPInteger(0LL) );
-	ycp_handler->appendParameter( YCPString("") );
-	ycp_handler->appendParameter( YCPString(_("Downloading files...")) );
-	ycp_handler->appendParameter( YCPString("NO_ERROR") );
-	ycp_handler->appendParameter( YCPString("") );
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
-    }
+    CallSourceReportEnd(_("Downloading files..."));
 
     if (found)
     {
@@ -1310,7 +1242,9 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
 	    src.enable();
 
+	    CallSourceReportStart(_("Parsing files..."));
     	    zypp_ptr()->addResolvables (src.resolvables());
+	    CallSourceReportEnd(_("Parsing files..."));
 
 	    // return the id of the first product
 	    if ( ret == -1 )
@@ -1335,7 +1269,9 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
 	src.enable();
 
+	CallSourceReportStart(_("Parsing files..."));
     	zypp_ptr()->addResolvables (src.resolvables());
+	CallSourceReportEnd(_("Parsing files..."));
     }
     catch ( const zypp::Exception& excpt)
     {

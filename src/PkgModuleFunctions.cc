@@ -44,6 +44,9 @@
 // exit
 #include <cstdlib>
 
+// textdomain
+#include <libintl.h>                                                                                                                                           
+
 class Y2PkgFunction: public Y2Function
 {
     unsigned int m_position;
@@ -175,6 +178,17 @@ PkgModuleFunctions::PkgModuleFunctions ()
     ,_callbackHandler( *new CallbackHandler( ) )
 {
     registerFunctions ();
+
+    char *domain = "pkg-bindings";
+    bindtextdomain( domain, LOCALEDIR );
+    bind_textdomain_codeset( domain, "utf8" );
+    textdomain( domain );
+
+    // Make change known.
+    {
+	extern int _nl_msg_cat_cntr;
+	++_nl_msg_cat_cntr;
+    }
 }
 
 /**

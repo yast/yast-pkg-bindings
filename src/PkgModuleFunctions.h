@@ -94,6 +94,10 @@ class PkgModuleFunctions : public Y2Namespace
       void registerFunctions ();
       vector<string> _registered_functions;
 
+      // callback related funcions
+      void CallSourceReportStart(const std::string &text);
+      void CallSourceReportEnd(const std::string &text);
+
       // After all, APPL_HIGH might be more appropriate, because we suggest
       // the user what he should do and if it does not work, it's his job to
       // fix it (using USER). --ma
