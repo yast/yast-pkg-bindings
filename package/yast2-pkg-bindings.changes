@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Sep 22 14:37:58 CEST 2006 - lslezak@suse.cz
+
+- added missing download callback handlers (lost during
+  implementation of feature #1466)
+- 2.13.96
+
+-------------------------------------------------------------------
 Mon Sep 18 15:40:35 CEST 2006 - lslezak@suse.cz
 
 - new source callbacks (feature #1466), require libzypp >= 2.1.0

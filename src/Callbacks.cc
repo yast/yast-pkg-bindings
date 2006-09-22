@@ -615,6 +615,63 @@ namespace ZyppRecipients {
     int DownloadResolvableReceive::last_source_id = -1;
     int DownloadResolvableReceive::last_source_media = -1;
 
+
+    ///////////////////////////////////////////////////////////////////
+    // DownloadProgressReceive
+    ///////////////////////////////////////////////////////////////////
+    struct DownloadProgressReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::media::DownloadProgressReport>
+    {
+	int last_reported;
+
+	DownloadProgressReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+        virtual void start( const zypp::Url &file, zypp::Pathname localfile )
+	{
+	    last_reported = 0;
+	    CB callback( ycpcb( YCPCallbacks::CB_StartDownload ) );
+
+	    if ( callback._set )
+	    {
+		callback.addStr( file.asString() );
+		callback.addStr( localfile.asString() );
+		callback.evaluate();
+	    }
+	}
+
+        virtual bool progress(int value, const zypp::Url &file)
+        {
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDownload ) );
+	    // call the callback function only if the difference since the last call is at least 5%
+	    // or if 100% is reached
+	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100))
+	    {
+		last_reported = value;
+		// report changed values
+		callback.addInt( value );
+		callback.addInt( 100  );
+		return callback.evaluateBool( true ); // default == continue
+	    }
+
+	    return zypp::media::DownloadProgressReport::progress(value, file);
+	}
+
+        virtual Action problem( const zypp::Url &file, zypp::media::DownloadProgressReport::Error error, const std::string &description)
+	{
+	    return zypp::media::DownloadProgressReport::ABORT;
+	}
+
+        virtual void finish( const zypp::Url &file, zypp::media::DownloadProgressReport::Error error, const std::string &reason) 
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_DoneDownload ) );
+
+	    if ( callback._set ) {
+		callback.addInt( error );
+		callback.addStr( reason );
+		callback.evaluate();
+	    }
+	}
+    };
+
 /*
   ///////////////////////////////////////////////////////////////////
   // InstTargetCallbacks::ScriptExecCallback
@@ -1293,6 +1350,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 
     // media callback
     ZyppRecipients::MediaChangeReceive   _mediaChangeReceive;
+    ZyppRecipients::DownloadProgressReceive _downloadProgressReceive;
 
     // source manager callback
     ZyppRecipients::SourceCreateReceive _sourceCreateReceive;
@@ -1321,6 +1379,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
       , _removePkgReceive( *this )
       , _providePkgReceive( *this )
       , _mediaChangeReceive( *this )
+      , _downloadProgressReceive( *this )
       , _sourceCreateReceive( *this )
       , _sourceReport( *this )
       , _probeSourceReceive( *this )
@@ -1336,6 +1395,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_removePkgReceive.connect();
 	_providePkgReceive.connect();
 	_mediaChangeReceive.connect();
+	_downloadProgressReceive.connect();
 	_sourceCreateReceive.connect();
 	_sourceReport.connect();
 	_probeSourceReceive.connect();
@@ -1354,6 +1414,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_removePkgReceive.disconnect();
 	_providePkgReceive.disconnect();
 	_mediaChangeReceive.disconnect();
+	_downloadProgressReceive.disconnect();
 	_sourceCreateReceive.disconnect();
 	_sourceReport.disconnect();
 	_probeSourceReceive.disconnect();
@@ -1874,16 +1935,13 @@ YCPValue PkgModuleFunctions::CallbackSourceReportEnd( const YCPString& func)
 
 
 YCPValue PkgModuleFunctions::CallbackStartDownload( const YCPString& args ) {
-    y2error("depracted callback, don't use it!");
-    return YCPVoid();
+    return SET_YCP_CB( CB_StartDownload, args );
 }
 YCPValue PkgModuleFunctions::CallbackProgressDownload( const YCPString& args ) {
-    y2error("depracted callback, don't use it!");
-    return YCPVoid();
+    return SET_YCP_CB( CB_ProgressDownload, args );
 }
 YCPValue PkgModuleFunctions::CallbackDoneDownload( const YCPString& args ) {
-    y2error("depracted callback, don't use it!");
-    return YCPVoid();
+    return SET_YCP_CB( CB_DoneDownload, args );
 }
 
 YCPValue PkgModuleFunctions::CallbackStartSourceRefresh( const YCPString& args ) {
