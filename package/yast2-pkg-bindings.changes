@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Sep 28 14:01:47 CEST 2006 - schubi@suse.de
+
+- patch autoselect: select only the latest needed patch if
+  patches are needed with the same name and different editions.
+  Bug: 206927
+
+-------------------------------------------------------------------
 Fri Sep 22 14:37:58 CEST 2006 - lslezak@suse.cz
 
 - added missing download callback handlers (lost during

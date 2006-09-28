@@ -576,7 +576,11 @@ PkgModuleFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselec
 			    {
 				selected_patches++;
 			    }
-			    else if (i->status().setTransact(true, whoWantsIt)) // schedule for installation
+			    else if (DoProvideNameKind(pch->name(), pch->kind(), pch->arch(),"",
+						       true // only Needed patches
+						       ))
+				// schedule for installation
+				// but take the best edition. Bug #206927
 			    {
 				stringstream str; 
 				str << *i << endl;

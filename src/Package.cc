@@ -542,9 +542,10 @@ struct ProvideProcess
     zypp::Arch _architecture;
     zypp::ResStatus::TransactByValue whoWantsIt;
     std::string version;
+    bool onlyNeeded;
 
-    ProvideProcess( zypp::Arch arch, const std::string &vers)
-	: _architecture( arch ), whoWantsIt(zypp::ResStatus::APPL_HIGH), version(vers)
+    ProvideProcess( zypp::Arch arch, const std::string &vers, const bool oNeeded)
+	: _architecture( arch ), whoWantsIt(zypp::ResStatus::APPL_HIGH), version(vers), onlyNeeded(oNeeded)
     { }
 
     bool operator()( zypp::PoolItem provider )
@@ -561,7 +562,8 @@ struct ProvideProcess
 	    return true;
 	}
 
-	if (!provider.status().isInstalled())
+	if (!provider.status().isInstalled()
+	    && (!onlyNeeded || provider.status().isNeeded()) ) // take only needed items (e.G. needed patches)
 	{
 	    // deselect the item if it's already selected,
 	    // only one item should be selected
@@ -596,11 +598,12 @@ struct ProvideProcess
 */
 
 bool
-PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture, const std::string & version)
+PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
+				       const std::string & version ,const bool onlyNeeded)
 {
     try
     {
-	ProvideProcess info( architecture, version );
+	ProvideProcess info( architecture, version, onlyNeeded);
 	info.whoWantsIt = whoWantsIt;
 
 	invokeOnEach( zypp_ptr()->pool().byNameBegin( name ),

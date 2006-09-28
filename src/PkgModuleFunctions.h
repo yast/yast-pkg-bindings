@@ -80,7 +80,8 @@ class PkgModuleFunctions : public Y2Namespace
 
     private: // source related
 
-      bool DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture, const std::string& version);
+      bool DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
+			      const std::string& version, const bool onlyNeeded = false);
       bool DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind);
       bool DoProvideAllKind(zypp::Resolvable::Kind kind);
       bool DoRemoveAllKind(zypp::Resolvable::Kind kind);
