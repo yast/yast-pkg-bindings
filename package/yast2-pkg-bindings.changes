@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Oct 12 16:51:13 CEST 2006 - mvidner@suse.cz
+
+- Use -Woverloaded-virtual to warn about mis-overriden callbacks
+
+-------------------------------------------------------------------
 Thu Oct 12 13:13:03 CEST 2006 - lslezak@suse.cz
 
 - fixed media change callback signature to match zypp library

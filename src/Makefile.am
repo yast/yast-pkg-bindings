@@ -2,10 +2,12 @@
 # Makefile.am for core/wfm/src
 #
 
+# -Woverloaded-virtual catches mis-overridden callbacks
 AM_CXXFLAGS = -DY2LOG=\"wfm\"			\
 	-DSUSEVERSION=\"${SUSEVERSION}\"	\
 	-DLOCALEDIR=\"${localedir}\"		\
 	-fno-inline				\
+	-Woverloaded-virtual			\
 	-DZYPP_BASE_LOGGER_LOGGROUP=\"pkgbindings\"
 
 
