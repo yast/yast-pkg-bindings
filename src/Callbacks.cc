@@ -729,7 +729,7 @@ namespace ZyppRecipients {
     {
 	MediaChangeReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual Action requestMedia(zypp::Source_Ref source, unsigned mediumNr, zypp::media::MediaChangeReport::Error error, std::string description)
+	virtual Action requestMedia(zypp::Source_Ref source, unsigned mediumNr, zypp::media::MediaChangeReport::Error error, const std::string &description)
 	{
 	    if ( _silent_probing == MEDIA_CHANGE_DISABLE )
 		return zypp::media::MediaChangeReport::ABORT;
