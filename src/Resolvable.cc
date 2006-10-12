@@ -46,18 +46,27 @@
 
 // ------------------------
 /**
-   @builtin ResolvableInstall
-   @short Install all resolvables with selected name and kind
+   @builtin ResolvableInstallArchVersion
+   @short Install all resolvables with selected name, architecture and kind. Use it only in a special case, ResolvableInstall() should be prefrerred.
    @param name_r name of the resolvable, if empty ("") install all resolvables of the kind 
    @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @param arch architecture of the resolvable
+   @param vers Required version of the resolvable, empty string means any version
    @return boolean false if failed
 */
 YCPValue
-PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r )
+PkgModuleFunctions::ResolvableInstallArchVersion( const YCPString& name_r, const YCPSymbol& kind_r, const YCPString& arch, const YCPString& vers )
 {
     zypp::Resolvable::Kind kind;
     
     std::string req_kind = kind_r->symbol ();
+
+    std::string arch_str = arch->value();
+    if (arch_str.empty())
+	return YCPBoolean (false);
+
+    // ensure installation of the required architecture
+    zypp::Arch architecture(arch_str);
 
     if( req_kind == "product" ) {
 	kind = zypp::ResTraits<zypp::Product>::kind;
@@ -80,13 +89,28 @@ PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol&
 	return YCPBoolean(false);
     }
 
+   std::string version_str = vers->value();
+
     return YCPBoolean(
 	(name_r->value().empty())
 	    ? DoProvideAllKind(kind)
-	    : DoProvideNameKind (name_r->value(), kind)
+	    : DoProvideNameKind (name_r->value(), kind, architecture, version_str)
     );
 }
 
+// ------------------------
+/**
+   @builtin ResolvableInstall
+   @short Install all resolvables with selected name and kind
+   @param name_r name of the resolvable, if empty ("") install all resolvables of the kind 
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @return boolean false if failed
+*/
+YCPValue
+PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r )
+{
+    return ResolvableInstallArchVersion(name_r, kind_r, YCPString(zypp_ptr()->architecture().asString()), YCPString(""));
+}
 
 // ------------------------
 /**
@@ -552,7 +576,11 @@ PkgModuleFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselec
 			    {
 				selected_patches++;
 			    }
-			    else if (i->status().setTransact(true, whoWantsIt)) // schedule for installation
+			    else if (DoProvideNameKind(pch->name(), pch->kind(), pch->arch(),"",
+						       true // only Needed patches
+						       ))
+				// schedule for installation
+				// but take the best edition. Bug #206927
 			    {
 				stringstream str; 
 				str << *i << endl;

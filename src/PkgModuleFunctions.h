@@ -41,6 +41,7 @@
 #include <zypp/ZYpp.h>
 #include <zypp/Pathname.h>
 #include <zypp/Url.h>
+#include <zypp/Arch.h>
 #include <zypp/DiskUsageCounter.h>
 #include <zypp/SourceManager.h>
 
@@ -79,7 +80,8 @@ class PkgModuleFunctions : public Y2Namespace
 
     private: // source related
 
-      bool DoProvideNameKind( const std::string & name , zypp::Resolvable::Kind kind);
+      bool DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
+			      const std::string& version, const bool onlyNeeded = false);
       bool DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind);
       bool DoProvideAllKind(zypp::Resolvable::Kind kind);
       bool DoRemoveAllKind(zypp::Resolvable::Kind kind);
@@ -87,9 +89,15 @@ class PkgModuleFunctions : public Y2Namespace
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);
       YCPValue PkgProp( zypp::PoolItem_Ref item );
 
+      void SetCurrentDU();
+
       // builtin handling
       void registerFunctions ();
       vector<string> _registered_functions;
+
+      // callback related funcions
+      void CallSourceReportStart(const std::string &text);
+      void CallSourceReportEnd(const std::string &text);
 
       // After all, APPL_HIGH might be more appropriate, because we suggest
       // the user what he should do and if it does not work, it's his job to
@@ -149,6 +157,33 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue CallbackProgressPackage (const YCPString& func);
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackDonePackage (const YCPString& func);
+
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackStartDeltaDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressDeltaDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProblemDeltaDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackStartDeltaApply( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressDeltaApply( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProblemDeltaApply( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackStartPatchDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressPatchDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProblemPatchDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackFinishDeltaDownload( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackFinishDeltaApply( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackFinishPatchDownload( const YCPString& func);
+
+	// backward compatibity
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackStartDownload (const YCPString& func);
 	/* TYPEINFO: void(string) */
@@ -156,13 +191,49 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackDoneDownload (const YCPString& func);
 	/* TYPEINFO: void(string) */
-        YCPValue CallbackStartSourceRefresh( const YCPString& func);
+	YCPValue CallbackSourceCreateEndProbe( const YCPString& func);
 	/* TYPEINFO: void(string) */
-        YCPValue CallbackProgressSourceRefresh( const YCPString& func);
+	YCPValue CallbackSourceCreateProgressData( const YCPString& func);
 	/* TYPEINFO: void(string) */
-        YCPValue CallbackErrorSourceRefresh( const YCPString& func);
+	 YCPValue CallbackStartSourceRefresh( const YCPString& func);
 	/* TYPEINFO: void(string) */
-        YCPValue CallbackDoneSourceRefresh( const YCPString& func);
+	 YCPValue CallbackProgressSourceRefresh( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	 YCPValue CallbackErrorSourceRefresh( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	 YCPValue CallbackDoneSourceRefresh( const YCPString& func);
+
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateStart( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateProgress( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateError( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateEnd( const YCPString& func);
+
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceProbeStart( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceProbeFailed( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceProbeSucceeded( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceProbeEnd( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceProbeProgress( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceProbeError( const YCPString& func);
+
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceReportStart( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceReportProgress( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceReportError( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceReportEnd( const YCPString& func);
+
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackMediaChange (const YCPString& func);
 	/* TYPEINFO: void(string) */
@@ -221,6 +292,10 @@ class PkgModuleFunctions : public Y2Namespace
 	// source related
 	/* TYPEINFO: boolean(boolean)*/
         YCPValue SourceStartManager (const YCPBoolean&);
+	/* TYPEINFO: boolean()*/
+	YCPValue SourceRestore();
+	/* TYPEINFO: boolean()*/
+	YCPValue SourceLoad();
 	/* TYPEINFO: integer(string,string)*/
 	YCPValue SourceCreate (const YCPString&, const YCPString&);
 	/* TYPEINFO: integer(string,string)*/
@@ -462,6 +537,8 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue YouRemovePackages ();
 	/* TYPEINFO: boolean(string,symbol)*/
         YCPValue ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r );
+	/* TYPEINFO: boolean(string,symbol,string,string)*/
+	YCPValue ResolvableInstallArchVersion( const YCPString& name_r, const YCPSymbol& kind_r, const YCPString& arch, const YCPString& vers );
 	/* TYPEINFO: boolean(string,symbol)*/
         YCPValue ResolvableRemove( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: boolean(string,symbol,boolean)*/

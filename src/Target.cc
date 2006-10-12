@@ -92,7 +92,7 @@ PkgModuleFunctions::TargetInitialize (const YCPString& root)
 
     try
     {
-        zypp_ptr()->initTarget(r);
+        zypp_ptr()->initializeTarget(r);
     }
     catch (zypp::Exception & excpt)
     {
@@ -360,17 +360,57 @@ PkgModuleFunctions::TargetProducts ()
 
     try
     {
-        ResStore target_prods = zypp_ptr()->target()->resolvablesByKind(ResTraits<Product>::kind);
-        
-        for (ResStore::const_iterator it = target_prods.begin(); it != target_prods.end(); ++it)
+        for (ResStore::resfilter_const_iterator it = zypp_ptr()->target()->byKindBegin(ResTraits<Product>::kind); it != zypp_ptr()->target()->byKindEnd(ResTraits<Product>::kind); ++it)
         {
           zypp::Product::constPtr product = asKind<const zypp::Product>( *it );
 #warning TargetProducts does not return all keys
           YCPMap prod;
           // see also PkgModuleFunctions::Descr2Map and Product.ycp::Product
+// FIXME unify with code in Pkg::ResolvablePropertiesEx
           prod->add( YCPString("name"), YCPString( product->name() ) );
           prod->add( YCPString("version"), YCPString( product->edition().version() ) );
-          prod->add( YCPString("relnotesurl"), YCPString( product->releaseNotesUrl().asString() ) );
+	  prod->add(YCPString("category"), YCPString(product->category()));
+	  prod->add(YCPString("vendor"), YCPString(product->vendor()));
+	  prod->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
+	  std::string product_summary = product->summary();
+	  if (product_summary.size() > 0)
+	  {
+	    prod->add(YCPString("display_name"), YCPString(product_summary));
+	  }
+	  std::string product_shortname = product->shortName();
+	  if (product_shortname.size() > 0)
+	  {
+	    prod->add(YCPString("short_name"), YCPString(product_shortname));
+	  }
+	  // use summary for the short name if it's defined
+	  else if (product_summary.size() > 0)
+	  {
+	    prod->add(YCPString("short_name"), YCPString(product_summary));
+	  }
+	  prod->add(YCPString("description"), YCPString((*it)->description()));
+
+	  std::string resolvable_summary = (*it)->summary();
+	  if (resolvable_summary.size() > 0)
+	  {
+	    prod->add(YCPString("summary"), YCPString((*it)->summary()));
+	  }
+	  YCPList updateUrls;
+	  std::list<zypp::Url> pupdateUrls = product->updateUrls();
+	  for (std::list<zypp::Url>::const_iterator it = pupdateUrls.begin(); it != pupdateUrls.end(); ++it)
+	  {
+	    updateUrls->add(YCPString(it->asString()));
+	  }
+	  prod->add(YCPString("update_urls"), updateUrls);
+
+	  YCPList flags;
+	  std::list<std::string> pflags = product->flags();
+	  for (std::list<std::string>::const_iterator flag_it = pflags.begin();
+	    flag_it != pflags.end(); ++flag_it)
+	  {
+	    flags->add(YCPString(*flag_it));
+	  }
+	  prod->add(YCPString("flags"), flags);
+
           products->add(prod);
         }
     }
@@ -406,6 +446,17 @@ PkgModuleFunctions::TargetRebuildDB ()
     return YCPBoolean(true);
 }
 
+// helper funtion
+// initialize the disk usage counter with the current values from the system
+void PkgModuleFunctions::SetCurrentDU()
+{
+    // read data from system
+    zypp::DiskUsageCounter::MountPointSet system = zypp::DiskUsageCounter::detectMountPoints();
+
+    // set the mount points
+    zypp_ptr()->setPartitions(system);
+}
+	
 
 /** ------------------------
  *
@@ -431,7 +482,9 @@ PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
     // remember partitioning
     if (dirlist->size() == 0)
     {
-	return YCPError ("Bad args to Pkg::TargetInitDU");
+	y2milestone("Initializing Disk Usage couter from the system");
+	SetCurrentDU();
+	return YCPVoid();
     }
 
     zypp::DiskUsageCounter::MountPointSet mount_points;
@@ -565,13 +618,10 @@ PkgModuleFunctions::TargetGetDU ()
 	    // mount points have not been defined
 	    y2warning("Pkg::TargetDUInit() has not been called, using data from system...");
 
-	    // read data from system
-	    zypp::DiskUsageCounter::MountPointSet system = zypp::DiskUsageCounter::detectMountPoints();
+	    // set the values from the system
+	    SetCurrentDU();
 
-	    // set the mount points
-	    zypp_ptr()->setPartitions(system);
-	
-	    // try again
+	    // try it again
 	    mps = zypp_ptr()->diskUsage();
 	}
 

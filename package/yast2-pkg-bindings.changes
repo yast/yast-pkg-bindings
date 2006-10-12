@@ -1,8 +1,98 @@
 -------------------------------------------------------------------
-Fri Aug  4 15:32:22 CEST 2006 - dmacvicar@suse.de
+Thu Sep 28 14:01:47 CEST 2006 - schubi@suse.de
+
+- patch autoselect: select only the latest needed patch if
+  patches are needed with the same name and different editions.
+  Bug: 206927
+
+-------------------------------------------------------------------
+Fri Sep 22 14:37:58 CEST 2006 - lslezak@suse.cz
+
+- added missing download callback handlers (lost during
+  implementation of feature #1466)
+- 2.13.96
+
+-------------------------------------------------------------------
+Mon Sep 18 15:40:35 CEST 2006 - lslezak@suse.cz
+
+- new source callbacks (feature #1466), require libzypp >= 2.1.0
+- 2.13.95
+
+-------------------------------------------------------------------
+Wed Aug 30 09:35:41 CEST 2006 - lslezak@suse.cz
+
+- synced to the new zypp API (keyring, callbacks)
+- require libzypp >= 2.0.0 (#202397)
+- 2.13.94
+
+-------------------------------------------------------------------
+Mon Aug 21 11:06:29 CEST 2006 - lslezak@suse.cz
+
+- new bindings SourceRestore() and SourceLoad() (#199738)
+- TargetInitDU([]) sets the current disk usage (#197497)
+- 2.13.93
+
+-------------------------------------------------------------------
+Tue Aug 15 12:48:52 CEST 2006 - lslezak@suse.cz
+
+- 2.13.92
+
+-------------------------------------------------------------------
+Fri Aug 11 10:01:44 CEST 2006 - lslezak@suse.cz
+
+- new finish callbacks: Callback{Delta,Patch}Finish*()
+
+-------------------------------------------------------------------
+Thu Aug 10 13:58:56 CEST 2006 - lslezak@suse.cz
+
+- new callbacks: CallbackSourceCreate*() functions
+
+-------------------------------------------------------------------
+Wed Aug  9 14:53:24 CEST 2006 - jsrain@suse.cz
+
+- let TargetProducts return more data (#66046)
+
+-------------------------------------------------------------------
+Wed Aug  9 09:23:26 CEST 2006 - lslezak@suse.cz
+
+- built-in ResolvableInstallArch() has been changed to
+  ResolvableInstallArchVersion() - set architecture and version of
+  the installed resolvable (#186912)
+
+-------------------------------------------------------------------
+Tue Aug  8 14:03:16 CEST 2006 - lslezak@suse.cz
+
+- new callbacks: patch and delta file progress
+
+-------------------------------------------------------------------
+Tue Aug  8 12:40:00 CEST 2006 - jsrain@suse.cz
+
+- let PkgCommit return more data about remaining resolvables
+  (#186912)
+
+-------------------------------------------------------------------
+Mon Aug  7 18:09:34 CEST 2006 - dmacvicar@suse.de
+
+- use the new initializeTarget method for TargetInitialize
+- require zypp version 2.0.0 
+
+-------------------------------------------------------------------
+Mon Aug  7 17:01:56 CEST 2006 - lslezak@suse.cz
+
+- new built-in ResolvableInstallArch() - select architecture of
+  the installed resolvable (#186912)
+
+-------------------------------------------------------------------
+Mon Aug  7 16:11:25 CEST 2006 - dmacvicar@suse.de
 
 - add TargetInitialize, TargetLoad, deprecate TargetInit.
-- port TargetProduct to new zypp api 
+- port TargetProduct to new zypp api
+- 2.13.91 
+
+-------------------------------------------------------------------
+Thu Aug  3 09:13:50 CEST 2006 - mvidner@suse.cz
+
+- Fixed makefiles for make 3.81
 - 2.13.90
 
 -------------------------------------------------------------------

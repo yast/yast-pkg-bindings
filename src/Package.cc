@@ -541,9 +541,11 @@ struct ProvideProcess
     zypp::PoolItem_Ref item;
     zypp::Arch _architecture;
     zypp::ResStatus::TransactByValue whoWantsIt;
+    std::string version;
+    bool onlyNeeded;
 
-    ProvideProcess( zypp::Arch arch )
-	: _architecture( arch ), whoWantsIt(zypp::ResStatus::APPL_HIGH)
+    ProvideProcess( zypp::Arch arch, const std::string &vers, const bool oNeeded)
+	: _architecture( arch ), whoWantsIt(zypp::ResStatus::APPL_HIGH), version(vers), onlyNeeded(oNeeded)
     { }
 
     bool operator()( zypp::PoolItem provider )
@@ -553,7 +555,15 @@ struct ProvideProcess
         // 3. best edition
         //  see QueueItemRequire in zypp/solver/detail, RequireProcess
 
-	if (!provider.status().isInstalled())
+	// check the version if it's specified
+	if (!version.empty() && version != provider->edition().asString())
+	{
+	    y2milestone("Skipping version %s (requested: %s)", provider->edition().asString().c_str(), version.c_str());
+	    return true;
+	}
+
+	if (!provider.status().isInstalled()
+	    && (!onlyNeeded || provider.status().isNeeded()) ) // take only needed items (e.G. needed patches)
 	{
 	    // deselect the item if it's already selected,
 	    // only one item should be selected
@@ -588,11 +598,12 @@ struct ProvideProcess
 */
 
 bool
-PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind)
+PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
+				       const std::string & version ,const bool onlyNeeded)
 {
     try
     {
-	ProvideProcess info( zypp_ptr()->architecture() );
+	ProvideProcess info( architecture, version, onlyNeeded);
 	info.whoWantsIt = whoWantsIt;
 
 	invokeOnEach( zypp_ptr()->pool().byNameBegin( name ),
@@ -726,7 +737,7 @@ PkgModuleFunctions::DoProvide (const YCPList& tags)
         {
             if (tags->value(i)->isString())
             {
-                DoProvideNameKind (tags->value(i)->asString()->value(), zypp::ResTraits<zypp::Package>::kind);
+                DoProvideNameKind (tags->value(i)->asString()->value(), zypp::ResTraits<zypp::Package>::kind, zypp_ptr()->architecture(), "");
             }
             else
             {
@@ -1634,9 +1645,8 @@ PkgModuleFunctions::PkgInstall (const YCPString& p)
 
     // ensure installation of the 'best' architecture
 
-    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::Package>::kind) );
+    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::Package>::kind, zypp_ptr()->architecture(), "") );
 }
-
 
 /**
    @builtin PkgSrcInstall
@@ -1655,7 +1665,7 @@ PkgModuleFunctions::PkgSrcInstall (const YCPString& p)
 
     // ensure installation of the 'best' architecture
 
-    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::SrcPackage>::kind) );
+    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::SrcPackage>::kind, zypp_ptr()->architecture(), "" ) );
 }
 
 
@@ -2185,6 +2195,10 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 	    resolvable->add (YCPString ("kind"), YCPSymbol ("patch"));
 	else
 	    resolvable->add (YCPString ("kind"), YCPSymbol ("package"));
+	resolvable->add (YCPString ("arch"),
+	    YCPString (it->resolvable()->arch().asString()));
+	resolvable->add (YCPString ("version"),
+	    YCPString (it->resolvable()->edition().asString()));
 	remlist->add(resolvable);
     }
     ret->add(remlist);

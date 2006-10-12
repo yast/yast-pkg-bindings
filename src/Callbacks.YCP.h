@@ -70,8 +70,19 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_StartConvertDb, CB_ProgressConvertDb, CB_NotifyConvertDb, CB_StopConvertDb,
       CB_StartProvide, CB_ProgressProvide, CB_DoneProvide,
       CB_StartPackage, CB_ProgressPackage, CB_DonePackage,
-      CB_StartDownload, CB_ProgressDownload, CB_DoneDownload,
+
+      CB_SourceCreateStart, CB_SourceCreateProgress, CB_SourceCreateError, CB_SourceCreateEnd,
+
       CB_StartSourceRefresh, CB_ErrorSourceRefresh, CB_DoneSourceRefresh, CB_ProgressSourceRefresh,
+      CB_StartDeltaDownload, CB_ProgressDeltaDownload, CB_ProblemDeltaDownload,
+      CB_StartDeltaApply, CB_ProgressDeltaApply, CB_ProblemDeltaApply,
+      CB_StartPatchDownload, CB_ProgressPatchDownload, CB_ProblemPatchDownload,
+      CB_FinishDeltaDownload, CB_FinishDeltaApply, CB_FinishPatchDownload,
+      CB_StartDownload, CB_ProgressDownload, CB_DoneDownload,
+
+      CB_SourceProbeStart, CB_SourceProbeFailed, CB_SourceProbeSucceeded, CB_SourceProbeEnd, CB_SourceProbeProgress, CB_SourceProbeError, 
+      CB_SourceReportStart, CB_SourceReportProgress, CB_SourceReportError, CB_SourceReportEnd, 
+
       CB_MediaChange,
       CB_SourceChange,
       CB_ResolvableReport,
@@ -117,10 +128,40 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( StartDownload );
 	ENUM_OUT( ProgressDownload );
 	ENUM_OUT( DoneDownload );
-        ENUM_OUT( StartSourceRefresh );
-        ENUM_OUT( ErrorSourceRefresh );
-        ENUM_OUT( DoneSourceRefresh );
+
+	ENUM_OUT( SourceCreateStart );
+	ENUM_OUT( SourceCreateProgress );
+	ENUM_OUT( SourceCreateError );
+	ENUM_OUT( SourceCreateEnd );
+
+	ENUM_OUT( SourceProbeStart );
+	ENUM_OUT( SourceProbeFailed );
+	ENUM_OUT( SourceProbeSucceeded );
+	ENUM_OUT( SourceProbeEnd );
+	ENUM_OUT( SourceProbeProgress );
+	ENUM_OUT( SourceProbeError );
+
+	ENUM_OUT( SourceReportStart );
+	ENUM_OUT( SourceReportProgress );
+	ENUM_OUT( SourceReportError );
+	ENUM_OUT( SourceReportEnd );
+
+	ENUM_OUT( StartSourceRefresh );
+	ENUM_OUT( ErrorSourceRefresh );
+	ENUM_OUT( DoneSourceRefresh );
 	ENUM_OUT( ProgressSourceRefresh );
+	ENUM_OUT( StartDeltaDownload );
+	ENUM_OUT( ProgressDeltaDownload );
+	ENUM_OUT( ProblemDeltaDownload );
+	ENUM_OUT( StartDeltaApply );
+	ENUM_OUT( ProgressDeltaApply );
+	ENUM_OUT( ProblemDeltaApply );
+	ENUM_OUT( StartPatchDownload );
+	ENUM_OUT( ProgressPatchDownload );
+	ENUM_OUT( ProblemPatchDownload );
+	ENUM_OUT( FinishDeltaDownload );
+	ENUM_OUT( FinishDeltaApply );
+	ENUM_OUT( FinishPatchDownload );
 	ENUM_OUT( MediaChange );
 	ENUM_OUT( SourceChange );
 	ENUM_OUT( YouProgress );

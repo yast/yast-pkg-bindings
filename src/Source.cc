@@ -32,6 +32,7 @@
 #include <PkgModuleFunctions.h>
 
 #include <Callbacks.h>
+#include <Callbacks.YCP.h>
 
 #include <zypp/SourceManager.h>
 #include <zypp/SourceFactory.h>
@@ -42,6 +43,47 @@
 #include <zypp/Pathname.h>
 
 #include <stdio.h> // snprintf
+
+
+/*
+  Textdomain "pkg-bindings"
+*/
+
+void PkgModuleFunctions::CallSourceReportStart(const std::string &text)
+{
+    // get the YCP callback handler
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportStart);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// add parameters
+	ycp_handler->appendParameter( YCPInteger(0LL) );
+	ycp_handler->appendParameter( YCPString("") );
+	ycp_handler->appendParameter( YCPString(text) );
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+}
+
+void PkgModuleFunctions::CallSourceReportEnd(const std::string &text)
+{
+    // get the YCP callback handler for end event
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportEnd);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// add parameters
+	ycp_handler->appendParameter( YCPInteger(0LL) );
+	ycp_handler->appendParameter( YCPString("") );
+	ycp_handler->appendParameter( YCPString(text) );
+	ycp_handler->appendParameter( YCPString("NO_ERROR") );
+	ycp_handler->appendParameter( YCPString("") );
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+}
 
 /**
  * Logging helper:
@@ -78,25 +120,23 @@ PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
     return YCPBoolean( true );
 }
 
+
 /****************************************************************************************
- * @builtin SourceStartManager
+ * @builtin SourceRestore
  *
- * @short Make sure the InstSrcManager is up and knows all available InstSrces.
+ * @short Restore the sources from the persistent store
  * @description
- * Make sure the InstSrcManager is up and knows all available InstSrces.
- * Depending on the value of autoEnable, InstSources may be enabled on the
- * fly. It's safe to call this multiple times, and once the InstSources are
- * actually enabled, it's even cheap (enabling an InstSrc is expensive).
+ * Make sure the Source Manager is up and knows all available installation sources.
+ * It's safe to call this multiple times, and once the installation sources are
+ * actually enabled, it's even cheap
  *
- * @param boolean autoEnable If true, all InstSrces are enabled according to their default.
- * If false, InstSrces will be created in disabled state, and remain unchanged if
- * the InstSrcManager is already up.
- *
- * @return boolean
+ * @return boolean True on success
  **/
 YCPValue
-PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
+PkgModuleFunctions::SourceRestore()
 {
+    CallSourceReportStart(_("Downloading files..."));
+
     bool success = true;
 
     try {
@@ -111,7 +151,7 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
     catch (const zypp::FailedSourcesRestoreException& excpt)
     {
 	// FIXME: assuming the sources are already initialized
-	y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
+	y2error ("Error in SourceRestore: %s", excpt.asString().c_str());
 	_last_error.setLastError(excpt.asUserString());
 	_broken_sources = excpt.aliases();
 	success = false;
@@ -124,53 +164,117 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
     catch (const zypp::Exception& excpt)
     {
 	// FIXME: assuming the sources are already initialized
-	y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
+	y2error ("Error in SourceRestore: %s", excpt.asString().c_str());
 	_last_error.setLastError(excpt.asUserString());
 	success = false;
     }
 
-    if( enable->value() )
-    {
-	std::list<zypp::SourceManager::SourceId> ids;
+    CallSourceReportEnd(_("Downloading files..."));
 
-	// go over all sources and get resolvables
+    return YCPBoolean(success);
+}
+
+
+/****************************************************************************************
+ * @builtin SourceLoad
+ *
+ * @short Load resolvables from the installation sources
+ * @description
+ * Refresh the pool - Add/remove resolvables from the enabled/disabled sources.
+ * @return boolean True on success
+ **/
+YCPValue
+PkgModuleFunctions::SourceLoad()
+{
+    bool success = true;
+
+    CallSourceReportStart(_("Parsing files..."));
+
+    std::list<zypp::SourceManager::SourceId> ids;
+
+    // get all enabled sources
+    try
+    {
+	ids = zypp::SourceManager::sourceManager()->enabledSources();
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	y2error ("Error in SourceLoad: %s", excpt.asString().c_str());
+	_last_error.setLastError(excpt.asUserString());
+	success = false;
+    }
+   
+    // load resolvables the enabled sources 
+    for( std::list<zypp::SourceManager::SourceId>::iterator it = ids.begin(); it != ids.end(); ++it)
+    {
 	try
 	{
-	    ids = zypp::SourceManager::sourceManager()->enabledSources();
-	}
-	catch (const zypp::Exception& excpt)
-	{
-	    y2error ("Error in SourceStartManager: %s", excpt.asString().c_str());
-	    _last_error.setLastError(excpt.asUserString());
-	    success = false;
-	}
-	
-	for( std::list<zypp::SourceManager::SourceId>::iterator it = ids.begin(); it != ids.end(); ++it)
-	{
+	    zypp::Source_Ref src = logFindSource(*it);
 	    try
 	    {
-		zypp::Source_Ref src = logFindSource(*it);
-		try
+		if( src.enabled() )
 		{
-		    if( src.enabled() )
-			zypp_ptr()->addResolvables (src.resolvables());
+		    zypp_ptr()->addResolvables (src.resolvables());
 		}
-		catch (const zypp::Exception& excpt)
+		else
 		{
-		    std::string url = src.url().asString();
-		    y2error ("Error for %s: %s", url.c_str(), excpt.asString().c_str());
-		    _last_error.setLastError(url + ": " + excpt.asUserString());
-		    success = false;
+		    // remove the resolvables if they have been added
+		    if (src.resStoreInitialized ())
+		    {
+		        zypp_ptr()->removeResolvables(src.resolvables());
+		    }
 		}
+			
 	    }
 	    catch (const zypp::Exception& excpt)
 	    {
+		std::string url = src.url().asString();
+		y2error ("Error for %s: %s", url.c_str(), excpt.asString().c_str());
+		_last_error.setLastError(url + ": " + excpt.asUserString());
 		success = false;
 	    }
 	}
+	catch (const zypp::Exception& excpt)
+	{
+	    success = false;
+	}
     }
 
-    return YCPBoolean( success );
+    CallSourceReportEnd(_("Parsing files..."));
+
+    return YCPBoolean(success);
+}
+
+
+/****************************************************************************************
+ * @builtin SourceStartManager
+ *
+ * @short Start the source manager - restore the sources and load the resolvables
+ * @description
+ * Calls SourceRestore(), if argument enable is true SourceLoad() is called.
+ * @param boolean enable If true the resolvables are loaded from the enabled sources
+ *
+ * @return boolean
+ **/
+YCPValue
+PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
+{
+    YCPValue success = SourceRestore();
+
+    // the restoration has failed
+    if (!success->asBoolean()->value())
+    {
+	// return false
+	return success;
+    }
+
+    if( enable->value() )
+    {
+	// enable all sources and load the resolvables
+	success = SourceLoad();
+    }
+
+    return success;
 }
 
 /****************************************************************************************
@@ -573,6 +677,7 @@ YCPValue
 PkgModuleFunctions::SourceProduct (const YCPInteger& id)
 {
     /* TODO FIXME */
+  y2warning("Pkg::SourceProduct() is obsoleted!");
   return YCPMap();
 }
 
@@ -592,29 +697,45 @@ PkgModuleFunctions::SourceProduct (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
+    CallSourceReportStart(_("Downloading file..."));
+
     zypp::Source_Ref src;
+    bool found = true;
 
     try {
 	src = logFindSource(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
-	return YCPVoid ();
+	found = false;
     }
 
     zypp::filesystem::Pathname path;
 
-    try {
-    	path = src.provideFile(f->value(), mid->asInteger()->value());
-    }
-    catch (const zypp::Exception& excpt)
+    if (found)
     {
-	_last_error.setLastError(excpt.asUserString());
-	y2milestone ("File not found: %s", f->value_cstr());
+	try {
+	    path = src.provideFile(f->value(), mid->asInteger()->value());
+	}
+	catch (const zypp::Exception& excpt)
+	{
+	    _last_error.setLastError(excpt.asUserString());
+	    y2milestone ("File not found: %s", f->value_cstr());
+	    found = false;
+	}
+    }
+
+    CallSourceReportEnd(_("Downloading file..."));
+
+    if (found)
+    {
+	return YCPString(path.asString());
+    }
+    else
+    {
 	return YCPVoid();
     }
 
-    return YCPString(path.asString());
 }
 
 /****************************************************************************************
@@ -634,6 +755,8 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
 YCPValue
 PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
+    CallSourceReportStart(_("Downloading files..."));
+
     YCPValue ret;
 
     extern ZyppRecipients::MediaChangeSensitivity _silent_probing;
@@ -645,30 +768,36 @@ PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPIn
     _silent_probing = ZyppRecipients::MEDIA_CHANGE_OPTIONALFILE;
 
     zypp::Source_Ref src;
+    bool found = true;
 
     try {
 	src = logFindSource(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
-	return YCPVoid ();
+	found = false;
     }
 
     zypp::filesystem::Pathname path;
-    bool found = true;
 
-    try {
-    	path = src.provideFile(f->value(), mid->asInteger()->value());
-    }
-    catch (const zypp::Exception& excpt)
+    if (found)
     {
-	found = false;
-	// the file is optional, don't set error flag here
+	try {
+	    path = src.provideFile(f->value(), mid->asInteger()->value());
+	}
+	catch (const zypp::Exception& excpt)
+	{
+	    found = false;
+	    // the file is optional, don't set error flag here
+	}
     }
 
  
     // set the original probing value
     _silent_probing = _silent_probing_old;
+
+
+    CallSourceReportEnd(_("Downloading files..."));
 
     if (found)
     {
@@ -1113,7 +1242,9 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
 	    src.enable();
 
+	    CallSourceReportStart(_("Parsing files..."));
     	    zypp_ptr()->addResolvables (src.resolvables());
+	    CallSourceReportEnd(_("Parsing files..."));
 
 	    // return the id of the first product
 	    if ( ret == -1 )
@@ -1138,7 +1269,9 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
 	src.enable();
 
+	CallSourceReportStart(_("Parsing files..."));
     	zypp_ptr()->addResolvables (src.resolvables());
+	CallSourceReportEnd(_("Parsing files..."));
     }
     catch ( const zypp::Exception& excpt)
     {

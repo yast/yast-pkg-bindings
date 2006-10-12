@@ -51,7 +51,10 @@ PkgModuleFunctions::ImportGPGKey(const YCPString& filename, const YCPBoolean& tr
 
     try
     {
-	zypp_ptr()->keyRing()->importKey(file, trusted_key);
+	zypp::Pathname pname(file);
+	zypp::PublicKey pubkey(pname);
+
+	zypp_ptr()->keyRing()->importKey(pubkey, trusted_key);
     }
     catch (...)
     {
