@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Oct 13 08:21:54 CEST 2006 - lslezak@suse.cz
+
+- Fixed callback prototypes (revealed by -Woverloaded-virtual)
+- 2.13.98
+
+-------------------------------------------------------------------
 Thu Oct 12 16:51:13 CEST 2006 - mvidner@suse.cz
 
 - Use -Woverloaded-virtual to warn about mis-overriden callbacks
