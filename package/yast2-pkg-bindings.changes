@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Oct 13 14:58:04 CEST 2006 - lslezak@suse.cz
+
+- fixed SourceProductData() binding (#201742)
+- require libzypp >= 2.4.0
+- 2.13.99
+
+-------------------------------------------------------------------
 Fri Oct 13 13:58:25 CEST 2006 - lslezak@suse.cz
 
 - added script callbacks (feature #100233)

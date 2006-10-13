@@ -596,74 +596,61 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
  *
  * <code>
  * $[
+ * "label"		: YCPString,
+ * "vendor"		: YCPString,
  * "productname"	: YCPString,
  * "productversion"	: YCPString,
- * "baseproductname"	: YCPString,
- * "baseproductversion"	: YCPString,
- * "vendor"		: YCPString,
- * "defaultbase"	: YCPString,
- * "architectures"	: YCPList(YCPString),
- * "requires"		: YCPString,
- * "linguas"		: YCPList(YCPString),
- * "label"		: YCPString,
- * "labelmap"		: YCPMap(YCPString lang,YCPString label),
- * "language"		: YCPString,
- * "timezone"		: YCPString,
- * "descrdir"		: YCPString,
- * "datadir"		: YCPString
+ * "relnotesurl"	: YCPString,
  * ];
  * </code>
  *
  * @return map
  **/
 YCPValue
-PkgModuleFunctions::SourceProductData (const YCPInteger& id)
+PkgModuleFunctions::SourceProductData (const YCPInteger& src_id)
 {
-  zypp::Source_Ref src;
+    YCPMap ret;
 
-  try {
-	src = logFindSource(id->value());
-  }
-  catch (const zypp::Exception& excpt)
-  {
-      return YCPVoid ();
-  }
-
-#warning product category handling???
-  zypp::Product::constPtr product;
-  
-  try {
-    zypp::ResStore products (src.resolvables(zypp::ResTraits<zypp::Product>::kind));
-
-    if( products.empty() )
+    try
     {
-	y2error ("Product for source '%lld' not found", id->asInteger()->value());
-	return YCPVoid();
+	zypp::Source_Ref src = logFindSource(src_id->value());
+
+	// find a product for the given source
+	zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Product>::kind);
+
+	for( ; it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind) ; ++it) 
+	{
+	    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
+
+	    if( product->source() == src )
+	    {
+		ret->add( YCPString("label"),		YCPString( product->summary() ) );
+		ret->add( YCPString("vendor"),		YCPString( product->vendor() ) );
+		ret->add( YCPString("productname"),	YCPString( product->name() ) );
+		ret->add( YCPString("productversion"),	YCPString( product->edition().version() ) );
+		ret->add( YCPString("relnotesurl"), 	YCPString( product->releaseNotesUrl().asString()));
+
+		#warning SourceProductData not finished
+		/*
+		  data->add( YCPString("datadir"),		YCPString( descr->content_datadir().asString() ) );
+		TODO (?): "baseproductname", "baseproductversion", "defaultbase", "architectures",
+		"requires", "linguas", "labelmap", "language", "timezone", "descrdir", "datadir"
+		*/
+
+		break;
+	    }
+	}
+
+	if( it == zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind) )
+	{
+	    y2error ("Product for source '%lld' not found", src_id->value());
+	}
+    }
+    catch (...)
+    {
     }
 
-    product = boost::dynamic_pointer_cast<const zypp::Product>( *(products.begin()) );
-  } 
-  catch (const zypp::Exception& excpt) {
-	y2error ("Source %lld failed to provide products", id->asInteger()->value());
-	_last_error.setLastError(excpt.asUserString());
-	return YCPVoid();
-  }
-
-  y2debug ("Found");
-
-  YCPMap data;
-
-  data->add( YCPString("label"),		YCPString( product->summary() ) );
-  data->add( YCPString("vendor"),		YCPString( product->vendor() ) );
-  data->add( YCPString("productname"),		YCPString( product->name() ) );
-  data->add( YCPString("productversion"),	YCPString( product->edition().version() ) );
-  data->add( YCPString("relnotesurl"), 		YCPString( product->releaseNotesUrl().asString()));
-
-#warning SourceProductData not finished
-/*
-  data->add( YCPString("datadir"),		YCPString( descr->content_datadir().asString() ) );
-*/
-  return data;
+    return ret;
 }
 
 /****************************************************************************************
