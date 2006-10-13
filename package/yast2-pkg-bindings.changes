@@ -1,4 +1,22 @@
 -------------------------------------------------------------------
+Fri Oct 13 08:21:54 CEST 2006 - lslezak@suse.cz
+
+- Fixed callback prototypes (revealed by -Woverloaded-virtual)
+- 2.13.98
+
+-------------------------------------------------------------------
+Thu Oct 12 16:51:13 CEST 2006 - mvidner@suse.cz
+
+- Use -Woverloaded-virtual to warn about mis-overriden callbacks
+
+-------------------------------------------------------------------
+Thu Oct 12 13:13:03 CEST 2006 - lslezak@suse.cz
+
+- fixed media change callback signature to match zypp library
+  (#210208)
+- 2.13.97
+
+-------------------------------------------------------------------
 Thu Sep 28 14:01:47 CEST 2006 - schubi@suse.de
 
 - patch autoselect: select only the latest needed patch if

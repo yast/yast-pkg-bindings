@@ -33,6 +33,7 @@
 #include <zypp/Package.h>
 #include <zypp/Product.h>
 #include <zypp/KeyRing.h>
+#include <zypp/PublicKey.h>
 #include <zypp/Digest.h>
 #include <zypp/SourceManager.h>
 
@@ -114,7 +115,7 @@ namespace ZyppRecipients {
 	    return zypp::target::rpm::ConvertDBReport::progress(value, pth);
 	}
 
-	virtual void finish(zypp::Pathname path, zypp::target::rpm::ConvertDBReport::Error error, std::string reason)
+	virtual void finish(zypp::Pathname path, zypp::target::rpm::ConvertDBReport::Error error, const std::string &reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_StopConvertDb ) );
 	    if (callback._set) {
@@ -163,7 +164,7 @@ namespace ZyppRecipients {
 	    return zypp::target::rpm::RebuildDBReport::progress(value, pth);
 	}
 
-	virtual void finish(zypp::Pathname path, zypp::target::rpm::RebuildDBReport::Error error, std::string reason)
+	virtual void finish(zypp::Pathname path, zypp::target::rpm::RebuildDBReport::Error error, const std::string &reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_StopRebuildDb ) );
 	    if (callback._set) {
@@ -243,7 +244,7 @@ namespace ZyppRecipients {
         virtual Action problem(
           zypp::Resolvable::constPtr resolvable
           , zypp::target::rpm::InstallResolvableReport::Error error
-          , std::string description
+          , const std::string &description
           , zypp::target::rpm::InstallResolvableReport::RpmLevel level
         )
 	{
@@ -334,7 +335,7 @@ namespace ZyppRecipients {
 	    return zypp::target::rpm::RemoveResolvableReport::progress(value, resolvable);
 	}
 
-	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::RemoveResolvableReport::Error error, std::string reason)
+	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::RemoveResolvableReport::Error error, const std::string &reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
@@ -729,7 +730,7 @@ namespace ZyppRecipients {
     {
 	MediaChangeReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual Action requestMedia(zypp::Source_Ref source, unsigned mediumNr, zypp::media::MediaChangeReport::Error error, std::string description)
+	virtual Action requestMedia(zypp::Source_Ref source, unsigned mediumNr, zypp::media::MediaChangeReport::Error error, const std::string &description)
 	{
 	    if ( _silent_probing == MEDIA_CHANGE_DISABLE )
 		return zypp::media::MediaChangeReport::ABORT;
@@ -1298,27 +1299,27 @@ namespace ZyppRecipients {
     {
 	KeyRingSignal ( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-        virtual void trustedKeyAdded( const zypp::KeyRing &keyring, const std::string &keyid, const std::string &keyname, const std::string &fingerprint )
+	virtual void trustedKeyAdded( const zypp::KeyRing &/*keyring*/, const zypp::PublicKey &key )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_TrustedKeyAdded) );
 
 	    if (callback._set)
 	    {
-		callback.addStr(keyid);
-		callback.addStr(keyname);
-                callback.addStr(fingerprint);
+		callback.addStr(key.id());
+		callback.addStr(key.name());
+                callback.addStr(key.fingerprint());
 	    }
 	}
 
-        virtual void trustedKeyRemoved( const zypp::KeyRing &keyring, const std::string &keyid, const std::string &keyname, const std::string &fingerprint )
+        virtual void trustedKeyRemoved( const zypp::KeyRing &/*keyring*/, const zypp::PublicKey &key )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_TrustedKeyRemoved) );
 
 	    if (callback._set)
 	    {
-		callback.addStr(keyid);
-		callback.addStr(keyname);
-                callback.addStr(fingerprint);
+		callback.addStr(key.id());
+		callback.addStr(key.name());
+                callback.addStr(key.fingerprint());
 	    }
 	}
     };
