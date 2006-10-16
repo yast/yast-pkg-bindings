@@ -83,6 +83,9 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_SourceProbeStart, CB_SourceProbeFailed, CB_SourceProbeSucceeded, CB_SourceProbeEnd, CB_SourceProbeProgress, CB_SourceProbeError, 
       CB_SourceReportStart, CB_SourceReportProgress, CB_SourceReportError, CB_SourceReportEnd, 
 
+      CB_ScriptStart, CB_ScriptProgress, CB_ScriptProblem, CB_ScriptFinish,
+      CB_Message,
+
       CB_MediaChange,
       CB_SourceChange,
       CB_ResolvableReport,
@@ -128,6 +131,12 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( StartDownload );
 	ENUM_OUT( ProgressDownload );
 	ENUM_OUT( DoneDownload );
+
+	ENUM_OUT( ScriptStart );
+	ENUM_OUT( ScriptProgress );
+	ENUM_OUT( ScriptProblem );
+	ENUM_OUT( ScriptFinish );
+	ENUM_OUT( Message );
 
 	ENUM_OUT( SourceCreateStart );
 	ENUM_OUT( SourceCreateProgress );

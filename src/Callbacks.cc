@@ -673,55 +673,90 @@ namespace ZyppRecipients {
 	}
     };
 
-/*
-  ///////////////////////////////////////////////////////////////////
-  // InstTargetCallbacks::ScriptExecCallback
-  ///////////////////////////////////////////////////////////////////
-  //
-#warning InstTargetCallbacks::ScriptExecCallback is actually YOU specific
-  // Actually a YouScriptProgress and the behaviour of percentage
-  // report is strange. Space for improvement (e.g. error reporting).
-  // Maybe provide a common YCP callback for ScriptExec and let
-  // YOU redirect it to YouScriptProgress, if this kind of report
-  // is desired.
-  //
-  struct ScriptExecReceive : public Recipient, public InstTargetCallbacks::ScriptExecCallback
-  {
-    ScriptExecReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-    virtual void reportbegin() {
-    }
-    virtual void reportend()   {
-    }
-    virtual void start( const Pathname & pkpath ) {
-      CB callback( ycpcb( YCPCallbacks::CB_YouScriptProgress ) );
-      if ( callback._set ) {
-	callback.addInt( 0 );
-	callback.evaluate();
-      }
-    }
-    **
-     * Execution time is unpredictable. ProgressData range will be set to
-     * [0:0]. Aprox. every half second progress is reported with incrementing
-     * counter value. If <CODE>false</CODE> is returned, execution is canceled.
-     **/
-/*  virtual bool progress( const ProgressData & prg ) {
-      CB callback( ycpcb( YCPCallbacks::CB_YouScriptProgress ) );
-      if ( callback._set ) {
-	callback.addInt( -1 );
-	return callback.evaluateBool();
-      }
-      return ScriptExecCallback::progress( prg ); // return default implementation
-    }
-    virtual void stop( PMError error ) {
-      CB callback( ycpcb( YCPCallbacks::CB_YouScriptProgress ) );
-      if ( callback._set ) {
-	callback.addInt( 100 );
-	callback.evaluate();
-      }
-    }
-  };
-*/
+    ///////////////////////////////////////////////////////////////////
+    // ScriptExecCallbacks
+    ///////////////////////////////////////////////////////////////////
+    struct ScriptExecReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::ScriptResolvableReport>
+    {
+	ScriptExecReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual void start( const zypp::Resolvable::constPtr &script_r, const zypp::Pathname &path_r, zypp::target::ScriptResolvableReport::Task task)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ScriptStart) );
+	    if ( callback._set )
+	    {
+		callback.addStr(script_r->name());
+		callback.addStr(script_r->edition().asString());
+		callback.addStr(script_r->arch().asString());
+		callback.addStr(path_r);
+		callback.addBool(task == zypp::target::ScriptResolvableReport::DO);
+		callback.evaluate();
+	    }
+	}
+       
+	virtual bool progress( zypp::target::ScriptResolvableReport::Notify ping, const std::string &out = std::string() )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ScriptProgress) );
+
+	    if ( callback._set )
+	    {
+		callback.addBool(ping == zypp::target::ScriptResolvableReport::PING);
+		callback.addStr(out);
+
+		// false = abort the script
+		return callback.evaluateBool();
+	    }
+	    else
+	    {
+		// return the default implementation
+		return zypp::target::ScriptResolvableReport::progress(ping, out);
+	    }
+	}
+
+	virtual void problem( const std::string &description )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ScriptProblem) );
+
+	    if ( callback._set )
+	    {
+		callback.addStr(description);
+		callback.evaluate();
+	    }
+	}
+
+	virtual void finish()
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ScriptFinish) );
+
+	    if ( callback._set )
+	    {
+		callback.evaluate();
+	    }
+	}
+    };
+
+    struct MessageReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::MessageResolvableReport>
+    {
+	MessageReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+        virtual void show(zypp::Message::constPtr message)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_Message) );
+
+	    if ( callback._set )
+	    {
+		zypp::Patch::constPtr p = message->patch();
+
+		callback.addStr(p->name());
+		callback.addStr(p->edition().asString());
+		callback.addStr(p->arch().asString());
+		callback.addStr(message->text().asString());
+
+		callback.evaluate();
+	    }
+	}
+    };
 
     ///////////////////////////////////////////////////////////////////
     // MediaChangeCallback
@@ -1353,6 +1388,10 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
     ZyppRecipients::MediaChangeReceive   _mediaChangeReceive;
     ZyppRecipients::DownloadProgressReceive _downloadProgressReceive;
 
+    // script/messages
+    ZyppRecipients::ScriptExecReceive	_scriptExecReceive;
+    ZyppRecipients::MessageReceive	_messageReceive;
+
     // source manager callback
     ZyppRecipients::SourceCreateReceive _sourceCreateReceive;
     ZyppRecipients::SourceReport	_sourceReport;
@@ -1381,6 +1420,8 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
       , _providePkgReceive( *this )
       , _mediaChangeReceive( *this )
       , _downloadProgressReceive( *this )
+      , _scriptExecReceive( *this )
+      , _messageReceive( *this )
       , _sourceCreateReceive( *this )
       , _sourceReport( *this )
       , _probeSourceReceive( *this )
@@ -1397,6 +1438,8 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_providePkgReceive.connect();
 	_mediaChangeReceive.connect();
 	_downloadProgressReceive.connect();
+	_scriptExecReceive.connect();
+	_messageReceive.connect();
 	_sourceCreateReceive.connect();
 	_sourceReport.connect();
 	_probeSourceReceive.connect();
@@ -1416,6 +1459,8 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_providePkgReceive.disconnect();
 	_mediaChangeReceive.disconnect();
 	_downloadProgressReceive.disconnect();
+	_scriptExecReceive.disconnect();
+	_messageReceive.disconnect();
 	_sourceCreateReceive.disconnect();
 	_sourceReport.disconnect();
 	_probeSourceReceive.disconnect();
@@ -1943,6 +1988,53 @@ YCPValue PkgModuleFunctions::CallbackProgressDownload( const YCPString& args ) {
 }
 YCPValue PkgModuleFunctions::CallbackDoneDownload( const YCPString& args ) {
     return SET_YCP_CB( CB_DoneDownload, args );
+}
+
+
+/**
+ * @builtin CallbackScriptStart
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string patch_name, string patch_version, string patch_arch, boolean installation)</code>. Parameter 'installation' is true when the script is called during installation of a patch, false means patch removal. The callback function is evaluated when a script (which is part of a patch) has been started.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackScriptStart( const YCPString& args ) {
+    return SET_YCP_CB( CB_ScriptStart, args );
+}
+/**
+ * @builtin CallbackScriptProgress
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(boolean ping, string output)</code>. If parameter 'ping' is true than there is no output available, but the script is still running (This functionality enables aborting the script). If it is false, 'output' contains (part of) the script output. The callback function is evaluated when a script is running.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackScriptProgress( const YCPString& args ) {
+    return SET_YCP_CB( CB_ScriptProgress, args );
+}
+/**
+ * @builtin CallbackScriptProblem
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string description)</code>. The callback function is evaluated when an error occurrs.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackScriptProblem( const YCPString& args ) {
+    return SET_YCP_CB( CB_ScriptProblem, args );
+}
+/**
+ * @builtin CallbackScriptFinish
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void()</code>. The callback function is evaluated when the script has been finished.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackScriptFinish( const YCPString& args ) {
+    return SET_YCP_CB( CB_ScriptFinish, args );
+}
+/**
+ * @builtin CallbackMessage
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string patch_name, string patch_version, string patch_arch, string message)</code>. The callback function is evaluated when a message which is part of a patch should be displayed.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackMessage( const YCPString& args ) {
+    return SET_YCP_CB( CB_Message, args );
 }
 
 YCPValue PkgModuleFunctions::CallbackStartSourceRefresh( const YCPString& args ) {

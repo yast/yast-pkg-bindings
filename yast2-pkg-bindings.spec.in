@@ -2,11 +2,11 @@
 
 @HEADER@
 BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer rpm-devel sgml-skel yast2-core-devel yast2-devtools boost boost-devel dbus-1-devel hal-devel
-BuildRequires: libzypp-devel >= 2.1.0
-BuildRequires: libzypp >= 2.1.0
+BuildRequires: libzypp-devel >= 2.4.0
+BuildRequires: libzypp >= 2.4.0
 
-# new API (delta and patch rpms, keyring, target, source callbacks...)
-Requires:	libzypp >= 2.1.0
+# new API (label of a source, script callbacks...)
+Requires:	libzypp >= 2.4.0
 
 Summary:	-
 
