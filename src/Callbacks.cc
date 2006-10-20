@@ -413,8 +413,8 @@ namespace ZyppRecipients {
 	    if (callback._set) {
 		callback.addInt( error );
 		callback.addStr( reason );
-		callback.addStr( std::string() ); // FIXME: on error name, for OK, local path
-		callback.evaluateStr(); // return value ignored by RpmDb
+		callback.addStr( resolvable->name() );
+		callback.evaluateStr(); // return value is ignored
 	    }
 	}
 
@@ -437,7 +437,7 @@ namespace ZyppRecipients {
 	    if (callback._set) {
 		callback.addInt( error );
 		callback.addStr( description );
-		callback.addStr( std::string() ); // FIXME: on error name, for OK, local path
+		callback.addStr( resolvable_ptr->name() );
                 std::string ret = callback.evaluateStr();
 
                 // "R" =  retry
@@ -445,6 +445,9 @@ namespace ZyppRecipients {
 
                 // "C" = cancel
                 if (ret == "C") return zypp::source::DownloadResolvableReport::ABORT;
+
+                // "I" = ignore
+                if (ret == "I") return zypp::source::DownloadResolvableReport::IGNORE;
 
                 // otherwise return the default value from the parent class
 	    }
@@ -658,7 +661,28 @@ namespace ZyppRecipients {
 
         virtual Action problem( const zypp::Url &file, zypp::media::DownloadProgressReport::Error error, const std::string &description)
 	{
-	    return zypp::media::DownloadProgressReport::ABORT;
+	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
+
+	    if (callback._set) {
+		callback.addInt( error );
+		callback.addStr( description );
+		callback.addStr( file.asString() ); // FIXME: on error name, for OK, local path
+                std::string ret = callback.evaluateStr();
+
+		y2milestone("DoneProvide result: %s", ret.c_str());
+
+                // "R" =  retry
+                if (ret == "R") return zypp::media::DownloadProgressReport::RETRY;
+
+                // "C" = cancel
+                if (ret == "C") return zypp::media::DownloadProgressReport::ABORT;
+
+                // "I" = cancel
+                if (ret == "I") return zypp::media::DownloadProgressReport::IGNORE;
+
+                // otherwise return the default value from the parent class
+	    }
+	    return zypp::media::DownloadProgressReport::problem(file, error, description);
 	}
 
         virtual void finish( const zypp::Url &file, zypp::media::DownloadProgressReport::Error error, const std::string &reason) 
@@ -1640,31 +1664,39 @@ YCPValue PkgModuleFunctions::CallbackSourceChange( const YCPString& args ) {
   return SET_YCP_CB( CB_SourceChange, args );
 }
 
+
 YCPValue PkgModuleFunctions::CallbackYouProgress( const YCPString& args ) {
-  return SET_YCP_CB( CB_YouProgress, args );
+  y2warning("Pkg::CallbackYouProgress is obsoleted, do not use it (empty implementation)!");
+  return YCPVoid();
 }
 
 YCPValue PkgModuleFunctions::CallbackYouPatchProgress( const YCPString& args ) {
-  return SET_YCP_CB( CB_YouPatchProgress, args );
+  y2warning("Pkg::CallbackYouPatchProgress is obsoleted, do not use it (empty implementation)!");
+  return YCPVoid();
 }
 
 YCPValue PkgModuleFunctions::CallbackYouError( const YCPString& args ) {
-  return SET_YCP_CB( CB_YouError, args );
+  y2warning("Pkg::CallbackYouError is obsoleted, do not use it (empty implementation)!");
+  return YCPVoid();
 }
 
 YCPValue PkgModuleFunctions::CallbackYouMessage( const YCPString& args ) {
-  return SET_YCP_CB( CB_YouMessage, args );
+  y2warning("Pkg::CallbackYouMessage is obsoleted, do not use it (empty implementation)!");
+  return YCPVoid();
 }
 
 YCPValue PkgModuleFunctions::CallbackYouLog( const YCPString& args ) {
-  return SET_YCP_CB( CB_YouLog, args );
+  y2warning("Pkg::CallbackYouLog is obsoleted, do not use it (empty implementation)!");
+  return YCPVoid();
 }
 
 YCPValue PkgModuleFunctions::CallbackYouExecuteYcpScript( const YCPString& args ) {
-  return SET_YCP_CB( CB_YouExecuteYcpScript, args );
+  y2warning("Pkg::CallbackYouExecuteYcpScript is obsoleted, do not use it (empty implementation)!");
+  return YCPVoid();
 }
 YCPValue PkgModuleFunctions::CallbackYouScriptProgress( const YCPString& args ) {
-  return SET_YCP_CB( CB_YouScriptProgress, args );
+  y2warning("Pkg::CallbackYouScriptProgress is obsoleted, do not use it (empty implementation)!");
+  return YCPVoid();
 }
 
 YCPValue PkgModuleFunctions::CallbackStartRebuildDb( const YCPString& args ) {
@@ -1994,7 +2026,7 @@ YCPValue PkgModuleFunctions::CallbackDoneDownload( const YCPString& args ) {
 /**
  * @builtin CallbackScriptStart
  * @short Register callback function
- * @param string func Name of the callback handler function. Required callback prototype is <code>void(string patch_name, string patch_version, string patch_arch, boolean installation)</code>. Parameter 'installation' is true when the script is called during installation of a patch, false means patch removal. The callback function is evaluated when a script (which is part of a patch) has been started.
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string patch_name, string patch_version, string patch_arch, string script_path, boolean installation)</code>. Parameter 'installation' is true when the script is called during installation of a patch, false means patch removal. The callback function is evaluated when a script (which is part of a patch) has been started.
  * @return void
  */
 YCPValue PkgModuleFunctions::CallbackScriptStart( const YCPString& args ) {
@@ -2038,19 +2070,19 @@ YCPValue PkgModuleFunctions::CallbackMessage( const YCPString& args ) {
 }
 
 YCPValue PkgModuleFunctions::CallbackStartSourceRefresh( const YCPString& args ) {
-    y2error("depracted callback, don't use it!");
+    y2warning("Pkg::CallbackStartSourceRefresh is obsoleted, do not use it (empty implementation)!");
     return YCPVoid();
 }
 YCPValue PkgModuleFunctions::CallbackProgressSourceRefresh( const YCPString& args ) {
-    y2error("depracted callback, don't use it!");
+    y2warning("Pkg::CallbackProgressSourceRefresh is obsoleted, do not use it (empty implementation)!");
     return YCPVoid();
 }
 YCPValue PkgModuleFunctions::CallbackErrorSourceRefresh( const YCPString& args ) {
-    y2error("depracted callback, don't use it!");
+    y2warning("Pkg::CallbackErrorSourceRefresh is obsoleted, do not use it (empty implementation)!");
     return YCPVoid();
 }
 YCPValue PkgModuleFunctions::CallbackDoneSourceRefresh( const YCPString& args ) {
-    y2error("depracted callback, don't use it!");
+    y2warning("Pkg::CallbackDoneSourceRefresh is obsoleted, do not use it (empty implementation)!");
     return YCPVoid();
 }
 

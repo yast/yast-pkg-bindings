@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Fri Oct 20 16:47:00 CEST 2006 - lslezak@suse.cz
+
+- added missing YCP callback evaluation (#213628)
+- DoneProvide callback - pass file name argument,
+  handle Ignore return value (#200084)
+- log a warning when an obsoleted YOU callback is registered
+- 2.13.100
+
+-------------------------------------------------------------------
 Fri Oct 13 14:58:04 CEST 2006 - lslezak@suse.cz
 
 - fixed SourceProductData() binding (#201742)
