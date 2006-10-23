@@ -89,13 +89,6 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_MediaChange,
       CB_SourceChange,
       CB_ResolvableReport,
-      CB_YouProgress,
-      CB_YouPatchProgress,
-      CB_YouError,
-      CB_YouMessage,
-      CB_YouLog,
-      CB_YouExecuteYcpScript,
-      CB_YouScriptProgress,
       CB_ImportGpgKey,
       CB_AcceptUnknownGpgKey,
       CB_AcceptUnsignedFile,
@@ -173,13 +166,6 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( FinishPatchDownload );
 	ENUM_OUT( MediaChange );
 	ENUM_OUT( SourceChange );
-	ENUM_OUT( YouProgress );
-	ENUM_OUT( YouPatchProgress );
-	ENUM_OUT( YouError );
-        ENUM_OUT( YouMessage );
-	ENUM_OUT( YouLog );
-	ENUM_OUT( YouExecuteYcpScript );
-	ENUM_OUT( YouScriptProgress );
 	ENUM_OUT( ResolvableReport );
 	ENUM_OUT( ImportGpgKey );
 	ENUM_OUT( AcceptUnknownGpgKey );
