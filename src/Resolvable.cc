@@ -37,6 +37,7 @@
 #include <zypp/Product.h>
 #include <zypp/Patch.h>
 #include <zypp/Pattern.h>
+#include <zypp/Language.h>
 #include <zypp/base/PtrTypes.h>
 #include <zypp/Dep.h>
 #include <zypp/CapSet.h>
@@ -297,7 +298,7 @@ PkgModuleFunctions::ResolvableSetSoftLock ( const YCPString& name_r, const YCPSy
    return list of resolvables of selected kind with required name
  
    @param name name of the resolvable, if empty returns all resolvables of the kind
-   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection, `pattern or `language
    @param version version of the resolvable, if empty all versions are returned
 
    @return list<map<string,any>> list of $[ "name":string, "version":string, "arch":string, "source":integer, "status":symbol ] maps
@@ -310,6 +311,13 @@ PkgModuleFunctions::ResolvableProperties(const YCPString& name, const YCPSymbol&
     return ResolvablePropertiesEx (name, kind_r, version, false);
 }
 
+/*
+   @builtin ResolvableDependencies
+   @description
+   return list of resolvables with dependencies
+
+   @see ResolvableProperties for more information
+*/
 YCPValue
 PkgModuleFunctions::ResolvableDependencies(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version)
 {
@@ -339,6 +347,9 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
     }
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResTraits<zypp::Pattern>::kind;
+    }
+    else if ( req_kind == "language" ) {
+	kind = zypp::ResTraits<zypp::Language>::kind;
     }
     else
     {
@@ -433,6 +444,28 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 			flags->add(YCPString(*flag_it));
 		    }
 		    info->add(YCPString("flags"), flags);
+
+		    std::list<zypp::Url> pextraUrls = product->extraUrls();
+		    if (pextraUrls.size() > 0)
+		    {
+			YCPList extraUrls;
+			for (std::list<zypp::Url>::const_iterator it = pextraUrls.begin(); it != pextraUrls.end(); ++it)
+			{
+			    extraUrls->add(YCPString(it->asString()));
+			}
+			info->add(YCPString("extra_urls"), extraUrls);
+		    }
+
+		    std::list<zypp::Url> poptionalUrls = product->optionalUrls();
+		    if (poptionalUrls.size() > 0)
+		    {
+			YCPList optionalUrls;
+			for (std::list<zypp::Url>::const_iterator it = poptionalUrls.begin(); it != poptionalUrls.end(); ++it)
+			{
+			    optionalUrls->add(YCPString(it->asString()));
+			}
+			info->add(YCPString("optional_urls"), optionalUrls);
+		    }
 		}
 
 		// pattern specific info

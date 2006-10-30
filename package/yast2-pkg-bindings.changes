@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Oct 30 14:36:38 CET 2006 - lslezak@suse.cz
+
+- return OPTIONALURLS and EXTRAURLS properties of a Product
+  resolvable (#213031)
+- ResolvableProperties() supports resolvable type `language
+- 2.13.101
+
+-------------------------------------------------------------------
 Fri Oct 20 16:47:00 CEST 2006 - lslezak@suse.cz
 
 - added missing YCP callback evaluation (#213628)
