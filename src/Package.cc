@@ -1740,7 +1740,9 @@ PkgModuleFunctions::PkgTaboo (const YCPString& p)
 	// remove the transactions, lock the status
 	return YCPBoolean( (it != zypp_ptr()->pool().byNameEnd(name))
 	    && it->status().resetTransact(whoWantsIt)
-	    && it->status().setLock(true, whoWantsIt)
+	    // lock the package at the USER level (bug #186205)
+	    && it->status().resetTransact(zypp::ResStatus::USER)
+	    && it->status().setLock(true, zypp::ResStatus::USER)
 	);
     }
     catch (...)
