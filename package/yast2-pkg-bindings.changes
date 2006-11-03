@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Nov  3 12:54:51 CET 2006 - lslezak@suse.cz
+
+- do not search a product in mediaRequest callback, the source
+  initialization might be in progress, the might not be
+  initialized (#214886)
+- 2.13.103
+
+-------------------------------------------------------------------
 Tue Oct 31 12:55:14 CET 2006 - lslezak@suse.cz
 
 - fixed PkgTaboo() built-in - set lock on the USER level (#186205)
