@@ -806,21 +806,8 @@ namespace ZyppRecipients {
 		// current URL
 		callback.addStr( source.url().asString() );
 
-		std::string product_name;
-
-		// get name of the product
-		for (zypp::ResStore::iterator it = source.resolvables().begin(); it != source.resolvables().end(); it++)
-		{
-		    // is it a product object?
-		    if (zypp::isKind<zypp::Product>(*it))
-		    {
-			product_name = (*it)->summary();
-			break;
-		    }
-		}
-
-		// current product name
-		callback.addStr( product_name );
+		// current product name (use the alias, see #214886)
+		callback.addStr( source.alias() );
 
 		// current medium, -1 means enable [Ignore]
 		callback.addInt( 0 );
