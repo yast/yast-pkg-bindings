@@ -232,6 +232,13 @@ PkgModuleFunctions::SourceLoad()
 		y2error ("Error for %s: %s", url.c_str(), excpt.asString().c_str());
 		_last_error.setLastError(url + ": " + excpt.asUserString());
 		success = false;
+
+		// disable the source
+		y2error("Disabling source %s", url.c_str());
+		src.disable();
+
+		// remember the broken source for SourceCleanupBroken
+		_broken_sources.insert(src.alias());
 	    }
 	}
 	catch (const zypp::Exception& excpt)
