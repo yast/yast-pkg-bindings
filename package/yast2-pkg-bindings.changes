@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Nov  7 15:02:49 CET 2006 - lslezak@suse.cz
+
+- disable the source if the metadata file is corrupt (#217276)
+- 2.13.104
+
+-------------------------------------------------------------------
 Fri Nov  3 12:54:51 CET 2006 - lslezak@suse.cz
 
 - do not search a product in mediaRequest callback, the source
