@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Nov  9 09:59:06 CET 2006 - lslezak@suse.cz
+
+- decreased the timout of acquiring the zypp lock to 15 seconds
+  (#216615)
+- 2.13.105
+
+-------------------------------------------------------------------
 Tue Nov  7 15:02:49 CET 2006 - lslezak@suse.cz
 
 - disable the source if the metadata file is corrupt (#217276)
