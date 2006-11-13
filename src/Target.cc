@@ -147,6 +147,20 @@ PkgModuleFunctions::TargetDisableSources ()
     try
     {
 	zypp::SourceManager::disableSourcesAt( _target_root );
+
+	// disable source refresh - workaround for #220056
+	zypp::storage::PersistentStorage store;
+	store.init( _target_root );
+
+	std::list<zypp::source::SourceInfo> new_sources = store.storedSources();
+	y2milestone("Disabling refresh for sources at %s", _target_root.asString().c_str());
+
+	for ( std::list<zypp::source::SourceInfo>::iterator it = new_sources.begin(); it != new_sources.end(); ++it)
+	{
+	    y2milestone("Disabling refresh: alias: %s", it->alias().c_str());
+	    it->setAutorefresh(false);
+	    store.storeSource( *it );
+	}
     }
     catch (zypp::Exception & excpt)
     {
@@ -154,7 +168,7 @@ PkgModuleFunctions::TargetDisableSources ()
 	ycperror("TargetDisableSources has failed: %s", excpt.msg().c_str() );
         return YCPBoolean(false);
     }
-    
+
     return YCPBoolean(true);
 }
 
