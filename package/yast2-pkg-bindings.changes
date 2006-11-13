@@ -1,7 +1,12 @@
 -------------------------------------------------------------------
+Mon Nov 13 09:40:00 CET 2006 - lslezak@suse.cz
+
+- added Pkg::SourceCreateType() builtin (#168358)
+
+-------------------------------------------------------------------
 Mon Nov 13 09:38:37 CET 2006 - lslezak@suse.cz
 
-- added Pkg::TargetStoreRemove() builtin
+- added Pkg::TargetStoreRemove() builtin (#210552)
 
 -------------------------------------------------------------------
 Thu Nov  9 09:59:06 CET 2006 - lslezak@suse.cz
