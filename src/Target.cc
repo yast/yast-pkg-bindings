@@ -40,6 +40,7 @@
 #include <zypp/Product.h>
 #include <zypp/SourceManager.h>
 #include <zypp/DiskUsageCounter.h>
+#include <zypp/target/store/PersistentStorage.h>
 
 using namespace zypp;
 
@@ -146,6 +147,20 @@ PkgModuleFunctions::TargetDisableSources ()
     try
     {
 	zypp::SourceManager::disableSourcesAt( _target_root );
+
+	// disable source refresh - workaround for #220056
+	zypp::storage::PersistentStorage store;
+	store.init( _target_root );
+
+	std::list<zypp::source::SourceInfo> new_sources = store.storedSources();
+	y2milestone("Disabling refresh for sources at %s", _target_root.asString().c_str());
+
+	for ( std::list<zypp::source::SourceInfo>::iterator it = new_sources.begin(); it != new_sources.end(); ++it)
+	{
+	    y2milestone("Disabling refresh: alias: %s", it->alias().c_str());
+	    it->setAutorefresh(false);
+	    store.storeSource( *it );
+	}
     }
     catch (zypp::Exception & excpt)
     {
@@ -153,7 +168,7 @@ PkgModuleFunctions::TargetDisableSources ()
 	ycperror("TargetDisableSources has failed: %s", excpt.msg().c_str() );
         return YCPBoolean(false);
     }
-    
+
     return YCPBoolean(true);
 }
 
@@ -681,3 +696,85 @@ PkgModuleFunctions::TargetFileHasOwner (const YCPString& filepath)
     return YCPBoolean(false);
 }
 
+
+/**
+   @builtin TargetStoreRemove
+
+   @short remove all resolvables from the DB in the target system (removes only metadata in the package manager!)
+   @description
+   Use this function only in a special case, direct access to the DB should not be used in general!
+   Warning: this built in can cause inconsistency between the package manager and the system!
+   @param root path to the root directory
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection, `pattern or `language
+   @return boolean true = success
+*/
+YCPBoolean
+PkgModuleFunctions::TargetStoreRemove(const YCPString& root, const YCPSymbol& kind_r)
+{
+    zypp::Resolvable::Kind kind;
+    std::string req_kind = kind_r->symbol();
+
+    if( req_kind == "product" ) {
+	kind = zypp::ResTraits<zypp::Product>::kind;
+    }
+    else if ( req_kind == "patch" ) {
+    	kind = zypp::ResTraits<zypp::Patch>::kind;
+    }
+    else if ( req_kind == "package" ) {
+	kind = zypp::ResTraits<zypp::Package>::kind;
+    }
+    else if ( req_kind == "selection" ) {
+	kind = zypp::ResTraits<zypp::Selection>::kind;
+    }
+    else if ( req_kind == "pattern" ) {
+	kind = zypp::ResTraits<zypp::Pattern>::kind;
+    }
+    else if ( req_kind == "language" ) {
+	kind = zypp::ResTraits<zypp::Language>::kind;
+    }
+    else
+    {
+	y2error("Pkg::TargetStoreRemove: unknown symbol: %s", req_kind.c_str());
+	return YCPBoolean(false);
+    }
+
+    bool success = true;
+
+    std::string target_root = root->value();
+    if (target_root.empty())
+    {
+	y2error("Pkg::TargetStoreRemove: parameter root is empty");
+	return YCPBoolean(false);
+    }
+
+    try
+    {
+	// create a storage
+	zypp::storage::PersistentStorage store;
+	store.init( target_root );
+
+	// get all resolvables of the required kind
+	std::list<ResObject::Ptr> objects = store.storedObjects(kind);
+
+	y2warning("Removing %d objects of kind '%s' from %s", objects.size(), req_kind.c_str(), target_root.c_str());
+
+	// remove the resolvables
+	for( std::list<ResObject::Ptr>::const_iterator it = objects.begin(); it != objects.end(); ++it)
+	{
+	    try {
+		store.deleteObject(*it);
+	    } catch( const zypp::Exception& excpt )
+	    {
+		y2error("TargetStoreRemove has failed: %s", excpt.msg().c_str());
+		success = false;
+	    }
+	}
+    }
+    catch( const zypp::Exception& excpt )
+    {
+	y2error("TargetStoreRemove has failed: %s", excpt.msg().c_str());
+	success = false;
+    }
+    
+    return YCPBoolean(success);
+}

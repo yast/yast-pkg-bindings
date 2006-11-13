@@ -996,7 +996,8 @@ static std::string removeAlias (const zypp::Url & old_url,
 zypp::SourceManager::SourceId
 createManagedSource( const zypp::Url & url_r,
 		     const zypp::Pathname & path_r,
-		     const bool base_source )
+		     const bool base_source,
+		     const std::string& type )
 {
   y2milestone ("Original URL: %s", url_r.asString().c_str());
 
@@ -1004,7 +1005,12 @@ createManagedSource( const zypp::Url & url_r,
   zypp::Url new_url;
   string alias = removeAlias (url_r, new_url);
 
-  zypp::Source_Ref newsrc = zypp::SourceFactory().createFrom(new_url, path_r, alias, zypp::filesystem::Pathname(), base_source);
+  zypp::Source_Ref newsrc = 
+  (type.empty()) ?
+    // autoprobe source type
+    zypp::SourceFactory().createFrom(new_url, path_r, alias, zypp::filesystem::Pathname(), base_source) :
+    // use required source type, autorefresh = true
+    zypp::SourceFactory().createFrom(type, new_url, path_r, alias, zypp::filesystem::Pathname(), base_source, true);
   
   if (alias.empty ())
   {
@@ -1120,7 +1126,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     {
 	try
 	{
-	    id = createManagedSource(url, it->_dir, false);
+	    id = createManagedSource(url, it->_dir, false, "");
 	    ids->add( YCPInteger(id) );
 	}
 	catch ( const zypp::Exception& excpt)
@@ -1135,7 +1141,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 
     try
     {
-	id = createManagedSource(url, pn, false);
+	id = createManagedSource(url, pn, false, "");
 	ids->add( YCPInteger(id) );
     }
     catch ( const zypp::Exception& excpt)
@@ -1170,17 +1176,36 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 YCPValue
 PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 {
-  return SourceCreateEx (media, pd, false);
+  // not base product, autoprobe source type
+  return SourceCreateEx (media, pd, false, YCPString(""));
 }
 
 YCPValue
 PkgModuleFunctions::SourceCreateBase (const YCPString& media, const YCPString& pd)
 {
-  return SourceCreateEx (media, pd, true);
+  // base product, autoprobe source type
+  return SourceCreateEx (media, pd, true, YCPString(""));
+}
+
+/**
+ * @builtin SourceCreateType
+ * @short Create source of required type
+ * @description
+ * Create a source without autoprobing the source type. This builtin should be used only for "Plaindir" sources, because Plaindir sources are not automatically probed in SourceCreate() builtin.
+ * @param media URL of the source
+ * @param pd product directory (if empty the products will be searched)
+ * @param type type of the source ("YaST", "YUM" or "Plaindir")
+*/
+
+YCPValue
+PkgModuleFunctions::SourceCreateType (const YCPString& media, const YCPString& pd, const YCPString& type)
+{
+  // not base product, autoprobe source type
+  return SourceCreateEx (media, pd, false, type);
 }
 
 YCPValue
-PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool base)
+PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool base, const YCPString& source_type)
 {
   y2debug("Creating source...");
 
@@ -1202,6 +1227,8 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
   YCPList ids;
   int ret = -1;
+
+  const std::string type = source_type->value();
 
   if ( pd->value().empty() ) {
     // scan all sources
@@ -1230,7 +1257,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     {
 	try
 	{
-	    unsigned id = createManagedSource(url, it->_dir, base);
+	    unsigned id = createManagedSource(url, it->_dir, base, type);
 
 	    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id);
 
@@ -1257,7 +1284,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
     try
     {
-	ret = createManagedSource(url, pn, base);
+	ret = createManagedSource(url, pn, base, type);
 
 	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(ret);
 

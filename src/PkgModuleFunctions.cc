@@ -201,8 +201,8 @@ zypp::ZYpp::Ptr PkgModuleFunctions::zypp_ptr()
 	return zypp_pointer;
     }
 
-    int max_count = 10;
-    unsigned int seconds = 5;
+    int max_count = 5;
+    unsigned int seconds = 3;
 
     while (zypp_pointer == NULL && max_count > 0)
     {

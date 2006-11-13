@@ -1,4 +1,34 @@
 -------------------------------------------------------------------
+Mon Nov 13 14:21:30 CET 2006 - lslezak@suse.cz
+
+- disable refresh of all sources in the target during update
+  (workaround for #220056)
+- 2.13.106
+
+-------------------------------------------------------------------
+Mon Nov 13 10:00:27 CET 2006 - lslezak@suse.cz
+
+- fixed Pkg::DoRemoveAllKind() - uninstall only the installed
+  resolvables
+
+-------------------------------------------------------------------
+Mon Nov 13 09:40:00 CET 2006 - lslezak@suse.cz
+
+- added Pkg::SourceCreateType() builtin (#168358)
+
+-------------------------------------------------------------------
+Mon Nov 13 09:38:37 CET 2006 - lslezak@suse.cz
+
+- added Pkg::TargetStoreRemove() builtin (#210552)
+
+-------------------------------------------------------------------
+Thu Nov  9 09:59:06 CET 2006 - lslezak@suse.cz
+
+- decreased the timout of acquiring the zypp lock to 15 seconds
+  (#216615)
+- 2.13.105
+
+-------------------------------------------------------------------
 Tue Nov  7 15:02:49 CET 2006 - lslezak@suse.cz
 
 - disable the source if the metadata file is corrupt (#217276)
