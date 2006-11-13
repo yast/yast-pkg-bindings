@@ -403,6 +403,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue TargetGetDU ();
 	/* TYPEINFO: boolean(string)*/
 	YCPBoolean TargetFileHasOwner (const YCPString&);
+	/* TYPEINFO: boolean(symbol)*/
+	YCPBoolean TargetStoreRemove(const YCPString& root, const YCPSymbol& kind_r);
 
 	// selection related
 	/* TYPEINFO: list<string>(symbol,string)*/

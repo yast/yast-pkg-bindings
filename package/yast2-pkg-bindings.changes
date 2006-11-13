@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Nov 13 09:38:37 CET 2006 - lslezak@suse.cz
+
+- added Pkg::TargetStoreRemove() builtin
+
+-------------------------------------------------------------------
 Thu Nov  9 09:59:06 CET 2006 - lslezak@suse.cz
 
 - decreased the timout of acquiring the zypp lock to 15 seconds
