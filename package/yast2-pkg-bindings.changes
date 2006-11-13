@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Nov 13 10:00:27 CET 2006 - lslezak@suse.cz
+
+- fixed Pkg::DoRemoveAllKind() - uninstall only the installed
+  resolvables
+
+-------------------------------------------------------------------
 Mon Nov 13 09:40:00 CET 2006 - lslezak@suse.cz
 
 - added Pkg::SourceCreateType() builtin (#168358)

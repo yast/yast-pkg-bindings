@@ -644,7 +644,7 @@ PkgModuleFunctions::DoAllKind(zypp::Resolvable::Kind kind, bool provide)
 	    it != zypp_ptr()->pool().byKindEnd(kind); ++it)
 	{
 	    bool res = provide ? it->status().setToBeInstalled( whoWantsIt )
-		: it->status().setToBeUninstalled( whoWantsIt );
+		: (it->status().isInstalled() && it->status().setToBeUninstalled( whoWantsIt ));
 
 	    y2milestone ("%s %s -> %s\n", (provide ? "Install" : "Remove"), (*it)->name().c_str(), (res ? "Ok" : "Failed"));
 	    ret = ret && res;
