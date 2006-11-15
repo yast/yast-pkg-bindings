@@ -1271,7 +1271,7 @@ namespace ZyppRecipients {
     {
 	KeyRingReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual bool askUserToTrustKey(const zypp::PublicKey& key)
+	virtual bool askUserToImportKey( const zypp::PublicKey &key)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ImportGpgKey) );
 
@@ -1284,26 +1284,25 @@ namespace ZyppRecipients {
 		return callback.evaluateBool();
 	    }
 
-	    return zypp::KeyRingReport::askUserToTrustKey(key);
+	    return zypp::KeyRingReport::askUserToImportKey(key);
 	}
 
-	virtual bool askUserToAcceptUnknownKey(const std::string &file, const std::string &keyid)
+	virtual bool askUserToTrustKey(const zypp::PublicKey& key)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnknownGpgKey) );
 
 	    if (callback._set)
 	    {
-		callback.addStr(file);
-		callback.addStr(keyid);
+		callback.addStr(key.path().asString());
+		callback.addStr(key.id());
 
-		// TODO FIXME: zypp now provides just 2 
-		callback.addStr(std::string() /*keyname*/);
-                callback.addStr(std::string() /*fingerprint*/);
+		callback.addStr(key.name());
+                callback.addStr(key.fingerprint());
 
 		return callback.evaluateBool();
 	    }
 
-	    return zypp::KeyRingReport::askUserToAcceptUnknownKey(file, keyid);
+	    return zypp::KeyRingReport::askUserToTrustKey(key);
 	}
 
 	virtual bool askUserToAcceptUnsignedFile(const std::string &file)
