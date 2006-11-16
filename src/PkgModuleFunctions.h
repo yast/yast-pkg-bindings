@@ -47,6 +47,21 @@
 
 #include "PkgError.h"
 
+
+// textdomain
+extern "C" {
+#include <libintl.h>
+}
+
+// undefine _ macro from libzypp
+#ifdef _
+#undef _
+#endif
+
+// define new _ macro
+#define _(MSG) ::dgettext("pkg-bindings", MSG)
+
+
 /**
  * A simple class for package management access
  */
