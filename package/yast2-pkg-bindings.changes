@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Nov 20 11:16:41 CET 2006 - lslezak@suse.cz
+
+- fixed SourceStartManager(): load sources even if some source
+  could not have been restored (#221071)
+- 2.14.3
+
+-------------------------------------------------------------------
 Thu Nov 16 13:49:24 CET 2006 - lslezak@suse.cz
 
 - translate the messages: redefine _ gettext macro to use
