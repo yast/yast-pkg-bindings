@@ -268,17 +268,15 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 {
     YCPValue success = SourceRestore();
 
-    // the restoration has failed
-    if (!success->asBoolean()->value())
-    {
-	// return false
-	return success;
-    }
-
     if( enable->value() )
     {
+	if (!success->asBoolean()->value())
+	{
+	    y2warning("SourceStartManager: Some sources have not been restored, loading only the active sources...");
+	}
+
 	// enable all sources and load the resolvables
-	success = SourceLoad();
+	success = YCPBoolean(SourceLoad()->asBoolean()->value() && success->asBoolean()->value());
     }
 
     return success;

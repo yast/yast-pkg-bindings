@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Nov 20 11:16:41 CET 2006 - lslezak@suse.cz
+
+- fixed SourceStartManager(): load sources even if some source
+  could not have been restored (#221071)
+
+-------------------------------------------------------------------
 Wed Nov 15 10:23:46 CET 2006 - lslezak@suse.cz
 
 - fixed GPG key callbacks - allow yast to import keys (#219965)
