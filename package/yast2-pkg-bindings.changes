@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Nov 22 13:49:31 CET 2006 - lslezak@suse.cz
+
+- provide installation summary about packages from a YUM
+  source (medium number is 0) (#220242)
+- 2.14.4
+
+-------------------------------------------------------------------
 Mon Nov 20 11:16:41 CET 2006 - lslezak@suse.cz
 
 - fixed SourceStartManager(): load sources even if some source
