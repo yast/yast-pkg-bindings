@@ -2055,21 +2055,4 @@ YCPValue PkgModuleFunctions::CallbackMessage( const YCPString& args ) {
     return SET_YCP_CB( CB_Message, args );
 }
 
-YCPValue PkgModuleFunctions::CallbackStartSourceRefresh( const YCPString& args ) {
-    y2warning("Pkg::CallbackStartSourceRefresh is obsoleted, do not use it (empty implementation)!");
-    return YCPVoid();
-}
-YCPValue PkgModuleFunctions::CallbackProgressSourceRefresh( const YCPString& args ) {
-    y2warning("Pkg::CallbackProgressSourceRefresh is obsoleted, do not use it (empty implementation)!");
-    return YCPVoid();
-}
-YCPValue PkgModuleFunctions::CallbackErrorSourceRefresh( const YCPString& args ) {
-    y2warning("Pkg::CallbackErrorSourceRefresh is obsoleted, do not use it (empty implementation)!");
-    return YCPVoid();
-}
-YCPValue PkgModuleFunctions::CallbackDoneSourceRefresh( const YCPString& args ) {
-    y2warning("Pkg::CallbackDoneSourceRefresh is obsoleted, do not use it (empty implementation)!");
-    return YCPVoid();
-}
-
 #undef SET_YCP_CB
