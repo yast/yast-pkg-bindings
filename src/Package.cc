@@ -288,7 +288,6 @@ PkgModuleFunctions::PkgMediaSizes ()
 	unsigned media = src.numberOfMedia();
 
 	result[id] = std::vector<zypp::ByteCount>(media,0);
-
 	source_map[ src ] = id;
     }
 
@@ -298,11 +297,20 @@ PkgModuleFunctions::PkgMediaSizes ()
     {
 	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
-	if( it->status().isToBeInstalled() && pkg->sourceMediaNr() > 0)
+	if( it->status().isToBeInstalled())
 	{
-	    zypp::ByteCount size = pkg->size();
-	    result[ source_map[pkg->source()] ]
-	      [pkg->sourceMediaNr()-1] += size ;	// media are numbered from 1
+	    unsigned int medium = pkg->sourceMediaNr();
+	    if (medium == 0)
+	    {
+		medium = 1;
+	    }
+
+	    if (medium > 0)
+	    {
+		zypp::ByteCount size = pkg->size();
+		result[ source_map[pkg->source()] ]
+		  [medium - 1] += size ;	// media are numbered from 1
+	    }
 	}
     }
 
@@ -373,9 +381,20 @@ PkgModuleFunctions::PkgMediaCount()
     {
 	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
-	if( pkg && it->status().isToBeInstalled() && pkg->sourceMediaNr() > 0)
-	    result[ source_map[pkg->source()] ]
-	      [pkg->sourceMediaNr()-1]++ ;	// media are numbered from 1
+	if( pkg && it->status().isToBeInstalled())
+	{
+	    unsigned int medium = pkg->sourceMediaNr();
+	    if (medium == 0)
+	    {
+		medium = 1;
+	    }
+
+	    if (pkg->sourceMediaNr() > 0)
+	    {
+		result[ source_map[pkg->source()] ]
+		  [medium - 1]++ ;	// media are numbered from 1
+	    }
+	}
     }
 
     YCPList res;
@@ -989,8 +1008,7 @@ PkgModuleFunctions::PkgProp( zypp::PoolItem_Ref item )
     data->add( YCPString("arch"), YCPString( pkg->arch().asString() ) );
     data->add( YCPString("medianr"), YCPInteger( pkg->sourceMediaNr() ) );
 
-    y2internal("getting the ID...");
-    y2internal("srcId: %ld", pkg->source().numericId() );
+    y2debug("srcId: %ld", pkg->source().numericId() );
     data->add( YCPString("srcid"), YCPInteger( pkg->source().numericId() ) );
 
     std::string status("available");

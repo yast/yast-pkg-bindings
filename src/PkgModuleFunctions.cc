@@ -141,11 +141,11 @@ public:
 	}
 	catch (const std::exception& excpt)
 	{
-	    y2internal("Catched unhandled exception: %s", excpt.what());
+	    y2internal("Caught an unhandled exception: %s", excpt.what());
 	}
 	catch (...)
 	{
-	    y2internal("Catched unhandled exception");
+	    y2internal("Caught an unhandled exception");
 	}
 
 	return YCPNull ();

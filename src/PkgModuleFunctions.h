@@ -47,6 +47,21 @@
 
 #include "PkgError.h"
 
+
+// textdomain
+extern "C" {
+#include <libintl.h>
+}
+
+// undefine _ macro from libzypp
+#ifdef _
+#undef _
+#endif
+
+// define new _ macro
+#define _(MSG) ::dgettext("pkg-bindings", MSG)
+
+
 /**
  * A simple class for package management access
  */
@@ -190,10 +205,6 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue CallbackProgressDownload (const YCPString& func);
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackDoneDownload (const YCPString& func);
-	/* TYPEINFO: void(string) */
-	YCPValue CallbackSourceCreateEndProbe( const YCPString& func);
-	/* TYPEINFO: void(string) */
-	YCPValue CallbackSourceCreateProgressData( const YCPString& func);
 	/* TYPEINFO: void(string) */
 	 YCPValue CallbackStartSourceRefresh( const YCPString& func);
 	/* TYPEINFO: void(string) */
