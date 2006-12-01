@@ -669,7 +669,7 @@ YCPValue
 PkgModuleFunctions::SourceProduct (const YCPInteger& id)
 {
     /* TODO FIXME */
-  y2warning("Pkg::SourceProduct() is obsoleted!");
+  y2error("Pkg::SourceProduct() is obsoleted, use Pkg::SourceProductData() instead!");
   return YCPMap();
 }
 
