@@ -389,7 +389,7 @@ PkgModuleFunctions::PkgMediaCount()
 		medium = 1;
 	    }
 
-	    if (pkg->sourceMediaNr() > 0)
+	    if (medium > 0)
 	    {
 		result[ source_map[pkg->source()] ]
 		  [medium - 1]++ ;	// media are numbered from 1
