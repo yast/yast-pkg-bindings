@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Jan  8 14:20:30 CET 2007 - lslezak@suse.cz
+
+- Pkg::GetPackages supports `taboo and `locked options,
+  Pkg::ResolvableProperties returns "locked" value
+  (required for #232506)
+- 2.13.108
+
+-------------------------------------------------------------------
 Mon Dec 11 11:13:18 CET 2006 - lslezak@suse.cz
 
 - Pkg:PkgMediaCount() - correctly report number of packages from

@@ -301,8 +301,10 @@ PkgModuleFunctions::ResolvableSetSoftLock ( const YCPString& name_r, const YCPSy
    @param kind_r kind of resolvable, can be `product, `patch, `package, `selection, `pattern or `language
    @param version version of the resolvable, if empty all versions are returned
 
-   @return list<map<string,any>> list of $[ "name":string, "version":string, "arch":string, "source":integer, "status":symbol ] maps
+   @return list<map<string,any>> list of $[ "name":string, "version":string, "arch":string, "source":integer, "status":symbol, "locked":boolean ] maps
    status is `installed, `selected or `available, source is source ID or -1 if the resolvable is installed in the target
+   if status is `available and locked is true then the object is set to taboo,
+   if status is `installed and locked is true then the object locked
 */
 
 YCPValue
@@ -398,6 +400,9 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 		}
 
 		info->add(YCPString("status"), YCPSymbol(stat));
+
+		// is the resolvable locked? (Locked or Taboo in the UI)
+		info->add(YCPString("locked"), YCPBoolean(it->status().isLocked()));
 
 		// source
 		zypp::Source_Ref res_src = (*it)->source();
