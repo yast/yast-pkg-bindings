@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Dec 11 11:13:18 CET 2006 - lslezak@suse.cz
+
+- Pkg:PkgMediaCount() - correctly report number of packages from
+  a YUM source (#220242)
+
+-------------------------------------------------------------------
 Wed Nov 29 09:54:31 CET 2006 - lslezak@suse.cz
 
 - removed undefined methods
