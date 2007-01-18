@@ -144,6 +144,14 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue SetLocale (const YCPString& locale);
 	/* TYPEINFO: string() */
 	YCPValue GetLocale ();
+	/* TYPEINFO: void(string) */
+	YCPValue SetTextLocale(const YCPString&);
+	/* TYPEINFO: void(string) */
+	YCPValue SetPackageLocale(const YCPString&);
+	/* TYPEINFO: string() */
+	YCPValue GetTextLocale();
+	/* TYPEINFO: string() */
+	YCPValue GetPackageLocale();
 	/* TYPEINFO: void(list<string>) */
 	YCPValue SetAdditionalLocales (YCPList args);
 	/* TYPEINFO: list<string>() */

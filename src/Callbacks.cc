@@ -1989,7 +1989,7 @@ YCPValue PkgModuleFunctions::CallbackSourceReportError( const YCPString& func)
 /**
  * @builtin CallbackSourceReportEnd
  * @short Register callback function
- * @param string func Name of the callback handler function. Required callback prototype is <code>void(integer numeric_id, string url, string error, string reason)</code>. Parameter error is "NO_ERROR", "NOT_FOUND", "IO" or "INVALID". The callback function is evaluated when an error occurrs. The callback function must return string "ABORT", "IGNORE" or "RETRY".
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(integer numeric_id, string url, string task, string error, string reason)</code>. Parameter error is "NO_ERROR", "NOT_FOUND", "IO" or "INVALID". The callback function is evaluated when an error occurrs. The callback function must return string "ABORT", "IGNORE" or "RETRY".
  * @return void
  */
 YCPValue PkgModuleFunctions::CallbackSourceReportEnd( const YCPString& func)

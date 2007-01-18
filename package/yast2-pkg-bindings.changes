@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Thu Jan 18 11:10:38 CET 2007 - lslezak@suse.cz
+
+- Pkg::SetLocale() and Pkg::GetLocale() have been split into
+  Pkg::SetTextLocale(), Pkg::GetTextLocale(),
+  Pkg::SetPackageLocale() and Pkg::GetPackageLocale() to set
+  the textdomain and the language packages independently (#223624)
+- 2.15.3
+
+-------------------------------------------------------------------
 Mon Jan  8 14:20:30 CET 2007 - lslezak@suse.cz
 
 - Pkg::GetPackages supports `taboo and `locked options,

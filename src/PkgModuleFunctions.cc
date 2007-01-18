@@ -296,22 +296,49 @@ PkgModuleFunctions::InstSysMode ()
     return YCPVoid();
 }
 
-
 /**
- * @builtin SetLocale
- * @short Set Prefered Locale
+ * @builtin SetTextLocale
+ * @short Set Package Manager Locale
  * @description
- * set the given locale as the "preferred" locale
+ * Set the given locale as the output locale -- all messages from the package manager (errors, warnings,...)
+ * will be returned in the selected language. This built-in does not change package selection in any way.
  * @param string locale Locale
  * @return void
  */
 YCPValue
-PkgModuleFunctions::SetLocale (const YCPString &locale)
+PkgModuleFunctions::SetTextLocale (const YCPString &locale)
 {
     try
     {
 	zypp::Locale loc = zypp::Locale(locale->value());
 	zypp_ptr()->setTextLocale(loc);
+    }
+    catch (const std::exception& excpt)
+    {
+	y2error("Caught an exception: %s", excpt.what());
+    }
+    catch (...)
+    {
+	y2internal("Caught an unknown exception");
+    }
+
+    return YCPVoid();
+}
+
+/**
+ * @builtin SetPackageLocale
+ * @short Select locale for installation
+ * @description
+ * Select the main locale for installation, call Pkg::PkgSolve() to select the respective packages.
+ * @param string locale Locale
+ * @return void
+ */
+YCPValue
+PkgModuleFunctions::SetPackageLocale (const YCPString &locale)
+{
+    try
+    {
+	zypp::Locale loc = zypp::Locale(locale->value());
 
 	// add packages for the preferred locale, preserve additional locales
 	zypp::ZYpp::LocaleSet lset = zypp_ptr()->getRequestedLocales();
@@ -337,13 +364,32 @@ PkgModuleFunctions::SetLocale (const YCPString &locale)
 }
 
 /**
- * @builtin GetLocale
- * @short get the currently preferred locale
- * @return string locale
- * @usage Pkg::GetLocale () -> "en_US"
+ * @builtin SetLocale
+ * @short Set The Main (Preferred) Locale -- OBSOLETED!
+ * @description
+ * OBSOLETED, DO NOT USE! It has been replaced by SetTextLocale() and SetMainLocale() calls (see bug #223624)
+ * @param string locale Locale
+ * @return void
  */
 YCPValue
-PkgModuleFunctions::GetLocale ()
+PkgModuleFunctions::SetLocale (const YCPString &locale)
+{
+    y2warning("Pkg::SetLocale() is obsoleted, use Pkg::SetTextLocale() and/or Pkg::SetPackageLocale() instead. Pkg::SetLocale() currently calls both functions");
+
+    SetTextLocale(locale);
+    SetPackageLocale(locale);
+
+    return YCPVoid();
+}
+
+/**
+ * @builtin GetTextLocale
+ * @short get the currently preferred locale
+ * @return string locale
+ * @usage Pkg::GetTextLocale() -> "en_US"
+ */
+YCPValue
+PkgModuleFunctions::GetTextLocale ()
 {
     try
     {
@@ -356,14 +402,40 @@ PkgModuleFunctions::GetLocale ()
     return YCPVoid();
 }
 
+/**
+ * @builtin GetLocale
+ * @short get the currently preferred locale
+ * @return string locale
+ * @usage Pkg::GetLocale () -> "en_US"
+ */
+YCPValue
+PkgModuleFunctions::GetLocale ()
+{
+    y2warning("Pkg::GetLocale() is obsoleted, use Pkg::GetTextLocale() or Pkg::GetPackageLocale() instead. Pkg::GetLocale() currently calls Pkg::GetTextLocale()");
+    return GetTextLocale();
+}
+
+/**
+ * @builtin GetPackageLocale
+ * @short get the locale set by Pkg::SetPackageLocale() call
+ * @return string locale
+ * @usage Pkg::GetPackageLocale () -> "en_US"
+ */
+YCPValue
+PkgModuleFunctions::GetPackageLocale ()
+{
+    return YCPString(preferred_locale.code());
+}
 
 /**
  * @builtin SetAdditionalLocales
  *
  * @short set list of additional locales
+ * @description
+ * Select additional languages for installation. Call Pkg::Solve() to select the respective packages.
  * @param list<string> locales List of additional locales
  * @return void
- * @usage Pkg::SetAdditionalLocales([de_DE]);
+ * @usage Pkg::SetAdditionalLocales(["de_DE"]);
  */
 YCPValue
 PkgModuleFunctions::SetAdditionalLocales (YCPList langycplist)
