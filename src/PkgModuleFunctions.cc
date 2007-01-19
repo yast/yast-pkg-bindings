@@ -424,6 +424,12 @@ PkgModuleFunctions::GetLocale ()
 YCPValue
 PkgModuleFunctions::GetPackageLocale ()
 {
+    // the locale hasn't been initialized
+    if (preferred_locale == zypp::Locale::noCode)
+    {
+	y2warning("The package locale hasn't been set, call Pkg::SetPackageLocale() before Pkg::GetPackageLocale()");
+    }
+
     return YCPString(preferred_locale.code());
 }
 
