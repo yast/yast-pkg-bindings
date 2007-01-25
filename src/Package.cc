@@ -2469,3 +2469,48 @@ YCPBoolean PkgModuleFunctions::RpmChecksig( const YCPString & filename )
 
     return YCPBoolean(false);
 }
+
+
+YCPValue
+PkgModuleFunctions::PkgDU(const YCPString& package)
+{
+    // get partitioning
+    // TODO FIXME: use zypp::DiskUsageCounter::MountPointSet mps = zypp_ptr()->getPartitions();
+    zypp::DiskUsageCounter::MountPointSet mps = zypp_ptr()->diskUsage();
+
+    // reset the package size
+    for (zypp::DiskUsageCounter::MountPointSet::iterator mpit = mps.begin(); mpit != mps.end(); mpit++)
+    {
+	mpit->pkg_size = 0;
+    }
+
+    zypp::PoolItem_Ref item;
+    zypp::Package::constPtr pkg = find_package(package->value(), item, zypp_ptr()->pool() );
+
+    // the package was not found
+    if (pkg == NULL)
+    {
+	return YCPVoid();
+    }
+
+    zypp::DiskUsage du = pkg->diskusage();
+
+    if (du.size() == 0)
+    {
+	y2warning("Disk usage for package %s is unknown", package->value().c_str());
+	return YCPVoid();
+    }
+
+    // iterate trough all mount points, add usage to each directory
+    // directory tree must be processed from leaves to the root directory
+    // so iterate in reverse order so e.g. /usr is used before /
+    for (zypp::DiskUsageCounter::MountPointSet::reverse_iterator mpit = mps.rbegin(); mpit != mps.rend(); mpit++)
+    {
+	// get usage for the mount point
+	zypp::DiskUsage::Entry entry = du.extract(mpit->dir);
+
+	mpit->pkg_size += entry._size;
+    }
+
+    return MPS2YCPMap(mps);
+}

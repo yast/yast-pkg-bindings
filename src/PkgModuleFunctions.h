@@ -119,6 +119,9 @@ class PkgModuleFunctions : public Y2Namespace
       // fix it (using USER). --ma
       static const zypp::ResStatus::TransactByValue whoWantsIt;	// #156875
 
+      // convert MountPointSet to YCP Map
+      YCPMap MPS2YCPMap(const zypp::DiskUsageCounter::MountPointSet &mps);
+
     private:
 
       /**
@@ -400,6 +403,8 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: integer(string)*/
 	YCPInteger TargetUsed (const YCPString&);
 	/* TYPEINFO: integer(string)*/
+	YCPInteger TargetAvailable (const YCPString&);
+	/* TYPEINFO: integer(string)*/
 	YCPInteger TargetBlockSize (const YCPString&);
 	/* TYPEINFO: boolean(string)*/
 	YCPBoolean TargetInstall (const YCPString&);
@@ -475,6 +480,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue PkgPropertiesAll (const YCPString& package);
 	/* TYPEINFO: list<string>(string,symbol)*/
 	YCPList  PkgGetFilelist (const YCPString& package, const YCPSymbol& which);
+	/* TYPEINFO: map<string,list<integer>>(string)*/
+	YCPValue PkgDU(const YCPString& package);
 	/* TYPEINFO: boolean()*/
 	YCPValue IsManualSelection ();
 	/* TYPEINFO: boolean()*/

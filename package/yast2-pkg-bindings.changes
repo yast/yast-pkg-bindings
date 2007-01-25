@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Thu Jan 25 15:31:34 CET 2007 - lslezak@suse.cz
+
+- new binding Pkg::PkgDU() - computes disk usage of the package
+  in the current partitinoning (#222556)
+- new binding Pkg::TargetAvailable() - returns non-root free
+  disk space (#237309)
+- 2.15.4
+
+-------------------------------------------------------------------
 Thu Jan 18 11:10:38 CET 2007 - lslezak@suse.cz
 
 - Pkg::SetLocale() and Pkg::GetLocale() have been split into

@@ -287,7 +287,7 @@ PkgModuleFunctions::TargetLogfile (const YCPString& name)
  * return capacity and usage of partition at directory
  */
 static void
-get_disk_stats (const char *fs, long long *used, long long *size, long long *bsize)
+get_disk_stats (const char *fs, long long *used, long long *size, long long *bsize, long long *available)
 {
     struct statvfs sb;
     if (statvfs (fs, &sb) < 0)
@@ -297,7 +297,8 @@ get_disk_stats (const char *fs, long long *used, long long *size, long long *bsi
     }
     *bsize = sb.f_frsize ? : sb.f_bsize;		// block size
     *size = sb.f_blocks * *bsize;			// total size
-    *used = (sb.f_blocks - sb.f_bfree) * *bsize;	// used size
+    *used = (sb.f_blocks - sb.f_bfree) * *bsize;
+    *available = sb.f_bavail * *bsize;			// available for non-root user
 }
 
 
@@ -312,8 +313,8 @@ get_disk_stats (const char *fs, long long *used, long long *size, long long *bsi
 YCPInteger
 PkgModuleFunctions::TargetCapacity (const YCPString& dir)
 {
-    long long used, size, bsize;
-    get_disk_stats (dir->value().c_str(), &used, &size, &bsize);
+    long long used, size, bsize, avail;
+    get_disk_stats (dir->value().c_str(), &used, &size, &bsize, &avail);
 
     return YCPInteger (size);
 }
@@ -330,10 +331,28 @@ PkgModuleFunctions::TargetCapacity (const YCPString& dir)
 YCPInteger
 PkgModuleFunctions::TargetUsed (const YCPString& dir)
 {
-    long long used, size, bsize;
-    get_disk_stats (dir->value().c_str(), &used, &size, &bsize);
+    long long used, size, bsize, avail;
+    get_disk_stats (dir->value().c_str(), &used, &size, &bsize, &avail);
 
     return YCPInteger (used);
+}
+
+/** ------------------------
+ *
+ * @builtin TargetAvailable
+ *
+ * @short Return free space for non-root user (use Pkg::TargetCapacity(dir) - Pkg::TargetUsed(dir) to get free space including the space reserved for root user).
+ * @param string directory
+ * @return integer
+ *
+ */
+YCPInteger
+PkgModuleFunctions::TargetAvailable(const YCPString& dir)
+{
+    long long used, size, bsize, avail;
+    get_disk_stats (dir->value().c_str(), &used, &size, &bsize, &avail);
+
+    return YCPInteger (avail);
 }
 
 /** ------------------------
@@ -348,8 +367,8 @@ PkgModuleFunctions::TargetUsed (const YCPString& dir)
 YCPInteger
 PkgModuleFunctions::TargetBlockSize (const YCPString& dir)
 {
-    long long used, size, bsize;
-    get_disk_stats (dir->value().c_str(), &used, &size, &bsize);
+    long long used, size, bsize, avail;
+    get_disk_stats (dir->value().c_str(), &used, &size, &bsize, &avail);
 
     return YCPInteger (bsize);
 }
@@ -471,7 +490,39 @@ void PkgModuleFunctions::SetCurrentDU()
     // set the mount points
     zypp_ptr()->setPartitions(system);
 }
-	
+
+YCPMap PkgModuleFunctions::MPS2YCPMap(const zypp::DiskUsageCounter::MountPointSet &mps)
+{
+    YCPMap dirmap;
+
+    // create result data structure from the stored info and calculated disk usage
+    for (zypp::DiskUsageCounter::MountPointSet::const_iterator mpit = mps.begin();
+	mpit != mps.end();
+	mpit++)
+    {
+	YCPList sizelist;
+	// partition size
+	sizelist->add (YCPInteger (mpit->total_size));
+	// already used
+	sizelist->add (YCPInteger (mpit->used_size));
+	// used size after PkgCommit()
+	sizelist->add (YCPInteger (mpit->pkg_size));
+	// readonly flag
+	sizelist->add (YCPInteger (mpit->readonly ? 1 : 0));
+
+	std::string dir = mpit->dir;
+	if (dir.size() > 1 && dir[0] != '/')
+	{
+	    dir.insert(dir.begin(), '/');
+	}
+
+	// add the map
+	dirmap->add (YCPString(mpit->dir), sizelist);
+    }
+
+    return dirmap;
+}
+
 
 /** ------------------------
  *
@@ -598,7 +649,6 @@ PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
     return YCPVoid();
 }
 
-
 /** ------------------------
  *
  * @builtin TargetGetDU
@@ -640,30 +690,7 @@ PkgModuleFunctions::TargetGetDU ()
 	    mps = zypp_ptr()->diskUsage();
 	}
 
-	// create result data structure from the stored info and calculated disk usage
-	for (zypp::DiskUsageCounter::MountPointSet::const_iterator mpit = mps.begin();
-	    mpit != mps.end();
-	    mpit++)
-	{
-	    YCPList sizelist;
-	    // partition size
-	    sizelist->add (YCPInteger (mpit->total_size));
-	    // already used
-	    sizelist->add (YCPInteger (mpit->used_size));
-	    // used size after PkgCommit()
-	    sizelist->add (YCPInteger (mpit->pkg_size));
-	    // readonly flag
-	    sizelist->add (YCPInteger (mpit->readonly ? 1 : 0));
-
-	    std::string dir = mpit->dir;
-	    if (dir.size() > 1 && dir[0] != '/')
-	    {
-		dir.insert(dir.begin(), '/');
-	    }
-
-	    // add the map
-	    dirmap->add (YCPString(mpit->dir), sizelist);
-	}
+	dirmap = MPS2YCPMap(mps);
     }
     catch (...)
     {
