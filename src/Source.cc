@@ -1328,14 +1328,32 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 	return YCPBoolean(false);
     }
 
-    if (enabled)
+    try
     {
-	src.enable();
+	if (enabled)
+	{
+	    src.enable();
+	    if (!src.resStoreInitialized ())
+	    {
+		zypp_ptr()->addResolvables (src.resolvables());
+	    }
+	}
+	else
+	{
+	    src.disable();
+	    // remove the resolvables if they have been added
+	    if (src.resStoreInitialized ())
+	    {
+		zypp_ptr()->removeResolvables(src.resolvables());
+	    }
+	}
 	PkgFreshen();
     }
-    else
+    catch (const zypp::Exception& excpt)
     {
-	src.disable();
+	std::string url = src.url().asString();
+	y2error ("Error for %s: %s", url.c_str(), excpt.asString().c_str());
+	_last_error.setLastError(url + ": " + excpt.asUserString());
     }
 
     return YCPBoolean(src.enabled() == enabled);
@@ -1505,11 +1523,11 @@ PkgModuleFunctions::SourceEditGet ()
 /****************************************************************************************
  * @builtin SourceEditSet
  *
- * @short Rearange known InstSrces rank and default state
+ * @short Configure properties of installation sources
  * @description
- * Rearange known InstSrces rank and default state according to source_states
- * (highest priority first). Known InstSrces not mentioned in source_states
- * are deleted.
+ * Set states of installation sources. Note: Enabling/disabling a source does not
+ * (un)load the packages from the source! Use SourceSetEnabled() if you need to refresh
+ * the packages in the pool.
  *
  * @param list source_states List of source states. Same format as returned by
  * @see SourceEditGet.
@@ -1556,6 +1574,11 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
     if( ! descr->value( YCPString("enabled")).isNull() && descr->value(YCPString("enabled"))->isBoolean ())
     {
 	bool enable = descr->value(YCPString("enabled"))->asBoolean ()->value();
+
+	if (src.enabled() != enable)
+	{
+	    ycpwarning("Pkg::SourceEditSet() does not refresh the pool (src: %lu, state: %s)", src.numericId(), enable ? "disabled -> enabled" : "enabled -> disabled");
+	}
 
 	if( enable )
 	    src.enable();
