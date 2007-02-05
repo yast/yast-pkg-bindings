@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Feb  5 10:11:19 CET 2007 - lslezak@suse.cz
+
+- Pkg::SourceSetEnabled() - refresh resolvables in the pool after
+  enabling/disabling a source (#187352), Pkg::SourceEditSet()
+  - doc update, log a warning when changing state of a source
+- 2.13.109
+
+-------------------------------------------------------------------
 Mon Jan  8 14:20:30 CET 2007 - lslezak@suse.cz
 
 - Pkg::GetPackages supports `taboo and `locked options,
