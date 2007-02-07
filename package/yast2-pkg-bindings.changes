@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Wed Feb  7 10:15:47 CET 2007 - lslezak@suse.cz
+
+- pass value of ProgressPackage() callback to libzypp when
+  a package is removed (#226041)
+- do not change the alias of the added source if it is not empty
+  (do not replace the product name with a time stamp) (#220195)
+- 2.13.110
+
+-------------------------------------------------------------------
 Mon Feb  5 10:11:19 CET 2007 - lslezak@suse.cz
 
 - Pkg::SourceSetEnabled() - refresh resolvables in the pool after

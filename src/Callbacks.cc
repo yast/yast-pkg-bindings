@@ -327,8 +327,15 @@ namespace ZyppRecipients {
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
 	    if (callback._set) {
 		callback.addInt( value );
-		callback.evaluate();
-		//}
+
+		bool res = callback.evaluateBool();
+
+		if( !res )
+		{
+		    y2milestone( "Package remove callback returned abort" );
+		}
+
+		return res;
 	    }
 
 	    // return default value from the parent class
