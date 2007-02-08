@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Feb  8 11:10:46 CET 2007 - lslezak@suse.cz
+
+- Pkg::PkgDU() - use zypp_ptr()->getPartitions() call to get the
+  current partitioning  (faster than diskUsage() which computes
+  the current DU)
+
+-------------------------------------------------------------------
 Wed Feb  7 10:15:47 CET 2007 - lslezak@suse.cz
 
 - pass value of ProgressPackage() callback to libzypp when
