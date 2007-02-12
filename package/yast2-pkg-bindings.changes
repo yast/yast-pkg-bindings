@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Feb 12 09:23:12 CET 2007 - lslezak@suse.cz
+
+- added Pkg::CallbackAcceptNonTrustedGpgKey() - register callback
+  askUserToAcceptUnknownKey() in libzypp (#242087, #240771)
+- 2.15.7
+
+-------------------------------------------------------------------
 Wed Feb  7 10:15:47 CET 2007 - lslezak@suse.cz
 
 - pass value of ProgressPackage() callback to libzypp when

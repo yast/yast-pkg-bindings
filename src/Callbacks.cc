@@ -1288,15 +1288,20 @@ namespace ZyppRecipients {
 		callback.addStr(key.name());
                 callback.addStr(key.fingerprint());
 
-		return callback.evaluateBool();
+		bool res = callback.evaluateBool();
+		y2milestone("Callback ImportGpgKey value: %s", res ? "true" : "false");
+
+		return res;
 	    }
+
+	    y2milestone("Callback ImportGpgKey not registered, using default value: %s", zypp::KeyRingReport::askUserToImportKey(key) ? "true" : "false");
 
 	    return zypp::KeyRingReport::askUserToImportKey(key);
 	}
 
 	virtual bool askUserToTrustKey(const zypp::PublicKey& key)
 	{
-	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnknownGpgKey) );
+	    CB callback( ycpcb( YCPCallbacks::CB_AcceptNonTrustedGpgKey) );
 
 	    if (callback._set)
 	    {
@@ -1306,8 +1311,13 @@ namespace ZyppRecipients {
 		callback.addStr(key.name());
                 callback.addStr(key.fingerprint());
 
-		return callback.evaluateBool();
+		bool res = callback.evaluateBool();
+		y2milestone("Callback AcceptNonTrustedGpgKey value: %s", res ? "true" : "false");
+
+		return res;
 	    }
+
+	    y2milestone("Callback AcceptNonTrustedGpgKey not registered, using default value: %s", zypp::KeyRingReport::askUserToTrustKey(key) ? "true" : "false");
 
 	    return zypp::KeyRingReport::askUserToTrustKey(key);
 	}
@@ -1324,6 +1334,26 @@ namespace ZyppRecipients {
 	    }
 
 	    return zypp::KeyRingReport::askUserToAcceptUnsignedFile(file);
+	}
+
+	virtual bool askUserToAcceptUnknownKey(const std::string &file, const std::string &id)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnknownGpgKey) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(file);
+		callback.addStr(id);
+
+		bool res = callback.evaluateBool();
+		y2milestone("Callback AcceptUnknownGpgKey value: %s", res ? "true" : "false");
+
+		return res;
+	    }
+
+	    y2milestone("Callback AcceptUnknownGpgKey is not registered, using default value: %s", zypp::KeyRingReport::askUserToAcceptUnknownKey(file,id) ? "true" : "false");
+
+	    return zypp::KeyRingReport::askUserToAcceptUnknownKey(file,id);
 	}
 
 	virtual bool askUserToAcceptVerificationFailed(const std::string &file, const zypp::PublicKey &key) 
@@ -1567,11 +1597,21 @@ YCPValue PkgModuleFunctions::CallbackImportGpgKey( const YCPString& args ) {
 /**
  * @builtin CallbackAcceptUnknownGpgKey
  * @short Register callback function
- * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, string keyid, string keyname)</code>. The callback function should ask user whether the unknown key can be accepted, returned true value means to accept the file.
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, string keyid)</code>. The callback function should ask user whether the unknown key can be accepted, returned true value means to accept the key. 
  * @return void
  */
 YCPValue PkgModuleFunctions::CallbackAcceptUnknownGpgKey( const YCPString& args ) {
   return SET_YCP_CB( CB_AcceptUnknownGpgKey, args );
+}
+
+/**
+ * @builtin CallbackAcceptNonTrustedGpgKey
+ * @short Register callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, string keyid, string keyname, string fingerprint)</code>. The callback function should ask user whether the unknown key can be accepted, returned true value means to accept the file.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackAcceptNonTrustedGpgKey( const YCPString& args ) {
+  return SET_YCP_CB( CB_AcceptNonTrustedGpgKey, args );
 }
 
 /**
