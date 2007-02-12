@@ -2475,7 +2475,8 @@ YCPValue
 PkgModuleFunctions::PkgDU(const YCPString& package)
 {
     // get partitioning
-    zypp::DiskUsageCounter::MountPointSet mps = zypp_ptr()->getPartitions();
+    // TODO FIXME: use zypp::DiskUsageCounter::MountPointSet mps = zypp_ptr()->getPartitions(); in the future
+    zypp::DiskUsageCounter::MountPointSet mps = zypp_ptr()->diskUsage();
 
     // reset the package size
     for (zypp::DiskUsageCounter::MountPointSet::iterator mpit = mps.begin(); mpit != mps.end(); mpit++)
