@@ -90,6 +90,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_SourceChange,
       CB_ResolvableReport,
       CB_ImportGpgKey,
+      CB_AcceptNonTrustedGpgKey,
       CB_AcceptUnknownGpgKey,
       CB_AcceptUnsignedFile,
       CB_AcceptFileWithoutChecksum,
@@ -168,6 +169,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( SourceChange );
 	ENUM_OUT( ResolvableReport );
 	ENUM_OUT( ImportGpgKey );
+	ENUM_OUT( AcceptNonTrustedGpgKey );
 	ENUM_OUT( AcceptUnknownGpgKey );
 	ENUM_OUT( AcceptUnsignedFile );
 	ENUM_OUT( AcceptVerificationFailed );

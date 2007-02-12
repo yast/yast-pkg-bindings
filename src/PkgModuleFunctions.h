@@ -296,6 +296,8 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackImportGpgKey( const YCPString& func );	
 	/* TYPEINFO: void(string) */
+	YCPValue CallbackAcceptNonTrustedGpgKey( const YCPString& args );
+	/* TYPEINFO: void(string) */
 	YCPValue CallbackAcceptUnknownGpgKey( const YCPString& func );	
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackAcceptUnsignedFile( const YCPString& func );	
