@@ -652,7 +652,7 @@ PkgModuleFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselec
 /**
    @builtin IsAnyResolvable
    @short Is there any resolvable in the requried state?
-   @param symbol kind_r kind of resolvable, can be `product, `patch, `package, `selection, `pattern or `language
+   @param symbol kind_r kind of resolvable, can be `product, `patch, `package, `selection, `pattern, `language or `any for any kind of resolvable
    @param symbol status status of resolvable, can be `to_install or `to_remove
    @return boolean true if a resolvable with the requested status was found
 */
@@ -662,6 +662,7 @@ PkgModuleFunctions::IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& st
     zypp::Resolvable::Kind kind;
 
     std::string req_kind = kind_r->symbol ();
+    std::string stat_str = status->symbol();
 
     if( req_kind == "product" ) {
 	kind = zypp::ResTraits<zypp::Product>::kind;
@@ -681,13 +682,37 @@ PkgModuleFunctions::IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& st
     else if ( req_kind == "language" ) {
 	kind = zypp::ResTraits<zypp::Language>::kind;
     }
+    else if ( req_kind == "any" ) {
+	try
+	{ 
+	    for (zypp::ResPool::const_iterator it = zypp_ptr()->pool().begin();
+		it != zypp_ptr()->pool().end();
+		++it)
+	    {
+		if (stat_str == "to_install" && it->status().isToBeInstalled())
+		{
+		    return YCPBoolean(true);
+		}
+		else if (stat_str == "to_remove" && it->status().isToBeUninstalled())
+		{
+		    return YCPBoolean(true);
+		}
+	    }
+	}
+	catch (...)
+	{
+	    y2error("An error occurred during resolvable search.");
+	    return YCPNull();
+	}
+
+	return YCPBoolean(false); 
+    }
     else
     {
 	y2error("Pkg::IsAnyResolvable: unknown symbol: %s", req_kind.c_str());
 	return YCPNull();
     }
 
-    std::string stat_str = status->symbol();
 
     try
     { 
