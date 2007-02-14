@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Feb 14 18:04:07 CET 2007 - lslezak@suse.cz
+
+- additional parameters for Pkg::PkgUpdateAll() - silent_downgrades
+  and keep_installed_patches (#238488)
+- 2.13.114
+
+-------------------------------------------------------------------
 Wed Feb 14 08:14:40 CET 2007 - lslezak@suse.cz
 
 - added option `any to Pkg::IsAnyResolvable()

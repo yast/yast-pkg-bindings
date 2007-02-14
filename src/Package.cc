@@ -1616,10 +1616,13 @@ PkgModuleFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_na
  */
 
 YCPMap
-PkgModuleFunctions::PkgUpdateAll (const YCPBoolean& del)
+PkgModuleFunctions::PkgUpdateAll (const YCPBoolean& delete_unmaintained, const YCPBoolean& silent_downgrades,
+    const YCPBoolean& keep_installed_patches)
 {
     zypp::UpgradeStatistics stats;
-    stats.delete_unmaintained = del->value();
+    stats.delete_unmaintained = delete_unmaintained->value();
+    stats.silent_downgrades = silent_downgrades->value();
+    stats.keep_installed_patches = keep_installed_patches->value();
 
     YCPMap data;
 
