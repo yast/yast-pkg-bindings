@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Feb 14 08:14:40 CET 2007 - lslezak@suse.cz
+
+- added option `any to Pkg::IsAnyResolvable()
+- 2.15.9
+
+-------------------------------------------------------------------
 Wed Feb 14 07:30:00 CET 2007 - lslezak@suse.cz
 
 - added Pkg::IsAnyResolvable() — is there any resolvable
