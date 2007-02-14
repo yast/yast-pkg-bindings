@@ -1341,6 +1341,8 @@ PkgModuleFunctions::PkgAnyToDelete ()
 {
     bool ret = false;
 
+    y2warning("Pkg::PkgAnyToDelete() is obsoleted, use Pkg::IsAnyResolvable(`package, `to_remove) instead");
+
     try
     {
 	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
@@ -1375,6 +1377,8 @@ YCPValue
 PkgModuleFunctions::PkgAnyToInstall ()
 {
     bool ret = false;
+
+    y2warning("Pkg::PkgAnyToInstall() is obsoleted, use Pkg::IsAnyResolvable(`package, `to_install) instead");
 
     try
     {
