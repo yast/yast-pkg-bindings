@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Feb 14 07:30:00 CET 2007 - lslezak@suse.cz
+
+- added Pkg::IsAnyResolvable() — is there any resolvable
+  in the requried state? (#243568), Pkg::PkgAnyToInstall()
+  and Pkg::PkgAnyToDelete() are obsoleted now
+- 2.13.112
+
+-------------------------------------------------------------------
 Mon Feb 12 09:23:12 CET 2007 - lslezak@suse.cz
 
 - added Pkg::CallbackAcceptNonTrustedGpgKey() - register callback

@@ -582,6 +582,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue ResolvablePreselectPatches(const YCPSymbol& kind_r);
 	/* TYPEINFO: integer(symbol)*/
 	YCPValue ResolvableCountPatches(const YCPSymbol& kind_r);
+	/* TYPEINFO: boolean(symbol,symbol)*/
+	YCPValue IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status);
 
 	// keyring related
 	/* TYPEINFO: void(string,boolean)*/
