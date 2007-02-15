@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Feb 15 07:09:30 CET 2007 - lslezak@suse.cz
+
+- register ScanDB callbacks (RPM DB reading) (#219953)
+
+-------------------------------------------------------------------
 Wed Feb 14 08:14:40 CET 2007 - lslezak@suse.cz
 
 - added option `any to Pkg::IsAnyResolvable()

@@ -68,6 +68,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
     enum CBid {
       CB_StartRebuildDb, CB_ProgressRebuildDb, CB_NotifyRebuildDb, CB_StopRebuildDb,
       CB_StartConvertDb, CB_ProgressConvertDb, CB_NotifyConvertDb, CB_StopConvertDb,
+      CB_StartScanDb, CB_ProgressScanDb, CB_ErrorScanDb, CB_DoneScanDb,
       CB_StartProvide, CB_ProgressProvide, CB_DoneProvide,
       CB_StartPackage, CB_ProgressPackage, CB_DonePackage,
 
@@ -116,6 +117,11 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( ProgressConvertDb );
 	ENUM_OUT( NotifyConvertDb );
 	ENUM_OUT( StopConvertDb );
+	ENUM_OUT( StartScanDb );
+	ENUM_OUT( ProgressScanDb );
+	ENUM_OUT( ErrorScanDb );
+	ENUM_OUT( DoneScanDb );
+
 	ENUM_OUT( StartProvide );
 	ENUM_OUT( ProgressProvide );
 	ENUM_OUT( DoneProvide );
