@@ -502,8 +502,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue SaveState ();
 	/* TYPEINFO: boolean(boolean)*/
 	YCPValue RestoreState (const YCPBoolean&);
-	/* TYPEINFO: map<symbol,integer>(boolean,boolean,boolean)*/
-	YCPMap   PkgUpdateAll (const YCPBoolean& delete_unmaintained, const YCPBoolean& silent_downgrades, const YCPBoolean& keep_installed_patches);
+	/* TYPEINFO: map<symbol,integer>(map<string,any>)*/
+	YCPValue PkgUpdateAll (const YCPMap& options);
 	/* TYPEINFO: boolean()*/
 	YCPValue PkgAnyToDelete ();
 	/* TYPEINFO: boolean()*/

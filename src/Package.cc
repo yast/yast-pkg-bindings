@@ -1561,15 +1561,16 @@ PkgModuleFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_na
 
 /**
  * @builtin PkgUpdateAll
- * @short Update Packages marked for installation
+ * @param map<string,any> update_options Options for the solver. All parameters are optional, if a parameter is missing the default value from the package manager (libzypp) is used. Currently supported options: <tt>$["delete_unmaintained":boolean, "silent_downgrades":boolean, "keep_installed_patches":boolean]</tt>
+ * @short Update installed packages
  * @description
- * mark all packages for installation which are installed and have
- * an available candidate.
+ * Mark all packages for installation which are installed and have
+ * an available candidate for update.
  *
  * This will mark packages for installation *and* for deletion (if a
  * package provides/obsoletes another package)
  *
- * This function does not solve dependencies
+ * This function does not solve dependencies.
  *
  * Symbols and integer values returned:
  *
@@ -1612,17 +1613,56 @@ PkgModuleFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_na
  * on the delete_unmaintained arg, they are either tagged as to delete or
  * remain unchanged.
  *
- * @return map<symbol,integer>
+ * @return map<symbol,integer> summary of the update 
  */
 
-YCPMap
-PkgModuleFunctions::PkgUpdateAll (const YCPBoolean& delete_unmaintained, const YCPBoolean& silent_downgrades,
-    const YCPBoolean& keep_installed_patches)
+YCPValue
+PkgModuleFunctions::PkgUpdateAll (const YCPMap& options)
 {
     zypp::UpgradeStatistics stats;
-    stats.delete_unmaintained = delete_unmaintained->value();
-    stats.silent_downgrades = silent_downgrades->value();
-    stats.keep_installed_patches = keep_installed_patches->value();
+
+    YCPValue delete_unmaintained = options->value(YCPString("delete_unmaintained"));
+    if(!delete_unmaintained.isNull())
+    {
+	if (delete_unmaintained->isBoolean())
+	{
+	    stats.delete_unmaintained = delete_unmaintained->asBoolean()->value();
+	}
+	else
+	{
+	    y2error("unexpected type of 'delete_unmaintained' key: %s, must be a boolean!",
+		Type::vt2type(delete_unmaintained->valuetype())->toString().c_str());
+	}
+    }
+
+    YCPValue silent_downgrades = options->value(YCPString("silent_downgrades"));
+    if(!silent_downgrades.isNull())
+    {
+	if (silent_downgrades->isBoolean())
+	{
+	    stats.silent_downgrades = silent_downgrades->asBoolean()->value();
+	}
+	else
+	{
+	    y2error("unexpected type of 'silent_downgrades' key: %s, must be a boolean!",
+		Type::vt2type(silent_downgrades->valuetype())->toString().c_str());
+	}
+    }
+
+    YCPValue keep_installed_patches = options->value(YCPString("keep_installed_patches"));
+    if(!keep_installed_patches.isNull())
+    {
+	if (keep_installed_patches->isBoolean())
+	{
+	    stats.keep_installed_patches = keep_installed_patches->asBoolean()->value();
+	}
+	else
+	{
+	    y2error("unexpected type of 'keep_installed_patches' key: %s, must be a boolean!",
+		Type::vt2type(keep_installed_patches->valuetype())->toString().c_str());
+	}
+    }
+
 
     YCPMap data;
 
