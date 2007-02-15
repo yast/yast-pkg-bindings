@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Feb 15 11:14:05 CET 2007 - lslezak@suse.cz
+
+- Pkg::PkgUpdateAll() - pass all parameters in a map (more general
+  solution for future enhancements)
+- 2.13.115
+
+-------------------------------------------------------------------
 Wed Feb 14 18:04:07 CET 2007 - lslezak@suse.cz
 
 - additional parameters for Pkg::PkgUpdateAll() - silent_downgrades
