@@ -3,6 +3,9 @@ Wed Feb 21 16:13:53 CET 2007 - lslezak@suse.cz
 
 - display redirected URL instead of the original URL in the media
   change popup (#157040)
+- Pkg::SourceEditSet/Get can retrieve and set alias of a source
+  (#228978)
+- 2.15.12
 
 -------------------------------------------------------------------
 Thu Feb 15 11:14:05 CET 2007 - lslezak@suse.cz
