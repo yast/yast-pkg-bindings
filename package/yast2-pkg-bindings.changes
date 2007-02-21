@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Feb 21 13:52:39 CET 2007 - mvidner@suse.cz
+
+- Temporarily reverted the fix for #220195 until #247249 is fixed
+  properly.
+- 2.13.116
+
+-------------------------------------------------------------------
 Thu Feb 15 11:14:05 CET 2007 - lslezak@suse.cz
 
 - Pkg::PkgUpdateAll() - pass all parameters in a map (more general

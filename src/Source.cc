@@ -1003,8 +1003,6 @@ createManagedSource( const zypp::Url & url_r,
   zypp::Url new_url;
   string alias = removeAlias (url_r, new_url);
 
-  y2milestone("Alias from URL: '%s'", alias.c_str());
-
   zypp::Source_Ref newsrc = 
   (type.empty()) ?
     // autoprobe source type
@@ -1012,8 +1010,7 @@ createManagedSource( const zypp::Url & url_r,
     // use required source type, autorefresh = true
     zypp::SourceFactory().createFrom(type, new_url, path_r, alias, zypp::filesystem::Pathname(), base_source, true);
   
-  // if the source has empty alias use a time stamp
-  if (newsrc.alias().empty())
+  if (alias.empty ())
   {
     // use product name+edition as the alias
     // (URL is not enough for different sources in the same DVD drive)
@@ -1030,7 +1027,6 @@ createManagedSource( const zypp::Url & url_r,
     alias += timestamp ();
   
     newsrc.setAlias( alias );
-    y2milestone("Using time stamp '%s' as the alias", alias.c_str());
   }
 
   zypp::SourceManager::SourceId id = zypp::SourceManager::sourceManager()->addSource( newsrc );
