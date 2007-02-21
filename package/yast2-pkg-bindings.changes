@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Feb 21 16:13:53 CET 2007 - lslezak@suse.cz
+
+- display redirected URL instead of the original URL in the media
+  change popup (#157040)
+
+-------------------------------------------------------------------
 Thu Feb 15 11:14:05 CET 2007 - lslezak@suse.cz
 
 - Pkg::PkgUpdateAll() - pass all parameters in a map (more general
