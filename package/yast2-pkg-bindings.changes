@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Feb 21 16:13:53 CET 2007 - lslezak@suse.cz
+
+- reapply fix for #220195, the problem is fixed in
+  yast2-packager-2.13.168
+
+-------------------------------------------------------------------
 Wed Feb 21 13:52:39 CET 2007 - mvidner@suse.cz
 
 - Temporarily reverted the fix for #220195 until #247249 is fixed
