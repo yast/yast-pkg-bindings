@@ -3,6 +3,9 @@ Wed Feb 21 16:13:53 CET 2007 - lslezak@suse.cz
 
 - reapply fix for #220195, the problem is fixed in
   yast2-packager-2.13.168
+- display redirected URL instead of the original URL in the media
+  change popup (#157040)
+- 2.13.117
 
 -------------------------------------------------------------------
 Wed Feb 21 13:52:39 CET 2007 - mvidner@suse.cz

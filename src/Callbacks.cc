@@ -42,6 +42,9 @@
 
 ZyppRecipients::MediaChangeSensitivity _silent_probing = ZyppRecipients::MEDIA_CHANGE_FULL;
 
+// remember redirected URLs
+std::map<zypp::Source_Ref::NumericId, std::map<unsigned, std::string> > redirect_map;
+
 ///////////////////////////////////////////////////////////////////
 namespace ZyppRecipients {
 ///////////////////////////////////////////////////////////////////
@@ -810,8 +813,37 @@ namespace ZyppRecipients {
 	    {
 		// error message
 		callback.addStr( description );
+
+		// search URL in the redirection map
+		std::map<zypp::Source_Ref::NumericId, std::map<unsigned, std::string> >::const_iterator source_it = redirect_map.find(source.numericId());
+		bool found = false;
+		std::string report_url;
+
+		if (source_it != redirect_map.end())
+		{
+		    // search medium in the redirection map
+		    std::map<unsigned, std::string>::const_iterator media_it = (*source_it).second.find(mediumNr);
+
+		    if (media_it != (*source_it).second.end())
+		    {
+			// found medium in the source map
+			found = true;
+			// report the redirected URL
+			report_url = (*media_it).second;
+			y2milestone("Using redirected URL %s, original URL: %s", report_url.c_str(), source.url().asString().c_str());
+		    }
+		}
+
+		if (!found)
+		{
+		    // the source has not been redirected
+		    // use URL of the source 
+		    report_url = source.url().asString();
+		}
+
+
 		// current URL
-		callback.addStr( source.url().asString() );
+		callback.addStr( report_url );
 
 		// current product name (use the alias, see #214886)
 		callback.addStr( source.alias() );
@@ -853,6 +885,14 @@ namespace ZyppRecipients {
 		try {
 		    zypp::Url ret_url (ret);
 		    source.redirect( mediumNr, ret_url );
+
+		    // remember the redirection		    
+		    std::map<unsigned, std::string> source_redir = redirect_map[source.numericId()];
+		    source_redir[mediumNr] = ret;
+		    redirect_map[source.numericId()] = source_redir;
+
+		    y2milestone("Source redirected to %s", ret.c_str());
+
 		    return zypp::media::MediaChangeReport::CHANGE_URL;
 		}
 		catch ( ... )
