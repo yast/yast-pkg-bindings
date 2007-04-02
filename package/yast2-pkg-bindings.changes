@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Apr  2 13:58:44 CEST 2007 - lslezak@suse.cz
+
+- new callbacks Pkg::CallbackSourceCreateInit/Destroy() and
+  Pkg::CallbackSourceReportInit() - handle the ctor/dtor of libzypp
+  callbacks (#251726)
+- 2.15.13
+
+-------------------------------------------------------------------
 Wed Feb 21 16:13:53 CET 2007 - lslezak@suse.cz
 
 - display redirected URL instead of the original URL in the media

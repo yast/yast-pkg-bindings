@@ -87,10 +87,12 @@ namespace ZyppRecipients {
 
 	virtual void reportbegin()
 	{
+	    y2milestone("Convert DB Init Callback");
 	}
 
 	virtual void reportend()
 	{
+	    y2milestone("Convert DB Destroy Callback");
 	}
 
 	virtual void start(zypp::Pathname pname) {
@@ -972,6 +974,28 @@ namespace ZyppRecipients {
     {
 	SourceCreateReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
+	virtual void reportbegin()
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateInit ) );
+	    y2debug("Source Create begin");
+
+	    if (callback._set)
+	    {
+		callback.evaluate();
+	    }
+	}
+
+	virtual void reportend()
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateDestroy ) );
+	    y2debug("Source Create destroy");
+
+	    if (callback._set)
+	    {
+		callback.evaluate();
+	    }
+	}
+
 	virtual void start( const zypp::Url &url )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateStart ) );
@@ -1191,6 +1215,28 @@ namespace ZyppRecipients {
 
     struct SourceReport : public Recipient, public zypp::callback::ReceiveReport<zypp::source::SourceReport>
     {
+	virtual void reportbegin()
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportInit ) );
+	    y2debug("Source Report begin");
+
+	    if (callback._set)
+	    {
+		callback.evaluate();
+	    }
+	}
+
+	virtual void reportend()
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportDestroy ) );
+	    y2debug("Source Report end");
+
+	    if (callback._set)
+	    {
+		callback.evaluate();
+	    }
+	}
+
 	SourceReport( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
 	virtual void start( zypp::Source_Ref source, const std::string &task )
@@ -2144,6 +2190,25 @@ YCPValue PkgModuleFunctions::CallbackSourceProbeError( const YCPString& func)
 }
 
 
+YCPValue PkgModuleFunctions::CallbackSourceReportInit( const YCPString& func)
+{
+    return SET_YCP_CB( CB_SourceReportInit, func );
+}
+
+YCPValue PkgModuleFunctions::CallbackSourceReportDestroy( const YCPString& func)
+{
+    return SET_YCP_CB( CB_SourceReportDestroy, func );
+}
+
+YCPValue PkgModuleFunctions::CallbackSourceCreateInit( const YCPString& func)
+{
+    return SET_YCP_CB( CB_SourceCreateInit, func );
+}
+
+YCPValue PkgModuleFunctions::CallbackSourceCreateDestroy( const YCPString& func)
+{
+    return SET_YCP_CB( CB_SourceCreateDestroy, func );
+}
 
 /**
  * @builtin CallbackSourceProbeStart

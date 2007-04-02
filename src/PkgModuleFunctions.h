@@ -113,6 +113,8 @@ class PkgModuleFunctions : public Y2Namespace
       // callback related funcions
       void CallSourceReportStart(const std::string &text);
       void CallSourceReportEnd(const std::string &text);
+      void CallSourceReportInit();
+      void CallSourceReportDestroy();
 
       // After all, APPL_HIGH might be more appropriate, because we suggest
       // the user what he should do and if it does not work, it's his job to
@@ -224,6 +226,10 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue CallbackSourceCreateError( const YCPString& func);
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackSourceCreateEnd( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateInit( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceCreateDestroy( const YCPString& func);
 
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackSourceProbeStart( const YCPString& func);
@@ -238,6 +244,10 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackSourceProbeError( const YCPString& func);
 
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceReportInit( const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackSourceReportDestroy( const YCPString& func);
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackSourceReportStart( const YCPString& func);
 	/* TYPEINFO: void(string) */
