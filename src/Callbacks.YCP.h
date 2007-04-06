@@ -88,6 +88,8 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_ScriptStart, CB_ScriptProgress, CB_ScriptProblem, CB_ScriptFinish,
       CB_Message,
 
+      CB_Authentication,
+
       CB_MediaChange,
       CB_SourceChange,
       CB_ResolvableReport,
@@ -138,6 +140,8 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( ScriptProblem );
 	ENUM_OUT( ScriptFinish );
 	ENUM_OUT( Message );
+
+	ENUM_OUT( Authentication );
 
 	ENUM_OUT( SourceCreateStart );
 	ENUM_OUT( SourceCreateProgress );
@@ -413,6 +417,11 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 
 	  bool evaluateBool( const bool & def_r = false ) {
 	    return evaluate( YT_BOOLEAN ) ? _result->asBoolean()->value() : def_r;
+	  }
+
+	  YCPMap evaluateMap( const YCPMap def_r = YCPMap())
+	  {
+	      return evaluate( YT_MAP ) ? _result->asMap() : def_r;
 	  }
 	};
       private:

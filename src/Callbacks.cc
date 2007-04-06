@@ -855,6 +855,68 @@ namespace ZyppRecipients {
 	}
     };
 
+    struct AuthReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::media::AuthenticationReport>
+    {
+	AuthReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual bool prompt(const zypp::Url& url, const std::string& msg, zypp::media::AuthData& auth_data)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_Authentication ) );
+
+	    if (callback._set)
+	    {
+		callback.addStr(url.asString());
+		callback.addStr(msg);
+		callback.addStr(auth_data.username());
+		callback.addStr(auth_data.password());
+
+		YCPMap cbk(callback.evaluateMap());
+
+		YCPValue ycp_val = cbk->value(YCPString("username"));
+		if (!ycp_val.isNull() && ycp_val->isString())
+		{
+		    // set the entered username
+		    auth_data.setUserName(ycp_val->asString()->value());
+		}
+		else
+		{
+		    y2error("Invalid/missing value 'username'");
+		}
+
+		ycp_val = cbk->value(YCPString("password"));
+		if (!ycp_val.isNull() && ycp_val->isString())
+		{
+		    // set the entered password
+		    auth_data.setPassword(ycp_val->asString()->value());
+		}
+		else
+		{
+		    y2error("Invalid/missing value 'password'");
+		}
+
+		// authentication confirmed?
+		bool ret = false;
+
+		ycp_val = cbk->value(YCPString("continue"));
+		if (!ycp_val.isNull() && ycp_val->isBoolean())
+		{
+		    // continue?
+		    ret = ycp_val->asBoolean()->value();
+		    y2milestone("Use the authentication data: %s", ret ? "true" : "false");
+		}
+		else
+		{
+		    y2error("Invalid/missing value 'continue'");
+		}
+
+		return ret;
+	    }
+
+	    // return the default value from the parent class
+	    return zypp::media::AuthenticationReport::prompt(url, msg, auth_data);
+	}
+    };
+
     ///////////////////////////////////////////////////////////////////
     // MediaChangeCallback
     ///////////////////////////////////////////////////////////////////
@@ -2310,6 +2372,16 @@ YCPValue PkgModuleFunctions::CallbackScriptFinish( const YCPString& args ) {
  */
 YCPValue PkgModuleFunctions::CallbackMessage( const YCPString& args ) {
     return SET_YCP_CB( CB_Message, args );
+}
+
+/**
+ * @builtin CallbackAuthentication
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>map(string url, string message, string username, string password)</code>. The returned map must contain these items: $[ "username" : string, "password" : string, "continue" : boolean ]. If <code>"continue"</code> value is false or is missing the authentification (and the download process) is canceled. The callback function is evaluated when user authentication is required to download the requested file.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackAuthentication( const YCPString& func ) {
+    return SET_YCP_CB( CB_Authentication, func );
 }
 
 #undef SET_YCP_CB

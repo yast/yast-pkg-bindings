@@ -270,6 +270,9 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue CallbackMessage( const YCPString& args );
 
 	/* TYPEINFO: void(string) */
+	YCPValue CallbackAuthentication( const YCPString& func );
+
+	/* TYPEINFO: void(string) */
 	YCPValue CallbackMediaChange (const YCPString& func);
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackSourceChange (const YCPString& func);

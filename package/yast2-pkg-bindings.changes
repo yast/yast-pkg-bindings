@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Apr  6 10:30:31 CEST 2007 - lslezak@suse.cz
+
+- added Pkg::CallbackAuthentication() - handle AuthenticationReport
+  callback (#190609)
+- 2.15.14
+
+-------------------------------------------------------------------
 Mon Apr  2 13:58:44 CEST 2007 - lslezak@suse.cz
 
 - new callbacks Pkg::CallbackSourceCreateInit/Destroy() and
