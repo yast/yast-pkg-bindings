@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Apr 10 16:01:19 CEST 2007 - lslezak@suse.cz
+
+- create and register AuthReceive callback object (required
+  for Pkg::CallbackAuthentication())
+- 2.15.15
+
+-------------------------------------------------------------------
 Fri Apr  6 10:30:31 CEST 2007 - lslezak@suse.cz
 
 - added Pkg::CallbackAuthentication() - handle AuthenticationReport

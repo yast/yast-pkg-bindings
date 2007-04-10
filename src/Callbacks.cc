@@ -1666,6 +1666,9 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
     // key ring signal callback
     ZyppRecipients::KeyRingSignal _keyRingSignal;
 
+    // authentication callback
+    ZyppRecipients::AuthReceive _authReceive;
+
   public:
 
     ZyppReceive( const YCPCallbacks & ycpcb_r )
@@ -1687,6 +1690,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
       , _digestReceive( *this )
       , _keyRingReceive( *this )
       , _keyRingSignal( *this )
+      , _authReceive( *this )
     {
 	// connect the receivers
 	_convertDbReceive.connect();
@@ -1706,6 +1710,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
  	_digestReceive.connect();
 	_keyRingReceive.connect();
 	_keyRingSignal.connect();
+	_authReceive.connect();
     }
 
     virtual ~ZyppReceive()
@@ -1728,6 +1733,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_digestReceive.disconnect();
 	_keyRingReceive.disconnect();
 	_keyRingSignal.disconnect();
+	_authReceive.disconnect();
     }
   public:
 
