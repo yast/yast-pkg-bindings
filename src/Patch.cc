@@ -118,11 +118,12 @@ PkgModuleFunctions::YouGetUserPassword ()
 YCPValue
 PkgModuleFunctions::YouSetUserPassword (const YCPString& user, const YCPString& passwd, const YCPBoolean& p)
 {
+ /*   
+    TODO FIXME
     string username = user->value_cstr();
     string password = passwd->value_cstr();
     bool persistent = p->value();
 
-    /* TODO FIXME
     _last_error =
         _y2pm.youPatchManager().instYou().setUserPassword( username,
                                                            password,

@@ -201,6 +201,26 @@ PkgModuleFunctions::SourceRestore()
     return YCPBoolean(success);
 }
 
+/****************************************************************************************
+ * @builtin SourceGetBrokenSources
+ *
+ * @short Return list of broken sources (sources which failed to restore)
+ * @description
+ * Get list of all sources which could not have been restored.
+ * @return list<string> list of aliases (product names or URLs)
+ **/
+YCPValue PkgModuleFunctions::SourceGetBrokenSources()
+{
+    YCPList ret;
+
+    for( std::set<std::string>::const_iterator it = _broken_sources.begin() ;
+	it != _broken_sources.end() ; ++it )
+    {
+	ret->add(YCPString(*it));
+    }
+
+    return ret;
+}
 
 /****************************************************************************************
  * @builtin SourceLoad
