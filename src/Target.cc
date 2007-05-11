@@ -293,12 +293,16 @@ get_disk_stats (const char *fs, long long *used, long long *size, long long *bsi
     if (statvfs (fs, &sb) < 0)
     {
 	*used = *size = *bsize = -1;
+	y2error("statvfs() failed: %s", strerror(errno));
 	return;
     }
     *bsize = sb.f_frsize ? : sb.f_bsize;		// block size
     *size = sb.f_blocks * *bsize;			// total size
     *used = (sb.f_blocks - sb.f_bfree) * *bsize;
     *available = sb.f_bavail * *bsize;			// available for non-root user
+
+    y2milestone("Dir %s: sb.f_frsize: %lu, sb.f_bsize: %lu, sb.f_blocks: %lld, sb.f_bfree: %lld, sb.f_bavail: %lld, bsize: %lld, size: %lld, used: %lld, available: %lld", fs, sb.f_frsize, sb.f_bsize, sb.f_blocks, sb.f_bfree, sb.f_bavail, *bsize, *size, *used, *available);
+
 }
 
 

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri May 11 16:44:21 CEST 2007 - lslezak@suse.cz
+
+- log result of statvfs() call to debug #245734
+- 2.15.17
+
+-------------------------------------------------------------------
 Wed Apr 25 14:11:33 CEST 2007 - lslezak@suse.cz
 
 - added Pkg::SourceGetBrokenSources() - return list of broken
