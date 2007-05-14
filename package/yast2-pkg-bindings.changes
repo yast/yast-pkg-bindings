@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon May 14 16:49:41 CEST 2007 - lslezak@suse.cz
+
+- Pkg::TargetAvailable() returns -1 instead of uninitialized value
+  if an error occurs (#245734)
+- 2.15.18
+
+-------------------------------------------------------------------
 Fri May 11 16:44:21 CEST 2007 - lslezak@suse.cz
 
 - log result of statvfs() call to debug #245734
