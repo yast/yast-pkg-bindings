@@ -160,8 +160,15 @@ PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
 YCPValue
 PkgModuleFunctions::SourceRestore()
 {
-    CallSourceReportInit();
-    CallSourceReportStart(_("Downloading files..."));
+    // evaluate the callbacks only when the source manager hasn't been initialized
+    bool enable_callbacks = zypp::SourceManager::sourceManager()->Source_begin()
+	== zypp::SourceManager::sourceManager()->Source_end();
+
+    if (enable_callbacks)
+    {
+	CallSourceReportInit();
+	CallSourceReportStart(_("Downloading files..."));
+    }
 
     bool success = true;
 
@@ -195,8 +202,11 @@ PkgModuleFunctions::SourceRestore()
 	success = false;
     }
 
-    CallSourceReportEnd(_("Downloading files..."));
-    CallSourceReportDestroy();
+    if (enable_callbacks)
+    {
+	CallSourceReportEnd(_("Downloading files..."));
+	CallSourceReportDestroy();
+    }
 
     return YCPBoolean(success);
 }
@@ -235,9 +245,6 @@ PkgModuleFunctions::SourceLoad()
 {
     bool success = true;
 
-    CallSourceReportInit();
-    CallSourceReportStart(_("Parsing files..."));
-
     std::list<zypp::SourceManager::SourceId> ids;
 
     // get all enabled sources
@@ -251,6 +258,8 @@ PkgModuleFunctions::SourceLoad()
 	_last_error.setLastError(excpt.asUserString());
 	success = false;
     }
+
+    bool callbacks_evaluated = false;
    
     // load resolvables the enabled sources 
     for( std::list<zypp::SourceManager::SourceId>::iterator it = ids.begin(); it != ids.end(); ++it)
@@ -262,13 +271,30 @@ PkgModuleFunctions::SourceLoad()
 	    {
 		if( src.enabled() )
 		{
-		    zypp_ptr()->addResolvables (src.resolvables());
+		    if (!src.resStoreInitialized ())
+		    {
+			if (!callbacks_evaluated)
+			{
+			    CallSourceReportInit();
+			    CallSourceReportStart(_("Parsing files..."));
+			    callbacks_evaluated = true;
+			}
+
+			zypp_ptr()->addResolvables (src.resolvables());
+		    }
 		}
 		else
 		{
 		    // remove the resolvables if they have been added
 		    if (src.resStoreInitialized ())
 		    {
+			if (!callbacks_evaluated)
+			{
+			    CallSourceReportInit();
+			    CallSourceReportStart(_("Parsing files..."));
+			    callbacks_evaluated = true;
+			}
+
 		        zypp_ptr()->removeResolvables(src.resolvables());
 		    }
 		}
@@ -295,8 +321,11 @@ PkgModuleFunctions::SourceLoad()
 	}
     }
 
-    CallSourceReportEnd(_("Parsing files..."));
-    CallSourceReportDestroy();
+    if (callbacks_evaluated)
+    {
+	CallSourceReportEnd(_("Parsing files..."));
+	CallSourceReportDestroy();
+    }
 
     return YCPBoolean(success);
 }

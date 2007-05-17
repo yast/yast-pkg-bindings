@@ -597,9 +597,12 @@ PkgModuleFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselec
 	    i;
 	for (i = b; i != e; ++i)
 	{
-	    if (i->status().isNeeded()) {	// uninstalled
-		zypp::Patch::constPtr pch = zypp::asKind<zypp::Patch>(i->resolvable());
-		if (pch)
+	    zypp::Patch::constPtr pch = zypp::asKind<zypp::Patch>(i->resolvable());
+
+	    // is it a patch?
+	    if (pch)
+	    {
+	    	if (i->status().isNeeded())	// uninstalled
 		{
 		    // dont auto-install optional patches
 		    if (pch->category () != "optional")
@@ -636,6 +639,10 @@ PkgModuleFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselec
 		    {
 			y2milestone("Ignoring optional patch (id): %s", pch->id().c_str());
 		    }
+		}
+		else
+		{
+		    y2milestone("Patch %s is not applicable", pch->id().c_str());
 		}
 	    }
 	}

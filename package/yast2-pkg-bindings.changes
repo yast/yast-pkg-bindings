@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Thu May 17 15:35:54 CEST 2007 - lslezak@suse.cz
+
+- Evaluate start/finish callbacks in Pkg::SourceRestore() and
+  Pkg::SourceLoad() only when needed (removed the flashing popup
+  effect during installation) 
+- Log not applicable patches to y2log
+- 2.15.19
+
+-------------------------------------------------------------------
 Mon May 14 16:49:41 CEST 2007 - lslezak@suse.cz
 
 - Pkg::TargetAvailable() returns -1 instead of uninitialized value
