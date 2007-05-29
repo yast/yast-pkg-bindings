@@ -1590,7 +1590,7 @@ namespace ZyppRecipients {
     {
 	KeyRingSignal ( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual void trustedKeyAdded( const zypp::KeyRing &/*keyring*/, const zypp::PublicKey &key )
+	virtual void trustedKeyAdded( const zypp::PublicKey &key )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_TrustedKeyAdded) );
 
@@ -1602,7 +1602,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-        virtual void trustedKeyRemoved( const zypp::KeyRing &/*keyring*/, const zypp::PublicKey &key )
+        virtual void trustedKeyRemoved( const zypp::PublicKey &key )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_TrustedKeyRemoved) );
 

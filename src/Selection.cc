@@ -117,7 +117,7 @@ PkgModuleFunctions::GetSelections (const YCPSymbol& stat, const YCPString& cat)
 	    }
 	    else
 	    {
-		y2warning (string ("Unknown status in Pkg::GetSelections(" + status + ", ...)").c_str());
+		y2warning("Unknown status in Pkg::GetSelections(%s, ...)", status.c_str());
 		break;
 	    }
 
@@ -218,7 +218,7 @@ PkgModuleFunctions::GetPatterns(const YCPSymbol& stat, const YCPString& cat)
 	    }
 	    else
 	    {
-		y2warning (string ("Unknown status in Pkg::GetPatterns(" + status + ", ...)").c_str());
+		y2warning("Unknown status in Pkg::GetPatterns(%s, ...)", status.c_str());
 		break;
 	    }
 

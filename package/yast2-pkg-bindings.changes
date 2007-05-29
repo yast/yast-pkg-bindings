@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue May 29 11:20:43 CEST 2007 - lslezak@suse.cz
+
+- updated GPG callbacks (#277117)
+- 2.15.20
+
+-------------------------------------------------------------------
 Thu May 17 15:35:54 CEST 2007 - lslezak@suse.cz
 
 - Evaluate start/finish callbacks in Pkg::SourceRestore() and
