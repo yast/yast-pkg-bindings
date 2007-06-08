@@ -1934,7 +1934,7 @@ PkgModuleFunctions::PkgApplReset ()
 /**
    @builtin PkgSolve
    @short Solve current package dependencies
-   @optarg booean filter  filter all conflicts with installed packages
+   @optarg boolean filter  unused, only for backward compatibility
    (installed packages will be preferred)
    @return boolean
 
