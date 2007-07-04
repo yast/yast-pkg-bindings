@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Jul  4 16:39:47 CEST 2007 - lslezak@suse.cz
+
+- The first step to the new libzypp API (RepoManager) - too many
+  missing code but it can be at least compiled...
+- 2.15.21
+
+-------------------------------------------------------------------
 Tue May 29 11:20:43 CEST 2007 - lslezak@suse.cz
 
 - updated GPG callbacks (#277117)

@@ -745,6 +745,7 @@ PkgModuleFunctions::SourceProduct (const YCPInteger& id)
 /*
 void SourceProvideFileEx(const zypp::RepoInfo &rep, const std::string &file,
     const std::string &cachedir, const std::string &targetdir, bool optional = true)
+// TODO: add directory and recursive parameter
 {
     try {
 	zypp::OnMediaLocation oml;
@@ -804,13 +805,14 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
     {
 	try {
 	    zypp::OnMediaLocation oml;
-	    oml.medianr(mid->value());
-	    oml.filename(f->value());
+	    oml.setMedianr(mid->value());
+	    oml.setFilename(f->value());
 
 	    zypp::MediaSetAccess maccess(*src.baseUrlsBegin());
 
 	    zypp::Fetcher fetcher;
 	    fetcher.enqueue(oml);
+	    # warning TODO FIXME: use MediaSetAccess only (without Fetcher) ??
 	    fetcher.addCachePath("/tmp/cache");
 	    fetcher.start("/download-dir", maccess);
 	    fetcher.reset();
@@ -1264,7 +1266,8 @@ PkgModuleFunctions::SourceCacheCopyTo (const YCPString& dir)
 YCPValue
 PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 {
-#warning FIXME: libzypp doesn provide zypp::SourceFactory
+#warning FIXME: SourceScan is NOT implemented!!
+// FIXME: use MediaProducts::productsInMedia()
 /*
   zypp::SourceFactory factory;
 
