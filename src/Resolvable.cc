@@ -405,8 +405,8 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 		info->add(YCPString("locked"), YCPBoolean(it->status().isLocked()));
 
 		// source
-		zypp::Source_Ref res_src = (*it)->source();
-		info->add(YCPString("source"), YCPInteger(res_src.numericId()));
+		zypp::Repository repo = (*it)->repository();
+		info->add(YCPString("source"), YCPInteger(repo.numericId()));
 
 		// product specific info
 		if( req_kind == "product" ) {

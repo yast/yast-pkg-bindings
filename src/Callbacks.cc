@@ -35,7 +35,6 @@
 #include <zypp/KeyRing.h>
 #include <zypp/PublicKey.h>
 #include <zypp/Digest.h>
-#include <zypp/SourceManager.h>
 
 // FIXME: do this nicer, source create use this to avoid user feedback
 // on probing of source type
@@ -43,7 +42,8 @@
 ZyppRecipients::MediaChangeSensitivity _silent_probing = ZyppRecipients::MEDIA_CHANGE_FULL;
 
 // remember redirected URLs
-std::map<zypp::Source_Ref::NumericId, std::map<unsigned, std::string> > redirect_map;
+// FIXME huh?
+std::map<zypp::Repository::NumericId, std::map<unsigned, std::string> > redirect_map;
 
 ///////////////////////////////////////////////////////////////////
 namespace ZyppRecipients {
@@ -453,8 +453,10 @@ namespace ZyppRecipients {
 
 	    size = pkg->archivesize();
 
-	    int source_id = pkg->source().numericId();
-	    int media_nr = pkg->sourceMediaNr();
+// FIXME NID
+	    int source_id = 0;//pkg->source().numericId();
+// FIXME
+	    int media_nr = 0;//pkg->sourceMediaNr();
 
 	    if( source_id != last_source_id || media_nr != last_source_media )
 	    {
@@ -924,7 +926,7 @@ namespace ZyppRecipients {
     {
 	MediaChangeReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual Action requestMedia(zypp::Source_Ref source, unsigned mediumNr, zypp::media::MediaChangeReport::Error error, const std::string &description)
+	virtual Action requestMedia(zypp::Repository source, unsigned mediumNr, zypp::media::MediaChangeReport::Error error, const std::string &description)
 	{
 	    if ( _silent_probing == MEDIA_CHANGE_DISABLE )
 		return zypp::media::MediaChangeReport::ABORT;
@@ -940,7 +942,7 @@ namespace ZyppRecipients {
 		callback.addStr( description );
 
 		// search URL in the redirection map
-		std::map<zypp::Source_Ref::NumericId, std::map<unsigned, std::string> >::const_iterator source_it = redirect_map.find(source.numericId());
+		std::map<zypp::Repository::NumericId, std::map<unsigned, std::string> >::const_iterator source_it = redirect_map.find(source.numericId());
 		bool found = false;
 		std::string report_url;
 
@@ -955,7 +957,7 @@ namespace ZyppRecipients {
 			found = true;
 			// report the redirected URL
 			report_url = (*media_it).second;
-			y2milestone("Using redirected URL %s, original URL: %s", report_url.c_str(), source.url().asString().c_str());
+			y2milestone("Using redirected URL %s, original URL: %s", report_url.c_str(), source.info().baseUrlsBegin()->asString().c_str());
 		    }
 		}
 
@@ -963,15 +965,14 @@ namespace ZyppRecipients {
 		{
 		    // the source has not been redirected
 		    // use URL of the source 
-		    report_url = source.url().asString();
+		    report_url = source.info().baseUrlsBegin()->asString();
 		}
-
 
 		// current URL
 		callback.addStr( report_url );
 
 		// current product name (use the alias, see #214886)
-		callback.addStr( source.alias() );
+		callback.addStr( source.info().alias() );
 
 		// current medium, -1 means enable [Ignore]
 		callback.addInt( 0 );
@@ -1009,7 +1010,8 @@ namespace ZyppRecipients {
 		// try/catch to catch invalid URLs
 		try {
 		    zypp::Url ret_url (ret);
-		    source.redirect( mediumNr, ret_url );
+#warning FIXME: redirection is missing!
+		    //source.redirect( mediumNr, ret_url );
 
 		    // remember the redirection		    
 		    std::map<unsigned, std::string> source_redir = redirect_map[source.numericId()];
@@ -1032,6 +1034,8 @@ namespace ZyppRecipients {
 	}
     };
 
+#warning FIXME SourceCreateReport has been removed
+/*
     struct SourceCreateReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::SourceCreateReport>
     {
 	SourceCreateReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
@@ -1147,12 +1151,13 @@ namespace ZyppRecipients {
 	    }
 	}
     };
+*/
 
-
+# warning FIXME: ProbeSourceReport has been removeed
     ///////////////////////////////////////////////////////////////////
     // ProbeSourceReport
     ///////////////////////////////////////////////////////////////////
-    struct ProbeSourceReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::ProbeSourceReport>
+/*    struct ProbeSourceReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::ProbeSourceReport>
     {
 	ProbeSourceReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
@@ -1247,6 +1252,7 @@ namespace ZyppRecipients {
 	    }
 
 	    return zypp::source::ProbeSourceReport::progress(url, value);
+	    return true;
 	}
 
 	virtual zypp::source::ProbeSourceReport::Action problem( const zypp::Url &url, zypp::source::ProbeSourceReport::Error error, const std::string &description )
@@ -1274,7 +1280,10 @@ namespace ZyppRecipients {
 	    return zypp::source::ProbeSourceReport::problem(url, error, description);
 	}
     };
+    */
 
+# warning FIXME: SourceReport has been removed
+/*
     struct SourceReport : public Recipient, public zypp::callback::ReceiveReport<zypp::source::SourceReport>
     {
 	virtual void reportbegin()
@@ -1399,6 +1408,7 @@ namespace ZyppRecipients {
 	    }
 	}
     };
+    */
 
 
     struct ResolvableReport : public Recipient, public zypp::callback::ReceiveReport<zypp::target::MessageResolvableReport>
@@ -1650,9 +1660,12 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
     ZyppRecipients::MessageReceive	_messageReceive;
 
     // source manager callback
+#warning FIXME: source callbacks are missing
+/*
     ZyppRecipients::SourceCreateReceive _sourceCreateReceive;
     ZyppRecipients::SourceReport	_sourceReport;
     ZyppRecipients::ProbeSourceReceive _probeSourceReceive;
+*/
 
     // resolvable report
     ZyppRecipients::ResolvableReport _resolvableReport;
@@ -1683,9 +1696,10 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
       , _downloadProgressReceive( *this )
       , _scriptExecReceive( *this )
       , _messageReceive( *this )
-      , _sourceCreateReceive( *this )
-      , _sourceReport( *this )
-      , _probeSourceReceive( *this )
+#warning FIXME: source callbacks are missing
+//      , _sourceCreateReceive( *this )
+//      , _sourceReport( *this )
+//      , _probeSourceReceive( *this )
       , _resolvableReport( *this )
       , _digestReceive( *this )
       , _keyRingReceive( *this )
@@ -1703,9 +1717,10 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_downloadProgressReceive.connect();
 	_scriptExecReceive.connect();
 	_messageReceive.connect();
-	_sourceCreateReceive.connect();
-	_sourceReport.connect();
-	_probeSourceReceive.connect();
+#warning FIXME: source callbacks are missing
+//	_sourceCreateReceive.connect();
+//	_sourceReport.connect();
+//	_probeSourceReceive.connect();
 	_resolvableReport.connect();
  	_digestReceive.connect();
 	_keyRingReceive.connect();
@@ -1726,9 +1741,10 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_downloadProgressReceive.disconnect();
 	_scriptExecReceive.disconnect();
 	_messageReceive.disconnect();
-	_sourceCreateReceive.disconnect();
-	_sourceReport.disconnect();
-	_probeSourceReceive.disconnect();
+#warning FIXME: source callbacks are missing
+//	_sourceCreateReceive.disconnect();
+//	_sourceReport.disconnect();
+//	_probeSourceReceive.disconnect();
 	_resolvableReport.disconnect();
 	_digestReceive.disconnect();
 	_keyRingReceive.disconnect();

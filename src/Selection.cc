@@ -41,7 +41,6 @@
 #include <zypp/Resolvable.h>
 #include <zypp/Selection.h>
 #include <zypp/Pattern.h>
-#include <zypp/SourceManager.h>
 
 using std::string;
 
@@ -100,9 +99,9 @@ PkgModuleFunctions::GetSelections (const YCPSymbol& stat, const YCPString& cat)
 	    else if (status == "available")
 	    {
 		// ignore installed selections
-		zypp::Source_Ref src = (*it)->source();
+		zypp::Repository src = (*it)->repository();
 
-		if (src != zypp::Source_Ref::noSource)
+		if (src != zypp::Repository::noRepository)
 		    selection = it->resolvable()->name();
 	    }
 	    else if (status == "selected")
@@ -201,9 +200,9 @@ PkgModuleFunctions::GetPatterns(const YCPSymbol& stat, const YCPString& cat)
 	    else if (status == "available")
 	    {
 		// ignore installed patterns
-		zypp::Source_Ref src = (*it)->source();
+		zypp::Repository src = (*it)->repository();
 
-		if (src != zypp::Source_Ref::noSource)
+		if (src != zypp::Repository::noRepository)
 		    pattern = it->resolvable()->name();
 	    }
 	    else if (status == "selected")
@@ -307,7 +306,7 @@ PkgModuleFunctions::PatternData (const YCPString& pat)
 	    data->add (YCPString ("script"), YCPString (pattern->script().asString()));
 	    data->add (YCPString ("version"), YCPString((*it)->edition().asString()));
 	    data->add (YCPString ("arch"), YCPString((*it)->arch().asString()));
-	    data->add (YCPString ("srcid"), YCPInteger((*it)->source().numericId()));
+	    data->add (YCPString ("srcid"), YCPInteger((*it)->repository().numericId()));
 	}
 	else
 	{

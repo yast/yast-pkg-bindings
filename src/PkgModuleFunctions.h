@@ -43,7 +43,8 @@
 #include <zypp/Url.h>
 #include <zypp/Arch.h>
 #include <zypp/DiskUsageCounter.h>
-#include <zypp/SourceManager.h>
+#include <zypp/RepoInfo.h>
+#include <zypp/RepoManager.h>
 
 #include "PkgError.h"
 
@@ -94,6 +95,9 @@ class PkgModuleFunctions : public Y2Namespace
 
 
     private: // source related
+    
+      // all known installation sources
+      std::list<zypp::Repository> repos;
 
       bool DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
 			      const std::string& version, const bool onlyNeeded = false);
@@ -103,6 +107,7 @@ class PkgModuleFunctions : public Y2Namespace
       bool DoAllKind(zypp::Resolvable::Kind kind, bool provide);
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);
       YCPValue PkgProp( zypp::PoolItem_Ref item );
+      YCPValue PkgMediaSizesOrCount (bool sizes);
 
       void SetCurrentDU();
 
@@ -136,10 +141,12 @@ class PkgModuleFunctions : public Y2Namespace
 
       /**
        * Logging helper:
-       * call zypp::SourceManager::sourceManager()->findSource
-       * and in case of exception, log error and setLastError AND RETHROW
+       * search for a repository and in case of exception, log error
+       * and setLastError AND RETHROW
        */
-      zypp::Source_Ref logFindSource (zypp::SourceManager::SourceId id);
+	zypp::Repository logFindRepository(zypp::Repository::NumericId id);
+	zypp::Repository::NumericId createManagedSource(const zypp::Url & url_r,
+	    const zypp::Pathname & path_r, const bool base_source, const std::string& type);
 
     public:
 	// general

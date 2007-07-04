@@ -38,7 +38,6 @@
 
 #include <zypp/target/rpm/RpmDb.h>
 #include <zypp/Product.h>
-#include <zypp/SourceManager.h>
 #include <zypp/DiskUsageCounter.h>
 #include <zypp/target/store/PersistentStorage.h>
 
@@ -146,6 +145,9 @@ PkgModuleFunctions::TargetDisableSources ()
 {
     try
     {
+#warning TargetDisableSources is NOT implemented
+// FIXME: should it also remove from pool?
+/*
 	zypp::SourceManager::disableSourcesAt( _target_root );
 
 	// disable source refresh - workaround for #220056
@@ -161,6 +163,7 @@ PkgModuleFunctions::TargetDisableSources ()
 	    it->setAutorefresh(false);
 	    store.storeSource( *it );
 	}
+*/
     }
     catch (zypp::Exception & excpt)
     {
@@ -168,7 +171,6 @@ PkgModuleFunctions::TargetDisableSources ()
 	ycperror("TargetDisableSources has failed: %s", excpt.msg().c_str() );
         return YCPBoolean(false);
     }
-
     return YCPBoolean(true);
 }
 

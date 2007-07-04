@@ -42,7 +42,6 @@
 #include <zypp/Patch.h>
 #include <zypp/SrcPackage.h>
 #include <zypp/Product.h>
-#include <zypp/SourceManager.h>
 #include <zypp/UpgradeStatistics.h>
 #include <zypp/target/rpm/RpmDb.h>
 #include <zypp/target/TargetException.h>
@@ -193,17 +192,22 @@ PkgModuleFunctions::PkgMediaNames ()
 {
 # warning No installation order
 
-    std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
+#warning PkgMediaNames is NOT implemented!!!
+// FIXME
+/*
+//    std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
 
     YCPList res;
 
     // initialize
+// FIXME: for all enabled sources...
     for( std::list<zypp::SourceManager::SourceId>::const_iterator sit = source_ids.begin();
 	sit != source_ids.end(); ++sit)
     {
 	unsigned id = *sit;
 
-	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
+//FIXME
+//	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
 
 	try
 	{
@@ -248,6 +252,9 @@ PkgModuleFunctions::PkgMediaNames ()
     y2milestone( "Pkg::PkgMediaNames result: %s", res->toString().c_str());
 
     return res;
+*/
+
+    return YCPList();
 }
 
 
@@ -265,10 +272,12 @@ PkgModuleFunctions::PkgMediaNames ()
  *  @usage Pkg::PkgMediaSizes () -> [ [src1_media_1_size, src1_media_2_size, ...], ..]
  */
 YCPValue
-PkgModuleFunctions::PkgMediaSizes ()
+PkgModuleFunctions::PkgMediaSizesOrCount (bool sizes)
 {
 # warning No installation order
 
+/*
+FIXME
     // all enabled sources
     std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
 
@@ -288,90 +297,6 @@ PkgModuleFunctions::PkgMediaSizes ()
 	unsigned media = src.numberOfMedia();
 
 	result[id] = std::vector<zypp::ByteCount>(media,0);
-	source_map[ src ] = id;
-    }
-
-    for( zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin<zypp::Package>()
-	; it != zypp_ptr()->pool().byKindEnd<zypp::Package>()
-	; ++it )
-    {
-	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
-
-	if( it->status().isToBeInstalled())
-	{
-	    unsigned int medium = pkg->sourceMediaNr();
-	    if (medium == 0)
-	    {
-		medium = 1;
-	    }
-
-	    if (medium > 0)
-	    {
-		zypp::ByteCount size = pkg->size();
-		result[ source_map[pkg->source()] ]
-		  [medium - 1] += size ;	// media are numbered from 1
-	    }
-	}
-    }
-
-    YCPList res;
-
-    for(std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> >::const_iterator it =
-	result.begin(); it != result.end() ; ++it)
-    {
-	std::vector<zypp::ByteCount> values = it->second;
-	YCPList source;
-
-	for( unsigned i = 0 ; i < values.size() ; i++ )
-	{
-	    source->add( YCPInteger( values[i] ) );
-	}
-
-	res->add( source );
-    }
-
-    y2milestone( "Pkg::PkgMediaSize result: %s", res->toString().c_str());
-
-    return res;
-}
-
-
-// ------------------------
-/**
- *  @builtin PkgMediaCount
- *  @short Return number of packages to be installed
- *  @description
- *    return number of packages to be installed from different sources and media
- *
- *  @return list<list<integer>>
- *  @usage Pkg::PkgMediaCount() -> [ [src1_media_1_count, src1_media_2_count, ...], ...]
- */
-YCPValue
-PkgModuleFunctions::PkgMediaCount()
-{
-# warning No installation order
-
-    // all enabled sources
-    std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
-
-    // map SourceId -> [ number_of_media, total_size ]
-    std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> > result;
-
-    // map zypp::Source -> SourceID
-    std::map<zypp::Source_Ref, zypp::SourceManager::SourceId> source_map;
-
-
-    // initialize
-    for( std::list<zypp::SourceManager::SourceId>::const_iterator sit = source_ids.begin();
-	sit != source_ids.end(); ++sit)
-    {
-	zypp::SourceManager::SourceId id = *sit;
-
-	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
-	unsigned media = src.numberOfMedia();
-
-	result[id] = std::vector<zypp::ByteCount>(media,0);
-
 	source_map[ src ] = id;
     }
 
@@ -391,8 +316,9 @@ PkgModuleFunctions::PkgMediaCount()
 
 	    if (medium > 0)
 	    {
+		zypp::ByteCount size = sizes? pkg->size() : 1; //count only
 		result[ source_map[pkg->source()] ]
-		  [medium - 1]++ ;	// media are numbered from 1
+		  [medium - 1] += size ;	// media are numbered from 1
 	    }
 	}
     }
@@ -413,9 +339,48 @@ PkgModuleFunctions::PkgMediaCount()
 	res->add( source );
     }
 
-    y2milestone( "Pkg::PkgMediaCount result: %s", res->toString().c_str());
+    y2milestone( "Pkg::%s result: %s", sizes?"PkgMediaSizes": "PkgMediaCount", res->toString().c_str());
 
     return res;
+*/
+
+    return YCPList();
+}
+
+// ------------------------
+/**
+ *  @builtin PkgMediaSizes
+ *  @short Return size of packages to be installed
+ *  @description
+ *  return cumulated sizes (in bytes !) to be installed from different sources and media
+ *
+ *  Returns the install size, not the archivesize !!
+ *
+ *  @return list<list<integer>>
+ *  @usage Pkg::PkgMediaSizes () -> [ [src1_media_1_size, src1_media_2_size, ...], ..]
+ */
+YCPValue
+PkgModuleFunctions::PkgMediaSizes()
+{
+#warning PkgMediaSizes is NOT implemented!!!
+    return PkgMediaSizesOrCount (true);
+}
+
+// ------------------------
+/**
+ *  @builtin PkgMediaCount
+ *  @short Return number of packages to be installed
+ *  @description
+ *    return number of packages to be installed from different sources and media
+ *
+ *  @return list<list<integer>>
+ *  @usage Pkg::PkgMediaCount() -> [ [src1_media_1_count, src1_media_2_count, ...], ...]
+ */
+YCPValue
+PkgModuleFunctions::PkgMediaCount()
+{
+#warning PkgMediaCount is NOT implemented!!!
+    return PkgMediaSizesOrCount (false);
 }
 
 // ------------------------
@@ -1006,10 +971,11 @@ PkgModuleFunctions::PkgProp( zypp::PoolItem_Ref item )
     }
 
     data->add( YCPString("arch"), YCPString( pkg->arch().asString() ) );
-    data->add( YCPString("medianr"), YCPInteger( pkg->sourceMediaNr() ) );
+    data->add( YCPString("medianr"), YCPInteger( pkg->mediaNr() ) );
 
-    y2debug("srcId: %ld", pkg->source().numericId() );
-    data->add( YCPString("srcid"), YCPInteger( pkg->source().numericId() ) );
+    zypp::Repository::NumericId sid = pkg->repository().numericId();
+    y2debug("srcId: %ld", sid );
+    data->add( YCPString("srcid"), YCPInteger( sid ) );
 
     std::string status("available");
     if (item.status().isInstalled())
@@ -2238,7 +2204,9 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
     }
 
     try {
-	zypp::SourceManager::sourceManager()->releaseAllSources();
+	
+#warning FIXME release all sources in PkgCommit
+//	zypp::SourceManager::sourceManager()->releaseAllSources();
     }
     catch (const zypp::Exception& excpt)
     {
