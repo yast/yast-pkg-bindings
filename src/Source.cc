@@ -38,7 +38,7 @@
 #include <zypp/target/store/PersistentStorage.h>
 #include <zypp/media/MediaManager.h>
 #include <zypp/Pathname.h>
-//#include <zypp/MediaProducts.h>
+#include <zypp/MediaProducts.h>
 
 #include <zypp/RepoInfo.h>
 #include <zypp/RepoManager.h>
@@ -120,28 +120,22 @@ void PkgModuleFunctions::CallSourceReportDestroy()
  * call zypp::SourceManager::sourceManager()->findSource
  * and in case of exception, log error and setLastError AND RETHROW
  */
-zypp::Repository PkgModuleFunctions::logFindRepository(zypp::Repository::NumericId id)
+zypp::RepoInfo& PkgModuleFunctions::logFindRepository(zypp::Repository::NumericId id)
 {
     try
     {
-	for (std::list<zypp::Repository>::iterator it = repos.begin();
-	   it != repos.end(); ++it)
-	{
-	    if (it->numericId() == id)
-	    {
-		return *it;
-	    }
-	}
+	return repos[id];
     }
-    catch (const zypp::Exception& excpt)
+    catch (...)
     {
-	y2error("Cannot find source %ld: %s", id, excpt.msg().c_str() );
-	_last_error.setLastError(excpt.asUserString());
+	y2error("Cannot find source %ld", id);
+	// TODO: improve the error message
+	_last_error.setLastError(_("Cannot find source"));
 	throw;
     }
 
     // not found, return empty Repository
-    return zypp::Repository();
+    return NOREPO;
 }
 
 
@@ -191,25 +185,13 @@ PkgModuleFunctions::SourceRestore()
     try
     {
 	zypp::RepoManager repomanager;
-	zypp::RepoInfoList repolist = repomanager.knownRepositories();
+	std::list<zypp::RepoInfo> reps = repomanager.knownRepositories();
 
-	repos.erase(repos.begin(), repos.end());
-
-	for (std::list<zypp::RepoInfo>::iterator it = repolist.begin();
-	   it != repolist.end(); ++it)
+	repos.clear();
+	for (std::list<zypp::RepoInfo>::iterator it = reps.begin();
+	    it != reps.end(); ++it)
 	{
-	    zypp::RepoInfo repo(*it);
-
-	    // build cache if needed
-	    if (!repomanager.isCached(repo))
-	    {
-		y2milestone("Caching source '%s'...", repo.alias().c_str());
-		repomanager.buildCache(repo);
-	    }
-
-	    // create Repository and remember it
-	    zypp::Repository repository = repomanager.createFromCache(repo);
-	    repos.push_back(repository);
+	    repos.push_back(*it);
 	}
     }
     catch (const zypp::Exception& excpt)
@@ -243,6 +225,7 @@ YCPValue PkgModuleFunctions::SourceGetBrokenSources()
     return YCPList();
 }
 
+
 /****************************************************************************************
  * @builtin SourceLoad
  *
@@ -257,23 +240,21 @@ PkgModuleFunctions::SourceLoad()
     bool callbacks_evaluated = false;
     bool success = true;
 
-    for (std::list<zypp::Repository>::iterator it = repos.begin();
+    for (std::vector<zypp::RepoInfo>::iterator it = repos.begin();
        it != repos.end(); ++it)
     {
-	zypp::RepoInfo repo(it->info());
-
 	// skip disabled sources
-	if (! repo.enabled())
+	if (! it->enabled())
 	{
 	    continue;
 	}
 
 	// autorefresh the source
-	if (repo.autorefresh())
+	if (it->autorefresh())
 	{
-	    y2milestone("Autorefreshing source: %s", repo.alias().c_str());
+	    y2milestone("Autorefreshing source: %s", it->alias().c_str());
 	    zypp::RepoManager repomanager;
-	    repomanager.refreshMetadata(repo);
+	    repomanager.refreshMetadata(*it);
 	}
 
 	try 
@@ -285,16 +266,18 @@ PkgModuleFunctions::SourceLoad()
 		callbacks_evaluated = true;
 	    }
 
+	    zypp::RepoManager repomanager;
+	    zypp::Repository repository = repomanager.createFromCache(*it);
 
 	    // load resolvables
-	    zypp::ResStore store = it->resolvables();
+	    zypp::ResStore store = repository.resolvables();
 	    zypp_ptr()->addResolvables(store);
 
 	    y2milestone("Found %d resolvables", store.size());
 	}
 	catch(const zypp::repo::RepoNotCachedException &excpt )
 	{
-	    std::string alias = repo.alias();
+	    std::string alias = it->alias();
 	    y2error ("Resolvables from '%s' havn't been loaded: %s", alias.c_str(), excpt.asString().c_str());
 	    _last_error.setLastError("'" + alias + "': " + excpt.asUserString());
 	    success = false;
@@ -429,15 +412,18 @@ PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 {
     YCPList res;
 
-    for( std::list<zypp::Repository>::const_iterator it = repos.begin(); it != repos.end() ; ++it )
+    unsigned long index = 0;
+    for( std::vector<zypp::RepoInfo>::const_iterator it = repos.begin(); it != repos.end() ; ++it )
     {
+	index++;
+
 	// ignore disabled sources if requested
-	if (enabled->value() && !it->info().enabled())
+	if (enabled->value() && !it->enabled())
 	{
 	    continue;
 	}
 
-	res->add( YCPInteger( it->numericId() ) );
+	res->add( YCPInteger(index) );
     }
 
     return res;
@@ -570,7 +556,7 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 
     try
     {
-	src = logFindRepository(id->value()).info();
+	src = logFindRepository(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
@@ -611,7 +597,7 @@ PkgModuleFunctions::SourceURL (const YCPInteger& id)
 
     try
     {
-	src = logFindRepository(id->value()).info();
+	src = logFindRepository(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
@@ -647,7 +633,7 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
 
     try
     {
-	src = logFindRepository(id->value()).info();
+	src = logFindRepository(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
@@ -793,7 +779,7 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
     bool found = true;
 
     try {
-	src = logFindRepository(id->value()).info();
+	src = logFindRepository(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
@@ -974,7 +960,7 @@ PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 {
     zypp::RepoInfo src;
     try {
-	src = logFindRepository(id->value()).info();
+	src = logFindRepository(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
@@ -1200,9 +1186,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 	repomanager.buildCache(repo);
     }
 
-    // create Repository and remember it
-    zypp::Repository repository = repomanager.createFromCache(repo);
-    repos.push_back(repository);
+    repos.push_back(repo);
 
     y2milestone("Added source '%s': '%s', enabled: %s, autorefresh: %s",
 	repo.alias().c_str(),
@@ -1237,7 +1221,8 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
   y2milestone("Added source %lu: %s %s (alias %s)", id, new_url.asString().c_str(), path_r.asString().c_str(), alias.c_str() );
 */
 
-    return repository.numericId();
+    // the source is at the end of the list
+    return repos.size() - 1;
 }
 
 /****************************************************************************************
@@ -1550,7 +1535,7 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 
     try
     {
-	src = logFindRepository(id->value()).info();
+	src = logFindRepository(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
@@ -1569,13 +1554,8 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 	src.setEnabled(enable);
 	
 	zypp::RepoManager repomanager;
-	// this is offline change
-	repomanager.modifyRepository(src.alias(), src);
-
 	// update Repository
-	zypp::Repository r;
-
-	r = logFindRepository(id->value());
+	zypp::Repository r = repomanager.createFromCache(src);
 
 	// add/remove resolvables
 	if (enable)
@@ -1616,7 +1596,7 @@ PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean
     zypp::RepoInfo src;
 
     try {
-	src = logFindRepository(id->value()).info();
+	src = logFindRepository(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
@@ -1661,7 +1641,7 @@ PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
     zypp::RepoInfo src;
 
     try {
-	src = logFindRepository(id->value()).info();
+	src = logFindRepository(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
@@ -1700,7 +1680,7 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
 
     try
     {
-	src = logFindRepository(id->value()).info();
+	src = logFindRepository(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
@@ -1711,19 +1691,27 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
 
     try
     {
-	// update Repository
-	zypp::Repository r;
+	zypp::RepoManager repomanager;
 
-	r = logFindRepository(id->value());
+#warning FIXME: SourceDelete: remove resolvables if they have been loaded
+/*
+	// update Repository
+	zypp::Repository r = repomanager.createFromCache(src);
 
 	// remove resolvables
     	zypp_ptr()->removeResolvables(r.resolvables());
-
+*/
 	// update 'repos'
-	repos.remove(r);
-
-	zypp::RepoManager repomanager;
-	repomanager.removeRepository(src);
+	for (std::vector<zypp::RepoInfo>::iterator it = repos.begin();
+	    it != repos.end(); ++it)
+	{
+	    if (it->alias() == src.alias())
+	    {
+		repos.erase(it);
+		// we have to break the loop, all iterators are invalidated after erase()!
+		break;
+	    }
+	}
 
 	PkgFreshen();
     }
@@ -1758,17 +1746,19 @@ PkgModuleFunctions::SourceEditGet ()
 {
     YCPList ret;
 
-    for( std::list<zypp::Repository>::const_iterator it = repos.begin(); it != repos.end(); ++it)
+    unsigned long index = 0;
+    for( std::vector<zypp::RepoInfo>::const_iterator it = repos.begin(); it != repos.end(); ++it)
     {
 	YCPMap src_map;
-	zypp::RepoInfo src(it->info());
 
-	src_map->add(YCPString("SrcId"), YCPInteger(it->numericId()));
-	src_map->add(YCPString("enabled"), YCPBoolean(src.enabled()));
-	src_map->add(YCPString("autorefresh"), YCPBoolean(src.autorefresh()));
-	src_map->add(YCPString("alias"), YCPString(src.alias()));
+	src_map->add(YCPString("SrcId"), YCPInteger(index));
+	src_map->add(YCPString("enabled"), YCPBoolean(it->enabled()));
+	src_map->add(YCPString("autorefresh"), YCPBoolean(it->autorefresh()));
+	src_map->add(YCPString("alias"), YCPString(it->alias()));
 
 	ret->add(src_map);
+
+	++index;
     }
 
     return ret;
@@ -1816,7 +1806,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
     zypp::RepoInfo src;
     try
     {
-	src = logFindRepository(id).info();
+	src = logFindRepository(id);
     }
     catch (const zypp::Exception& excpt)
     {

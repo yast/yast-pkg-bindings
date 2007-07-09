@@ -95,7 +95,7 @@ class PkgModuleFunctions : public Y2Namespace
     private: // source related
     
       // all known installation sources
-      std::list<zypp::Repository> repos;
+      std::vector<zypp::RepoInfo> repos;
 
       bool DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
 			      const std::string& version, const bool onlyNeeded = false);
@@ -137,12 +137,14 @@ class PkgModuleFunctions : public Y2Namespace
 
       PkgError _last_error;
 
+      zypp::RepoInfo NOREPO;
+
       /**
        * Logging helper:
        * search for a repository and in case of exception, log error
        * and setLastError AND RETHROW
        */
-	zypp::Repository logFindRepository(zypp::Repository::NumericId id);
+	zypp::RepoInfo& logFindRepository(zypp::Repository::NumericId id);
 	zypp::Repository::NumericId createManagedSource(const zypp::Url & url_r,
 	    const zypp::Pathname & path_r, const bool base_source, const std::string& type);
 
