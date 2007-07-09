@@ -71,10 +71,6 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unus
     
     _target_root = zypp::Pathname(root->value());
     
-    // we have moved to a different target, the broken source information
-    // is no longer valid
-    _broken_sources.clear();
-
     return YCPBoolean(true);
 }
 
@@ -103,10 +99,6 @@ PkgModuleFunctions::TargetInitialize (const YCPString& root)
     
     _target_root = zypp::Pathname(root->value());
     
-    // we have moved to a different target, the broken source information
-    // is no longer valid
-    _broken_sources.clear();
-
     return YCPBoolean(true);
 }
 

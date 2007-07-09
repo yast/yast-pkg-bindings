@@ -34,7 +34,6 @@
 #include <ycp/YCPMap.h>
 #include <ycp/YCPVoid.h>
 
-#include <zypp/SourceManager.h>
 #include <zypp/ZYppFactory.h>
 #include <zypp/ResPool.h>
 
@@ -564,21 +563,13 @@ PkgModuleFunctions::LastErrorId ()
 
 /**
  * @builtin Init
- * @short completely initialize package management, throw away the current status
+ * @short completely initialize package management (currently it is empty)
  * @return boolean true on success
  */
 YCPValue
 PkgModuleFunctions::Init ()
 {
-    try {
-	zypp::SourceManager::sourceManager()->reset();
-    }
-    catch( const zypp::Exception & expt )
-    {
-	y2error( "Initialization of libzypp failed" );
-	return YCPBoolean(false);
-    }
-
+#warning  FIXME can be Init() empty??
     return YCPBoolean(true);
 }
 

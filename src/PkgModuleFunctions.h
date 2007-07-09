@@ -80,8 +80,6 @@ class PkgModuleFunctions : public Y2Namespace
 
 	zypp::Pathname _target_root;
 	
-	std::set<std::string> _broken_sources;
-
 	zypp::ZYpp::Ptr zypp_pointer;
 
 	// remember the main locale (set by SetLocale) for SetAdditionalLocales,

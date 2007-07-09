@@ -992,8 +992,8 @@ PkgModuleFunctions::PkgProp( zypp::PoolItem_Ref item )
     }
     data->add( YCPString("status"), YCPSymbol(status));
 
-    data->add( YCPString("location"), YCPString( pkg->location().basename() ) );
-    data->add( YCPString("path"), YCPString( pkg->location().asString() ) );
+    data->add( YCPString("location"), YCPString( pkg->location().filename().basename() ) );
+    data->add( YCPString("path"), YCPString( pkg->location().filename().asString() ) );
 
     return data;
 }
@@ -1080,8 +1080,8 @@ PkgModuleFunctions::GetPkgLocation (const YCPString& p, bool full_path)
 	YCPMap data;
 
 	if (item) {
-	    return (full_path) ? YCPString( pkg->location().asString() )
-			       : YCPString( pkg->location().basename() );
+	    return (full_path) ? YCPString( pkg->location().filename().asString() )
+			       : YCPString( pkg->location().filename().basename() );
 	}
     }
     catch (...)
