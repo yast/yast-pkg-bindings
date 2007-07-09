@@ -1162,6 +1162,8 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 
 //	repomanager.addRepository(repo);
 
+	repomanager.refreshMetadata(repo);
+
 	// TODO FIXME handle existing alias better
 
 /*    }
@@ -1833,12 +1835,6 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 	// rename the source
 	src.setAlias(descr->value(YCPString("alias"))->asString()->value());
     }
-
-    zypp::RepoManager repomanager;
-
-    repomanager.modifyRepository(old_alias, src);
-
-#warning FIXME create a new Repository
 
 #warning SourceEditSet ordering not implemented yet
   }

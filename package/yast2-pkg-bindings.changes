@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Jul  9 19:15:00 CEST 2007 - lslezak@suse.cz
+
+- use RepoInfo objects for representing sources
+- implemented SourceCreate()
+- SourceEditSet() - do not save changes
+- 2.15.23
+
+-------------------------------------------------------------------
 Mon Jul  9 13:21:22 CEST 2007 - lslezak@suse.cz
 
 - compile fixes
