@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Jul  9 13:21:22 CEST 2007 - lslezak@suse.cz
+
+- compile fixes
+- 2.15.22
+
+-------------------------------------------------------------------
 Wed Jul  4 16:39:47 CEST 2007 - lslezak@suse.cz
 
 - The first step to the new libzypp API (RepoManager) - too many

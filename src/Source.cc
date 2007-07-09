@@ -38,6 +38,7 @@
 #include <zypp/target/store/PersistentStorage.h>
 #include <zypp/media/MediaManager.h>
 #include <zypp/Pathname.h>
+//#include <zypp/MediaProducts.h>
 
 #include <zypp/RepoInfo.h>
 #include <zypp/RepoManager.h>
@@ -1129,6 +1130,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
     std::string alias = removeAlias(url_r, url);
     y2milestone("Alias from URL: '%s'", alias.c_str());
 
+#warning FIXME: use path_r (product directory)
 
     // repository type
     zypp::repo::RepoType repotype;
@@ -1174,6 +1176,8 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 
 	repomanager.addRepository(repo);
 
+	// TODO FIXME handle existing alias better
+
 /*    }
     catch (const zypp::MediaException &e)
     {
@@ -1188,6 +1192,17 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 	y2error("Source '%s' already exists", repo.alias().c_str());
     }
 */
+
+    // build cache if needed
+    if (!repomanager.isCached(repo))
+    {
+	y2milestone("Caching source '%s'...", repo.alias().c_str());
+	repomanager.buildCache(repo);
+    }
+
+    // create Repository and remember it
+    zypp::Repository repository = repomanager.createFromCache(repo);
+    repos.push_back(repository);
 
     y2milestone("Added source '%s': '%s', enabled: %s, autorefresh: %s",
 	repo.alias().c_str(),
@@ -1222,7 +1237,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
   y2milestone("Added source %lu: %s %s (alias %s)", id, new_url.asString().c_str(), path_r.asString().c_str(), alias.c_str() );
 */
 
-    return 0; //TODO FIXME
+    return repository.numericId();
 }
 
 /****************************************************************************************
@@ -1267,11 +1282,8 @@ YCPValue
 PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 {
 #warning FIXME: SourceScan is NOT implemented!!
-// FIXME: use MediaProducts::productsInMedia()
+
 /*
-  zypp::SourceFactory factory;
-
-
   zypp::Url url;
 
   try {
@@ -1287,16 +1299,17 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
   zypp::Pathname pn(pd->value ());
 */
   YCPList ids;
-/*  unsigned int id;
+/*  zypp::Repository::NumericId id;
 
   if ( pd->value().empty() ) {
-    // scan all sources
 
-    zypp::SourceFactory::ProductSet products;
+    // scan all sources
+    zypp::MediaProductSet products;
 
     try
     {
-	factory.listProducts( url, products );
+	y2milestone("Scanning products in %s ...", url.asString().c_str());
+	zypp::productsInMedia(url, products);
     }
     catch ( const zypp::Exception& excpt)
     {
@@ -1309,15 +1322,16 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     if( products.empty() )
     {
 	// no products found, use the base URL instead
-	zypp::SourceFactory::ProductEntry entry ;
-	products.insert( entry );
+	zypp::MediaProductEntry entry;
+	products.insert(entry);
     }
     
-    for( zypp::SourceFactory::ProductSet::const_iterator it = products.begin();
+    for( zypp::MediaProductSet::const_iterator it = products.begin();
 	it != products.end() ; ++it )
     {
 	try
 	{
+	    y2milestone("Using product %s in directory %s", it->_name.c_str(), it->_dir.c_str());
 	    id = createManagedSource(url, it->_dir, false, "");
 	    ids->add( YCPInteger(id) );
 	}
@@ -1400,12 +1414,8 @@ PkgModuleFunctions::SourceCreateType (const YCPString& media, const YCPString& p
 YCPValue
 PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool base, const YCPString& source_type)
 {
-  y2debug("Creating source...");
+/*  y2debug("Creating source...");
 
-#warning SourceCreateEx is NOT implemented!!
-
-/* FIXME
-  zypp::SourceFactory factory;
   zypp::Pathname pn(pd->value ());
 
   zypp::Url url;
@@ -1422,17 +1432,18 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
 
   YCPList ids;
-  int ret = -1;
+  zypp::Repository::NumericId ret = -1;
 
+#warning FIXME handle source_type
   const std::string type = source_type->value();
 
   if ( pd->value().empty() ) {
     // scan all sources
-
-    zypp::SourceFactory::ProductSet products;
+    zypp::MediaProductSet products;
 
     try {
-	factory.listProducts( url, products );
+	y2milestone("Scanning products in %s ...", url.asString().c_str());
+	zypp::productsInMedia(url, products);
     }
     catch ( const zypp::Exception& excpt)
     {
@@ -1444,29 +1455,42 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     if( products.empty() )
     {
 	// no products found, use the base URL instead
-	zypp::SourceFactory::ProductEntry entry ;
+	zypp::MediaProductEntry entry ;
 	products.insert( entry );
     }
 
-    for( zypp::SourceFactory::ProductSet::const_iterator it = products.begin();
+    for( zypp::MediaProductSet::const_iterator it = products.begin();
 	it != products.end() ; ++it )
     {
 	try
 	{
-	    unsigned id = createManagedSource(url, it->_dir, base, type);
+	    zypp::Repository::NumericId id = createManagedSource(url, it->_dir, base, type);
 
-	    zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(id);
+	    zypp::RepoInfo src = logFindRepository(id).info();
+	    src.setEnabled(true);
+	
+	    zypp::RepoManager repomanager;
+	    // this is offline change
+	    repomanager.modifyRepository(src.alias(), src);
 
-	    src.enable();
+	    // update Repository
+	    zypp::Repository r;
+
+	    r = logFindRepository(id);
+
+	    // add/remove resolvables
+	    zypp_ptr()->addResolvables(r.resolvables());
+
+	    #warning TODO FIXME: update 'repos' ?
 
 	    CallSourceReportInit();
 	    CallSourceReportStart(_("Parsing files..."));
-    	    zypp_ptr()->addResolvables (src.resolvables());
+    	    zypp_ptr()->addResolvables (r.resolvables());
 	    CallSourceReportEnd(_("Parsing files..."));
 	    CallSourceReportDestroy();
 
 	    // return the id of the first product
-	    if ( ret == -1 )
+	    if ( ret == 0 )
 		ret = id;
 
 	}
@@ -1484,13 +1508,13 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     {
 	ret = createManagedSource(url, pn, base, type);
 
-	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(ret);
-
-	src.enable();
+	zypp::Repository r = logFindRepository(ret);
+	zypp::RepoInfo src = r.info();
+	src.setEnabled(true);
 
 	CallSourceReportInit();
 	CallSourceReportStart(_("Parsing files..."));
-    	zypp_ptr()->addResolvables (src.resolvables());
+    	zypp_ptr()->addResolvables (r.resolvables());
 	CallSourceReportEnd(_("Parsing files..."));
 	CallSourceReportDestroy();
     }
@@ -1504,7 +1528,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
   PkgFreshen();
   return YCPInteger(ret);
-  */
+*/
   return YCPInteger(0LL);
 }
 
