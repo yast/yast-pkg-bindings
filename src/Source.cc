@@ -729,31 +729,71 @@ PkgModuleFunctions::SourceProduct (const YCPInteger& id)
   return YCPMap();
 }
 
-/*
-void SourceProvideFileEx(const zypp::RepoInfo &rep, const std::string &file,
-    const std::string &cachedir, const std::string &targetdir, bool optional = true)
-// TODO: add directory and recursive parameter
+
+YCPValue PkgModuleFunctions::SourceProvideFileCommon(const YCPInteger &id,
+					       const YCPInteger &mid,
+					       const YCPString& f,
+					       const YCPBoolean & optional)
 {
-    try {
-	zypp::OnMediaLocation oml;
-	oml.medianr(mid->value());
-	oml.filename(f->value());
+    CallSourceReportInit();
+    CallSourceReportStart(_("Downloading file..."));
 
-	zypp::MediaSetAccess maccess(*src.baseUrlsBegin());
+    zypp::RepoInfo src;
+    bool found = true;
 
-	zypp::Fetcher fetcher;
-	fetcher.enqueue(oml);
-	fetcher.addCachePath(cachedir);
-	fetcher.start(targetdir, maccess);
-	fetcher.reset();
+    extern ZyppRecipients::MediaChangeSensitivity _silent_probing;
+    // remember the current value
+    ZyppRecipients::MediaChangeSensitivity _silent_probing_old = _silent_probing;
+
+    // disable media change callback for optional file
+    if (optional->value())
+	_silent_probing = ZyppRecipients::MEDIA_CHANGE_OPTIONALFILE;
+
+    try
+    {
+	src = logFindRepository(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
-	y2milestone ("File not found: %s", f->value_cstr());
+	found = false;
+    }
+
+    zypp::filesystem::Pathname path;
+
+    if (found)
+    {
+	try
+	{
+	    zypp::MediaSetAccess maccess(*src.baseUrlsBegin());
+	    path = maccess.provideFile(f->value(), mid->value());
+	}
+	catch (const zypp::Exception& excpt)
+	{
+	    if (!optional->value())
+	    {
+		_last_error.setLastError(excpt.asUserString());
+		y2milestone ("File not found: %s", f->value_cstr());
+		found = false;
+	    }
+	}
+    }
+
+    // set the original probing value
+    _silent_probing = _silent_probing_old;
+
+    CallSourceReportEnd(_("Downloading file..."));
+    CallSourceReportDestroy();
+
+    if (found)
+    {
+	return YCPString(path.asString());
+    }
+    else
+    {
+	return YCPVoid();
     }
 }
-*/
+
 
 /****************************************************************************************
  * @builtin SourceProvideFile
@@ -771,59 +811,7 @@ void SourceProvideFileEx(const zypp::RepoInfo &rep, const std::string &file,
 YCPValue
 PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
-    CallSourceReportInit();
-    CallSourceReportStart(_("Downloading file..."));
-
-#warning TODO: use SourceProvideFileEx()
-    zypp::RepoInfo src;
-    bool found = true;
-
-    try {
-	src = logFindRepository(id->value());
-    }
-    catch (const zypp::Exception& excpt)
-    {
-	found = false;
-    }
-
-    zypp::filesystem::Pathname path;
-
-    if (found)
-    {
-	try {
-	    zypp::OnMediaLocation oml;
-	    oml.setMedianr(mid->value());
-	    oml.setFilename(f->value());
-
-	    zypp::MediaSetAccess maccess(*src.baseUrlsBegin());
-
-	    zypp::Fetcher fetcher;
-	    fetcher.enqueue(oml);
-	    # warning TODO FIXME: use MediaSetAccess only (without Fetcher) ??
-	    fetcher.addCachePath("/tmp/cache");
-	    fetcher.start("/download-dir", maccess);
-	    fetcher.reset();
-	}
-	catch (const zypp::Exception& excpt)
-	{
-	    _last_error.setLastError(excpt.asUserString());
-	    y2milestone ("File not found: %s", f->value_cstr());
-	    found = false;
-	}
-    }
-
-    CallSourceReportEnd(_("Downloading file..."));
-    CallSourceReportDestroy();
-
-    if (found)
-    {
-	return YCPString(path.asString());
-    }
-    else
-    {
-	return YCPVoid();
-    }
-
+    return SourceProvideFileCommon(id, mid, f, false /*optional*/);
 }
 
 /****************************************************************************************
@@ -843,62 +831,7 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
 YCPValue
 PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
-#warning TODO: use SourceProvideFileEx()
-    CallSourceReportInit();
-    CallSourceReportStart(_("Downloading files..."));
-
-    YCPValue ret;
-
-    extern ZyppRecipients::MediaChangeSensitivity _silent_probing;
-
-    // remember the current value 
-    ZyppRecipients::MediaChangeSensitivity _silent_probing_old = _silent_probing;
-
-    // disable media change callback
-    _silent_probing = ZyppRecipients::MEDIA_CHANGE_OPTIONALFILE;
-
-    bool found = true;
-    zypp::filesystem::Pathname path;
-#warning FIXME SourceProvideOptionalFile is NOT implemented!!!
-/*
-    zypp::Source_Ref src;
-
-    try {
-	src = logFindRepository(id->value());
-    }
-    catch (const zypp::Exception& excpt)
-    {
-	found = false;
-    }
-
-    if (found)
-    {
-	try {
-	    path = src.provideFile(f->value(), mid->asInteger()->value());
-	}
-	catch (const zypp::Exception& excpt)
-	{
-	    found = false;
-	    // the file is optional, don't set error flag here
-	}
-    }
-
- */
-    // set the original probing value
-    _silent_probing = _silent_probing_old;
-
-
-    CallSourceReportEnd(_("Downloading files..."));
-    CallSourceReportDestroy();
-
-    if (found)
-    {
-	return YCPString(path.asString());
-    }
-    else
-    {
-	return YCPVoid();
-    }
+    return SourceProvideFileCommon(id, mid, f, true /*optional*/);
 }
 
 /****************************************************************************************
@@ -916,33 +849,43 @@ PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPIn
 YCPValue
 PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mid, const YCPString& d)
 {
-#warning FIXME SourceProvideDir is NOT implemented!!!
-    /*
-    zypp::Source_Ref src;
+    zypp::RepoInfo src;
+    bool found = true;
 
     try
     {
-	src = logFindRepository(id->value());
+	src = logFindRepository(id->value()).info();
     }
     catch (const zypp::Exception& excpt)
     {
-	return YCPVoid ();
+	found = false;
     }
-*/
+
     zypp::filesystem::Pathname path;
-/*
-    try
+
+    if (found)
     {
-	path = src.provideDirTree(d->value(), mid->asInteger()->value());
+	try
+	{
+	    zypp::MediaSetAccess maccess(*src.baseUrlsBegin());
+	    path = maccess.provideDir(d->value(), true, mid->value());
+	}
+	catch (const zypp::Exception& excpt)
+	{
+            _last_error.setLastError(excpt.asUserString());
+            y2milestone ("Directory not found: %s", d->value_cstr());
+            found = false;
+	}
     }
-    catch (const zypp::Exception& excpt)
+
+    if (found)
     {
-	_last_error.setLastError(excpt.asUserString());
-	y2milestone ("Directory not found: %s", d->value_cstr());
+	return YCPString(path.asString());
+    }
+    else
+    {
 	return YCPVoid();
     }
-*/
-    return YCPString(path.asString());
 }
 
 /****************************************************************************************

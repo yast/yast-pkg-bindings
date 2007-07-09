@@ -147,7 +147,10 @@ class PkgModuleFunctions : public Y2Namespace
 	zypp::RepoInfo& logFindRepository(zypp::Repository::NumericId id);
 	zypp::Repository::NumericId createManagedSource(const zypp::Url & url_r,
 	    const zypp::Pathname & path_r, const bool base_source, const std::string& type);
-
+      /**
+       * provides SourceProvideFile and SourceProvideFileCommon
+       */
+      YCPValue SourceProvideFileCommon (const YCPInteger&, const YCPInteger&, const YCPString&, const YCPBoolean&);
     public:
 	// general
 	/* TYPEINFO: void() */
