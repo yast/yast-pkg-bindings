@@ -1160,7 +1160,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 /*    try
     {*/
 
-	repomanager.addRepository(repo);
+//	repomanager.addRepository(repo);
 
 	// TODO FIXME handle existing alias better
 
@@ -1266,9 +1266,6 @@ PkgModuleFunctions::SourceCacheCopyTo (const YCPString& dir)
 YCPValue
 PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 {
-#warning FIXME: SourceScan is NOT implemented!!
-
-/*
   zypp::Url url;
 
   try {
@@ -1282,9 +1279,9 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
   }
 
   zypp::Pathname pn(pd->value ());
-*/
+
   YCPList ids;
-/*  zypp::Repository::NumericId id;
+  zypp::Repository::NumericId id;
 
   if ( pd->value().empty() ) {
 
@@ -1344,7 +1341,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
   }
 
   y2milestone("Found sources: %s", ids->toString().c_str() );
-*/
+
   return ids;
 }
 
@@ -1399,7 +1396,7 @@ PkgModuleFunctions::SourceCreateType (const YCPString& media, const YCPString& p
 YCPValue
 PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool base, const YCPString& source_type)
 {
-/*  y2debug("Creating source...");
+  y2debug("Creating source...");
 
   zypp::Pathname pn(pd->value ());
 
@@ -1451,22 +1448,16 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	{
 	    zypp::Repository::NumericId id = createManagedSource(url, it->_dir, base, type);
 
-	    zypp::RepoInfo src = logFindRepository(id).info();
+	    zypp::RepoInfo src = logFindRepository(id);
 	    src.setEnabled(true);
 	
 	    zypp::RepoManager repomanager;
-	    // this is offline change
-	    repomanager.modifyRepository(src.alias(), src);
 
 	    // update Repository
-	    zypp::Repository r;
+	    zypp::Repository r = repomanager.createFromCache(src);
 
-	    r = logFindRepository(id);
-
-	    // add/remove resolvables
+	    // add resolvables
 	    zypp_ptr()->addResolvables(r.resolvables());
-
-	    #warning TODO FIXME: update 'repos' ?
 
 	    CallSourceReportInit();
 	    CallSourceReportStart(_("Parsing files..."));
@@ -1475,7 +1466,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	    CallSourceReportDestroy();
 
 	    // return the id of the first product
-	    if ( ret == 0 )
+	    if ( it == products.begin() )
 		ret = id;
 
 	}
@@ -1493,9 +1484,12 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     {
 	ret = createManagedSource(url, pn, base, type);
 
-	zypp::Repository r = logFindRepository(ret);
-	zypp::RepoInfo src = r.info();
+	zypp::RepoInfo src = logFindRepository(ret);
 	src.setEnabled(true);
+
+	zypp::RepoManager repomanager;
+	// update Repository
+	zypp::Repository r = repomanager.createFromCache(src);
 
 	CallSourceReportInit();
 	CallSourceReportStart(_("Parsing files..."));
@@ -1512,9 +1506,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
   }
 
   PkgFreshen();
-  return YCPInteger(ret);
-*/
-  return YCPInteger(0LL);
+  return YCPInteger(repos.size() - 1);
 }
 
 
