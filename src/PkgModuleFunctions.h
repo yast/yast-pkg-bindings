@@ -97,6 +97,12 @@ class PkgModuleFunctions : public Y2Namespace
       // all known installation sources
       std::vector<zypp::RepoInfo> repos;
 
+      // original status
+      std::vector<zypp::RepoInfo> repos_orig;
+
+      // table for converting libzypp source type to Yast type (for backward compatibility)
+      std::map<std::string, std::string> type_conversion_table;
+
       bool DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
 			      const std::string& version, const bool onlyNeeded = false);
       bool DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind);

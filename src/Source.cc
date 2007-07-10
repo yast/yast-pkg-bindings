@@ -192,6 +192,7 @@ PkgModuleFunctions::SourceRestore()
 	    it != reps.end(); ++it)
 	{
 	    repos.push_back(*it);
+	    repos_orig.push_back(*it);
 	}
     }
     catch (const zypp::Exception& excpt)
@@ -454,21 +455,46 @@ PkgModuleFunctions::SourceReleaseAll ()
 YCPValue
 PkgModuleFunctions::SourceSaveAll ()
 {
-#warning FIXME SourceSaveAll is empty!
-/*    try
+    zypp::RepoManager repomanager;
+
+    // TODO: do it better, remove only really removed repos
+
+    // remove all repos (the old configuration)
+    for (std::vector<zypp::RepoInfo>::iterator it = repos_orig.begin();
+	it != repos_orig.end(); ++it)
     {
-	y2milestone( "Storing the source setup in %s", _target_root.asString().c_str()) ;
-	zypp::SourceManager::sourceManager()->store( _target_root, true );
-    }
-    catch (zypp::Exception & excpt)
-    {
-	y2error("Pkg::SourceSaveAll has failed: %s", excpt.msg().c_str() );
-	_last_error.setLastError(excpt.asUserString());
-	return YCPBoolean(false);
+	try
+	{
+	    y2milestone("Removing repository '%s'", it->alias().c_str());
+	    repomanager.removeRepository(*it);
+	}
+	catch (zypp::Exception & excpt)
+	{
+	    y2error("Pkg::SourceSaveAll has failed: %s", excpt.msg().c_str() );
+	    _last_error.setLastError(excpt.asUserString());
+	    return YCPBoolean(false);
+	}
     }
 
-    y2milestone( "All sources saved");
-*/
+    // save all repos (the current configuration)
+    for (std::vector<zypp::RepoInfo>::iterator it = repos.begin();
+	it != repos.end(); ++it)
+    {
+	try
+	{
+	    y2milestone("Saving repository '%s'", it->alias().c_str());
+	    repomanager.addRepository(*it);
+	}
+	catch (zypp::Exception & excpt)
+	{
+	    y2error("Pkg::SourceSaveAll has failed: %s", excpt.msg().c_str() );
+	    _last_error.setLastError(excpt.asUserString());
+	    return YCPBoolean(false);
+	}
+    }
+
+    y2milestone("All sources have been saved");
+
     return YCPBoolean(true);
 }
 
@@ -484,7 +510,6 @@ PkgModuleFunctions::SourceSaveAll ()
 YCPValue
 PkgModuleFunctions::SourceFinishAll ()
 {
-#warning FIXME: SourceFinishAll is empty!
 /*    try
     {
 	// look if there are any enabled sources
@@ -551,9 +576,28 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 	return YCPVoid ();
     }
 
+
+    if (type_conversion_table.empty())
+    {
+      // initialize the conversion map
+      type_conversion_table["rpm-md"] = "YUM";
+      type_conversion_table["yast2"] = "YaST";
+      type_conversion_table["plaindir"] = "Plaindir";
+    }
+
+    // convert type to the old strings ("YaST", "YUM" or "Plaindir")
+    std::string srctype = src.type().asString();
+    std::map<std::string,std::string>::const_iterator it = type_conversion_table.find(srctype);
+
+    // found in the conversion table
+    if (it != type_conversion_table.end())
+    {
+	srctype = it->second;
+    }
+
     data->add( YCPString("enabled"),		YCPBoolean(src.enabled()));
     data->add( YCPString("autorefresh"),	YCPBoolean(src.autorefresh()));
-    data->add( YCPString("type"),		YCPString(src.type().asString()));
+    data->add( YCPString("type"),		YCPString(srctype));
 #warning FIXME: "product_dir" is missing
 //    data->add( YCPString("product_dir"),	YCPString(src.path().asString()));
     data->add( YCPString("url"),		YCPString(src.baseUrlsBegin()->asString()));
@@ -754,14 +798,16 @@ YCPValue PkgModuleFunctions::SourceProvideFileCommon(const YCPInteger &id,
 	{
 	    zypp::MediaSetAccess maccess(*src.baseUrlsBegin());
 	    path = maccess.provideFile(f->value(), mid->value());
+	    y2internal("local path: '%s'", path.asString().c_str());
 	}
 	catch (const zypp::Exception& excpt)
 	{
+	    found = false;
+
 	    if (!optional->value())
 	    {
 		_last_error.setLastError(excpt.asUserString());
 		y2milestone ("File not found: %s", f->value_cstr());
-		found = false;
 	    }
 	}
     }
@@ -1510,6 +1556,11 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 	success = false;
     }
 
+    if (success)
+    {
+	repos[id->value()] = src;
+    }
+
     return YCPBoolean(success);
 }
 
@@ -1538,9 +1589,7 @@ PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean
 
     src.setAutorefresh(e->value());
 
-    zypp::RepoManager repomanager;
-    // this is offline change
-    repomanager.modifyRepository(src.alias(), src);
+    repos[id->value()] = src;
 
     return YCPBoolean( true );
 }
@@ -1624,7 +1673,6 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
 
     try
     {
-	zypp::RepoManager repomanager;
 
 #warning FIXME: SourceDelete: remove resolvables if they have been loaded
 /*
@@ -1641,6 +1689,7 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
 	    if (it->alias() == src.alias())
 	    {
 		repos.erase(it);
+
 		// we have to break the loop, all iterators are invalidated after erase()!
 		break;
 	    }
@@ -1749,8 +1798,6 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 	continue;
     }
 
-    std::string old_alias = src.alias();
-
     // now, we have the source
     if( ! descr->value( YCPString("enabled")).isNull() && descr->value(YCPString("enabled"))->isBoolean ())
     {
@@ -1775,11 +1822,13 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 	src.setAlias(descr->value(YCPString("alias"))->asString()->value());
     }
 
+    repos[id] = src;
+
 #warning SourceEditSet ordering not implemented yet
   }
 
   PkgFreshen();
-  return YCPBoolean( true );
+  return YCPBoolean( !error );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
