@@ -854,7 +854,7 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
 
     try
     {
-	src = logFindRepository(id->value()).info();
+	src = logFindRepository(id->value());
     }
     catch (const zypp::Exception& excpt)
     {
@@ -910,14 +910,40 @@ PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 	return YCPBoolean(false);
     }
 
+    try
+    {
+        if (src.baseUrlsSize() > 1)
+        {
+            // store current urls
+            std::set<zypp::Url> baseUrls;
+            for (std::set<zypp::Url>::const_iterator i = src.baseUrlsBegin();
+                    i != src.baseUrlsEnd(); ++i)
+                baseUrls.insert(*i);
+
+            // reset url list and store the new one there
+            src.setBaseUrl(zypp::Url(u->value()));
+
+            // add the rest of base urls
+            for (std::set<zypp::Url>::const_iterator i = baseUrls.begin();
+                    i != baseUrls.end(); ++i)
+                src.addBaseUrl(*i);
+        }
+        else
+            src.setBaseUrl(zypp::Url(u->value()));
+    }
+    catch (const zypp::Exception & excpt)
+    {
+        _last_error.setLastError(excpt.asUserString());
+        y2error ("Cannot set the new URL for source %s (%lld): %s",
+            src.alias().c_str(), id->asInteger()->value(), excpt.msg().c_str());
+	return YCPBoolean(false);
+    }
+
+
     try {
-#warning FIXME: SourceChangeUrl is NOT implemented
-// we cannot simply change the base URL we have to create a new RepoInfo...
-//	src.setBaseUrl();
-
-//	zypp::RepoManager repomanager;
-//	repomanager.modifyRepository(src.alias(), src);
-
+	zypp::RepoManager repomanager;
+	repomanager.modifyRepository(src.alias(), src);
+#warning FIXME is MediaManager::open() needed here?
 /*	zypp::Pathname pth = src.path();
 	zypp::Url url = zypp::Url(u->value ());
 	zypp::media::MediaManager media_mgr;
@@ -928,7 +954,8 @@ PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
     catch (const zypp::Exception & excpt)
     {
 	_last_error.setLastError(excpt.asUserString());
-        y2error ("Cannot change media for source %lld: %s", id->asInteger()->value(), excpt.msg().c_str());
+        y2error ("Cannot change media for source %s (%lld): %s",
+            src.alias().c_str(), id->asInteger()->value(), excpt.msg().c_str());
 	return YCPBoolean(false);
     }
     return YCPBoolean(true);

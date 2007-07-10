@@ -422,7 +422,7 @@ namespace ZyppRecipients {
     ///////////////////////////////////////////////////////////////////
     // DownloadResolvableCallback
     ///////////////////////////////////////////////////////////////////
-    struct DownloadResolvableReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::DownloadResolvableReport>
+    struct DownloadResolvableReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::repo::DownloadResolvableReport>
     {
 	static int last_source_id;
 	static int last_source_media;
@@ -451,7 +451,7 @@ namespace ZyppRecipients {
 	    zypp::Package::constPtr pkg =
 		zypp::asKind<zypp::Package>(resolvable_ptr);
 
-	    size = pkg->archivesize();
+	    size = pkg->downloadSize();
 
 // FIXME NID
 	    int source_id = 0;//pkg->source().numericId();
@@ -482,7 +482,7 @@ namespace ZyppRecipients {
 	  }
 	}
 
-	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::source::DownloadResolvableReport::Error error, const std::string &reason)
+	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::repo::DownloadResolvableReport::Error error, const std::string &reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
 	    if (callback._set) {
@@ -503,10 +503,10 @@ namespace ZyppRecipients {
 		return callback.evaluateBool(); // return value ignored by RpmDb
 	    }
 
-	    return zypp::source::DownloadResolvableReport::progress(value, resolvable_ptr);
+	    return zypp::repo::DownloadResolvableReport::progress(value, resolvable_ptr);
 	}
 
-	virtual Action problem(zypp::Resolvable::constPtr resolvable_ptr, zypp::source::DownloadResolvableReport::Error error, const std::string &description)
+	virtual Action problem(zypp::Resolvable::constPtr resolvable_ptr, zypp::repo::DownloadResolvableReport::Error error, const std::string &description)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
 	    if (callback._set) {
@@ -516,19 +516,19 @@ namespace ZyppRecipients {
                 std::string ret = callback.evaluateStr();
 
                 // "R" =  retry
-                if (ret == "R") return zypp::source::DownloadResolvableReport::RETRY;
+                if (ret == "R") return zypp::repo::DownloadResolvableReport::RETRY;
 
                 // "C" = cancel
-                if (ret == "C") return zypp::source::DownloadResolvableReport::ABORT;
+                if (ret == "C") return zypp::repo::DownloadResolvableReport::ABORT;
 
                 // "I" = ignore
-                if (ret == "I") return zypp::source::DownloadResolvableReport::IGNORE;
+                if (ret == "I") return zypp::repo::DownloadResolvableReport::IGNORE;
 
                 // otherwise return the default value from the parent class
 	    }
 
             // return the default value from the parent class
-	    return zypp::source::DownloadResolvableReport::problem(resolvable_ptr, error, description);
+	    return zypp::repo::DownloadResolvableReport::problem(resolvable_ptr, error, description);
 	}
 
 	// Download delta rpm:
@@ -561,7 +561,7 @@ namespace ZyppRecipients {
 		return callback.evaluateBool();
 	    }
 
-	    return zypp::source::DownloadResolvableReport::progressDeltaDownload(value);
+	    return zypp::repo::DownloadResolvableReport::progressDeltaDownload(value);
 	}
 
 	virtual void problemDeltaDownload( const std::string &description )
@@ -665,7 +665,7 @@ namespace ZyppRecipients {
 		return callback.evaluateBool();
 	    }
 
-	    return zypp::source::DownloadResolvableReport::progressPatchDownload(value);
+	    return zypp::repo::DownloadResolvableReport::progressPatchDownload(value);
 	}
 
 	virtual void problemPatchDownload( const std::string &description )
