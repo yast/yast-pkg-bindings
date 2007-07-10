@@ -137,25 +137,24 @@ PkgModuleFunctions::TargetDisableSources ()
 {
     try
     {
-#warning TargetDisableSources is NOT implemented
 // FIXME: should it also remove from pool?
-/*
-	zypp::SourceManager::disableSourcesAt( _target_root );
 
-	// disable source refresh - workaround for #220056
-	zypp::storage::PersistentStorage store;
-	store.init( _target_root );
+	// set path option, use root dir as a prefix for the default directory
+	zypp::RepoManagerOptions repo_options;
+	repo_options.knownReposPath = zypp::Pathname(_target_root) + repo_options.knownReposPath;
 
-	std::list<zypp::source::SourceInfo> new_sources = store.storedSources();
-	y2milestone("Disabling refresh for sources at %s", _target_root.asString().c_str());
+	y2milestone("Disabling all sources at %s", repo_options.knownReposPath.asString().c_str());
 
-	for ( std::list<zypp::source::SourceInfo>::iterator it = new_sources.begin(); it != new_sources.end(); ++it)
+	zypp::RepoManager repomanager(repo_options);
+	std::list<zypp::RepoInfo> all_sources = repomanager.knownRepositories();
+
+	for (std::list<zypp::RepoInfo>::iterator it = all_sources.begin(); it != all_sources.end(); ++it)
 	{
-	    y2milestone("Disabling refresh: alias: %s", it->alias().c_str());
+	    y2milestone("Disabling source '%s'", it->alias().c_str());
 	    it->setAutorefresh(false);
-	    store.storeSource( *it );
+
+	    repomanager.modifyRepository(it->alias(), *it);
 	}
-*/
     }
     catch (zypp::Exception & excpt)
     {
@@ -163,6 +162,7 @@ PkgModuleFunctions::TargetDisableSources ()
 	ycperror("TargetDisableSources has failed: %s", excpt.msg().c_str() );
         return YCPBoolean(false);
     }
+
     return YCPBoolean(true);
 }
 
