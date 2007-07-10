@@ -438,21 +438,9 @@ PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 YCPValue
 PkgModuleFunctions::SourceReleaseAll ()
 {
-#warning FIXME: SourceReleaseAll is empty!
-/*    try
-    {
-	y2milestone( "Relesing all sources") ;
-	zypp::SourceManager::sourceManager()->releaseAllSources ();
-    }
-    catch (zypp::Exception & excpt)
-    {
-	_last_error.setLastError(excpt.asUserString());
-	y2error("Pkg::SourceReleaseAll has failed: %s", excpt.msg().c_str() );
-	return YCPBoolean(false);
-    }
-
-    y2milestone( "All sources released");
-*/
+    y2milestone("Relesing all sources. WARNING: this method is deprecated and has empty"
+        " implementation! If that causes problems, tell libzypp people."
+        " If everything works fine without it, just delete it from your code.");
 
     return YCPBoolean(true);
 }
@@ -939,25 +927,6 @@ PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 	return YCPBoolean(false);
     }
 
-
-    try {
-	zypp::RepoManager repomanager;
-	repomanager.modifyRepository(src.alias(), src);
-#warning FIXME is MediaManager::open() needed here?
-/*	zypp::Pathname pth = src.path();
-	zypp::Url url = zypp::Url(u->value ());
-	zypp::media::MediaManager media_mgr;
-	zypp::media::MediaAccessId media_id = media_mgr.open(url);
-	src.changeMedia(media_id, pth);
-	*/
-    }
-    catch (const zypp::Exception & excpt)
-    {
-	_last_error.setLastError(excpt.asUserString());
-        y2error ("Cannot change media for source %s (%lld): %s",
-            src.alias().c_str(), id->asInteger()->value(), excpt.msg().c_str());
-	return YCPBoolean(false);
-    }
     return YCPBoolean(true);
 }
 
