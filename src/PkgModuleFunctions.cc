@@ -573,6 +573,16 @@ PkgModuleFunctions::Init ()
     return YCPBoolean(true);
 }
 
+zypp::RepoManager PkgModuleFunctions::CreateRepoManager()
+{
+    // set path option, use root dir as a prefix for the default directory
+    zypp::RepoManagerOptions repo_options;
+    repo_options.knownReposPath = zypp::Pathname(_target_root) + repo_options.knownReposPath;
+
+    y2milestone("Path to repository files: %s", repo_options.knownReposPath.asString().c_str());
+
+    return zypp::RepoManager(repo_options);
+}
 
 /** ------------------------
  * Convert InstSrcDescr to product info YCPMap:

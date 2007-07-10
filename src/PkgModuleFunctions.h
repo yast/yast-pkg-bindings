@@ -113,6 +113,8 @@ class PkgModuleFunctions : public Y2Namespace
       YCPValue PkgProp( zypp::PoolItem_Ref item );
       YCPValue PkgMediaSizesOrCount (bool sizes);
 
+      zypp::RepoManager CreateRepoManager();
+
       void SetCurrentDU();
 
       // builtin handling

@@ -184,7 +184,7 @@ PkgModuleFunctions::SourceRestore()
 
     try
     {
-	zypp::RepoManager repomanager;
+	zypp::RepoManager repomanager = CreateRepoManager();
 	std::list<zypp::RepoInfo> reps = repomanager.knownRepositories();
 
 	repos.clear();
@@ -250,11 +250,12 @@ PkgModuleFunctions::SourceLoad()
 	    continue;
 	}
 
+	zypp::RepoManager repomanager = CreateRepoManager();
+
 	// autorefresh the source
 	if (it->autorefresh())
 	{
 	    y2milestone("Autorefreshing source: %s", it->alias().c_str());
-	    zypp::RepoManager repomanager;
 	    repomanager.refreshMetadata(*it);
 	}
 
@@ -267,7 +268,6 @@ PkgModuleFunctions::SourceLoad()
 		callbacks_evaluated = true;
 	    }
 
-	    zypp::RepoManager repomanager;
 	    zypp::Repository repository = repomanager.createFromCache(*it);
 
 	    // load resolvables
@@ -457,7 +457,7 @@ PkgModuleFunctions::SourceSaveAll ()
 {
     y2milestone("Saving the source setup...");
 
-    zypp::RepoManager repomanager;
+    zypp::RepoManager repomanager = CreateRepoManager();
 
     // TODO: do it better, remove only really removed repos
 
@@ -693,10 +693,10 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
 /*  data->add( YCPString("media_count"),	YCPInteger(src.numberOfMedia()));
   data->add( YCPString("media_id"),	YCPString(src.unique_id()));
   data->add( YCPString("media_vendor"),	YCPString(src.vendor()));
-
-#warning SourceMediaData returns URL without password
-  data->add( YCPString("url"),		YCPString(src.url().asString()));
 */
+#warning SourceMediaData returns URL without password
+  data->add( YCPString("url"),		YCPString(src.baseUrlsBegin()->asString()));
+
   return data;
 }
 
@@ -1123,7 +1123,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 
     // repository type
     zypp::repo::RepoType repotype;
-    zypp::RepoManager repomanager;
+    zypp::RepoManager repomanager = CreateRepoManager();
 
     if (!type.empty())
     {
@@ -1456,7 +1456,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	    zypp::RepoInfo src = logFindRepository(id);
 	    src.setEnabled(true);
 	
-	    zypp::RepoManager repomanager;
+	    zypp::RepoManager repomanager = CreateRepoManager();
 
 	    // update Repository
 	    zypp::Repository r = repomanager.createFromCache(src);
@@ -1492,7 +1492,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	zypp::RepoInfo src = logFindRepository(ret);
 	src.setEnabled(true);
 
-	zypp::RepoManager repomanager;
+	zypp::RepoManager repomanager = CreateRepoManager();
 	// update Repository
 	zypp::Repository r = repomanager.createFromCache(src);
 
@@ -1550,7 +1550,7 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
     {
 	src.setEnabled(enable);
 	
-	zypp::RepoManager repomanager;
+	zypp::RepoManager repomanager = CreateRepoManager();
 	// update Repository
 	zypp::Repository r = repomanager.createFromCache(src);
 
@@ -1650,7 +1650,7 @@ PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
 
     try
     {
-	zypp::RepoManager repomanager;
+	zypp::RepoManager repomanager = CreateRepoManager();
 	repomanager.refreshMetadata(src);
     }
     catch ( const zypp::Exception & expt )

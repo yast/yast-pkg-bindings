@@ -139,13 +139,7 @@ PkgModuleFunctions::TargetDisableSources ()
     {
 // FIXME: should it also remove from pool?
 
-	// set path option, use root dir as a prefix for the default directory
-	zypp::RepoManagerOptions repo_options;
-	repo_options.knownReposPath = zypp::Pathname(_target_root) + repo_options.knownReposPath;
-
-	y2milestone("Disabling all sources at %s", repo_options.knownReposPath.asString().c_str());
-
-	zypp::RepoManager repomanager(repo_options);
+	zypp::RepoManager repomanager = CreateRepoManager();
 	std::list<zypp::RepoInfo> all_sources = repomanager.knownRepositories();
 
 	for (std::list<zypp::RepoInfo>::iterator it = all_sources.begin(); it != all_sources.end(); ++it)
