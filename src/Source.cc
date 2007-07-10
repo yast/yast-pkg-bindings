@@ -455,6 +455,8 @@ PkgModuleFunctions::SourceReleaseAll ()
 YCPValue
 PkgModuleFunctions::SourceSaveAll ()
 {
+    y2milestone("Saving the source setup...");
+
     zypp::RepoManager repomanager;
 
     // TODO: do it better, remove only really removed repos
@@ -510,18 +512,34 @@ PkgModuleFunctions::SourceSaveAll ()
 YCPValue
 PkgModuleFunctions::SourceFinishAll ()
 {
-/*    try
+    try
     {
-	// look if there are any enabled sources
-	std::list<zypp::SourceManager::SourceId> enabled_sources = zypp::SourceManager::sourceManager()->enabledSources();
-	if (enabled_sources.empty()) {
-	    y2milestone( "No enabled sources." );
+	bool found_enabled = false;
+	for (std::vector<zypp::RepoInfo>::iterator it = repos.begin();
+	    it != repos.end(); ++it)
+	{
+	    if (it->enabled())
+	    {
+		found_enabled = true;
+		break;
+	    }
+	}
+
+	if (!found_enabled)
+	{
+	    y2milestone( "No enabled sources, skipping SourceFinishAll()" );
 	    return YCPBoolean( true );
 	}
-	y2milestone( "Storing the source setup in %s", _target_root.asString().c_str()) ;
-	zypp::SourceManager::sourceManager()->store( _target_root, true );
-	y2milestone( "Disabling all sources") ;
-	zypp::SourceManager::sourceManager()->disableAllSources ();
+
+	SourceSaveAll();
+
+	y2milestone( "Disabling all sources...") ;
+	for (std::vector<zypp::RepoInfo>::iterator it = repos_orig.begin();
+	    it != repos_orig.end(); ++it)
+	{
+	    it->setEnabled(false);
+	}
+	// TODO FIXME remove all resolvables??
     }
     catch (zypp::Exception & excpt)
     {
@@ -530,8 +548,8 @@ PkgModuleFunctions::SourceFinishAll ()
 	return YCPBoolean(false);
     }
 
-    y2milestone( "All sources finished");
-*/
+    y2milestone("All sources have been saved and disabled");
+
     return YCPBoolean(true);
 }
 
