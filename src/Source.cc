@@ -138,6 +138,32 @@ zypp::RepoInfo& PkgModuleFunctions::logFindRepository(zypp::Repository::NumericI
     return NOREPO;
 }
 
+zypp::MediaSetAccess_Ptr & PkgModuleFunctions::logFindRepoMedia(RepoMediaVector::size_type id)
+{
+    try
+    {
+        zypp::MediaSetAccess_Ptr maccess_ptr = repomedias[id];
+        if (maccess_ptr)
+            return repomedias[id];
+        else
+        {
+            y2milestone("MediaSetAccess not found for repository %ld, creating a new one.", id);
+            zypp::RepoInfo repo = logFindRepository(id);
+            maccess_ptr = new zypp::MediaSetAccess(*repo.baseUrlsBegin()); // FIXME handle multiple baseUrls
+            maccess_ptr.swap(repomedias[id]);
+            return repomedias[id];
+        }
+    }
+    catch (...)
+    {
+        y2error("Could not get MediaSetAccess for repository %ld.", id);
+        throw;
+    }
+
+    // return empty media set access object on error
+    return NOMEDIA;
+}
+
 
 /****************************************************************************************
  * @builtin SourceSetRamCache
@@ -439,9 +465,20 @@ PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 YCPValue
 PkgModuleFunctions::SourceReleaseAll ()
 {
-    y2milestone("Relesing all sources. WARNING: this method is deprecated and has empty"
-        " implementation! If that causes problems, tell libzypp people."
-        " If everything works fine without it, just delete it from your code.");
+    y2milestone("Relesing all sources. ");
+
+    for (RepoMediaVector::iterator it = repomedias.begin();
+	it != repomedias.end(); ++it)
+    {
+        try
+        {
+            (*it)->release();
+        }
+        catch (const zypp::media::MediaException & ex)
+        {
+            y2warning("Failed to release media for repo: %s", ex.msg().c_str());
+        }
+    }
 
     return YCPBoolean(true);
 }
@@ -789,6 +826,7 @@ YCPValue PkgModuleFunctions::SourceProvideFileCommon(const YCPInteger &id,
     CallSourceReportStart(_("Downloading file..."));
 
     zypp::RepoInfo src;
+    zypp::MediaSetAccess_Ptr maccess_ptr;
     bool found = true;
 
     extern ZyppRecipients::MediaChangeSensitivity _silent_probing;
@@ -802,20 +840,19 @@ YCPValue PkgModuleFunctions::SourceProvideFileCommon(const YCPInteger &id,
     try
     {
 	src = logFindRepository(id->value());
+        maccess_ptr = logFindRepoMedia(id->value());
     }
-    catch (const zypp::Exception& excpt)
+    catch (...)
     {
 	found = false;
     }
 
-    zypp::filesystem::Pathname path;
-
+    zypp::filesystem::Pathname path; // FIXME use ManagedMedia
     if (found)
     {
 	try
 	{
-	    zypp::MediaSetAccess maccess(*src.baseUrlsBegin());
-	    path = maccess.provideFile(f->value(), mid->value());
+	    path = maccess_ptr->provideFile(f->value(), mid->value());
 	    y2internal("local path: '%s'", path.asString().c_str());
 	}
 	catch (const zypp::Exception& excpt)
@@ -902,25 +939,26 @@ YCPValue
 PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mid, const YCPString& d)
 {
     zypp::RepoInfo src;
+    zypp::MediaSetAccess_Ptr maccess_ptr;
     bool found = true;
 
     try
     {
 	src = logFindRepository(id->value());
+	maccess_ptr = logFindRepoMedia(id->value());
     }
-    catch (const zypp::Exception& excpt)
+    catch (...)
     {
 	found = false;
     }
 
-    zypp::filesystem::Pathname path;
+    zypp::filesystem::Pathname path; // FIXME user ManagedMedia
 
     if (found)
     {
 	try
 	{
-	    zypp::MediaSetAccess maccess(*src.baseUrlsBegin());
-	    path = maccess.provideDir(d->value(), true, mid->value());
+	    path = maccess_ptr->provideDir(d->value(), true, mid->value());
 	}
 	catch (const zypp::Exception& excpt)
 	{
@@ -957,7 +995,7 @@ PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
     try {
 	src = logFindRepository(id->value());
     }
-    catch (const zypp::Exception& excpt)
+    catch (...)
     {
 	return YCPBoolean(false);
     }

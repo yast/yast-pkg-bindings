@@ -45,6 +45,7 @@
 #include <zypp/DiskUsageCounter.h>
 #include <zypp/RepoInfo.h>
 #include <zypp/RepoManager.h>
+#include <zypp/MediaSetAccess.h>
 
 #include "PkgError.h"
 
@@ -100,6 +101,11 @@ class PkgModuleFunctions : public Y2Namespace
       // original status
       std::vector<zypp::RepoInfo> repos_orig;
 
+      // media set access objects corresponding to repos
+      // when manipulating repos, these should be check as well
+      typedef std::vector<zypp::MediaSetAccess_Ptr> RepoMediaVector;
+      RepoMediaVector repomedias;
+
       // table for converting libzypp source type to Yast type (for backward compatibility)
       std::map<std::string, std::string> type_conversion_table;
 
@@ -145,7 +151,8 @@ class PkgModuleFunctions : public Y2Namespace
 
       PkgError _last_error;
 
-      zypp::RepoInfo NOREPO;
+      static zypp::RepoInfo NOREPO;
+      static zypp::MediaSetAccess_Ptr NOMEDIA;
 
       /**
        * Logging helper:
@@ -155,6 +162,9 @@ class PkgModuleFunctions : public Y2Namespace
 	zypp::RepoInfo& logFindRepository(zypp::Repository::NumericId id);
 	zypp::Repository::NumericId createManagedSource(const zypp::Url & url_r,
 	    const zypp::Pathname & path_r, const bool base_source, const std::string& type);
+
+      zypp::MediaSetAccess_Ptr & logFindRepoMedia(RepoMediaVector::size_type id);
+
       /**
        * provides SourceProvideFile and SourceProvideFileCommon
        */
