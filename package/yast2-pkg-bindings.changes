@@ -1,4 +1,22 @@
 -------------------------------------------------------------------
+Tue Jul 10 20:16:11 CEST 2007 - jkupec@suse.cz
+
+- added repomedias - vector of MediaSetAccess objects
+- SourceProvide*File methods reimplemented with passed
+  MediaSetAccess object
+- added internal method CreateRepoManager() - create RepoManager
+  object with the cofigured target root directory (all pkg-bindings
+  functions must use it to use the correct root directory!)
+- implemented TargetDisableSources()
+- implemented SourceFinishAll()
+- SourceReleaseAll() reimplemented
+- implemented SourceSaveAll()
+- fixed SourceProvideOptionalFile()
+- store the new values in SourceSetEnabled(), SourceSetAutorefresh(),
+  SourceEditSet()
+- 2.15.25
+
+-------------------------------------------------------------------
 Tue Jul 10 16:06:03 CEST 2007 - jkupec@suse.cz
 
 - ReleaseAllSources() has an empty implementation as it is
