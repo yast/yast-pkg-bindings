@@ -46,6 +46,8 @@
 #include <zypp/MediaSetAccess.h>
 #include <zypp/repo/RepoType.h>
 
+#include <zypp/base/String.h>
+
 #include <stdio.h> // snprintf
 
 
@@ -147,7 +149,7 @@ zypp::MediaSetAccess_Ptr & PkgModuleFunctions::logFindRepoMedia(RepoMediaVector:
             return repomedias[id];
         else
         {
-            y2milestone("MediaSetAccess not found for repository %ld, creating a new one.", id);
+            y2milestone("MediaSetAccess not found for repository %d, creating a new one.", id);
             zypp::RepoInfo repo = logFindRepository(id);
             maccess_ptr = new zypp::MediaSetAccess(*repo.baseUrlsBegin()); // FIXME handle multiple baseUrls
             maccess_ptr.swap(repomedias[id]);
@@ -156,7 +158,7 @@ zypp::MediaSetAccess_Ptr & PkgModuleFunctions::logFindRepoMedia(RepoMediaVector:
     }
     catch (...)
     {
-        y2error("Could not get MediaSetAccess for repository %ld.", id);
+        y2error("Could not get MediaSetAccess for repository %d.", id);
         throw;
     }
 
@@ -194,10 +196,6 @@ YCPValue
 PkgModuleFunctions::SourceRestore()
 {
     // evaluate the callbacks only when the source manager hasn't been initialized
-// FIXME
-//    bool enable_callbacks = zypp::SourceManager::sourceManager()->Source_begin()
-//	== zypp::SourceManager::sourceManager()->Source_end();
-
     bool enable_callbacks = repos.size() == 0;
 
     if (enable_callbacks)
@@ -1157,7 +1155,18 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
     std::string alias = removeAlias(url_r, url);
     y2milestone("Alias from URL: '%s'", alias.c_str());
 
+#warning FIXME: use base_source (base_source vs. addon)
 #warning FIXME: use path_r (product directory)
+/*
+    FIXME: add the product dir to the URL?
+    std::string prod_dir = path_r.asString();
+    if (!prod_dir.empty() && prod_dir != "/")
+    {
+	y2milestone("Using product directory: %s", prod_dir.c_str());
+	std::string path = url.getPathName();
+	path = path + "/"
+    }
+*/
 
     // repository type
     zypp::repo::RepoType repotype;
@@ -1167,7 +1176,11 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
     {
 	try
 	{
-	    repotype.parse(type);
+	    // do conversion from the Yast type ("YaST", "YUM", "Plaindir")
+	    // to libzypp type ("yast", "yum", "plaindir")
+	    // we can simply use toLower instead of a conversion table
+	    // in this case
+	    repotype.parse(zypp::str::toLower(type));
 	}
 	catch (zypp::repo::RepoUnknownTypeException &e)
 	{
@@ -1459,7 +1472,6 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
   YCPList ids;
   zypp::Repository::NumericId ret = -1;
 
-#warning FIXME handle source_type
   const std::string type = source_type->value();
 
   if ( pd->value().empty() ) {
@@ -1587,7 +1599,8 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
     try
     {
 	src.setEnabled(enable);
-	
+
+	// FIXME load (remove) resolvables only when they are missing (present)
 	zypp::RepoManager repomanager = CreateRepoManager();
 	// update Repository
 	zypp::Repository r = repomanager.createFromCache(src);
@@ -1597,10 +1610,6 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 	    zypp_ptr()->addResolvables(r.resolvables());
 	else
 	    zypp_ptr()->removeResolvables(r.resolvables());
-
-
-	// FIXME: needed?
-	// update 'repos' ?
 
 	PkgFreshen();
     }
