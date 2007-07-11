@@ -230,7 +230,21 @@ PkgModuleFunctions::PkgMediaNames ()
 		    y2warning("Product for source '%d' not found", index);
 
 		    YCPList src_desc;
-		    src_desc->add( YCPString( repoit->baseUrlsBegin()->asString()) );
+
+		    // use URL as the product name
+		    std::string name;
+		    if (repoit->baseUrlsBegin() != repoit->baseUrlsEnd())
+		    {
+			name = repoit->baseUrlsBegin()->asString();
+		    }
+
+		    // use alias if url is unknown
+		    if (name.empty())
+		    {
+			name = repoit->alias();
+		    }
+
+		    src_desc->add( YCPString( name ));
 		    src_desc->add( YCPInteger( index ) );
 
 		    res->add( src_desc );
