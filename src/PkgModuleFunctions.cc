@@ -172,6 +172,8 @@ public:
 // Class: YRepo
 //
 
+IMPL_PTR_TYPE(YRepo);
+
 YRepo::YRepo(zypp::RepoInfo & repo)
     : _repo(repo), _repo_orig_alias(repo.alias())
 {}
@@ -197,7 +199,7 @@ zypp::MediaSetAccess_Ptr & YRepo::mediaAccess()
     return _maccess;
 }
 
-YRepo YRepo::NOREPO;
+const YRepo YRepo::NOREPO;
 
 /////////////////////////////////////////////////////////////////////////////
 

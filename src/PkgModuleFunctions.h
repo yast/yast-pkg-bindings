@@ -39,6 +39,7 @@
 #include <y2/Y2Namespace.h>
 
 #include <zypp/ZYpp.h>
+#include <zypp/base/PtrTypes.h>
 #include <zypp/Pathname.h>
 #include <zypp/Url.h>
 #include <zypp/Arch.h>
@@ -63,7 +64,8 @@ extern "C" {
 // define new _ macro
 #define _(MSG) ::dgettext("pkg-bindings", MSG)
 
-struct YRepo
+DEFINE_PTR_TYPE(YRepo);
+class YRepo : public zypp::base::ReferenceCounted
 {
 private:
     zypp::RepoInfo _repo;
@@ -82,7 +84,7 @@ public:
     zypp::MediaSetAccess_Ptr & mediaAccess();
 
 public:
-    static YRepo NOREPO;
+    static const YRepo NOREPO;
 };
 
 /**
@@ -117,7 +119,7 @@ class PkgModuleFunctions : public Y2Namespace
     private: // source related
     
       // all known installation sources
-      std::vector<YRepo> repos;
+      std::vector<YRepo_Ptr> repos;
 
       // table for converting libzypp source type to Yast type (for backward compatibility)
       std::map<std::string, std::string> type_conversion_table;
@@ -169,11 +171,11 @@ class PkgModuleFunctions : public Y2Namespace
        * search for a repository and in case of exception, log error
        * and setLastError AND RETHROW
        */
-	YRepo& logFindRepository(std::vector<YRepo>::size_type id);
+	YRepo_Ptr logFindRepository(std::vector<YRepo_Ptr>::size_type id);
 	
-	std::vector<zypp::RepoInfo>::size_type logFindAlias(const std::string &alias);
+	std::vector<YRepo_Ptr>::size_type logFindAlias(const std::string &alias);
 
-	std::vector<zypp::RepoInfo>::size_type createManagedSource(const zypp::Url & url_r,
+	std::vector<YRepo_Ptr>::size_type createManagedSource(const zypp::Url & url_r,
 	    const zypp::Pathname & path_r, const bool base_source, const std::string& type);
 
       /**
