@@ -191,70 +191,61 @@ YCPValue
 PkgModuleFunctions::PkgMediaNames ()
 {
 # warning No installation order
-
-#warning PkgMediaNames is NOT implemented!!!
-// FIXME
-/*
-//    std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
-
     YCPList res;
 
-    // initialize
-// FIXME: for all enabled sources...
-    for( std::list<zypp::SourceManager::SourceId>::const_iterator sit = source_ids.begin();
-	sit != source_ids.end(); ++sit)
+    std::vector<zypp::RepoInfo>::size_type index = 0;
+    // for all enabled sources
+    for( std::vector<zypp::RepoInfo>::const_iterator repoit = repos.begin();
+	repoit != repos.end(); ++repoit,++index)
     {
-	unsigned id = *sit;
-
-//FIXME
-//	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
-
-	try
+	if (repoit->enabled())
 	{
-	    // find a product for the given source
-	    zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Product>::kind);
+	    try
+	    {
+		// find a product for the given source
+		zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Product>::kind);
 
-	    for( ; it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind)
-		; ++it) {
-		zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
+		for( ; it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind)
+		    ; ++it) {
+		    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
 
-		y2debug ("Checking product: %s", product->summary().c_str());
-		if( product->source() == src )
+		    y2debug ("Checking product: %s", product->summary().c_str());
+		    if( product->repository().info().alias() == repoit->alias())
+		    {
+			y2debug ("Found");
+
+			YCPList src_desc;
+			src_desc->add( YCPString( product->summary() ) );
+			src_desc->add( YCPInteger( index ) );
+
+			res->add( src_desc );
+			break;
+		    }
+		}
+
+		// the product hasn't been found, resolvables are probably not loaded
+		// use URL as the product name in such case
+		if( it == zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind) )
 		{
-		    y2debug ("Found");
+		    y2warning("Product for source '%d' not found", index);
 
 		    YCPList src_desc;
-		    src_desc->add( YCPString( product->summary() ) );
-		    src_desc->add( YCPInteger( src.numericId() ) );
+		    src_desc->add( YCPString( repoit->baseUrlsBegin()->asString()) );
+		    src_desc->add( YCPInteger( index ) );
 
 		    res->add( src_desc );
-		    break;
 		}
 	    }
-
-	    if( it == zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind) )
+	    catch (...)
 	    {
-		y2error ("Product for source '%d' not found", id);
-
-		YCPList src_desc;
-		src_desc->add( YCPString( src.url().asString() ) );
-		src_desc->add( YCPInteger( src.numericId() ) );
-
-		res->add( src_desc );
+		return res;
 	    }
-	}
-	catch (...)
-	{
-	    return res;
 	}
     }
 
     y2milestone( "Pkg::PkgMediaNames result: %s", res->toString().c_str());
 
     return res;
-*/
-
-    return YCPList();
 }
 
 
