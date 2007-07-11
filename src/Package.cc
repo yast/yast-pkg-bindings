@@ -964,8 +964,9 @@ PkgModuleFunctions::PkgProp( zypp::PoolItem_Ref item )
     data->add( YCPString("arch"), YCPString( pkg->arch().asString() ) );
     data->add( YCPString("medianr"), YCPInteger( pkg->mediaNr() ) );
 
-    zypp::Repository::NumericId sid = pkg->repository().numericId();
-    y2debug("srcId: %ld", sid );
+    #warning FIXME: convert to Yast id (index)
+    std::vector<zypp::RepoInfo>::size_type sid = pkg->repository().numericId();
+    y2debug("srcId: %d", sid );
     data->add( YCPString("srcid"), YCPInteger( sid ) );
 
     std::string status("available");

@@ -159,8 +159,11 @@ class PkgModuleFunctions : public Y2Namespace
        * search for a repository and in case of exception, log error
        * and setLastError AND RETHROW
        */
-	zypp::RepoInfo& logFindRepository(zypp::Repository::NumericId id);
-	zypp::Repository::NumericId createManagedSource(const zypp::Url & url_r,
+	zypp::RepoInfo& logFindRepository(std::vector<zypp::RepoInfo>::size_type id);
+	
+	std::vector<zypp::RepoInfo>::size_type logFindAlias(const std::string &alias);
+
+	std::vector<zypp::RepoInfo>::size_type createManagedSource(const zypp::Url & url_r,
 	    const zypp::Pathname & path_r, const bool base_source, const std::string& type);
 
       zypp::MediaSetAccess_Ptr & logFindRepoMedia(RepoMediaVector::size_type id);

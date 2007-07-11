@@ -43,7 +43,7 @@ ZyppRecipients::MediaChangeSensitivity _silent_probing = ZyppRecipients::MEDIA_C
 
 // remember redirected URLs
 // FIXME huh?
-std::map<zypp::Repository::NumericId, std::map<unsigned, std::string> > redirect_map;
+std::map<std::vector<zypp::RepoInfo>::size_type, std::map<unsigned, std::string> > redirect_map;
 
 ///////////////////////////////////////////////////////////////////
 namespace ZyppRecipients {
@@ -942,7 +942,7 @@ namespace ZyppRecipients {
 		callback.addStr( description );
 
 		// search URL in the redirection map
-		std::map<zypp::Repository::NumericId, std::map<unsigned, std::string> >::const_iterator source_it = redirect_map.find(source.numericId());
+		std::map<std::vector<zypp::RepoInfo>::size_type, std::map<unsigned, std::string> >::const_iterator source_it = redirect_map.find(source.numericId());
 		bool found = false;
 		std::string report_url;
 

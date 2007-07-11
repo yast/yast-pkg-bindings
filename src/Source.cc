@@ -122,7 +122,7 @@ void PkgModuleFunctions::CallSourceReportDestroy()
  * call zypp::SourceManager::sourceManager()->findSource
  * and in case of exception, log error and setLastError AND RETHROW
  */
-zypp::RepoInfo& PkgModuleFunctions::logFindRepository(zypp::Repository::NumericId id)
+zypp::RepoInfo& PkgModuleFunctions::logFindRepository(std::vector<zypp::RepoInfo>::size_type id)
 {
     try
     {
@@ -130,7 +130,7 @@ zypp::RepoInfo& PkgModuleFunctions::logFindRepository(zypp::Repository::NumericI
     }
     catch (...)
     {
-	y2error("Cannot find source %ld", id);
+	y2error("Cannot find source %d", id);
 	// TODO: improve the error message
 	_last_error.setLastError(_("Cannot find source"));
 	throw;
@@ -139,6 +139,20 @@ zypp::RepoInfo& PkgModuleFunctions::logFindRepository(zypp::Repository::NumericI
     // not found, return empty Repository
     return NOREPO;
 }
+
+std::vector<zypp::RepoInfo>::size_type PkgModuleFunctions::logFindAlias(const std::string &alias)
+{
+    std::vector<zypp::RepoInfo>::size_type index = 0;
+
+    for(std::vector<zypp::RepoInfo>::const_iterator it = repos.begin(); it != repos.end() ; ++it, ++index)
+    {
+	if (it->alias() == alias)
+	    return index;
+    }
+
+    return -1;
+}
+
 
 zypp::MediaSetAccess_Ptr & PkgModuleFunctions::logFindRepoMedia(RepoMediaVector::size_type id)
 {
@@ -1140,7 +1154,7 @@ static std::string removeAlias (const zypp::Url & old_url,
  * \return the SourceId
  * \throws Exception if Source creation fails
 */
-zypp::Repository::NumericId
+std::vector<zypp::RepoInfo>::size_type
 PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 		     const zypp::Pathname & path_r,
 		     const bool base_source,
@@ -1337,7 +1351,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
   zypp::Pathname pn(pd->value ());
 
   YCPList ids;
-  zypp::Repository::NumericId id;
+  std::vector<zypp::RepoInfo>::size_type id;
 
   if ( pd->value().empty() ) {
 
@@ -1470,7 +1484,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
 
   YCPList ids;
-  zypp::Repository::NumericId ret = -1;
+  std::vector<zypp::RepoInfo>::size_type ret = -1;
 
   const std::string type = source_type->value();
 
@@ -1501,7 +1515,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     {
 	try
 	{
-	    zypp::Repository::NumericId id = createManagedSource(url, it->_dir, base, type);
+	    std::vector<zypp::RepoInfo>::size_type id = createManagedSource(url, it->_dir, base, type);
 
 	    zypp::RepoInfo src = logFindRepository(id);
 	    src.setEnabled(true);
@@ -1794,7 +1808,7 @@ PkgModuleFunctions::SourceEditGet ()
     YCPList ret;
 
     unsigned long index = 0;
-    for( std::vector<zypp::RepoInfo>::const_iterator it = repos.begin(); it != repos.end(); ++it)
+    for( std::vector<zypp::RepoInfo>::const_iterator it = repos.begin(); it != repos.end(); ++it, ++index)
     {
 	YCPMap src_map;
 
@@ -1804,8 +1818,6 @@ PkgModuleFunctions::SourceEditGet ()
 	src_map->add(YCPString("alias"), YCPString(it->alias()));
 
 	ret->add(src_map);
-
-	++index;
     }
 
     return ret;
@@ -1848,7 +1860,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 	continue;
     }
 
-    zypp::Repository::NumericId id = descr->value( YCPString("SrcId") )->asInteger()->value();
+    std::vector<zypp::RepoInfo>::size_type id = descr->value( YCPString("SrcId") )->asInteger()->value();
 
     zypp::RepoInfo src;
     try
@@ -1870,7 +1882,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 
 	if (src.enabled() != enable)
 	{
-	    ycpwarning("Pkg::SourceEditSet() does not refresh the pool (src: %lu, state: %s)", id, enable ? "disabled -> enabled" : "enabled -> disabled");
+	    ycpwarning("Pkg::SourceEditSet() does not refresh the pool (src: %d, state: %s)", id, enable ? "disabled -> enabled" : "enabled -> disabled");
 	}
 
 	src.setEnabled(enable);
