@@ -1,4 +1,19 @@
 -------------------------------------------------------------------
+Wed Jul 11 22:17:41 CEST 2007 - jkupec@suse.cz
+
+- storing YRepo_Ptr instead of YRepo in the vector
+- modified logFindRepository() to retrun YRepo_Ptr
+  check its return value:
+    if (!returnvalue) found = false;
+- reimplemented SourceCallbacks
+- FIXED if repo.baseUrlsBegin() is repo.baseUrlsEnd() then do not
+  read the value at the iterator (segfault)
+- added logFindAlias() for searching an alias in the known repos
+- reimplemented PkgMediaNames()
+- SourceCreateType() - convert type from Yast string to libzypp string
+- 2.15.26
+
+-------------------------------------------------------------------
 Wed Jul 11 17:03:26 CEST 2007 - jkupec@suse.cz
 
 - YRepo structure added to encapsulate RepoInfo, MediaSetAccess, and
