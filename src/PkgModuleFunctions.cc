@@ -36,6 +36,8 @@
 
 #include <zypp/ZYppFactory.h>
 #include <zypp/ResPool.h>
+#include <zypp/RepoInfo.h>
+#include <zypp/MediaSetAccess.h>
 
 // sleep
 #include <unistd.h>
@@ -164,6 +166,41 @@ public:
     {
 	    return m_name;
     }
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Class: YRepo
+//
+
+YRepo::YRepo(zypp::RepoInfo & repo)
+    : _repo(repo), _repo_orig_alias(repo.alias())
+{}
+
+YRepo::~YRepo()
+{
+    if (_maccess)
+    {
+        try { _maccess->release(); }
+        catch (const zypp::media::MediaException & ex) {}
+    }
+}
+
+zypp::MediaSetAccess_Ptr & YRepo::mediaAccess()
+{
+    if (!_maccess)
+    {
+        y2milestone("Creating new MediaSetAccess for url %s",
+            (*_repo.baseUrlsBegin()).asString().c_str());
+        _maccess = new zypp::MediaSetAccess(*_repo.baseUrlsBegin()); // FIXME handle multiple baseUrls
+    }
+
+    return _maccess;
+}
+
+YRepo YRepo::NOREPO;
+
+/////////////////////////////////////////////////////////////////////////////
+
 
 const zypp::ResStatus::TransactByValue PkgModuleFunctions::whoWantsIt = zypp::ResStatus::APPL_HIGH;
 
@@ -583,9 +620,6 @@ zypp::RepoManager PkgModuleFunctions::CreateRepoManager()
 
     return zypp::RepoManager(repo_options);
 }
-
-zypp::RepoInfo PkgModuleFunctions::NOREPO;
-zypp::MediaSetAccess_Ptr PkgModuleFunctions::NOMEDIA;
 
 /** ------------------------
  * Convert InstSrcDescr to product info YCPMap:

@@ -63,6 +63,27 @@ extern "C" {
 // define new _ macro
 #define _(MSG) ::dgettext("pkg-bindings", MSG)
 
+struct YRepo
+{
+private:
+    zypp::RepoInfo _repo;
+    std::string _repo_orig_alias;
+    zypp::MediaSetAccess_Ptr _maccess;
+
+    YRepo() {}
+
+public:
+    YRepo(zypp::RepoInfo & repo);
+    ~YRepo();
+
+    const zypp::RepoInfo & repoInfo() const { return _repo; }
+    void setRepoInfo(const zypp::RepoInfo & repo) { _repo = repo; }
+    const std::string & origRepoAlias() const { return _repo_orig_alias; }
+    zypp::MediaSetAccess_Ptr & mediaAccess();
+
+public:
+    static YRepo NOREPO;
+};
 
 /**
  * A simple class for package management access
@@ -96,15 +117,7 @@ class PkgModuleFunctions : public Y2Namespace
     private: // source related
     
       // all known installation sources
-      std::vector<zypp::RepoInfo> repos;
-
-      // original status
-      std::vector<zypp::RepoInfo> repos_orig;
-
-      // media set access objects corresponding to repos
-      // when manipulating repos, these should be check as well
-      typedef std::vector<zypp::MediaSetAccess_Ptr> RepoMediaVector;
-      RepoMediaVector repomedias;
+      std::vector<YRepo> repos;
 
       // table for converting libzypp source type to Yast type (for backward compatibility)
       std::map<std::string, std::string> type_conversion_table;
@@ -151,22 +164,17 @@ class PkgModuleFunctions : public Y2Namespace
 
       PkgError _last_error;
 
-      static zypp::RepoInfo NOREPO;
-      static zypp::MediaSetAccess_Ptr NOMEDIA;
-
       /**
        * Logging helper:
        * search for a repository and in case of exception, log error
        * and setLastError AND RETHROW
        */
-	zypp::RepoInfo& logFindRepository(std::vector<zypp::RepoInfo>::size_type id);
+	YRepo& logFindRepository(std::vector<YRepo>::size_type id);
 	
 	std::vector<zypp::RepoInfo>::size_type logFindAlias(const std::string &alias);
 
 	std::vector<zypp::RepoInfo>::size_type createManagedSource(const zypp::Url & url_r,
 	    const zypp::Pathname & path_r, const bool base_source, const std::string& type);
-
-      zypp::MediaSetAccess_Ptr & logFindRepoMedia(RepoMediaVector::size_type id);
 
       /**
        * provides SourceProvideFile and SourceProvideFileCommon

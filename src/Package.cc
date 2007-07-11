@@ -193,12 +193,12 @@ PkgModuleFunctions::PkgMediaNames ()
 # warning No installation order
     YCPList res;
 
-    std::vector<zypp::RepoInfo>::size_type index = 0;
+    std::vector<YRepo>::size_type index = 0;
     // for all enabled sources
-    for( std::vector<zypp::RepoInfo>::const_iterator repoit = repos.begin();
+    for( std::vector<YRepo>::const_iterator repoit = repos.begin();
 	repoit != repos.end(); ++repoit,++index)
     {
-	if (repoit->enabled())
+	if (repoit->repoInfo().enabled())
 	{
 	    try
 	    {
@@ -210,7 +210,7 @@ PkgModuleFunctions::PkgMediaNames ()
 		    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
 
 		    y2debug ("Checking product: %s", product->summary().c_str());
-		    if( product->repository().info().alias() == repoit->alias())
+		    if( product->repository().info().alias() == repoit->repoInfo().alias())
 		    {
 			y2debug ("Found");
 
@@ -233,15 +233,15 @@ PkgModuleFunctions::PkgMediaNames ()
 
 		    // use URL as the product name
 		    std::string name;
-		    if (repoit->baseUrlsBegin() != repoit->baseUrlsEnd())
+		    if (repoit->repoInfo().baseUrlsBegin() != repoit->repoInfo().baseUrlsEnd())
 		    {
-			name = repoit->baseUrlsBegin()->asString();
+			name = repoit->repoInfo().baseUrlsBegin()->asString();
 		    }
 
 		    // use alias if url is unknown
 		    if (name.empty())
 		    {
-			name = repoit->alias();
+			name = repoit->repoInfo().alias();
 		    }
 
 		    src_desc->add( YCPString( name ));
