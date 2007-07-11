@@ -306,7 +306,7 @@ PkgModuleFunctions::PatternData (const YCPString& pat)
 	    data->add (YCPString ("script"), YCPString (pattern->script().asString()));
 	    data->add (YCPString ("version"), YCPString((*it)->edition().asString()));
 	    data->add (YCPString ("arch"), YCPString((*it)->arch().asString()));
-	    data->add (YCPString ("srcid"), YCPInteger((*it)->repository().numericId()));
+	    data->add (YCPString ("srcid"), YCPInteger(logFindAlias((*it)->repository().info().alias())));
 	}
 	else
 	{

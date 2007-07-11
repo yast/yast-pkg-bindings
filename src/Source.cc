@@ -782,7 +782,7 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& src_id)
 	{
 	    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
 
-	    if( product->repository().numericId() == src_id->value() )
+	    if( logFindAlias(product->repository().info().alias()) == src_id->value() )
 	    {
 		ret->add( YCPString("label"),		YCPString( product->summary() ) );
 		ret->add( YCPString("vendor"),		YCPString( product->vendor() ) );

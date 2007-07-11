@@ -403,7 +403,7 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 
 		// source
 		zypp::Repository repo = (*it)->repository();
-		info->add(YCPString("source"), YCPInteger(repo.numericId()));
+		info->add(YCPString("source"), YCPInteger(logFindAlias(repo.info().alias())));
 
 		// product specific info
 		if( req_kind == "product" ) {
