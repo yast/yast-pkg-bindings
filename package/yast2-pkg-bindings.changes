@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Jul 11 17:03:26 CEST 2007 - jkupec@suse.cz
+
+- YRepo structure added to encapsulate RepoInfo, MediaSetAccess, and
+  original alias of a repository.
+- fixed SourceProvide* methods
+- replaced RepoInfo vector with YRepo vector
+
+-------------------------------------------------------------------
 Tue Jul 10 20:16:11 CEST 2007 - jkupec@suse.cz
 
 - added repomedias - vector of MediaSetAccess objects
