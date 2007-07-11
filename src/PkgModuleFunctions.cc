@@ -584,6 +584,9 @@ zypp::RepoManager PkgModuleFunctions::CreateRepoManager()
     return zypp::RepoManager(repo_options);
 }
 
+zypp::RepoInfo PkgModuleFunctions::NOREPO;
+zypp::MediaSetAccess_Ptr PkgModuleFunctions::NOMEDIA;
+
 /** ------------------------
  * Convert InstSrcDescr to product info YCPMap:
  * <TABLE>

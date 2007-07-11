@@ -164,7 +164,7 @@ zypp::MediaSetAccess_Ptr & PkgModuleFunctions::logFindRepoMedia(RepoMediaVector:
         else
         {
             y2milestone("MediaSetAccess not found for repository %d, creating a new one.", id);
-            zypp::RepoInfo repo = logFindRepository(id);
+            const zypp::RepoInfo &repo = logFindRepository(id);
             maccess_ptr = new zypp::MediaSetAccess(*repo.baseUrlsBegin()); // FIXME handle multiple baseUrls
             maccess_ptr.swap(repomedias[id]);
             return repomedias[id];
@@ -477,7 +477,7 @@ PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 YCPValue
 PkgModuleFunctions::SourceReleaseAll ()
 {
-    y2milestone("Relesing all sources. ");
+    y2milestone("Releasing all sources...");
 
     for (RepoMediaVector::iterator it = repomedias.begin();
 	it != repomedias.end(); ++it)
@@ -632,7 +632,7 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 {
     YCPMap data;
 
-    zypp::RepoInfo src;
+    zypp::RepoInfo &src = NOREPO;
 
     try
     {
@@ -667,7 +667,13 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
     data->add( YCPString("type"),		YCPString(srctype));
 #warning FIXME: "product_dir" is missing
 //    data->add( YCPString("product_dir"),	YCPString(src.path().asString()));
-    data->add( YCPString("url"),		YCPString(src.baseUrlsBegin()->asString()));
+    
+    // check if there is an URL
+    if (src.baseUrlsBegin() != src.baseUrlsEnd())
+    {
+	data->add( YCPString("url"),		YCPString(src.baseUrlsBegin()->asString()));
+    }
+
     data->add( YCPString("alias"),		YCPString(src.alias()));
 
     YCPList base_urls;
@@ -692,19 +698,17 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceURL (const YCPInteger& id)
 {
-    zypp::RepoInfo src;
 
     try
     {
-	src = logFindRepository(id->value());
+	const zypp::RepoInfo &src = logFindRepository(id->value());
+	// #186842
+	return YCPString(src.baseUrlsBegin()->asCompleteString());
     }
     catch (const zypp::Exception& excpt)
     {
 	return YCPVoid ();
     }
-
-    // #186842
-    return YCPString(src.baseUrlsBegin()->asCompleteString());
 }
 
 /****************************************************************************************
@@ -728,7 +732,7 @@ YCPValue
 PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
 {
     YCPMap data;
-    zypp::RepoInfo src;
+    zypp::RepoInfo &src = NOREPO;
 
     try
     {
@@ -837,7 +841,7 @@ YCPValue PkgModuleFunctions::SourceProvideFileCommon(const YCPInteger &id,
     CallSourceReportInit();
     CallSourceReportStart(_("Downloading file..."));
 
-    zypp::RepoInfo src;
+    zypp::RepoInfo &src = NOREPO;
     zypp::MediaSetAccess_Ptr maccess_ptr;
     bool found = true;
 
@@ -950,7 +954,7 @@ PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPIn
 YCPValue
 PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mid, const YCPString& d)
 {
-    zypp::RepoInfo src;
+    zypp::RepoInfo &src = NOREPO;
     zypp::MediaSetAccess_Ptr maccess_ptr;
     bool found = true;
 
@@ -1003,7 +1007,7 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
 YCPValue
 PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 {
-    zypp::RepoInfo src;
+    zypp::RepoInfo &src = NOREPO;
     try {
 	src = logFindRepository(id->value());
     }
@@ -1517,7 +1521,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	{
 	    std::vector<zypp::RepoInfo>::size_type id = createManagedSource(url, it->_dir, base, type);
 
-	    zypp::RepoInfo src = logFindRepository(id);
+	    zypp::RepoInfo &src = logFindRepository(id);
 	    src.setEnabled(true);
 	
 	    zypp::RepoManager repomanager = CreateRepoManager();
@@ -1553,7 +1557,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     {
 	ret = createManagedSource(url, pn, base, type);
 
-	zypp::RepoInfo src = logFindRepository(ret);
+	zypp::RepoInfo &src = logFindRepository(ret);
 	src.setEnabled(true);
 
 	zypp::RepoManager repomanager = CreateRepoManager();
@@ -1591,7 +1595,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 YCPValue
 PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 {
-    zypp::RepoInfo src;
+    zypp::RepoInfo &src = NOREPO;
     bool enable = e->value();
 
     try
@@ -1635,11 +1639,6 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 	success = false;
     }
 
-    if (success)
-    {
-	repos[id->value()] = src;
-    }
-
     return YCPBoolean(success);
 }
 
@@ -1656,7 +1655,7 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 YCPValue
 PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean& e)
 {
-    zypp::RepoInfo src;
+    zypp::RepoInfo &src = NOREPO;
 
     try {
 	src = logFindRepository(id->value());
@@ -1667,8 +1666,6 @@ PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean
     }
 
     src.setAutorefresh(e->value());
-
-    repos[id->value()] = src;
 
     return YCPBoolean( true );
 }
@@ -1699,7 +1696,7 @@ PkgModuleFunctions::SourceFinish (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
 {
-    zypp::RepoInfo src;
+    zypp::RepoInfo &src = NOREPO;
 
     try {
 	src = logFindRepository(id->value());
@@ -1737,7 +1734,7 @@ PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceDelete (const YCPInteger& id)
 {
-    zypp::RepoInfo src;
+    zypp::RepoInfo &src = NOREPO;
 
     try
     {
@@ -1862,7 +1859,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 
     std::vector<zypp::RepoInfo>::size_type id = descr->value( YCPString("SrcId") )->asInteger()->value();
 
-    zypp::RepoInfo src;
+    zypp::RepoInfo &src = NOREPO;
     try
     {
 	src = logFindRepository(id);
@@ -1898,8 +1895,6 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 	// rename the source
 	src.setAlias(descr->value(YCPString("alias"))->asString()->value());
     }
-
-    repos[id] = src;
 
 #warning SourceEditSet ordering not implemented yet
   }
@@ -2020,4 +2015,5 @@ PkgModuleFunctions::SourceMoveDownloadArea (const YCPString & path)
 */
     return YCPBoolean(true);
 }
+
 
