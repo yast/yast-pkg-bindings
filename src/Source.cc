@@ -562,7 +562,7 @@ PkgModuleFunctions::SourceFinishAll ()
 	for (std::vector<YRepo>::iterator it = repos.begin();
 	    it != repos.end(); ++it)
 	{
-            it->repoInfoNonConst().setEnabled(false);
+            it->repoInfo().setEnabled(false);
 	}
 	// TODO FIXME remove all resolvables??
     }
@@ -1011,15 +1011,15 @@ PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
                 baseUrls.insert(*i);
             
             // reset url list and store the new one there
-            repo.repoInfoNonConst().setBaseUrl(zypp::Url(u->value()));
+            repo.repoInfo().setBaseUrl(zypp::Url(u->value()));
 
             // add the rest of base urls
             for (std::set<zypp::Url>::const_iterator i = baseUrls.begin();
                     i != baseUrls.end(); ++i)
-                repo.repoInfoNonConst().addBaseUrl(*i);
+                repo.repoInfo().addBaseUrl(*i);
         }
         else
-            repo.repoInfoNonConst().setBaseUrl(zypp::Url(u->value()));
+            repo.repoInfo().setBaseUrl(zypp::Url(u->value()));
     }
     catch (const zypp::Exception & excpt)
     {
@@ -1506,7 +1506,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	    std::vector<zypp::RepoInfo>::size_type id = createManagedSource(url, it->_dir, base, type);
 
 	    YRepo &src = logFindRepository(id);
-	    src.repoInfoNonConst().setEnabled(true);
+	    src.repoInfo().setEnabled(true);
 	
 	    zypp::RepoManager repomanager = CreateRepoManager();
 
@@ -1542,7 +1542,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	ret = createManagedSource(url, pn, base, type);
 
 	YRepo &src = logFindRepository(ret);
-	src.repoInfoNonConst().setEnabled(true);
+	src.repoInfo().setEnabled(true);
 
 	zypp::RepoManager repomanager = CreateRepoManager();
 	// update Repository
@@ -1600,7 +1600,7 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 
     try
     {
-	src.repoInfoNonConst().setEnabled(enable);
+	src.repoInfo().setEnabled(enable);
 
 	// FIXME load (remove) resolvables only when they are missing (present)
 	zypp::RepoManager repomanager = CreateRepoManager();
@@ -1649,7 +1649,7 @@ PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean
 	return YCPBoolean(false);
     }
 
-    src.repoInfoNonConst().setAutorefresh(e->value());
+    src.repoInfo().setAutorefresh(e->value());
 
 
     return YCPBoolean( true );
@@ -1867,18 +1867,18 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 	    ycpwarning("Pkg::SourceEditSet() does not refresh the pool (src: %d, state: %s)", id, enable ? "disabled -> enabled" : "enabled -> disabled");
 	}
 
-	src.repoInfoNonConst().setEnabled(enable);
+	src.repoInfo().setEnabled(enable);
     }
 
     if( !descr->value(YCPString("autorefresh")).isNull() && descr->value(YCPString("autorefresh"))->isBoolean ())
     {
-	src.repoInfoNonConst().setAutorefresh( descr->value(YCPString("autorefresh"))->asBoolean()->value() );
+	src.repoInfo().setAutorefresh( descr->value(YCPString("autorefresh"))->asBoolean()->value() );
     }
 
     if( !descr->value(YCPString("alias")).isNull() && descr->value(YCPString("alias"))->isString())
     {
 	// rename the source
-	src.repoInfoNonConst().setAlias(descr->value(YCPString("alias"))->asString()->value());
+	src.repoInfo().setAlias(descr->value(YCPString("alias"))->asString()->value());
     }
 
 #warning SourceEditSet ordering not implemented yet
