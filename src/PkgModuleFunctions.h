@@ -77,7 +77,7 @@ public:
     ~YRepo();
 
     const zypp::RepoInfo & repoInfo() const { return _repo; }
-    void setRepoInfo(const zypp::RepoInfo & repo) { _repo = repo; }
+    zypp::RepoInfo repoInfoNonConst() { return _repo; }
     const std::string & origRepoAlias() const { return _repo_orig_alias; }
     zypp::MediaSetAccess_Ptr & mediaAccess();
 
