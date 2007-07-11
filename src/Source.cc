@@ -165,7 +165,14 @@ zypp::MediaSetAccess_Ptr & PkgModuleFunctions::logFindRepoMedia(RepoMediaVector:
         {
             y2milestone("MediaSetAccess not found for repository %d, creating a new one.", id);
             const zypp::RepoInfo &repo = logFindRepository(id);
-            maccess_ptr = new zypp::MediaSetAccess(*repo.baseUrlsBegin()); // FIXME handle multiple baseUrls
+
+	    zypp::Url url;
+	    if (repo.baseUrlsBegin() != repo.baseUrlsEnd())
+	    {
+		url = *repo.baseUrlsBegin();
+	    }
+
+            maccess_ptr = new zypp::MediaSetAccess(url); // FIXME handle multiple baseUrls
             maccess_ptr.swap(repomedias[id]);
             return repomedias[id];
         }
@@ -665,8 +672,9 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
     data->add( YCPString("enabled"),		YCPBoolean(src.enabled()));
     data->add( YCPString("autorefresh"),	YCPBoolean(src.autorefresh()));
     data->add( YCPString("type"),		YCPString(srctype));
-#warning FIXME: "product_dir" is missing
+#warning FIXME: "product_dir" is always "/"
 //    data->add( YCPString("product_dir"),	YCPString(src.path().asString()));
+    data->add( YCPString("product_dir"),	YCPString("/"));
     
     // check if there is an URL
     if (src.baseUrlsBegin() != src.baseUrlsEnd())
@@ -702,8 +710,15 @@ PkgModuleFunctions::SourceURL (const YCPInteger& id)
     try
     {
 	const zypp::RepoInfo &src = logFindRepository(id->value());
-	// #186842
-	return YCPString(src.baseUrlsBegin()->asCompleteString());
+	std::string url;
+
+	if (src.baseUrlsBegin() != src.baseUrlsEnd())
+	{
+	    // #186842
+	    url = src.baseUrlsBegin()->asCompleteString();
+	}
+
+	return YCPString(url);
     }
     catch (const zypp::Exception& excpt)
     {
@@ -748,7 +763,11 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
   data->add( YCPString("media_vendor"),	YCPString(src.vendor()));
 */
 #warning SourceMediaData returns URL without password
-  data->add( YCPString("url"),		YCPString(src.baseUrlsBegin()->asString()));
+
+    if (src.baseUrlsBegin() != src.baseUrlsEnd())
+    {
+	data->add( YCPString("url"),	YCPString(src.baseUrlsBegin()->asString()));
+    }
 
   return data;
 }
