@@ -493,7 +493,7 @@ PkgModuleFunctions::SourceSaveAll ()
 	}
         catch (const zypp::repo::RepoNotFoundException &ex)
         {
-          y2debug("No such repository: %s", it->repoInfo().alias());
+          y2debug("No such repository: %s", it->repoInfo().alias().c_str());
         }
 	catch (const zypp::Exception & excpt)
 	{
