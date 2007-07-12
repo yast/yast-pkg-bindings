@@ -419,6 +419,56 @@ namespace ZyppRecipients {
 	}
     };
 
+    
+    struct ProgressReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::ProgressReport>
+    {
+	ProgressReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual void start(const zypp::ProgressData &task)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressStart ) );
+	    // TODO: change it to y2debug later
+	    y2milestone("ProgressStart: %s", task.name().c_str());
+
+	    if (callback._set)
+	    {
+		callback.addStr( task.name() );
+		callback.evaluate();
+	    }
+	}
+
+	virtual bool progress(const zypp::ProgressData &task)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressProgress ) );
+	    // TODO: change it to y2debug later
+	    y2milestone("ProgressProgress: %s: %lld%%", task.name().c_str(), task.reportValue());
+
+	    if (callback._set)
+	    {
+		callback.addStr( task.name() );
+		callback.addInt( task.reportValue() );
+		return callback.evaluateBool();
+	    }
+
+	    return zypp::ProgressReport::progress(task);
+	}
+
+	virtual void finish( const zypp::ProgressData &task )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDone ) );
+	    // TODO: change it to y2debug later
+	    y2milestone("ProgressFinish: %s", task.name().c_str());
+
+	    if (callback._set)
+	    {
+		callback.addStr( task.name() );
+		callback.evaluate();
+	    }
+	}
+    };
+
+
+
     ///////////////////////////////////////////////////////////////////
     // DownloadResolvableCallback
     ///////////////////////////////////////////////////////////////////
@@ -1680,6 +1730,8 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
     ZyppRecipients::RepoReport	_sourceReport;
     ZyppRecipients::ProbeSourceReceive _probeSourceReceive;
 
+    ZyppRecipients::ProgressReceive _progressReceive;
+
     // resolvable report
     ZyppRecipients::ResolvableReport _resolvableReport;
 
@@ -1712,6 +1764,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
       , _sourceCreateReceive( *this )
       , _sourceReport( *this )
       , _probeSourceReceive( *this )
+      , _progressReceive( *this )
       , _resolvableReport( *this )
       , _digestReceive( *this )
       , _keyRingReceive( *this )
@@ -1732,6 +1785,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_sourceCreateReceive.connect();
 	_sourceReport.connect();
 	_probeSourceReceive.connect();
+	_progressReceive.connect();
 	_resolvableReport.connect();
  	_digestReceive.connect();
 	_keyRingReceive.connect();
@@ -1755,6 +1809,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_sourceCreateReceive.disconnect();
 	_sourceReport.disconnect();
 	_probeSourceReceive.disconnect();
+	_progressReceive.disconnect();
 	_resolvableReport.disconnect();
 	_digestReceive.disconnect();
 	_keyRingReceive.disconnect();
@@ -2414,6 +2469,41 @@ YCPValue PkgModuleFunctions::CallbackMessage( const YCPString& args ) {
  */
 YCPValue PkgModuleFunctions::CallbackAuthentication( const YCPString& func ) {
     return SET_YCP_CB( CB_Authentication, func );
+}
+
+/**
+ * @builtin CallbackProgressReportStart
+ * @short Register a callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string task)</code>.
+ * The callback function is evaluated when an progress event starts
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackProgressReportStart(const YCPString& func)
+{
+    return SET_YCP_CB( CB_ProgressStart, func );
+}
+
+/**
+ * @builtin CallbackProgressReportProgress
+ * @short Register a callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>boolean(string task, integer value)</code>. Value of 'value' is status in percent or if the total progress is not known it's -1 (it'a 'tick' in this case). If the handler returns false the task is aborted.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackProgressReportProgress(const YCPString& func)
+{
+    return SET_YCP_CB( CB_ProgressProgress, func );
+}
+
+/**
+ * @builtin CallbackProgressReportEnd
+ * @short Register a callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(string task)</code>.
+ * The callback function is evaluated when an progress event finishes
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackProgressReportEnd(const YCPString& func)
+{
+    return SET_YCP_CB( CB_ProgressDone, func );
 }
 
 #undef SET_YCP_CB

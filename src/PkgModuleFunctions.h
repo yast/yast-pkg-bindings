@@ -302,6 +302,13 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackSourceReportEnd( const YCPString& func);
 
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressReportStart(const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressReportProgress(const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressReportEnd(const YCPString& func);
+
 	// Script (patch installation) callbacks
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackScriptStart( const YCPString& args );
