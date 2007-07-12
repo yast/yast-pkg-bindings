@@ -428,11 +428,17 @@ namespace ZyppRecipients {
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressStart ) );
 	    // TODO: change it to y2debug later
-	    y2milestone("ProgressStart: %s", task.name().c_str());
+	    y2milestone("ProgressStart: id:%d, %s", task.numericId(), task.name().c_str());
 
 	    if (callback._set)
 	    {
+		callback.addInt( task.numericId() );
 		callback.addStr( task.name() );
+		callback.addBool( task.reportPercent() );
+		callback.addInt( task.min() );
+		callback.addInt( task.max() );
+		callback.addInt( task.val() );
+		callback.addInt( task.reportValue() );
 		callback.evaluate();
 	    }
 	}
@@ -441,11 +447,12 @@ namespace ZyppRecipients {
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressProgress ) );
 	    // TODO: change it to y2debug later
-	    y2milestone("ProgressProgress: %s: %lld%%", task.name().c_str(), task.reportValue());
+	    y2milestone("ProgressProgress: id:%d, %s: %lld%%", task.numericId(), task.name().c_str(), task.reportValue());
 
 	    if (callback._set)
 	    {
-		callback.addStr( task.name() );
+		callback.addInt( task.numericId() );
+		callback.addInt( task.val() );
 		callback.addInt( task.reportValue() );
 		return callback.evaluateBool();
 	    }
@@ -457,11 +464,11 @@ namespace ZyppRecipients {
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDone ) );
 	    // TODO: change it to y2debug later
-	    y2milestone("ProgressFinish: %s", task.name().c_str());
+	    y2milestone("ProgressFinish: id:%d, %s", task.numericId(), task.name().c_str());
 
 	    if (callback._set)
 	    {
-		callback.addStr( task.name() );
+		callback.addInt( task.numericId() );
 		callback.evaluate();
 	    }
 	}
@@ -1361,11 +1368,17 @@ namespace ZyppRecipients {
 
 	    if (callback._set)
 	    {
-#warning FIXME
-/*		callback.addInt(source.numericId());
-		callback.addStr(source.url());
-		callback.addStr(task);
-	    */
+		#warning TODO FIXME - use Yast ID or alias here
+		callback.addInt(0/*source.numericId()*/);
+
+		std::string url;
+		if (repo.baseUrlsBegin() != repo.baseUrlsEnd())
+		{
+		    url = repo.baseUrlsBegin()->asString();
+		}
+
+		callback.addStr(url);
+		callback.addStr(task.name());
 
 		callback.evaluate();
 	    }
@@ -2474,7 +2487,7 @@ YCPValue PkgModuleFunctions::CallbackAuthentication( const YCPString& func ) {
 /**
  * @builtin CallbackProgressReportStart
  * @short Register a callback function
- * @param string func Name of the callback handler function. Required callback prototype is <code>void(string task)</code>.
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(integer id, string task, boolean in_percent, integer min, integer max, integer val_raw, integer val_percent)</code>. Parameter id is used for callback identification in the Progress() and in the End() callbacks, task describe the action. Parameter in_percent defines whether the progress will be reported in percent or it will be 'still alive' tick.
  * The callback function is evaluated when an progress event starts
  * @return void
  */
@@ -2486,7 +2499,7 @@ YCPValue PkgModuleFunctions::CallbackProgressReportStart(const YCPString& func)
 /**
  * @builtin CallbackProgressReportProgress
  * @short Register a callback function
- * @param string func Name of the callback handler function. Required callback prototype is <code>boolean(string task, integer value)</code>. Value of 'value' is status in percent or if the total progress is not known it's -1 (it'a 'tick' in this case). If the handler returns false the task is aborted.
+ * @param string func Name of the callback handler function. Required callback prototype is <code>boolean(integer id, integer val_raw, integer val_percent)</code>. Parameter id identifies the callback, val_raw is raw status, val_percent is in percent or if the total progress is not known it's -1 (the callback is a 'tick' in this case). If the handler returns false the task is aborted.
  * @return void
  */
 YCPValue PkgModuleFunctions::CallbackProgressReportProgress(const YCPString& func)
@@ -2497,7 +2510,7 @@ YCPValue PkgModuleFunctions::CallbackProgressReportProgress(const YCPString& fun
 /**
  * @builtin CallbackProgressReportEnd
  * @short Register a callback function
- * @param string func Name of the callback handler function. Required callback prototype is <code>void(string task)</code>.
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(integer id)</code>. The id identifies the callback.
  * The callback function is evaluated when an progress event finishes
  * @return void
  */
