@@ -175,7 +175,7 @@ public:
 IMPL_PTR_TYPE(YRepo);
 
 YRepo::YRepo(zypp::RepoInfo & repo)
-    : _repo(repo), _repo_orig_alias(repo.alias())
+    : _repo(repo), _repo_orig_alias(repo.alias()), _deleted(false)
 {}
 
 YRepo::~YRepo()

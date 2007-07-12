@@ -125,6 +125,12 @@ YRepo_Ptr PkgModuleFunctions::logFindRepository(std::vector<YRepo_Ptr>::size_typ
 {
     try
     {
+	if ((repos[id])->isDeleted())
+	{
+	    y2error("Source %d has been deleted, the ID not valid", id);
+	    return YRepo_Ptr();
+	}
+
 	return repos[id];
     }
     catch (...)
@@ -265,6 +271,7 @@ PkgModuleFunctions::SourceLoad()
 	{
 	    y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
 	    repomanager.refreshMetadata((*it)->repoInfo());
+	    # warning TODO?: Do we need to rebuild the cache after refresh??
 	}
 
 	try 
@@ -274,6 +281,13 @@ PkgModuleFunctions::SourceLoad()
 		CallSourceReportInit();
 		CallSourceReportStart(_("Parsing files..."));
 		callbacks_evaluated = true;
+	    }
+
+	    // build cache if needed
+	    if (!repomanager.isCached((*it)->repoInfo()))
+	    {
+		y2milestone("Caching source '%s'...", (*it)->repoInfo().alias().c_str());
+		repomanager.buildCache((*it)->repoInfo());
 	    }
 
 	    zypp::Repository repository = repomanager.createFromCache((*it)->repoInfo());
@@ -432,6 +446,12 @@ PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 	    continue;
 	}
 
+	// ignore deleted sources
+	if ((*it)->isDeleted())
+	{
+	    continue;
+	}
+
 	res->add( YCPInteger(index) );
     }
 
@@ -478,27 +498,41 @@ PkgModuleFunctions::SourceSaveAll ()
 
     zypp::RepoManager repomanager = CreateRepoManager();
 
-    // TODO: do it better, remove only really removed repos
+    // TODO: can it be better?
+    // Note: we have to be very careful here, user could do _very_ strange actions
+    // e.g. rename repo A to B, add a new repo with alias A, remove it and
+    //      then rename C to A...
 
-    // remove all repos (the old configuration)
+    // remove deleted repos (the old configuration)
     for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
 	it != repos.end(); ++it)
     {
-	try
+	// the repo has been removed or has been renamed
+	if ((*it)->isDeleted() || (*it)->repoInfo().alias() != (*it)->origRepoAlias())
 	{
-            repomanager.getRepositoryInfo((*it)->origRepoAlias());
-	    y2milestone("Removing repository '%s'", (*it)->repoInfo().alias().c_str());
-	    repomanager.removeRepository(zypp::RepoInfo().setAlias((*it)->origRepoAlias()));
-	}
-        catch (const zypp::repo::RepoNotFoundException &ex)
-        {
-          y2debug("No such repository: %s", (*it)->repoInfo().alias().c_str());
-        }
-	catch (const zypp::Exception & excpt)
-	{
-	    y2error("Pkg::SourceSaveAll has failed: %s", excpt.msg().c_str() );
-	    _last_error.setLastError(excpt.asUserString());
-	    return YCPBoolean(false);
+	    // remove the cache
+	    if (repomanager.isCached((*it)->repoInfo()))
+	    {
+		y2milestone("Removing cache for '%s'...", (*it)->repoInfo().alias().c_str());
+		repomanager.cleanCache((*it)->repoInfo());
+	    }
+
+	    try
+	    {
+		repomanager.getRepositoryInfo((*it)->origRepoAlias());
+		y2milestone("Removing repository '%s'", (*it)->repoInfo().alias().c_str());
+		repomanager.removeRepository(zypp::RepoInfo().setAlias((*it)->origRepoAlias()));
+	    }
+	    catch (const zypp::repo::RepoNotFoundException &ex)
+	    {
+		y2warning("No such repository: %s", (*it)->origRepoAlias().c_str());
+	    }
+	    catch (const zypp::Exception & excpt)
+	    {
+		y2error("Pkg::SourceSaveAll has failed: %s", excpt.msg().c_str() );
+		_last_error.setLastError(excpt.asUserString());
+		return YCPBoolean(false);
+	    }
 	}
     }
 
@@ -506,16 +540,32 @@ PkgModuleFunctions::SourceSaveAll ()
     for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
 	it != repos.end(); ++it)
     {
-	try
+	if (!(*it)->isDeleted())
 	{
-	    y2milestone("Saving repository '%s'", (*it)->repoInfo().alias().c_str());
-	    repomanager.addRepository((*it)->repoInfo());
-	}
-	catch (zypp::Exception & excpt)
-	{
-	    y2error("Pkg::SourceSaveAll has failed: %s", excpt.msg().c_str() );
-	    _last_error.setLastError(excpt.asUserString());
-	    return YCPBoolean(false);
+	    std::string current_alias = (*it)->repoInfo().alias();
+
+	    try
+	    {
+		try
+		{
+		    // if the repository already exists then just modify it
+		    repomanager.getRepositoryInfo(current_alias);
+		    y2milestone("Modifying repository '%s'", current_alias.c_str());
+		    repomanager.modifyRepository(current_alias, (*it)->repoInfo());
+		}
+		catch (const zypp::repo::RepoNotFoundException &ex)
+		{
+		    // the repository was not found, add it
+		    y2milestone("Adding repository '%s'", current_alias.c_str());
+		    repomanager.addRepository((*it)->repoInfo());
+		}
+	    }
+	    catch (zypp::Exception & excpt)
+	    {
+		y2error("Pkg::SourceSaveAll has failed: %s", excpt.msg().c_str() );
+		_last_error.setLastError(excpt.asUserString());
+		return YCPBoolean(false);
+	    }
 	}
     }
 
@@ -542,7 +592,7 @@ PkgModuleFunctions::SourceFinishAll ()
 	for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
 	    it != repos.end(); ++it)
 	{
-	    if ((*it)->repoInfo().enabled())
+	    if ((*it)->repoInfo().enabled() && !(*it)->isDeleted())
 	    {
 		found_enabled = true;
 		break;
@@ -1679,17 +1729,8 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
     	zypp_ptr()->removeResolvables(r.resolvables());
 */
 	// update 'repos'
-	for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
-	    it != repos.end(); ++it)
-	{
-	    if ((*it)->repoInfo().alias() == repo->repoInfo().alias())
-	    {
-		repos.erase(it);
 
-		// we have to break the loop, all iterators are invalidated after erase()!
-		break;
-	    }
-	}
+	repo->setDeleted();
 
 	PkgFreshen();
     }
@@ -1727,14 +1768,17 @@ PkgModuleFunctions::SourceEditGet ()
     unsigned long index = 0;
     for( std::vector<YRepo_Ptr>::const_iterator it = repos.begin(); it != repos.end(); ++it, ++index)
     {
-	YCPMap src_map;
+	if (!(*it)->isDeleted())
+	{
+	    YCPMap src_map;
 
-	src_map->add(YCPString("SrcId"), YCPInteger(index));
-	src_map->add(YCPString("enabled"), YCPBoolean((*it)->repoInfo().enabled()));
-	src_map->add(YCPString("autorefresh"), YCPBoolean((*it)->repoInfo().autorefresh()));
-	src_map->add(YCPString("alias"), YCPString((*it)->repoInfo().alias()));
+	    src_map->add(YCPString("SrcId"), YCPInteger(index));
+	    src_map->add(YCPString("enabled"), YCPBoolean((*it)->repoInfo().enabled()));
+	    src_map->add(YCPString("autorefresh"), YCPBoolean((*it)->repoInfo().autorefresh()));
+	    src_map->add(YCPString("alias"), YCPString((*it)->repoInfo().alias()));
 
-	ret->add(src_map);
+	    ret->add(src_map);
+	}
     }
 
     return ret;
@@ -1811,7 +1855,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
     if( !descr->value(YCPString("alias")).isNull() && descr->value(YCPString("alias"))->isString())
     {
 	// rename the source
-        y2debug("set alias: %d", descr->value(YCPString("alias"))->asString()->value());
+        y2debug("set alias: %s", descr->value(YCPString("alias"))->asString()->value().c_str());
 	repo->repoInfo().setAlias(descr->value(YCPString("alias"))->asString()->value());
     }
 

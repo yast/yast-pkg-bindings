@@ -71,6 +71,7 @@ private:
     zypp::RepoInfo _repo;
     std::string _repo_orig_alias;
     zypp::MediaSetAccess_Ptr _maccess;
+    bool _deleted;
 
     YRepo() {}
 
@@ -82,6 +83,9 @@ public:
     zypp::RepoInfo & repoInfo() { return _repo; }
     const std::string & origRepoAlias() const { return _repo_orig_alias; }
     zypp::MediaSetAccess_Ptr & mediaAccess();
+
+    bool isDeleted() {return _deleted;}
+    void setDeleted() {_deleted = true;}
 
 public:
     static const YRepo NOREPO;
