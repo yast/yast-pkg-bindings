@@ -1,4 +1,16 @@
 -------------------------------------------------------------------
+Thu Jul 12 16:20:52 CEST 2007 - lslezak@suse.cz
+
+- handle zypp::ProgressReport callbacks (added new Pkg::
+  functions: CallbackProgressReportStart(), CallbackProgress-
+  -ReportProgress() and CallbackProgressReportEnd())
+- add 'deleted' flag to YRepo, handle deleted repos correctly
+- SourceSaveAll() - don't remove all repos, remove the cache when
+  removing a repo
+- SourceLoad() - build repo cache if it's missing
+- 2.15.27
+
+-------------------------------------------------------------------
 Wed Jul 11 22:17:41 CEST 2007 - jkupec@suse.cz
 
 - storing YRepo_Ptr instead of YRepo in the vector
