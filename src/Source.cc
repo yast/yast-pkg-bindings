@@ -150,7 +150,7 @@ YRepo_Ptr PkgModuleFunctions::logFindRepository(std::vector<YRepo_Ptr>::size_typ
     return YRepo_Ptr();
 }
 
-std::vector<YRepo_Ptr>::size_type PkgModuleFunctions::logFindAlias(const std::string &alias)
+std::vector<YRepo_Ptr>::size_type PkgModuleFunctions::logFindAlias(const std::string &alias) const
 {
     std::vector<YRepo_Ptr>::size_type index = 0;
 

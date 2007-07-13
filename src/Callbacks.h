@@ -87,7 +87,7 @@ class PkgModuleFunctions::CallbackHandler {
      * Constructor. Setup handler and redirect Y2PMCallbacks
      * to the ZyppReceiver.
      **/
-    CallbackHandler();
+    CallbackHandler(const PkgModuleFunctions &);
 
     /**
      * Destructor. Reset Y2PMCallbacks to it's defaults.

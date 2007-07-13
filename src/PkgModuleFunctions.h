@@ -177,8 +177,6 @@ class PkgModuleFunctions : public Y2Namespace
        */
 	YRepo_Ptr logFindRepository(std::vector<YRepo_Ptr>::size_type id);
 	
-	std::vector<YRepo_Ptr>::size_type logFindAlias(const std::string &alias);
-
 	std::vector<YRepo_Ptr>::size_type createManagedSource(const zypp::Url & url_r,
 	    const zypp::Pathname & path_r, const bool base_source, const std::string& type);
 
@@ -689,6 +687,9 @@ class PkgModuleFunctions : public Y2Namespace
 	 * Destructor.
 	 */
 	virtual ~PkgModuleFunctions ();
+
+	// must be public, used in callbacks
+	std::vector<YRepo_Ptr>::size_type logFindAlias(const std::string &alias) const;
 
 	virtual const string name () const
 	{

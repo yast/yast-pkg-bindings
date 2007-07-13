@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Fri Jul 13 17:46:17 CEST 2007 - lslezak@suse.cz
+
+- convert source ID in source callbacks (pass PkgModuleFunctions
+  reference to the callback handler to search the ID)
+- tribool fixes (enabled() and autorefresh() return tribool)
+- reimplemented PkgMediaSizes() and PkgMediaCount() functions,
+  the installation slideshow is now fully working
+- 2.15.29
+
+-------------------------------------------------------------------
 Fri Jul 13 10:47:51 CEST 2007 - lslezak@suse.cz
 
 - fixed segfault in logFindRepository() when the repo is not found

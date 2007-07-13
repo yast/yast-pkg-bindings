@@ -213,7 +213,7 @@ PkgModuleFunctions::PkgModuleFunctions ()
     : Y2Namespace()
     , _target_root( "/" )
     , zypp_pointer(NULL)
-    ,_callbackHandler( *new CallbackHandler( ) )
+    ,_callbackHandler( *new CallbackHandler(*this) )
 {
     registerFunctions ();
 

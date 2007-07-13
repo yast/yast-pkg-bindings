@@ -1338,6 +1338,7 @@ namespace ZyppRecipients {
 
     struct RepoReport : public Recipient, public zypp::callback::ReceiveReport<zypp::repo::RepoReport>
     {
+	const PkgModuleFunctions &_pkg_ref;
 	virtual void reportbegin()
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportInit ) );
@@ -1360,7 +1361,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	RepoReport( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+	RepoReport( RecipientCtl & construct_r, const PkgModuleFunctions &pk ) : Recipient( construct_r ), _pkg_ref(pk) {}
 
         virtual void start(const zypp::ProgressData &task, const zypp::RepoInfo repo)
 	{
@@ -1368,8 +1369,7 @@ namespace ZyppRecipients {
 
 	    if (callback._set)
 	    {
-		#warning TODO FIXME - use Yast ID or alias here
-		callback.addInt(0/*source.numericId()*/);
+		callback.addInt(_pkg_ref.logFindAlias(repo.alias()));
 
 		std::string url;
 		if (repo.baseUrlsBegin() != repo.baseUrlsEnd())
@@ -1432,9 +1432,8 @@ namespace ZyppRecipients {
 
 	    if ( callback._set )
 	    {
-		#warning TODO FIXME - use Yast ID or alias here
-		// FIXME
-		callback.addInt(source.numericId());
+		// search Yast source ID
+		callback.addInt(_pkg_ref.logFindAlias(source.info().alias()));
 
 		std::string url;
 		if (source.info().baseUrlsBegin() != source.info().baseUrlsEnd())
@@ -1469,9 +1468,8 @@ namespace ZyppRecipients {
 
 	    if (callback._set)
 	    {
-		#warning TODO FIXME - use Yast ID or alias here
-		// FIXME
-		callback.addInt(source.numericId());
+		// search Yast source ID
+		callback.addInt(_pkg_ref.logFindAlias(source.info().alias()));
 
 		std::string url;
 		if (source.info().baseUrlsBegin() != source.info().baseUrlsEnd())
@@ -1759,10 +1757,10 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 
     // authentication callback
     ZyppRecipients::AuthReceive _authReceive;
-
+    
   public:
 
-    ZyppReceive( const YCPCallbacks & ycpcb_r )
+    ZyppReceive( const YCPCallbacks & ycpcb_r, const PkgModuleFunctions &pkg)
       : RecipientCtl( ycpcb_r )
       , _convertDbReceive( *this )
       , _rebuildDbReceive( *this )
@@ -1775,7 +1773,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
       , _scriptExecReceive( *this )
       , _messageReceive( *this )
       , _sourceCreateReceive( *this )
-      , _sourceReport( *this )
+      , _sourceReport( *this, pkg)
       , _probeSourceReceive( *this )
       , _progressReceive( *this )
       , _resolvableReport( *this )
@@ -1845,9 +1843,9 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 //	METHOD NAME : PkgModuleFunctions::CallbackHandler::CallbackHandler
 //	METHOD TYPE : Constructor
 //
-PkgModuleFunctions::CallbackHandler::CallbackHandler(  )
+PkgModuleFunctions::CallbackHandler::CallbackHandler(const PkgModuleFunctions &pk)
     : _ycpCallbacks( *new YCPCallbacks() )
-    , _zyppReceive( *new ZyppReceive( _ycpCallbacks ) )
+    , _zyppReceive( *new ZyppReceive(_ycpCallbacks, pk) )
 {
 }
 
