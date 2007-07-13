@@ -156,7 +156,7 @@ std::vector<YRepo_Ptr>::size_type PkgModuleFunctions::logFindAlias(const std::st
 
     for(std::vector<YRepo_Ptr>::const_iterator it = repos.begin(); it != repos.end() ; ++it, ++index)
     {
-	if ((*it)->repoInfo().alias() == alias)
+	if (!(*it)->isDeleted() && (*it)->repoInfo().alias() == alias)
 	    return index;
     }
 
@@ -254,57 +254,55 @@ PkgModuleFunctions::SourceLoad()
     for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
        it != repos.end(); ++it)
     {
-	// skip disabled sources
-	if (! (*it)->repoInfo().enabled())
+	// load resolvables only from enabled repos
+	if ((*it)->repoInfo().enabled())
 	{
-	    continue;
-	}
+	    zypp::RepoManager repomanager = CreateRepoManager();
 
-	zypp::RepoManager repomanager = CreateRepoManager();
-
-	// autorefresh the source
-	if ((*it)->repoInfo().autorefresh())
-	{
-	    y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
-	    repomanager.refreshMetadata((*it)->repoInfo());
-	    # warning TODO?: Do we need to rebuild the cache after refresh??
-	}
-
-	try 
-	{
-	    // build cache if needed
-	    if (!repomanager.isCached((*it)->repoInfo()))
+	    // autorefresh the source
+	    if ((*it)->repoInfo().autorefresh())
 	    {
-		y2milestone("Caching source '%s'...", (*it)->repoInfo().alias().c_str());
-		repomanager.buildCache((*it)->repoInfo());
+		y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
+		repomanager.refreshMetadata((*it)->repoInfo());
+		# warning TODO?: Do we need to rebuild the cache after refresh??
 	    }
 
-	    zypp::Repository repository = repomanager.createFromCache((*it)->repoInfo());
+	    try 
+	    {
+		// build cache if needed
+		if (!repomanager.isCached((*it)->repoInfo()))
+		{
+		    y2milestone("Caching source '%s'...", (*it)->repoInfo().alias().c_str());
+		    repomanager.buildCache((*it)->repoInfo());
+		}
 
-	    // load resolvables
-	    zypp::ResStore store = repository.resolvables();
-	    zypp_ptr()->addResolvables(store);
+		zypp::Repository repository = repomanager.createFromCache((*it)->repoInfo());
 
-	    y2milestone("Found %d resolvables", store.size());
-	}
-	catch(const zypp::repo::RepoNotCachedException &excpt )
-	{
-	    std::string alias = (*it)->repoInfo().alias();
-	    y2error ("Resolvables from '%s' havn't been loaded: %s", alias.c_str(), excpt.asString().c_str());
-	    _last_error.setLastError("'" + alias + "': " + excpt.asUserString());
-	    success = false;
+		// load resolvables
+		zypp::ResStore store = repository.resolvables();
+		zypp_ptr()->addResolvables(store);
 
-	    // FIXME ??
-	    /*
-	    // disable the source
-	    y2error("Disabling source %s", url.c_str());
-	    repo->disable();
-	    */
-	}
-	catch (const zypp::Exception& excpt)
-	{
-	    y2internal("Caught unknown error");
-	    success = false;
+		y2milestone("Found %d resolvables", store.size());
+	    }
+	    catch(const zypp::repo::RepoNotCachedException &excpt )
+	    {
+		std::string alias = (*it)->repoInfo().alias();
+		y2error ("Resolvables from '%s' havn't been loaded: %s", alias.c_str(), excpt.asString().c_str());
+		_last_error.setLastError("'" + alias + "': " + excpt.asUserString());
+		success = false;
+
+		// FIXME ??
+		/*
+		// disable the source
+		y2error("Disabling source %s", url.c_str());
+		repo->disable();
+		*/
+	    }
+	    catch (const zypp::Exception& excpt)
+	    {
+		y2internal("Caught unknown error");
+		success = false;
+	    }
 	}
     }
 
@@ -424,9 +422,20 @@ PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 	index++;
 
 	// ignore disabled sources if requested
-	if (enabled->value() && !(*it)->repoInfo().enabled())
+	if (enabled->value())
 	{
-	    continue;
+	    // Note: enabled() is tribool!
+	    if ((*it)->repoInfo().enabled())
+	    {
+	    }
+	    else if (!(*it)->repoInfo().enabled())
+	    {
+		continue;
+	    }
+	    else
+	    {
+		continue;
+	    }
 	}
 
 	// ignore deleted sources
@@ -1756,7 +1765,9 @@ PkgModuleFunctions::SourceEditGet ()
 	    YCPMap src_map;
 
 	    src_map->add(YCPString("SrcId"), YCPInteger(index));
+	    // Note: enabled() is tribool
 	    src_map->add(YCPString("enabled"), YCPBoolean((*it)->repoInfo().enabled()));
+	    // Note: autorefresh() is tribool
 	    src_map->add(YCPString("autorefresh"), YCPBoolean((*it)->repoInfo().autorefresh()));
 	    src_map->add(YCPString("alias"), YCPString((*it)->repoInfo().alias()));
 
