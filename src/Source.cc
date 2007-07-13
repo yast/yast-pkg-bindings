@@ -125,9 +125,15 @@ YRepo_Ptr PkgModuleFunctions::logFindRepository(std::vector<YRepo_Ptr>::size_typ
 {
     try
     {
-	if ((repos[id])->isDeleted())
+	if (!repos[id])
 	{
-	    y2error("Source %d has been deleted, the ID not valid", id);
+	    // not found
+	    throw(std::exception());
+	}
+
+	if (repos[id]->isDeleted())
+	{
+	    y2error("Source %d has been deleted, the ID is not valid", id);
 	    return YRepo_Ptr();
 	}
 
@@ -135,7 +141,7 @@ YRepo_Ptr PkgModuleFunctions::logFindRepository(std::vector<YRepo_Ptr>::size_typ
     }
     catch (...)
     {
-	y2error("Cannot find source %d", id);
+	y2error("Cannot find source with ID: %d", id);
 	// TODO: improve the error message
 	_last_error.setLastError(_("Cannot find source"));
     }
@@ -186,13 +192,10 @@ PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
 YCPValue
 PkgModuleFunctions::SourceRestore()
 {
-    // evaluate the callbacks only when the source manager hasn't been initialized
-    bool enable_callbacks = repos.size() == 0;
-
-    if (enable_callbacks)
+    if (repos.size() > 0)
     {
-	CallSourceReportInit();
-	CallSourceReportStart(_("Downloading files..."));
+	y2warning("Number of registered repositories: %d, skipping repository load!", repos.size());
+	return YCPBoolean(true);
     }
 
     bool success = true;
@@ -215,12 +218,6 @@ PkgModuleFunctions::SourceRestore()
 	y2error ("Error in SourceRestore: %s", excpt.asString().c_str());
 	_last_error.setLastError(excpt.asUserString());
 	success = false;
-    }
-
-    if (enable_callbacks)
-    {
-	CallSourceReportEnd(_("Downloading files..."));
-	CallSourceReportDestroy();
     }
 
     return YCPBoolean(success);
@@ -252,7 +249,6 @@ YCPValue PkgModuleFunctions::SourceGetBrokenSources()
 YCPValue
 PkgModuleFunctions::SourceLoad()
 {
-    bool callbacks_evaluated = false;
     bool success = true;
 
     for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
@@ -276,13 +272,6 @@ PkgModuleFunctions::SourceLoad()
 
 	try 
 	{
-	    if (!callbacks_evaluated)
-	    {
-		CallSourceReportInit();
-		CallSourceReportStart(_("Parsing files..."));
-		callbacks_evaluated = true;
-	    }
-
 	    // build cache if needed
 	    if (!repomanager.isCached((*it)->repoInfo()))
 	    {
@@ -317,12 +306,6 @@ PkgModuleFunctions::SourceLoad()
 	    y2internal("Caught unknown error");
 	    success = false;
 	}
-    }
-
-    if (callbacks_evaluated)
-    {
-	CallSourceReportEnd(_("Parsing files..."));
-	CallSourceReportDestroy();
     }
 
     return YCPBoolean(success);
