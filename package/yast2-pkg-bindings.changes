@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Fri Jul 13 10:47:51 CEST 2007 - lslezak@suse.cz
+
+- fixed segfault in logFindRepository() when the repo is not found
+- removed extra callbacks in SourceRestore() and SourceLoad()
+- SourceLoad() - do not reload the repositories if there is
+  at least one repository already registered
+- 2.15.28
+
+-------------------------------------------------------------------
 Thu Jul 12 16:20:52 CEST 2007 - lslezak@suse.cz
 
 - handle zypp::ProgressReport callbacks (added new Pkg::
