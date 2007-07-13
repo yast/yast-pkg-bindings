@@ -309,7 +309,7 @@ PkgModuleFunctions::PkgMediaSizesOrCount (bool sizes)
     // map alias -> SourceID
     std::map<std::string, std::vector<YRepo_Ptr>::size_type> source_map;
 
-    // initialize
+    // initialize the structures
     for( std::list<std::vector<YRepo_Ptr>::size_type>::const_iterator sit = source_ids.begin();
 	sit != source_ids.end(); ++sit, ++index)
     {
@@ -319,13 +319,10 @@ PkgModuleFunctions::PkgMediaSizesOrCount (bool sizes)
 	if (!repo)
 	    continue;
 
-	std::string alias = repo->repoInfo().alias();
-
-	// FIXME: this is a temporary hack
-	unsigned media = 10; //src.numberOfMedia();
-
-	result[id] = std::vector<zypp::ByteCount>(media,0);
-	source_map[ alias ] = id;
+	// we don't know the number of media in advance
+	// the vector is dynamically resized during package search
+	result[id] = std::vector<zypp::ByteCount>();
+	source_map[ repo->repoInfo().alias() ] = id;
     }
 
     for( zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin<zypp::Package>()
@@ -345,19 +342,18 @@ PkgModuleFunctions::PkgMediaSizesOrCount (bool sizes)
 	    if (medium > 0)
 	    {
 		zypp::ByteCount size = sizes ? pkg->size() : zypp::ByteCount(1); //count only
-/*
-		std::vector<zypp::ByteCount> &ref = result[source_map[pkg->repository().info().alias()]];
-		int add = ref.size() - medium - 1;
 
-		// add missing objects
-		if (add > 0)
+		// refence to the found media array
+		std::vector<zypp::ByteCount> &ref = result[source_map[pkg->repository().info().alias()]];
+		int add_count = (medium - 1) - ref.size() + 1;
+
+		// resize media array - the found index is out of array
+		if (add_count > 0)
 		{
-		    ref.push_back(zypp::ByteCount(0));
+                    ref.insert(ref.end(), add_count, zypp::ByteCount(0));
 		}
-*/
-		result[ source_map[pkg->repository().info().alias()] ]
-		//ref
-		  [medium - 1] += size ;	// media are numbered from 1
+
+		ref[medium - 1] += size ;	// media are numbered from 1
 	    }
 	}
     }
@@ -398,7 +394,6 @@ PkgModuleFunctions::PkgMediaSizesOrCount (bool sizes)
 YCPValue
 PkgModuleFunctions::PkgMediaSizes()
 {
-#warning PkgMediaSizes is NOT implemented!!!
     return PkgMediaSizesOrCount (true);
 }
 
@@ -415,7 +410,6 @@ PkgModuleFunctions::PkgMediaSizes()
 YCPValue
 PkgModuleFunctions::PkgMediaCount()
 {
-#warning PkgMediaCount is NOT implemented!!!
     return PkgMediaSizesOrCount (false);
 }
 
