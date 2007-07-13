@@ -198,7 +198,7 @@ PkgModuleFunctions::PkgMediaNames ()
     for( std::vector<YRepo_Ptr>::const_iterator repoit = repos.begin();
 	repoit != repos.end(); ++repoit,++index)
     {
-	if ((*repoit)->repoInfo().enabled())
+	if ((*repoit)->repoInfo().enabled() && !(*repoit)->isDeleted())
 	{
 	    try
 	    {
@@ -215,7 +215,15 @@ PkgModuleFunctions::PkgMediaNames ()
 			y2debug ("Found");
 
 			YCPList src_desc;
-			src_desc->add( YCPString( product->summary() ) );
+
+			// use name if the summary is empty
+			std::string product_name = product->summary();
+			if (product_name.empty())
+			{
+			    product_name = product->name();
+			}
+
+			src_desc->add( YCPString( product_name ) );
 			src_desc->add( YCPInteger( index ) );
 
 			res->add( src_desc );
@@ -281,28 +289,43 @@ PkgModuleFunctions::PkgMediaSizesOrCount (bool sizes)
 {
 # warning No installation order
 
-/*
-FIXME
     // all enabled sources
-    std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
+    std::list<std::vector<YRepo_Ptr>::size_type> source_ids;
+
+    std::vector<YRepo_Ptr>::size_type index = 0;
+    for(std::vector<YRepo_Ptr>::const_iterator it = repos.begin(); it != repos.end() ; ++it, ++index)
+    {
+	// ignore disabled or delted sources
+	if (!(*it)->repoInfo().enabled() || (*it)->isDeleted())
+	    continue;
+	
+	source_ids.push_back(index);
+    }
+
 
     // map SourceId -> [ number_of_media, total_size ]
-    std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> > result;
+    std::map<std::vector<YRepo_Ptr>::size_type, std::vector<zypp::ByteCount> > result;
 
-    // map zypp::Source -> SourceID
-    std::map<zypp::Source_Ref, zypp::SourceManager::SourceId> source_map;
+    // map alias -> SourceID
+    std::map<std::string, std::vector<YRepo_Ptr>::size_type> source_map;
 
     // initialize
-    for( std::list<zypp::SourceManager::SourceId>::const_iterator sit = source_ids.begin();
-	sit != source_ids.end(); ++sit)
+    for( std::list<std::vector<YRepo_Ptr>::size_type>::const_iterator sit = source_ids.begin();
+	sit != source_ids.end(); ++sit, ++index)
     {
-	zypp::SourceManager::SourceId id = *sit;
+	std::vector<YRepo_Ptr>::size_type id = *sit;
 
-	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
-	unsigned media = src.numberOfMedia();
+	YRepo_Ptr repo = logFindRepository(id);
+	if (!repo)
+	    continue;
+
+	std::string alias = repo->repoInfo().alias();
+
+	// FIXME: this is a temporary hack
+	unsigned media = 10; //src.numberOfMedia();
 
 	result[id] = std::vector<zypp::ByteCount>(media,0);
-	source_map[ src ] = id;
+	source_map[ alias ] = id;
     }
 
     for( zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin<zypp::Package>()
@@ -313,7 +336,7 @@ FIXME
 
 	if( pkg && it->status().isToBeInstalled())
 	{
-	    unsigned int medium = pkg->sourceMediaNr();
+	    unsigned int medium = pkg->mediaNr();
 	    if (medium == 0)
 	    {
 		medium = 1;
@@ -321,8 +344,19 @@ FIXME
 
 	    if (medium > 0)
 	    {
-		zypp::ByteCount size = sizes? pkg->size() : 1; //count only
-		result[ source_map[pkg->source()] ]
+		zypp::ByteCount size = sizes ? pkg->size() : zypp::ByteCount(1); //count only
+/*
+		std::vector<zypp::ByteCount> &ref = result[source_map[pkg->repository().info().alias()]];
+		int add = ref.size() - medium - 1;
+
+		// add missing objects
+		if (add > 0)
+		{
+		    ref.push_back(zypp::ByteCount(0));
+		}
+*/
+		result[ source_map[pkg->repository().info().alias()] ]
+		//ref
 		  [medium - 1] += size ;	// media are numbered from 1
 	    }
 	}
@@ -330,7 +364,7 @@ FIXME
 
     YCPList res;
 
-    for(std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> >::const_iterator it =
+    for(std::map<std::vector<YRepo_Ptr>::size_type, std::vector<zypp::ByteCount> >::const_iterator it =
 	result.begin(); it != result.end() ; ++it)
     {
 	const std::vector<zypp::ByteCount> &values = it->second;
@@ -347,9 +381,6 @@ FIXME
     y2milestone( "Pkg::%s result: %s", sizes?"PkgMediaSizes": "PkgMediaCount", res->toString().c_str());
 
     return res;
-*/
-
-    return YCPList();
 }
 
 // ------------------------
