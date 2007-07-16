@@ -483,8 +483,9 @@ namespace ZyppRecipients {
     {
 	static int last_source_id;
 	static int last_source_media;
+	const PkgModuleFunctions &_pkg_ref;
 
-	DownloadResolvableReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+	DownloadResolvableReceive( RecipientCtl & construct_r, const PkgModuleFunctions &pk ) : Recipient( construct_r ), _pkg_ref(pk) {}
 	int last_reported;
 	int last_reported_delta_download;
 	int last_reported_delta_apply;
@@ -510,11 +511,9 @@ namespace ZyppRecipients {
 
 	    size = pkg->downloadSize();
 
-#warning FIXME: SourceChange callback - report sourceId and mediaNr
-// FIXME NID
-	    int source_id = 0;//pkg->source().numericId();
-// FIXME
-	    int media_nr = 0;//pkg->sourceMediaNr();
+	    // convert the repo ID
+	    int source_id = _pkg_ref.logFindAlias(pkg->repository().info().alias());
+	    int media_nr = pkg->mediaNr();
 
 	    if( source_id != last_source_id || media_nr != last_source_media )
 	    {
@@ -1015,7 +1014,14 @@ namespace ZyppRecipients {
 			found = true;
 			// report the redirected URL
 			report_url = (*media_it).second;
-			y2milestone("Using redirected URL %s, original URL: %s", report_url.c_str(), source.info().baseUrlsBegin()->asString().c_str());
+
+			std::string original_url;
+			if (source.info().baseUrlsBegin() != source.info().baseUrlsEnd())
+			{
+			    original_url = source.info().baseUrlsBegin()->asString();
+			}
+
+			y2milestone("Using redirected URL %s, original URL: %s", report_url.c_str(), original_url.c_str());
 		    }
 		}
 
@@ -1023,7 +1029,10 @@ namespace ZyppRecipients {
 		{
 		    // the source has not been redirected
 		    // use URL of the source 
-		    report_url = source.info().baseUrlsBegin()->asString();
+		    if (source.info().baseUrlsBegin() != source.info().baseUrlsEnd())
+		    {
+			report_url = source.info().baseUrlsBegin()->asString();
+		    }
 		}
 
 		// current URL
@@ -1767,7 +1776,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
       , _scanDbReceive( *this )
       , _installPkgReceive( *this )
       , _removePkgReceive( *this )
-      , _providePkgReceive( *this )
+      , _providePkgReceive( *this, pkg )
       , _mediaChangeReceive( *this )
       , _downloadProgressReceive( *this )
       , _scriptExecReceive( *this )

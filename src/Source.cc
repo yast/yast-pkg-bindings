@@ -726,6 +726,14 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
     if (repo->repoInfo().baseUrlsBegin() != repo->repoInfo().baseUrlsEnd())
     {
 	data->add( YCPString("url"),	YCPString(repo->repoInfo().baseUrlsBegin()->asString()));
+
+	// add all base URLs
+	YCPList base_urls;
+	for( zypp::RepoInfo::urls_const_iterator it = repo->repoInfo().baseUrlsBegin(); it != repo->repoInfo().baseUrlsEnd(); ++it)
+	{
+	    base_urls->add(YCPString(it->asString()));
+	}
+	data->add( YCPString("base_urls"),		base_urls);
     }
 
   return data;
