@@ -125,6 +125,12 @@ YRepo_Ptr PkgModuleFunctions::logFindRepository(std::vector<YRepo_Ptr>::size_typ
 {
     try
     {
+	if (id < 0 || id >= repos.size())
+	{
+	    // not found
+	    throw(std::exception());
+	}
+
 	if (!repos[id])
 	{
 	    // not found
