@@ -134,6 +134,11 @@ class PkgModuleFunctions : public Y2Namespace
       bool DoProvideAllKind(zypp::Resolvable::Kind kind);
       bool DoRemoveAllKind(zypp::Resolvable::Kind kind);
       bool DoAllKind(zypp::Resolvable::Kind kind, bool provide);
+
+      void RemoveResolvablesFrom(const std::string &alias);
+      bool AnyResolvableFrom(const std::string &alias);
+      bool LoadResolvablesFrom(const zypp::RepoInfo &repoinfo);
+
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);
       YCPValue PkgProp( zypp::PoolItem_Ref item );
       YCPValue PkgMediaSizesOrCount (bool sizes);

@@ -267,42 +267,7 @@ PkgModuleFunctions::SourceLoad()
 		# warning TODO?: Do we need to rebuild the cache after refresh??
 	    }
 
-	    try 
-	    {
-		// build cache if needed
-		if (!repomanager.isCached((*it)->repoInfo()))
-		{
-		    y2milestone("Caching source '%s'...", (*it)->repoInfo().alias().c_str());
-		    repomanager.buildCache((*it)->repoInfo());
-		}
-
-		zypp::Repository repository = repomanager.createFromCache((*it)->repoInfo());
-
-		// load resolvables
-		zypp::ResStore store = repository.resolvables();
-		zypp_ptr()->addResolvables(store);
-
-		y2milestone("Found %d resolvables", store.size());
-	    }
-	    catch(const zypp::repo::RepoNotCachedException &excpt )
-	    {
-		std::string alias = (*it)->repoInfo().alias();
-		y2error ("Resolvables from '%s' havn't been loaded: %s", alias.c_str(), excpt.asString().c_str());
-		_last_error.setLastError("'" + alias + "': " + excpt.asUserString());
-		success = false;
-
-		// FIXME ??
-		/*
-		// disable the source
-		y2error("Disabling source %s", url.c_str());
-		repo->disable();
-		*/
-	    }
-	    catch (const zypp::Exception& excpt)
-	    {
-		y2internal("Caught unknown error");
-		success = false;
-	    }
+	    success = LoadResolvablesFrom((*it)->repoInfo());
 	}
     }
 
@@ -1601,16 +1566,20 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
     {
 	repo->repoInfo().setEnabled(enable);
 
-	// FIXME load (remove) resolvables only when they are missing (present)
-	zypp::RepoManager repomanager = CreateRepoManager();
-	// update Repository
-	zypp::Repository r = repomanager.createFromCache(repo->repoInfo());
-
 	// add/remove resolvables
 	if (enable)
-	    zypp_ptr()->addResolvables(r.resolvables());
+	{
+	    // load resolvables only when they are missing
+	    if (!AnyResolvableFrom(repo->repoInfo().alias()))
+	    {
+		LoadResolvablesFrom(repo->repoInfo());
+	    }
+	}
 	else
-	    zypp_ptr()->removeResolvables(r.resolvables());
+	{
+	    // the source has been disables, remove resolvables from the pool
+	    RemoveResolvablesFrom(repo->repoInfo().alias());
+	}
 
 	PkgFreshen();
     }
@@ -1713,17 +1682,10 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
 
     try
     {
+	// the resolvables cannot be used anymore, remove them
+	RemoveResolvablesFrom(repo->repoInfo().alias());
 
-#warning FIXME: SourceDelete: remove resolvables if they have been loaded
-/*
-	// update Repository
-	zypp::Repository r = repomanager.createFromCache(src);
-
-	// remove resolvables
-    	zypp_ptr()->removeResolvables(r.resolvables());
-*/
 	// update 'repos'
-
 	repo->setDeleted();
 
 	PkgFreshen();
@@ -1975,4 +1937,94 @@ PkgModuleFunctions::SourceMoveDownloadArea (const YCPString & path)
     return YCPBoolean(true);
 }
 
+/*
+ * A helper function - remove all resolvables from the repository from the pool
+ */
+void PkgModuleFunctions::RemoveResolvablesFrom(const std::string &alias)
+{
+    // remove the resolvables if they have been loaded
+    // FIXME: can be implemented better? we need a ResStore object for removing,
+    // which means search for a resolvable in the pool and get the Repository
+    // object which can be asked for all resolvables in it
+    for (zypp::ResPool::const_iterator it = zypp_ptr()->pool().begin()
+	; it != zypp_ptr()->pool().end()
+	; ++it)
+    {
+	if (it->resolvable()->repository().info().alias() == alias)
+	{
+	    y2milestone("Removing all resolvables from '%s' from the pool...", alias.c_str());
+	    zypp_ptr()->removeResolvables(it->resolvable()->repository().resolvables());
+	    break;
+	}
+    }
+}
 
+/*
+ * A helper function - is there any resolvable from the repository in the pool?
+ */
+bool PkgModuleFunctions::AnyResolvableFrom(const std::string &alias)
+{
+    // FIXME: can be implemented better? we need a ResStore object for removing,
+    // which means search for a resolvable in the pool and get the Repository
+    // object which can be asked for all resolvables in it
+    for (zypp::ResPool::const_iterator it = zypp_ptr()->pool().begin()
+	; it != zypp_ptr()->pool().end()
+	; ++it)
+    {
+	if (it->resolvable()->repository().info().alias() == alias)
+	{
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+/*
+ * A helper function - load resolvable from the repository into the pool
+ */
+bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
+{
+    bool success = true;
+
+    try 
+    {
+	zypp::RepoManager repomanager = CreateRepoManager();
+
+	// build cache if needed
+	if (!repomanager.isCached(repoinfo))
+	{
+	    y2milestone("Caching source '%s'...", repoinfo.alias().c_str());
+	    repomanager.buildCache(repoinfo);
+	}
+
+	zypp::Repository repository = repomanager.createFromCache(repoinfo);
+
+	// load resolvables
+	zypp::ResStore store = repository.resolvables();
+	zypp_ptr()->addResolvables(store);
+
+	y2milestone("Found %d resolvables", store.size());
+    }
+    catch(const zypp::repo::RepoNotCachedException &excpt )
+    {
+	std::string alias = repoinfo.alias();
+	y2error ("Resolvables from '%s' havn't been loaded: %s", alias.c_str(), excpt.asString().c_str());
+	_last_error.setLastError("'" + alias + "': " + excpt.asUserString());
+	success = false;
+
+	// FIXME ??
+	/*
+	// disable the source
+	y2error("Disabling source %s", url.c_str());
+	repo->disable();
+	*/
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	y2internal("Caught unknown error");
+	success = false;
+    }
+
+    return success;
+}
