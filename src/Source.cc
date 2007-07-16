@@ -460,6 +460,7 @@ YCPValue
 PkgModuleFunctions::SourceReleaseAll ()
 {
     y2milestone("Releasing all sources...");
+    bool ret = true;
 
     for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
 	it != repos.end(); ++it)
@@ -471,10 +472,11 @@ PkgModuleFunctions::SourceReleaseAll ()
         catch (const zypp::media::MediaException & ex)
         {
             y2warning("Failed to release media for repo: %s", ex.msg().c_str());
+	    ret = false;
         }
     }
 
-    return YCPBoolean(true);
+    return YCPBoolean(ret);
 }
 
 /******************************************************************************

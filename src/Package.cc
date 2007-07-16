@@ -2233,16 +2233,7 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 	return YCPVoid();
     }
 
-    try {
-	
-#warning FIXME release all sources in PkgCommit
-//	zypp::SourceManager::sourceManager()->releaseAllSources();
-    }
-    catch (const zypp::Exception& excpt)
-    {
-	y2error("Pkg::Commit has failed: cannot release all sources");
-	_last_error.setLastError(excpt.asUserString());
-    }
+    SourceReleaseAll();	
 
     YCPList ret;
 
