@@ -38,7 +38,6 @@
 
 #include <zypp/target/rpm/RpmDb.h>
 #include <zypp/Product.h>
-#include <zypp/SourceManager.h>
 #include <zypp/DiskUsageCounter.h>
 #include <zypp/target/store/PersistentStorage.h>
 
@@ -72,10 +71,6 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unus
     
     _target_root = zypp::Pathname(root->value());
     
-    // we have moved to a different target, the broken source information
-    // is no longer valid
-    _broken_sources.clear();
-
     return YCPBoolean(true);
 }
 
@@ -104,10 +99,6 @@ PkgModuleFunctions::TargetInitialize (const YCPString& root)
     
     _target_root = zypp::Pathname(root->value());
     
-    // we have moved to a different target, the broken source information
-    // is no longer valid
-    _broken_sources.clear();
-
     return YCPBoolean(true);
 }
 
@@ -146,20 +137,17 @@ PkgModuleFunctions::TargetDisableSources ()
 {
     try
     {
-	zypp::SourceManager::disableSourcesAt( _target_root );
+// FIXME: should it also remove from pool?
 
-	// disable source refresh - workaround for #220056
-	zypp::storage::PersistentStorage store;
-	store.init( _target_root );
+	zypp::RepoManager repomanager = CreateRepoManager();
+	std::list<zypp::RepoInfo> all_sources = repomanager.knownRepositories();
 
-	std::list<zypp::source::SourceInfo> new_sources = store.storedSources();
-	y2milestone("Disabling refresh for sources at %s", _target_root.asString().c_str());
-
-	for ( std::list<zypp::source::SourceInfo>::iterator it = new_sources.begin(); it != new_sources.end(); ++it)
+	for (std::list<zypp::RepoInfo>::iterator it = all_sources.begin(); it != all_sources.end(); ++it)
 	{
-	    y2milestone("Disabling refresh: alias: %s", it->alias().c_str());
+	    y2milestone("Disabling source '%s'", it->alias().c_str());
 	    it->setAutorefresh(false);
-	    store.storeSource( *it );
+
+	    repomanager.modifyRepository(it->alias(), *it);
 	}
     }
     catch (zypp::Exception & excpt)

@@ -42,7 +42,6 @@
 #include <zypp/Patch.h>
 #include <zypp/SrcPackage.h>
 #include <zypp/Product.h>
-#include <zypp/SourceManager.h>
 #include <zypp/UpgradeStatistics.h>
 #include <zypp/target/rpm/RpmDb.h>
 #include <zypp/target/TargetException.h>
@@ -192,56 +191,77 @@ YCPValue
 PkgModuleFunctions::PkgMediaNames ()
 {
 # warning No installation order
-
-    std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
-
     YCPList res;
 
-    // initialize
-    for( std::list<zypp::SourceManager::SourceId>::const_iterator sit = source_ids.begin();
-	sit != source_ids.end(); ++sit)
+    std::vector<YRepo_Ptr>::size_type index = 0;
+    // for all enabled sources
+    for( std::vector<YRepo_Ptr>::const_iterator repoit = repos.begin();
+	repoit != repos.end(); ++repoit,++index)
     {
-	unsigned id = *sit;
-
-	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
-
-	try
+	if ((*repoit)->repoInfo().enabled() && !(*repoit)->isDeleted())
 	{
-	    // find a product for the given source
-	    zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Product>::kind);
+	    try
+	    {
+		// find a product for the given source
+		zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Product>::kind);
 
-	    for( ; it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind)
-		; ++it) {
-		zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
+		for( ; it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind)
+		    ; ++it) {
+		    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
 
-		y2debug ("Checking product: %s", product->summary().c_str());
-		if( product->source() == src )
+		    y2debug ("Checking product: %s", product->summary().c_str());
+		    if( product->repository().info().alias() == (*repoit)->repoInfo().alias())
+		    {
+			y2debug ("Found");
+
+			YCPList src_desc;
+
+			// use name if the summary is empty
+			std::string product_name = product->summary();
+			if (product_name.empty())
+			{
+			    product_name = product->name();
+			}
+
+			src_desc->add( YCPString( product_name ) );
+			src_desc->add( YCPInteger( index ) );
+
+			res->add( src_desc );
+			break;
+		    }
+		}
+
+		// the product hasn't been found, resolvables are probably not loaded
+		// use URL as the product name in such case
+		if( it == zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind) )
 		{
-		    y2debug ("Found");
+		    y2warning("Product for source '%d' not found", index);
 
 		    YCPList src_desc;
-		    src_desc->add( YCPString( product->summary() ) );
-		    src_desc->add( YCPInteger( src.numericId() ) );
+
+		    // use URL as the product name
+		    std::string name;
+		    if ((*repoit)->repoInfo().baseUrlsBegin() != (*repoit)->repoInfo().baseUrlsEnd())
+		    {
+			name = (*repoit)->repoInfo().baseUrlsBegin()->asString();
+		    }
+
+		    // use alias if url is unknown
+		    if (name.empty())
+		    {
+			name = (*repoit)->repoInfo().alias();
+		    }
+
+		    src_desc->add( YCPString( name ));
+		    src_desc->add( YCPInteger( index ) );
 
 		    res->add( src_desc );
-		    break;
 		}
 	    }
-
-	    if( it == zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind) )
+	    catch (...)
 	    {
-		y2error ("Product for source '%d' not found", id);
-
-		YCPList src_desc;
-		src_desc->add( YCPString( src.url().asString() ) );
-		src_desc->add( YCPInteger( src.numericId() ) );
-
-		res->add( src_desc );
+		return res;
 	    }
-	}
-	catch (...)
-	{
-	    return res;
 	}
     }
 
@@ -265,30 +285,44 @@ PkgModuleFunctions::PkgMediaNames ()
  *  @usage Pkg::PkgMediaSizes () -> [ [src1_media_1_size, src1_media_2_size, ...], ..]
  */
 YCPValue
-PkgModuleFunctions::PkgMediaSizes ()
+PkgModuleFunctions::PkgMediaSizesOrCount (bool sizes)
 {
 # warning No installation order
 
     // all enabled sources
-    std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
+    std::list<std::vector<YRepo_Ptr>::size_type> source_ids;
+
+    std::vector<YRepo_Ptr>::size_type index = 0;
+    for(std::vector<YRepo_Ptr>::const_iterator it = repos.begin(); it != repos.end() ; ++it, ++index)
+    {
+	// ignore disabled or delted sources
+	if (!(*it)->repoInfo().enabled() || (*it)->isDeleted())
+	    continue;
+	
+	source_ids.push_back(index);
+    }
+
 
     // map SourceId -> [ number_of_media, total_size ]
-    std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> > result;
+    std::map<std::vector<YRepo_Ptr>::size_type, std::vector<zypp::ByteCount> > result;
 
-    // map zypp::Source -> SourceID
-    std::map<zypp::Source_Ref, zypp::SourceManager::SourceId> source_map;
+    // map alias -> SourceID
+    std::map<std::string, std::vector<YRepo_Ptr>::size_type> source_map;
 
-    // initialize
-    for( std::list<zypp::SourceManager::SourceId>::const_iterator sit = source_ids.begin();
-	sit != source_ids.end(); ++sit)
+    // initialize the structures
+    for( std::list<std::vector<YRepo_Ptr>::size_type>::const_iterator sit = source_ids.begin();
+	sit != source_ids.end(); ++sit, ++index)
     {
-	zypp::SourceManager::SourceId id = *sit;
+	std::vector<YRepo_Ptr>::size_type id = *sit;
 
-	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
-	unsigned media = src.numberOfMedia();
+	YRepo_Ptr repo = logFindRepository(id);
+	if (!repo)
+	    continue;
 
-	result[id] = std::vector<zypp::ByteCount>(media,0);
-	source_map[ src ] = id;
+	// we don't know the number of media in advance
+	// the vector is dynamically resized during package search
+	result[id] = std::vector<zypp::ByteCount>();
+	source_map[ repo->repoInfo().alias() ] = id;
     }
 
     for( zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin<zypp::Package>()
@@ -297,9 +331,9 @@ PkgModuleFunctions::PkgMediaSizes ()
     {
 	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
-	if( it->status().isToBeInstalled())
+	if( pkg && it->status().isToBeInstalled())
 	{
-	    unsigned int medium = pkg->sourceMediaNr();
+	    unsigned int medium = pkg->mediaNr();
 	    if (medium == 0)
 	    {
 		medium = 1;
@@ -307,19 +341,29 @@ PkgModuleFunctions::PkgMediaSizes ()
 
 	    if (medium > 0)
 	    {
-		zypp::ByteCount size = pkg->size();
-		result[ source_map[pkg->source()] ]
-		  [medium - 1] += size ;	// media are numbered from 1
+		zypp::ByteCount size = sizes ? pkg->size() : zypp::ByteCount(1); //count only
+
+		// refence to the found media array
+		std::vector<zypp::ByteCount> &ref = result[source_map[pkg->repository().info().alias()]];
+		int add_count = (medium - 1) - ref.size() + 1;
+
+		// resize media array - the found index is out of array
+		if (add_count > 0)
+		{
+                    ref.insert(ref.end(), add_count, zypp::ByteCount(0));
+		}
+
+		ref[medium - 1] += size ;	// media are numbered from 1
 	    }
 	}
     }
 
     YCPList res;
 
-    for(std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> >::const_iterator it =
+    for(std::map<std::vector<YRepo_Ptr>::size_type, std::vector<zypp::ByteCount> >::const_iterator it =
 	result.begin(); it != result.end() ; ++it)
     {
-	std::vector<zypp::ByteCount> values = it->second;
+	const std::vector<zypp::ByteCount> &values = it->second;
 	YCPList source;
 
 	for( unsigned i = 0 ; i < values.size() ; i++ )
@@ -330,11 +374,28 @@ PkgModuleFunctions::PkgMediaSizes ()
 	res->add( source );
     }
 
-    y2milestone( "Pkg::PkgMediaSize result: %s", res->toString().c_str());
+    y2milestone( "Pkg::%s result: %s", sizes?"PkgMediaSizes": "PkgMediaCount", res->toString().c_str());
 
     return res;
 }
 
+// ------------------------
+/**
+ *  @builtin PkgMediaSizes
+ *  @short Return size of packages to be installed
+ *  @description
+ *  return cumulated sizes (in bytes !) to be installed from different sources and media
+ *
+ *  Returns the install size, not the archivesize !!
+ *
+ *  @return list<list<integer>>
+ *  @usage Pkg::PkgMediaSizes () -> [ [src1_media_1_size, src1_media_2_size, ...], ..]
+ */
+YCPValue
+PkgModuleFunctions::PkgMediaSizes()
+{
+    return PkgMediaSizesOrCount (true);
+}
 
 // ------------------------
 /**
@@ -349,73 +410,7 @@ PkgModuleFunctions::PkgMediaSizes ()
 YCPValue
 PkgModuleFunctions::PkgMediaCount()
 {
-# warning No installation order
-
-    // all enabled sources
-    std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
-
-    // map SourceId -> [ number_of_media, total_size ]
-    std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> > result;
-
-    // map zypp::Source -> SourceID
-    std::map<zypp::Source_Ref, zypp::SourceManager::SourceId> source_map;
-
-
-    // initialize
-    for( std::list<zypp::SourceManager::SourceId>::const_iterator sit = source_ids.begin();
-	sit != source_ids.end(); ++sit)
-    {
-	zypp::SourceManager::SourceId id = *sit;
-
-	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource( id );
-	unsigned media = src.numberOfMedia();
-
-	result[id] = std::vector<zypp::ByteCount>(media,0);
-
-	source_map[ src ] = id;
-    }
-
-    for( zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin<zypp::Package>()
-	; it != zypp_ptr()->pool().byKindEnd<zypp::Package>()
-	; ++it )
-    {
-	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
-
-	if( pkg && it->status().isToBeInstalled())
-	{
-	    unsigned int medium = pkg->sourceMediaNr();
-	    if (medium == 0)
-	    {
-		medium = 1;
-	    }
-
-	    if (medium > 0)
-	    {
-		result[ source_map[pkg->source()] ]
-		  [medium - 1]++ ;	// media are numbered from 1
-	    }
-	}
-    }
-
-    YCPList res;
-
-    for(std::map<zypp::SourceManager::SourceId, std::vector<zypp::ByteCount> >::const_iterator it =
-	result.begin(); it != result.end() ; ++it)
-    {
-	const std::vector<zypp::ByteCount> &values = it->second;
-	YCPList source;
-
-	for( unsigned i = 0 ; i < values.size() ; i++ )
-	{
-	    source->add( YCPInteger( values[i] ) );
-	}
-
-	res->add( source );
-    }
-
-    y2milestone( "Pkg::PkgMediaCount result: %s", res->toString().c_str());
-
-    return res;
+    return PkgMediaSizesOrCount (false);
 }
 
 // ------------------------
@@ -1006,10 +1001,11 @@ PkgModuleFunctions::PkgProp( zypp::PoolItem_Ref item )
     }
 
     data->add( YCPString("arch"), YCPString( pkg->arch().asString() ) );
-    data->add( YCPString("medianr"), YCPInteger( pkg->sourceMediaNr() ) );
+    data->add( YCPString("medianr"), YCPInteger( pkg->mediaNr() ) );
 
-    y2debug("srcId: %ld", pkg->source().numericId() );
-    data->add( YCPString("srcid"), YCPInteger( pkg->source().numericId() ) );
+    std::vector<YRepo_Ptr>::size_type sid = logFindAlias(pkg->repository().info().alias());
+    y2debug("srcId: %d", sid );
+    data->add( YCPString("srcid"), YCPInteger( sid ) );
 
     std::string status("available");
     if (item.status().isInstalled())
@@ -1026,8 +1022,8 @@ PkgModuleFunctions::PkgProp( zypp::PoolItem_Ref item )
     }
     data->add( YCPString("status"), YCPSymbol(status));
 
-    data->add( YCPString("location"), YCPString( pkg->location().basename() ) );
-    data->add( YCPString("path"), YCPString( pkg->location().asString() ) );
+    data->add( YCPString("location"), YCPString( pkg->location().filename().basename() ) );
+    data->add( YCPString("path"), YCPString( pkg->location().filename().asString() ) );
 
     return data;
 }
@@ -1114,8 +1110,8 @@ PkgModuleFunctions::GetPkgLocation (const YCPString& p, bool full_path)
 	YCPMap data;
 
 	if (item) {
-	    return (full_path) ? YCPString( pkg->location().asString() )
-			       : YCPString( pkg->location().basename() );
+	    return (full_path) ? YCPString( pkg->location().filename().asString() )
+			       : YCPString( pkg->location().filename().basename() );
 	}
     }
     catch (...)
@@ -2237,14 +2233,7 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 	return YCPVoid();
     }
 
-    try {
-	zypp::SourceManager::sourceManager()->releaseAllSources();
-    }
-    catch (const zypp::Exception& excpt)
-    {
-	y2error("Pkg::Commit has failed: cannot release all sources");
-	_last_error.setLastError(excpt.asUserString());
-    }
+    SourceReleaseAll();	
 
     YCPList ret;
 

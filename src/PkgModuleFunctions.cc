@@ -34,9 +34,10 @@
 #include <ycp/YCPMap.h>
 #include <ycp/YCPVoid.h>
 
-#include <zypp/SourceManager.h>
 #include <zypp/ZYppFactory.h>
 #include <zypp/ResPool.h>
+#include <zypp/RepoInfo.h>
+#include <zypp/MediaSetAccess.h>
 
 // sleep
 #include <unistd.h>
@@ -166,6 +167,43 @@ public:
 	    return m_name;
     }
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// Class: YRepo
+//
+
+IMPL_PTR_TYPE(YRepo);
+
+YRepo::YRepo(zypp::RepoInfo & repo)
+    : _repo(repo), _repo_orig_alias(repo.alias()), _deleted(false)
+{}
+
+YRepo::~YRepo()
+{
+    if (_maccess)
+    {
+        try { _maccess->release(); }
+        catch (const zypp::media::MediaException & ex) {}
+    }
+}
+
+zypp::MediaSetAccess_Ptr & YRepo::mediaAccess()
+{
+    if (!_maccess)
+    {
+        y2milestone("Creating new MediaSetAccess for url %s",
+            (*_repo.baseUrlsBegin()).asString().c_str());
+        _maccess = new zypp::MediaSetAccess(*_repo.baseUrlsBegin()); // FIXME handle multiple baseUrls
+    }
+
+    return _maccess;
+}
+
+const YRepo YRepo::NOREPO;
+
+/////////////////////////////////////////////////////////////////////////////
+
+
 const zypp::ResStatus::TransactByValue PkgModuleFunctions::whoWantsIt = zypp::ResStatus::APPL_HIGH;
 
 /**
@@ -175,7 +213,7 @@ PkgModuleFunctions::PkgModuleFunctions ()
     : Y2Namespace()
     , _target_root( "/" )
     , zypp_pointer(NULL)
-    ,_callbackHandler( *new CallbackHandler( ) )
+    ,_callbackHandler( *new CallbackHandler(*this) )
 {
     registerFunctions ();
 
@@ -564,24 +602,26 @@ PkgModuleFunctions::LastErrorId ()
 
 /**
  * @builtin Init
- * @short completely initialize package management, throw away the current status
+ * @short completely initialize package management (currently it is empty)
  * @return boolean true on success
  */
 YCPValue
 PkgModuleFunctions::Init ()
 {
-    try {
-	zypp::SourceManager::sourceManager()->reset();
-    }
-    catch( const zypp::Exception & expt )
-    {
-	y2error( "Initialization of libzypp failed" );
-	return YCPBoolean(false);
-    }
-
+#warning  FIXME can be Init() empty??
     return YCPBoolean(true);
 }
 
+zypp::RepoManager PkgModuleFunctions::CreateRepoManager()
+{
+    // set path option, use root dir as a prefix for the default directory
+    zypp::RepoManagerOptions repo_options;
+    repo_options.knownReposPath = zypp::Pathname(_target_root) + repo_options.knownReposPath;
+
+    y2milestone("Path to repository files: %s", repo_options.knownReposPath.asString().c_str());
+
+    return zypp::RepoManager(repo_options);
+}
 
 /** ------------------------
  * Convert InstSrcDescr to product info YCPMap:

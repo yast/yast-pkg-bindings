@@ -39,11 +39,14 @@
 #include <y2/Y2Namespace.h>
 
 #include <zypp/ZYpp.h>
+#include <zypp/base/PtrTypes.h>
 #include <zypp/Pathname.h>
 #include <zypp/Url.h>
 #include <zypp/Arch.h>
 #include <zypp/DiskUsageCounter.h>
-#include <zypp/SourceManager.h>
+#include <zypp/RepoInfo.h>
+#include <zypp/RepoManager.h>
+#include <zypp/MediaSetAccess.h>
 
 #include "PkgError.h"
 
@@ -61,6 +64,32 @@ extern "C" {
 // define new _ macro
 #define _(MSG) ::dgettext("pkg-bindings", MSG)
 
+DEFINE_PTR_TYPE(YRepo);
+class YRepo : public zypp::base::ReferenceCounted
+{
+private:
+    zypp::RepoInfo _repo;
+    std::string _repo_orig_alias;
+    zypp::MediaSetAccess_Ptr _maccess;
+    bool _deleted;
+
+    YRepo() {}
+
+public:
+    YRepo(zypp::RepoInfo & repo);
+    ~YRepo();
+
+    const zypp::RepoInfo & repoInfo() const { return _repo; }
+    zypp::RepoInfo & repoInfo() { return _repo; }
+    const std::string & origRepoAlias() const { return _repo_orig_alias; }
+    zypp::MediaSetAccess_Ptr & mediaAccess();
+
+    bool isDeleted() {return _deleted;}
+    void setDeleted() {_deleted = true;}
+
+public:
+    static const YRepo NOREPO;
+};
 
 /**
  * A simple class for package management access
@@ -79,8 +108,6 @@ class PkgModuleFunctions : public Y2Namespace
 
 	zypp::Pathname _target_root;
 	
-	std::set<std::string> _broken_sources;
-
 	zypp::ZYpp::Ptr zypp_pointer;
 
 	// remember the main locale (set by SetLocale) for SetAdditionalLocales,
@@ -94,6 +121,12 @@ class PkgModuleFunctions : public Y2Namespace
 
 
     private: // source related
+    
+      // all known installation sources
+      std::vector<YRepo_Ptr> repos;
+
+      // table for converting libzypp source type to Yast type (for backward compatibility)
+      std::map<std::string, std::string> type_conversion_table;
 
       bool DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
 			      const std::string& version, const bool onlyNeeded = false);
@@ -101,8 +134,16 @@ class PkgModuleFunctions : public Y2Namespace
       bool DoProvideAllKind(zypp::Resolvable::Kind kind);
       bool DoRemoveAllKind(zypp::Resolvable::Kind kind);
       bool DoAllKind(zypp::Resolvable::Kind kind, bool provide);
+
+      void RemoveResolvablesFrom(const std::string &alias);
+      bool AnyResolvableFrom(const std::string &alias);
+      bool LoadResolvablesFrom(const zypp::RepoInfo &repoinfo);
+
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);
       YCPValue PkgProp( zypp::PoolItem_Ref item );
+      YCPValue PkgMediaSizesOrCount (bool sizes);
+
+      zypp::RepoManager CreateRepoManager();
 
       void SetCurrentDU();
 
@@ -136,11 +177,18 @@ class PkgModuleFunctions : public Y2Namespace
 
       /**
        * Logging helper:
-       * call zypp::SourceManager::sourceManager()->findSource
-       * and in case of exception, log error and setLastError AND RETHROW
+       * search for a repository and in case of exception, log error
+       * and setLastError AND RETHROW
        */
-      zypp::Source_Ref logFindSource (zypp::SourceManager::SourceId id);
+	YRepo_Ptr logFindRepository(std::vector<YRepo_Ptr>::size_type id);
+	
+	std::vector<YRepo_Ptr>::size_type createManagedSource(const zypp::Url & url_r,
+	    const zypp::Pathname & path_r, const bool base_source, const std::string& type);
 
+      /**
+       * provides SourceProvideFile and SourceProvideFileCommon
+       */
+      YCPValue SourceProvideFileCommon (const YCPInteger&, const YCPInteger&, const YCPString&, const YCPBoolean&);
     public:
 	// general
 	/* TYPEINFO: void() */
@@ -256,6 +304,13 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue CallbackSourceReportError( const YCPString& func);
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackSourceReportEnd( const YCPString& func);
+
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressReportStart(const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressReportProgress(const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProgressReportEnd(const YCPString& func);
 
 	// Script (patch installation) callbacks
 	/* TYPEINFO: void(string) */
@@ -637,6 +692,9 @@ class PkgModuleFunctions : public Y2Namespace
 	 * Destructor.
 	 */
 	virtual ~PkgModuleFunctions ();
+
+	// must be public, used in callbacks
+	std::vector<YRepo_Ptr>::size_type logFindAlias(const std::string &alias) const;
 
 	virtual const string name () const
 	{

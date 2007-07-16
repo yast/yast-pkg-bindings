@@ -33,7 +33,6 @@
 #include <ycp/YCPList.h>
 #include <ycp/YCPMap.h>
 
-#include <zypp/SourceManager.h>
 #include <zypp/Product.h>
 #include <zypp/Patch.h>
 #include <zypp/Pattern.h>
@@ -359,8 +358,6 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 	return ret;
     }
 
-    std::list<zypp::SourceManager::SourceId> source_ids = zypp::SourceManager::sourceManager()->enabledSources();
-   
    try
    { 
 	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(kind);
@@ -405,8 +402,8 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 		info->add(YCPString("locked"), YCPBoolean(it->status().isLocked()));
 
 		// source
-		zypp::Source_Ref res_src = (*it)->source();
-		info->add(YCPString("source"), YCPInteger(res_src.numericId()));
+		zypp::Repository repo = (*it)->repository();
+		info->add(YCPString("source"), YCPInteger(logFindAlias(repo.info().alias())));
 
 		// product specific info
 		if( req_kind == "product" ) {

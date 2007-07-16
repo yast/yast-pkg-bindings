@@ -1,4 +1,111 @@
 -------------------------------------------------------------------
+Fri Jul 13 17:46:17 CEST 2007 - lslezak@suse.cz
+
+- convert source ID in source callbacks (pass PkgModuleFunctions
+  reference to the callback handler to search the ID)
+- tribool fixes (enabled() and autorefresh() return tribool)
+- reimplemented PkgMediaSizes() and PkgMediaCount() functions,
+  the installation slideshow is now fully working
+- 2.15.29
+
+-------------------------------------------------------------------
+Fri Jul 13 10:47:51 CEST 2007 - lslezak@suse.cz
+
+- fixed segfault in logFindRepository() when the repo is not found
+- removed extra callbacks in SourceRestore() and SourceLoad()
+- SourceLoad() - do not reload the repositories if there is
+  at least one repository already registered
+- 2.15.28
+
+-------------------------------------------------------------------
+Thu Jul 12 16:20:52 CEST 2007 - lslezak@suse.cz
+
+- handle zypp::ProgressReport callbacks (added new Pkg::
+  functions: CallbackProgressReportStart(), CallbackProgress-
+  -ReportProgress() and CallbackProgressReportEnd())
+- add 'deleted' flag to YRepo, handle deleted repos correctly
+- SourceSaveAll() - don't remove all repos, remove the cache when
+  removing a repo
+- SourceLoad() - build repo cache if it's missing
+- 2.15.27
+
+-------------------------------------------------------------------
+Wed Jul 11 22:17:41 CEST 2007 - jkupec@suse.cz
+
+- storing YRepo_Ptr instead of YRepo in the vector
+- modified logFindRepository() to retrun YRepo_Ptr
+  check its return value:
+    if (!returnvalue) found = false;
+- reimplemented SourceCallbacks
+- FIXED if repo.baseUrlsBegin() is repo.baseUrlsEnd() then do not
+  read the value at the iterator (segfault)
+- added logFindAlias() for searching an alias in the known repos
+- reimplemented PkgMediaNames()
+- SourceCreateType() - convert type from Yast string to libzypp string
+- 2.15.26
+
+-------------------------------------------------------------------
+Wed Jul 11 17:03:26 CEST 2007 - jkupec@suse.cz
+
+- YRepo structure added to encapsulate RepoInfo, MediaSetAccess, and
+  original alias of a repository.
+- fixed SourceProvide* methods
+- replaced RepoInfo vector with YRepo vector
+
+-------------------------------------------------------------------
+Tue Jul 10 20:16:11 CEST 2007 - jkupec@suse.cz
+
+- added repomedias - vector of MediaSetAccess objects
+- SourceProvide*File methods reimplemented with passed
+  MediaSetAccess object
+- added internal method CreateRepoManager() - create RepoManager
+  object with the cofigured target root directory (all pkg-bindings
+  functions must use it to use the correct root directory!)
+- implemented TargetDisableSources()
+- implemented SourceFinishAll()
+- SourceReleaseAll() reimplemented
+- implemented SourceSaveAll()
+- fixed SourceProvideOptionalFile()
+- store the new values in SourceSetEnabled(), SourceSetAutorefresh(),
+  SourceEditSet()
+- 2.15.25
+
+-------------------------------------------------------------------
+Tue Jul 10 16:06:03 CEST 2007 - jkupec@suse.cz
+
+- ReleaseAllSources() has an empty implementation as it is
+  (hopefuly) not needed anymore.
+- SourceChangeUrl() cleaned-up
+- 2.15.24
+
+-------------------------------------------------------------------
+Tue Jul 10 09:08:44 CEST 2007 - jkupec@suse.cz
+
+- SourceProvideFile, SourceProvideOptionalFile, and SourceProvideDir
+  reimplemented.
+
+-------------------------------------------------------------------
+Mon Jul  9 19:15:00 CEST 2007 - lslezak@suse.cz
+
+- use RepoInfo objects for representing sources
+- implemented SourceCreate()
+- SourceEditSet() - do not save changes
+- 2.15.23
+
+-------------------------------------------------------------------
+Mon Jul  9 13:21:22 CEST 2007 - lslezak@suse.cz
+
+- compile fixes
+- 2.15.22
+
+-------------------------------------------------------------------
+Wed Jul  4 16:39:47 CEST 2007 - lslezak@suse.cz
+
+- The first step to the new libzypp API (RepoManager) - too many
+  missing code but it can be at least compiled...
+- 2.15.21
+
+-------------------------------------------------------------------
 Tue May 29 11:20:43 CEST 2007 - lslezak@suse.cz
 
 - updated GPG callbacks (#277117)

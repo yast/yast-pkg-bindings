@@ -75,6 +75,8 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_SourceCreateStart, CB_SourceCreateProgress, CB_SourceCreateError, CB_SourceCreateEnd,
       CB_SourceCreateInit, CB_SourceCreateDestroy,
 
+      CB_ProgressStart, CB_ProgressProgress, CB_ProgressDone,
+
       CB_StartSourceRefresh, CB_ErrorSourceRefresh, CB_DoneSourceRefresh, CB_ProgressSourceRefresh,
       CB_StartDeltaDownload, CB_ProgressDeltaDownload, CB_ProblemDeltaDownload,
       CB_StartDeltaApply, CB_ProgressDeltaApply, CB_ProblemDeltaApply,
@@ -163,6 +165,10 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( SourceReportEnd );
 	ENUM_OUT( SourceReportInit );
 	ENUM_OUT( SourceReportDestroy );
+      
+	ENUM_OUT( ProgressStart );
+	ENUM_OUT( ProgressProgress );
+	ENUM_OUT( ProgressDone );
 
 	ENUM_OUT( StartSourceRefresh );
 	ENUM_OUT( ErrorSourceRefresh );

@@ -35,7 +35,6 @@
 #include <zypp/KeyRing.h>
 #include <zypp/PublicKey.h>
 #include <zypp/Digest.h>
-#include <zypp/SourceManager.h>
 
 // FIXME: do this nicer, source create use this to avoid user feedback
 // on probing of source type
@@ -43,7 +42,8 @@
 ZyppRecipients::MediaChangeSensitivity _silent_probing = ZyppRecipients::MEDIA_CHANGE_FULL;
 
 // remember redirected URLs
-std::map<zypp::Source_Ref::NumericId, std::map<unsigned, std::string> > redirect_map;
+// FIXME huh?
+std::map<std::vector<zypp::RepoInfo>::size_type, std::map<unsigned, std::string> > redirect_map;
 
 ///////////////////////////////////////////////////////////////////
 namespace ZyppRecipients {
@@ -276,7 +276,7 @@ namespace ZyppRecipients {
 
 	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
 	  if (callback._set) {
-	    callback.addStr(res->location());
+	    callback.addStr(res->location().filename());
 	    callback.addStr(res->summary());
 	    callback.addInt(res->size());
 	    callback.addBool(false);	// is_delete = false (package installation)
@@ -419,15 +419,73 @@ namespace ZyppRecipients {
 	}
     };
 
+    
+    struct ProgressReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::ProgressReport>
+    {
+	ProgressReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual void start(const zypp::ProgressData &task)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressStart ) );
+	    // TODO: change it to y2debug later
+	    y2milestone("ProgressStart: id:%d, %s", task.numericId(), task.name().c_str());
+
+	    if (callback._set)
+	    {
+		callback.addInt( task.numericId() );
+		callback.addStr( task.name() );
+		callback.addBool( task.reportPercent() );
+		callback.addInt( task.min() );
+		callback.addInt( task.max() );
+		callback.addInt( task.val() );
+		callback.addInt( task.reportValue() );
+		callback.evaluate();
+	    }
+	}
+
+	virtual bool progress(const zypp::ProgressData &task)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressProgress ) );
+	    // TODO: change it to y2debug later
+	    y2milestone("ProgressProgress: id:%d, %s: %lld%%", task.numericId(), task.name().c_str(), task.reportValue());
+
+	    if (callback._set)
+	    {
+		callback.addInt( task.numericId() );
+		callback.addInt( task.val() );
+		callback.addInt( task.reportValue() );
+		return callback.evaluateBool();
+	    }
+
+	    return zypp::ProgressReport::progress(task);
+	}
+
+	virtual void finish( const zypp::ProgressData &task )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDone ) );
+	    // TODO: change it to y2debug later
+	    y2milestone("ProgressFinish: id:%d, %s", task.numericId(), task.name().c_str());
+
+	    if (callback._set)
+	    {
+		callback.addInt( task.numericId() );
+		callback.evaluate();
+	    }
+	}
+    };
+
+
+
     ///////////////////////////////////////////////////////////////////
     // DownloadResolvableCallback
     ///////////////////////////////////////////////////////////////////
-    struct DownloadResolvableReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::DownloadResolvableReport>
+    struct DownloadResolvableReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::repo::DownloadResolvableReport>
     {
 	static int last_source_id;
 	static int last_source_media;
+	const PkgModuleFunctions &_pkg_ref;
 
-	DownloadResolvableReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+	DownloadResolvableReceive( RecipientCtl & construct_r, const PkgModuleFunctions &pk ) : Recipient( construct_r ), _pkg_ref(pk) {}
 	int last_reported;
 	int last_reported_delta_download;
 	int last_reported_delta_apply;
@@ -451,10 +509,11 @@ namespace ZyppRecipients {
 	    zypp::Package::constPtr pkg =
 		zypp::asKind<zypp::Package>(resolvable_ptr);
 
-	    size = pkg->archivesize();
+	    size = pkg->downloadSize();
 
-	    int source_id = pkg->source().numericId();
-	    int media_nr = pkg->sourceMediaNr();
+	    // convert the repo ID
+	    int source_id = _pkg_ref.logFindAlias(pkg->repository().info().alias());
+	    int media_nr = pkg->mediaNr();
 
 	    if( source_id != last_source_id || media_nr != last_source_media )
 	    {
@@ -480,7 +539,7 @@ namespace ZyppRecipients {
 	  }
 	}
 
-	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::source::DownloadResolvableReport::Error error, const std::string &reason)
+	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::repo::DownloadResolvableReport::Error error, const std::string &reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
 	    if (callback._set) {
@@ -501,10 +560,10 @@ namespace ZyppRecipients {
 		return callback.evaluateBool(); // return value ignored by RpmDb
 	    }
 
-	    return zypp::source::DownloadResolvableReport::progress(value, resolvable_ptr);
+	    return zypp::repo::DownloadResolvableReport::progress(value, resolvable_ptr);
 	}
 
-	virtual Action problem(zypp::Resolvable::constPtr resolvable_ptr, zypp::source::DownloadResolvableReport::Error error, const std::string &description)
+	virtual Action problem(zypp::Resolvable::constPtr resolvable_ptr, zypp::repo::DownloadResolvableReport::Error error, const std::string &description)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
 	    if (callback._set) {
@@ -514,19 +573,19 @@ namespace ZyppRecipients {
                 std::string ret = callback.evaluateStr();
 
                 // "R" =  retry
-                if (ret == "R") return zypp::source::DownloadResolvableReport::RETRY;
+                if (ret == "R") return zypp::repo::DownloadResolvableReport::RETRY;
 
                 // "C" = cancel
-                if (ret == "C") return zypp::source::DownloadResolvableReport::ABORT;
+                if (ret == "C") return zypp::repo::DownloadResolvableReport::ABORT;
 
                 // "I" = ignore
-                if (ret == "I") return zypp::source::DownloadResolvableReport::IGNORE;
+                if (ret == "I") return zypp::repo::DownloadResolvableReport::IGNORE;
 
                 // otherwise return the default value from the parent class
 	    }
 
             // return the default value from the parent class
-	    return zypp::source::DownloadResolvableReport::problem(resolvable_ptr, error, description);
+	    return zypp::repo::DownloadResolvableReport::problem(resolvable_ptr, error, description);
 	}
 
 	// Download delta rpm:
@@ -559,7 +618,7 @@ namespace ZyppRecipients {
 		return callback.evaluateBool();
 	    }
 
-	    return zypp::source::DownloadResolvableReport::progressDeltaDownload(value);
+	    return zypp::repo::DownloadResolvableReport::progressDeltaDownload(value);
 	}
 
 	virtual void problemDeltaDownload( const std::string &description )
@@ -663,7 +722,7 @@ namespace ZyppRecipients {
 		return callback.evaluateBool();
 	    }
 
-	    return zypp::source::DownloadResolvableReport::progressPatchDownload(value);
+	    return zypp::repo::DownloadResolvableReport::progressPatchDownload(value);
 	}
 
 	virtual void problemPatchDownload( const std::string &description )
@@ -924,7 +983,7 @@ namespace ZyppRecipients {
     {
 	MediaChangeReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual Action requestMedia(zypp::Source_Ref source, unsigned mediumNr, zypp::media::MediaChangeReport::Error error, const std::string &description)
+	virtual Action requestMedia(zypp::Repository source, unsigned mediumNr, zypp::media::MediaChangeReport::Error error, const std::string &description)
 	{
 	    if ( _silent_probing == MEDIA_CHANGE_DISABLE )
 		return zypp::media::MediaChangeReport::ABORT;
@@ -940,7 +999,7 @@ namespace ZyppRecipients {
 		callback.addStr( description );
 
 		// search URL in the redirection map
-		std::map<zypp::Source_Ref::NumericId, std::map<unsigned, std::string> >::const_iterator source_it = redirect_map.find(source.numericId());
+		std::map<std::vector<zypp::RepoInfo>::size_type, std::map<unsigned, std::string> >::const_iterator source_it = redirect_map.find(source.numericId());
 		bool found = false;
 		std::string report_url;
 
@@ -955,7 +1014,14 @@ namespace ZyppRecipients {
 			found = true;
 			// report the redirected URL
 			report_url = (*media_it).second;
-			y2milestone("Using redirected URL %s, original URL: %s", report_url.c_str(), source.url().asString().c_str());
+
+			std::string original_url;
+			if (source.info().baseUrlsBegin() != source.info().baseUrlsEnd())
+			{
+			    original_url = source.info().baseUrlsBegin()->asString();
+			}
+
+			y2milestone("Using redirected URL %s, original URL: %s", report_url.c_str(), original_url.c_str());
 		    }
 		}
 
@@ -963,15 +1029,17 @@ namespace ZyppRecipients {
 		{
 		    // the source has not been redirected
 		    // use URL of the source 
-		    report_url = source.url().asString();
+		    if (source.info().baseUrlsBegin() != source.info().baseUrlsEnd())
+		    {
+			report_url = source.info().baseUrlsBegin()->asString();
+		    }
 		}
-
 
 		// current URL
 		callback.addStr( report_url );
 
 		// current product name (use the alias, see #214886)
-		callback.addStr( source.alias() );
+		callback.addStr( source.info().alias() );
 
 		// current medium, -1 means enable [Ignore]
 		callback.addInt( 0 );
@@ -1009,7 +1077,8 @@ namespace ZyppRecipients {
 		// try/catch to catch invalid URLs
 		try {
 		    zypp::Url ret_url (ret);
-		    source.redirect( mediumNr, ret_url );
+#warning FIXME: MediaChange callback - redirection is missing!
+		    //source.redirect( mediumNr, ret_url );
 
 		    // remember the redirection		    
 		    std::map<unsigned, std::string> source_redir = redirect_map[source.numericId()];
@@ -1032,14 +1101,14 @@ namespace ZyppRecipients {
 	}
     };
 
-    struct SourceCreateReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::SourceCreateReport>
+    struct SourceCreateReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::repo::RepoCreateReport>
     {
 	SourceCreateReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
 	virtual void reportbegin()
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateInit ) );
-	    y2debug("Source Create begin");
+	    y2debug("Repo Create begin");
 
 	    if (callback._set)
 	    {
@@ -1050,7 +1119,7 @@ namespace ZyppRecipients {
 	virtual void reportend()
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateDestroy ) );
-	    y2debug("Source Create destroy");
+	    y2debug("Repo Create destroy");
 
 	    if (callback._set)
 	    {
@@ -1081,10 +1150,10 @@ namespace ZyppRecipients {
 		return callback.evaluateBool();
 	    }
 
-	    return zypp::source::SourceCreateReport::progress(value);
+	    return zypp::repo::RepoCreateReport::progress(value);
 	}
 
-	std::string CreateSrcErrorAsString(zypp::source::SourceCreateReport::Error error)
+	std::string CreateSrcErrorAsString(zypp::repo::RepoCreateReport::Error error)
 	{
 	    // convert enum to string
 	    std::string error_str;
@@ -1092,23 +1161,23 @@ namespace ZyppRecipients {
 	    switch(error)
 	    {
 		// no error
-		case zypp::source::SourceCreateReport::NO_ERROR	: error_str = "NO_ERROR"; break;
+		case zypp::repo::RepoCreateReport::NO_ERROR	: error_str = "NO_ERROR"; break;
 		// the requested Url was not found
-		case zypp::source::SourceCreateReport::NOT_FOUND	: error_str = "NOT_FOUND"; break;
+		case zypp::repo::RepoCreateReport::NOT_FOUND	: error_str = "NOT_FOUND"; break;
 		// IO error
-		case zypp::source::SourceCreateReport::IO		: error_str = "IO"; break;
+		case zypp::repo::RepoCreateReport::IO		: error_str = "IO"; break;
 		// the source is invalid
-		case zypp::source::SourceCreateReport::INVALID	: error_str = "INVALID"; break;
+		case zypp::repo::RepoCreateReport::INVALID	: error_str = "INVALID"; break;
 		// rejected
-		case zypp::source::SourceCreateReport::REJECTED	: error_str = "REJECTED"; break;
+		case zypp::repo::RepoCreateReport::REJECTED	: error_str = "REJECTED"; break;
 		// unknown error
-		case zypp::source::SourceCreateReport::UNKNOWN	: error_str = "UNKNOWN"; break;
+		case zypp::repo::RepoCreateReport::UNKNOWN	: error_str = "UNKNOWN"; break;
 	    }
 
 	    return error_str;
 	}
 
-	virtual Action problem( const zypp::Url &url, zypp::source::SourceCreateReport::Error error, const std::string &description )
+	virtual Action problem( const zypp::Url &url, zypp::repo::RepoCreateReport::Error error, const std::string &description )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateError ) );
 
@@ -1121,8 +1190,8 @@ namespace ZyppRecipients {
 		std::string result = callback.evaluateSymbol();
 
 		// check the returned symbol
-		if ( result == "ABORT" ) return zypp::source::SourceCreateReport::ABORT;
-		if ( result == "RETRY" ) return zypp::source::SourceCreateReport::RETRY;
+		if ( result == "ABORT" ) return zypp::repo::RepoCreateReport::ABORT;
+		if ( result == "RETRY" ) return zypp::repo::RepoCreateReport::RETRY;
 
 		// still here?
 		y2error("Unexpected symbol '%s' returned from callback.", result.c_str());
@@ -1130,10 +1199,10 @@ namespace ZyppRecipients {
 	    }
 
 	    // return the default implementation
-	    return zypp::source::SourceCreateReport::problem(url, error, description);
+	    return zypp::repo::RepoCreateReport::problem(url, error, description);
 	}
 
-	virtual void finish( const zypp::Url &url, zypp::source::SourceCreateReport::Error error, const std::string &reason )
+	virtual void finish( const zypp::Url &url, zypp::repo::RepoCreateReport::Error error, const std::string &reason )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateEnd ) );
 
@@ -1148,11 +1217,10 @@ namespace ZyppRecipients {
 	}
     };
 
-
     ///////////////////////////////////////////////////////////////////
-    // ProbeSourceReport
+    // ProbeSourceReceive
     ///////////////////////////////////////////////////////////////////
-    struct ProbeSourceReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::source::ProbeSourceReport>
+    struct ProbeSourceReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::repo::ProbeRepoReport>
     {
 	ProbeSourceReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
@@ -1196,7 +1264,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	std::string ProbeSrcErrorAsString(zypp::source::ProbeSourceReport::Error error)
+	std::string ProbeSrcErrorAsString(zypp::repo::ProbeRepoReport::Error error)
 	{
 	    // convert enum to string
 	    std::string error_str;
@@ -1204,21 +1272,21 @@ namespace ZyppRecipients {
 	    switch(error)
 	    {
 		// no error
-		case zypp::source::ProbeSourceReport::NO_ERROR	: error_str = "NO_ERROR"; break;
+		case zypp::repo::ProbeRepoReport::NO_ERROR	: error_str = "NO_ERROR"; break;
 		// the requested Url was not found
-		case zypp::source::ProbeSourceReport::NOT_FOUND	: error_str = "NOT_FOUND"; break;
+		case zypp::repo::ProbeRepoReport::NOT_FOUND	: error_str = "NOT_FOUND"; break;
 		// IO error
-		case zypp::source::ProbeSourceReport::IO	: error_str = "IO"; break;
+		case zypp::repo::ProbeRepoReport::IO	: error_str = "IO"; break;
 		// the source is invalid
-		case zypp::source::ProbeSourceReport::INVALID	: error_str = "INVALID"; break;
+		case zypp::repo::ProbeRepoReport::INVALID	: error_str = "INVALID"; break;
 		// unknow error
-		case zypp::source::ProbeSourceReport::UNKNOWN	: error_str = "UNKNOWN"; break;
+		case zypp::repo::ProbeRepoReport::UNKNOWN	: error_str = "UNKNOWN"; break;
 	    }
 
 	    return error_str;
 	}
 
-	virtual void finish(const zypp::Url &url, zypp::source::ProbeSourceReport::Error error, const std::string &reason )
+	virtual void finish(const zypp::Url &url, zypp::repo::ProbeRepoReport::Error error, const std::string &reason )
 	{
 	    _silent_probing = MEDIA_CHANGE_FULL;
 
@@ -1246,10 +1314,11 @@ namespace ZyppRecipients {
 		return callback.evaluateBool();
 	    }
 
-	    return zypp::source::ProbeSourceReport::progress(url, value);
+	    return zypp::repo::ProbeRepoReport::progress(url, value);
+	    return true;
 	}
 
-	virtual zypp::source::ProbeSourceReport::Action problem( const zypp::Url &url, zypp::source::ProbeSourceReport::Error error, const std::string &description )
+	virtual zypp::repo::ProbeRepoReport::Action problem( const zypp::Url &url, zypp::repo::ProbeRepoReport::Error error, const std::string &description )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceProbeError ) );
 
@@ -1262,8 +1331,8 @@ namespace ZyppRecipients {
 		std::string result = callback.evaluateSymbol();
 
 		// check the returned symbol
-		if ( result == "ABORT" ) return zypp::source::ProbeSourceReport::ABORT;
-		if ( result == "RETRY" ) return zypp::source::ProbeSourceReport::RETRY;
+		if ( result == "ABORT" ) return zypp::repo::ProbeRepoReport::ABORT;
+		if ( result == "RETRY" ) return zypp::repo::ProbeRepoReport::RETRY;
 
 		// still here?
 		y2error("Unexpected symbol '%s' returned from callback.", result.c_str());
@@ -1271,12 +1340,14 @@ namespace ZyppRecipients {
 	    }
 
 	    // return the default value
-	    return zypp::source::ProbeSourceReport::problem(url, error, description);
+	    return zypp::repo::ProbeRepoReport::problem(url, error, description);
 	}
     };
 
-    struct SourceReport : public Recipient, public zypp::callback::ReceiveReport<zypp::source::SourceReport>
+
+    struct RepoReport : public Recipient, public zypp::callback::ReceiveReport<zypp::repo::RepoReport>
     {
+	const PkgModuleFunctions &_pkg_ref;
 	virtual void reportbegin()
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportInit ) );
@@ -1299,37 +1370,44 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	SourceReport( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+	RepoReport( RecipientCtl & construct_r, const PkgModuleFunctions &pk ) : Recipient( construct_r ), _pkg_ref(pk) {}
 
-	virtual void start( zypp::Source_Ref source, const std::string &task )
+        virtual void start(const zypp::ProgressData &task, const zypp::RepoInfo repo)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportStart ) );
 
 	    if (callback._set)
 	    {
-		callback.addInt(source.numericId());
-		callback.addStr(source.url());
-		callback.addStr(task);
+		callback.addInt(_pkg_ref.logFindAlias(repo.alias()));
+
+		std::string url;
+		if (repo.baseUrlsBegin() != repo.baseUrlsEnd())
+		{
+		    url = repo.baseUrlsBegin()->asString();
+		}
+
+		callback.addStr(url);
+		callback.addStr(task.name());
 
 		callback.evaluate();
 	    }
 	}
 
-	virtual bool progress( int value )
+        virtual bool progress(const zypp::ProgressData &task)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportProgress ) );
 
 	    if (callback._set)
 	    {
-		callback.addInt(value);
+		callback.addInt(task.reportValue());
 
 		return callback.evaluateBool();
 	    }
 
-	    return zypp::source::SourceReport::progress(value);
+	    return zypp::repo::RepoReport::progress(task);
 	}
 
-	std::string SrcReportErrorAsString(zypp::source::SourceReport::Error error)
+	std::string SrcReportErrorAsString(zypp::repo::RepoReport::Error error)
 	{
 	    // convert enum to string
 	    std::string error_str;
@@ -1337,19 +1415,20 @@ namespace ZyppRecipients {
 	    switch(error)
 	    {
 		// no error
-		case zypp::source::SourceReport::NO_ERROR	: error_str = "NO_ERROR"; break;
+		case zypp::repo::RepoReport::NO_ERROR	: error_str = "NO_ERROR"; break;
 		// the requested Url was not found
-		case zypp::source::SourceReport::NOT_FOUND	: error_str = "NOT_FOUND"; break;
+		case zypp::repo::RepoReport::NOT_FOUND	: error_str = "NOT_FOUND"; break;
 		// IO error
-		case zypp::source::SourceReport::IO		: error_str = "IO"; break;
+		case zypp::repo::RepoReport::IO		: error_str = "IO"; break;
 		// the source is invalid
-		case zypp::source::SourceReport::INVALID	: error_str = "INVALID"; break;
+		case zypp::repo::RepoReport::INVALID	: error_str = "INVALID"; break;
 	    }
 
 	    return error_str;
 	}
 
-	virtual zypp::source::SourceReport::Action problem( zypp::Source_Ref source, zypp::source::SourceReport::Error error, const std::string &description )
+	virtual zypp::repo::RepoReport::Action problem(zypp::Repository source,
+	    zypp::repo::RepoReport::Error error, const std::string &description)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportError ) );
    
@@ -1357,22 +1436,30 @@ namespace ZyppRecipients {
 	    if (_silent_probing == ZyppRecipients::MEDIA_CHANGE_OPTIONALFILE)
 	    {
 		y2milestone("The file is optional, ignoring the error");
-		return zypp::source::SourceReport::IGNORE;
+		return zypp::repo::RepoReport::IGNORE;
 	    }
 
 	    if ( callback._set )
 	    {
-		callback.addInt(source.numericId());
-		callback.addStr(source.url());
+		// search Yast source ID
+		callback.addInt(_pkg_ref.logFindAlias(source.info().alias()));
+
+		std::string url;
+		if (source.info().baseUrlsBegin() != source.info().baseUrlsEnd())
+		{
+		    url = source.info().baseUrlsBegin()->asString();
+		}
+
+		callback.addStr(url);
 		callback.addStr(SrcReportErrorAsString(error));
 		callback.addStr(description);
 
 		std::string result = callback.evaluateSymbol();
 
 		// check the returned symbol
-		if ( result == "ABORT" ) return zypp::source::SourceReport::ABORT;
-		if ( result == "RETRY" ) return zypp::source::SourceReport::RETRY;
-		if ( result == "IGNORE" ) return zypp::source::SourceReport::IGNORE;
+		if ( result == "ABORT" ) return zypp::repo::RepoReport::ABORT;
+		if ( result == "RETRY" ) return zypp::repo::RepoReport::RETRY;
+		if ( result == "IGNORE" ) return zypp::repo::RepoReport::IGNORE;
 
 		// still here?
 		y2error("Unexpected symbol '%s' returned from callback.", result.c_str());
@@ -1380,17 +1467,26 @@ namespace ZyppRecipients {
 	    }
 
 	    // return the default value
-	    return zypp::source::SourceReport::problem(source, error, description);
+	    return zypp::repo::RepoReport::problem(source, error, description);
 	}
 
-	virtual void finish( zypp::Source_Ref source, const std::string &task, zypp::source::SourceReport::Error error, const std::string &reason )
+	virtual void finish(zypp::Repository source, const std::string &task,
+	    zypp::repo::RepoReport::Error error, const std::string &reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportEnd ) );
 
 	    if (callback._set)
 	    {
-		callback.addInt(source.numericId());
-		callback.addStr(source.url());
+		// search Yast source ID
+		callback.addInt(_pkg_ref.logFindAlias(source.info().alias()));
+
+		std::string url;
+		if (source.info().baseUrlsBegin() != source.info().baseUrlsEnd())
+		{
+		    url = source.info().baseUrlsBegin()->asString();
+		}
+		callback.addStr(url);
+
 		callback.addStr(task);
 		callback.addStr(SrcReportErrorAsString(error));
 		callback.addStr(reason);
@@ -1651,8 +1747,10 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 
     // source manager callback
     ZyppRecipients::SourceCreateReceive _sourceCreateReceive;
-    ZyppRecipients::SourceReport	_sourceReport;
+    ZyppRecipients::RepoReport	_sourceReport;
     ZyppRecipients::ProbeSourceReceive _probeSourceReceive;
+
+    ZyppRecipients::ProgressReceive _progressReceive;
 
     // resolvable report
     ZyppRecipients::ResolvableReport _resolvableReport;
@@ -1668,24 +1766,25 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 
     // authentication callback
     ZyppRecipients::AuthReceive _authReceive;
-
+    
   public:
 
-    ZyppReceive( const YCPCallbacks & ycpcb_r )
+    ZyppReceive( const YCPCallbacks & ycpcb_r, const PkgModuleFunctions &pkg)
       : RecipientCtl( ycpcb_r )
       , _convertDbReceive( *this )
       , _rebuildDbReceive( *this )
       , _scanDbReceive( *this )
       , _installPkgReceive( *this )
       , _removePkgReceive( *this )
-      , _providePkgReceive( *this )
+      , _providePkgReceive( *this, pkg )
       , _mediaChangeReceive( *this )
       , _downloadProgressReceive( *this )
       , _scriptExecReceive( *this )
       , _messageReceive( *this )
       , _sourceCreateReceive( *this )
-      , _sourceReport( *this )
+      , _sourceReport( *this, pkg)
       , _probeSourceReceive( *this )
+      , _progressReceive( *this )
       , _resolvableReport( *this )
       , _digestReceive( *this )
       , _keyRingReceive( *this )
@@ -1706,6 +1805,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_sourceCreateReceive.connect();
 	_sourceReport.connect();
 	_probeSourceReceive.connect();
+	_progressReceive.connect();
 	_resolvableReport.connect();
  	_digestReceive.connect();
 	_keyRingReceive.connect();
@@ -1729,6 +1829,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 	_sourceCreateReceive.disconnect();
 	_sourceReport.disconnect();
 	_probeSourceReceive.disconnect();
+	_progressReceive.disconnect();
 	_resolvableReport.disconnect();
 	_digestReceive.disconnect();
 	_keyRingReceive.disconnect();
@@ -1751,9 +1852,9 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 //	METHOD NAME : PkgModuleFunctions::CallbackHandler::CallbackHandler
 //	METHOD TYPE : Constructor
 //
-PkgModuleFunctions::CallbackHandler::CallbackHandler(  )
+PkgModuleFunctions::CallbackHandler::CallbackHandler(const PkgModuleFunctions &pk)
     : _ycpCallbacks( *new YCPCallbacks() )
-    , _zyppReceive( *new ZyppReceive( _ycpCallbacks ) )
+    , _zyppReceive( *new ZyppReceive(_ycpCallbacks, pk) )
 {
 }
 
@@ -2388,6 +2489,41 @@ YCPValue PkgModuleFunctions::CallbackMessage( const YCPString& args ) {
  */
 YCPValue PkgModuleFunctions::CallbackAuthentication( const YCPString& func ) {
     return SET_YCP_CB( CB_Authentication, func );
+}
+
+/**
+ * @builtin CallbackProgressReportStart
+ * @short Register a callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(integer id, string task, boolean in_percent, integer min, integer max, integer val_raw, integer val_percent)</code>. Parameter id is used for callback identification in the Progress() and in the End() callbacks, task describe the action. Parameter in_percent defines whether the progress will be reported in percent or it will be 'still alive' tick.
+ * The callback function is evaluated when an progress event starts
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackProgressReportStart(const YCPString& func)
+{
+    return SET_YCP_CB( CB_ProgressStart, func );
+}
+
+/**
+ * @builtin CallbackProgressReportProgress
+ * @short Register a callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>boolean(integer id, integer val_raw, integer val_percent)</code>. Parameter id identifies the callback, val_raw is raw status, val_percent is in percent or if the total progress is not known it's -1 (the callback is a 'tick' in this case). If the handler returns false the task is aborted.
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackProgressReportProgress(const YCPString& func)
+{
+    return SET_YCP_CB( CB_ProgressProgress, func );
+}
+
+/**
+ * @builtin CallbackProgressReportEnd
+ * @short Register a callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(integer id)</code>. The id identifies the callback.
+ * The callback function is evaluated when an progress event finishes
+ * @return void
+ */
+YCPValue PkgModuleFunctions::CallbackProgressReportEnd(const YCPString& func)
+{
+    return SET_YCP_CB( CB_ProgressDone, func );
 }
 
 #undef SET_YCP_CB
