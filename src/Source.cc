@@ -722,13 +722,37 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
     if (!repo)
         return YCPVoid ();
 
-#warning FIXME SourceMediaData is NOT implemented!!!
-/*  data->add( YCPString("media_count"),	YCPInteger(src.numberOfMedia()));
-  data->add( YCPString("media_id"),	YCPString(src.unique_id()));
-  data->add( YCPString("media_vendor"),	YCPString(src.vendor()));
-*/
-#warning SourceMediaData returns URL without password
+    std::string alias = repo->repoInfo().alias();
+    bool found_resolvable = false;
+    int max_medium = 1;
 
+    for (zypp::ResPool::const_iterator it = zypp_ptr()->pool().begin()
+	; it != zypp_ptr()->pool().end()
+	; ++it)
+    {
+	if (it->resolvable()->repository().info().alias() == alias)
+	{
+	    int medium = it->resolvable()->mediaNr();
+
+	    if (medium > max_medium)
+	    {
+		max_medium = medium;
+	    }
+	}
+    }
+
+    if (found_resolvable)
+    {
+	data->add( YCPString("media_count"), YCPInteger(max_medium));
+    }
+    else
+    {
+	y2error("No resolvable from repository '%s' found, cannot get number of media (use Pkg::SourceLoad() to load the resolvables)", alias.c_str());
+    }
+
+    y2warning("Pkg::SourceMediaData() doesn't return \"media_id\" and \"media_vendor\" values anymore.");
+
+    // SourceMediaData returns URLs without password
     if (repo->repoInfo().baseUrlsBegin() != repo->repoInfo().baseUrlsEnd())
     {
 	data->add( YCPString("url"),	YCPString(repo->repoInfo().baseUrlsBegin()->asString()));

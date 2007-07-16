@@ -1,4 +1,20 @@
 -------------------------------------------------------------------
+Mon Jul 16 15:02:38 CEST 2007 - lslezak@suse.cz
+
+- SourceMediaData() - report all base urls (key "base_urls" in the
+  result)
+- report media number and source ID in the SourceChange() callback
+- fixed crash in the Media Change callback (empty baseUrls)
+- SourceDelete() - remove resolvables from the pool
+- SourceSetEnabled() - load/remove resolvables from the pool
+- PkgCommit() - release all sources
+- SourceReleaseAll() - return success flag
+- reimplemented SourceMediaData() - dropped "media_id" and
+  "media_vendor" tags from the result map, now it requires loaded
+  resolvables in the pool to get number of the media
+- 2.15.30
+
+-------------------------------------------------------------------
 Fri Jul 13 17:46:17 CEST 2007 - lslezak@suse.cz
 
 - convert source ID in source callbacks (pass PkgModuleFunctions

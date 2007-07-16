@@ -1078,6 +1078,7 @@ namespace ZyppRecipients {
 		try {
 		    zypp::Url ret_url (ret);
 #warning FIXME: MediaChange callback - redirection is missing!
+		    y2internal("Source redirection is not yet implemented in yast2-pkg-bindings");
 		    //source.redirect( mediumNr, ret_url );
 
 		    // remember the redirection		    

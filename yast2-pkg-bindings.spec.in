@@ -2,11 +2,11 @@
 
 @HEADER@
 BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer rpm-devel sgml-skel yast2-core-devel yast2-devtools boost boost-devel dbus-1-devel hal-devel
-BuildRequires: libzypp-devel >= 2.14.3
-BuildRequires: libzypp >= 2.14.3
+BuildRequires: libzypp-devel >= 3.11.8
+BuildRequires: libzypp >= 3.11.8
 
-# new API (label of a source, script callbacks...)
-Requires:	libzypp >= 2.14.3
+# new API (RepoManager instead of SourceManager)
+Requires:	libzypp >= 3.11.8
 
 Summary:	-
 
