@@ -69,7 +69,6 @@ class YRepo : public zypp::base::ReferenceCounted
 {
 private:
     zypp::RepoInfo _repo;
-    std::string _repo_orig_alias;
     zypp::MediaSetAccess_Ptr _maccess;
     bool _deleted;
 
@@ -81,7 +80,6 @@ public:
 
     const zypp::RepoInfo & repoInfo() const { return _repo; }
     zypp::RepoInfo & repoInfo() { return _repo; }
-    const std::string & origRepoAlias() const { return _repo_orig_alias; }
     zypp::MediaSetAccess_Ptr & mediaAccess();
 
     bool isDeleted() {return _deleted;}
@@ -142,6 +140,8 @@ class PkgModuleFunctions : public Y2Namespace
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);
       YCPValue PkgProp( zypp::PoolItem_Ref item );
       YCPValue PkgMediaSizesOrCount (bool sizes);
+    
+      bool aliasExists(const std::string &alias) const;
 
       zypp::RepoManager CreateRepoManager();
 

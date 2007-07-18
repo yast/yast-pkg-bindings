@@ -47,7 +47,7 @@
 
 #include <zypp/base/String.h>
 
-#include <stdio.h> // snprintf
+#include <sstream> // ostringstream
 
 
 /*
@@ -169,6 +169,16 @@ std::vector<YRepo_Ptr>::size_type PkgModuleFunctions::logFindAlias(const std::st
     return -1;
 }
 
+bool PkgModuleFunctions::aliasExists(const std::string &alias) const
+{
+    for(std::vector<YRepo_Ptr>::const_iterator it = repos.begin(); it != repos.end() ; ++it)
+    {
+	if (!(*it)->isDeleted() && (*it)->repoInfo().alias() == alias)
+	    return true;
+    }
+
+    return false;
+}
 
 /****************************************************************************************
  * @builtin SourceSetRamCache
@@ -270,7 +280,10 @@ PkgModuleFunctions::SourceLoad()
 	    {
 		y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
 		repomanager.refreshMetadata((*it)->repoInfo());
-		# warning TODO?: Do we need to rebuild the cache after refresh??
+
+		// rebuild cache (the default policy is "if needed")
+		y2milestone("Rebuilding cache for '%s'...", (*it)->repoInfo().alias().c_str());
+		repomanager.buildCache((*it)->repoInfo());
 	    }
 
 	    success = LoadResolvablesFrom((*it)->repoInfo());
@@ -463,34 +476,30 @@ PkgModuleFunctions::SourceSaveAll ()
 
     zypp::RepoManager repomanager = CreateRepoManager();
 
-    // TODO: can it be better?
-    // Note: we have to be very careful here, user could do _very_ strange actions
-    // e.g. rename repo A to B, add a new repo with alias A, remove it and
-    //      then rename C to A...
-
-    // remove deleted repos (the old configuration)
+    // remove deleted repos (the old configurations) at first
     for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
 	it != repos.end(); ++it)
     {
-	// the repo has been removed or has been renamed
-	if ((*it)->isDeleted() || (*it)->repoInfo().alias() != (*it)->origRepoAlias())
+	// the repo has been removed
+	if ((*it)->isDeleted())
 	{
+	    std::string repo_alias = (*it)->repoInfo().alias();
 	    // remove the cache
 	    if (repomanager.isCached((*it)->repoInfo()))
 	    {
-		y2milestone("Removing cache for '%s'...", (*it)->repoInfo().alias().c_str());
+		y2milestone("Removing cache for '%s'...", repo_alias.c_str());
 		repomanager.cleanCache((*it)->repoInfo());
 	    }
 
 	    try
 	    {
-		repomanager.getRepositoryInfo((*it)->origRepoAlias());
-		y2milestone("Removing repository '%s'", (*it)->repoInfo().alias().c_str());
-		repomanager.removeRepository(zypp::RepoInfo().setAlias((*it)->origRepoAlias()));
+		repomanager.getRepositoryInfo(repo_alias);
+		y2milestone("Removing repository '%s'", repo_alias.c_str());
+		repomanager.removeRepository((*it)->repoInfo());
 	    }
 	    catch (const zypp::repo::RepoNotFoundException &ex)
 	    {
-		y2warning("No such repository: %s", (*it)->origRepoAlias().c_str());
+		y2warning("No such repository: %s", repo_alias.c_str());
 	    }
 	    catch (const zypp::Exception & excpt)
 	    {
@@ -1214,37 +1223,47 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
     // create source definition object
     zypp::RepoInfo repo;
 
-    repo.setAlias(alias.empty() ? timestamp() : alias);
+    std::string name;
+
+    // set url and name
+    if (alias.empty())
+    {
+	alias = timestamp();
+	name = url.asString();
+    }
+    else
+    {
+	name = alias;
+    }
+
+    // make a copy
+    std::string alias_copy = alias;
+
+    unsigned int id = 0;
+    while(aliasExists(alias))
+    {
+	y2milestone("Alias %s already found: %d", alias.c_str(), logFindAlias(alias));
+
+	// the alias already exists - add a counter 
+	std::ostringstream ostr;
+	ostr << alias_copy << "_" << id;
+
+	alias = ostr.str();
+
+	y2milestone("Using alias %s", alias.c_str());
+	++id;
+    }
+
+    repo.setAlias(alias);
+    repo.setName(name);
     repo.setType(repotype);
     repo.addBaseUrl(url);
     repo.setEnabled(true);
     repo.setAutorefresh(true);
 
     y2milestone("Adding source '%s' (%s)", repo.alias().c_str(), url.asString().c_str());
-
-/*    try
-    {*/
-
-//	repomanager.addRepository(repo);
-
-	repomanager.refreshMetadata(repo);
-
-	// TODO FIXME handle existing alias better
-
-/*    }
-    catch (const zypp::MediaException &e)
-    {
-	y2error("Cannot read source data");
-    }
-    catch (const ParseException &e)
-    {
-	y2error("Cannot parse source data");
-    }
-    catch (const RepoAlreadyExistsException &e)
-    {
-	y2error("Source '%s' already exists", repo.alias().c_str());
-    }
-*/
+    // note: exceptions should be caught by the calling code
+    repomanager.refreshMetadata(repo);
 
     // build cache if needed
     if (!repomanager.isCached(repo))
@@ -1261,32 +1280,6 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 	repo.enabled() ? "true" : "false",
 	repo.autorefresh() ? "true" : "false"
     );
-
-/*
-  // if the source has empty alias use a time stamp
-  if (newsrc.alias().empty())
-  {
-    // use product name+edition as the alias
-    // (URL is not enough for different sources in the same DVD drive)
-    // alias must be unique, add timestamp
-    zypp::ResStore products = newsrc.resolvables (zypp::Product::TraitsType::kind);
-    zypp::ResStore::iterator
-      b = products.begin (),
-      e = products.end ();  
-    if (b != e)
-    {
-      zypp::ResObject::Ptr p = *b;
-      alias = p->name () + '-' + p->edition ().asString () + '-';
-    }
-    alias += timestamp ();
-  
-    newsrc.setAlias( alias );
-    y2milestone("Using string '%s' as the alias", alias.c_str());
-  }
-
-  zypp::SourceManager::SourceId id = zypp::SourceManager::sourceManager()->addSource( newsrc );
-  y2milestone("Added source %lu: %s %s (alias %s)", id, new_url.asString().c_str(), path_r.asString().c_str(), alias.c_str() );
-*/
 
     // the source is at the end of the list
     return repos.size() - 1;
@@ -1541,6 +1534,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	    y2error("SourceCreate for '%s' product '%s' has failed"
 		, url.asString().c_str(), pn.asString().c_str());
 	    _last_error.setLastError(excpt.asUserString());
+	    return YCPInteger(-1);
 	}
     }
   } else {
@@ -1687,7 +1681,11 @@ PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
     try
     {
 	zypp::RepoManager repomanager = CreateRepoManager();
+	y2milestone("Refreshing metadata '%s'", repo->repoInfo().alias().c_str());
 	repomanager.refreshMetadata(repo->repoInfo());
+
+	y2milestone("Caching source '%s'...", repo->repoInfo().alias().c_str());
+	repomanager.buildCache(repo->repoInfo());
     }
     catch ( const zypp::Exception & expt )
     {
@@ -1771,7 +1769,7 @@ PkgModuleFunctions::SourceEditGet ()
 	    src_map->add(YCPString("enabled"), YCPBoolean((*it)->repoInfo().enabled()));
 	    // Note: autorefresh() is tribool
 	    src_map->add(YCPString("autorefresh"), YCPBoolean((*it)->repoInfo().autorefresh()));
-	    src_map->add(YCPString("alias"), YCPString((*it)->repoInfo().alias()));
+	    src_map->add(YCPString("name"), YCPString((*it)->repoInfo().name()));
 
 	    ret->add(src_map);
 	}
@@ -1848,11 +1846,11 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 	repo->repoInfo().setAutorefresh( autorefresh );
     }
 
-    if( !descr->value(YCPString("alias")).isNull() && descr->value(YCPString("alias"))->isString())
+    if( !descr->value(YCPString("name")).isNull() && descr->value(YCPString("name"))->isString())
     {
 	// rename the source
-        y2debug("set alias: %s", descr->value(YCPString("alias"))->asString()->value().c_str());
-	repo->repoInfo().setAlias(descr->value(YCPString("alias"))->asString()->value());
+        y2debug("set name: %s", descr->value(YCPString("name"))->asString()->value().c_str());
+	repo->repoInfo().setName(descr->value(YCPString("name"))->asString()->value());
     }
 
 #warning SourceEditSet ordering not implemented yet
