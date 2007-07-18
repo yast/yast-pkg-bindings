@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Wed Jul 18 16:11:08 CEST 2007 - lslezak@suse.cz
+
+- SourceLoad(), SourceRefreshNow() - rebuild cache after
+  refreshing metadata
+- SourceEditGet/Set() - do not change alias, use name instead
+  (alias cannot be changed from yast now)
+- SourceGeneralData() - return also "name" key
+- 2.15.31
+
+-------------------------------------------------------------------
 Mon Jul 16 15:02:38 CEST 2007 - lslezak@suse.cz
 
 - SourceMediaData() - report all base urls (key "base_urls" in the

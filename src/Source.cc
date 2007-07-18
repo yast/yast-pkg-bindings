@@ -620,6 +620,7 @@ PkgModuleFunctions::SourceFinishAll ()
  * "type"	: YCPString,
  * "url"	: YCPString (without password, but see SourceURL),
  * "alias"	: YCPString,
+ * "name"	: YCPString,
  * ];
  *
  * </code>
@@ -667,6 +668,7 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
     }
 
     data->add( YCPString("alias"),		YCPString(repo->repoInfo().alias()));
+    data->add( YCPString("name"),		YCPString(repo->repoInfo().name()));
 
     YCPList base_urls;
     for( zypp::RepoInfo::urls_const_iterator it = repo->repoInfo().baseUrlsBegin(); it != repo->repoInfo().baseUrlsEnd(); ++it)
@@ -1235,6 +1237,8 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
     {
 	name = alias;
     }
+
+    y2milestone("Name of the repository: '%s'", name.c_str());
 
     // make a copy
     std::string alias_copy = alias;
