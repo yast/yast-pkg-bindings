@@ -126,6 +126,10 @@ class PkgModuleFunctions : public Y2Namespace
       // table for converting libzypp source type to Yast type (for backward compatibility)
       std::map<std::string, std::string> type_conversion_table;
 
+      // conversion methods for type string between Yast and libzypp (for backward compatibility)
+      std::string zypp2yastType(const std::string &type);
+      std::string yast2zyppType(const std::string &type);
+
       bool DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
 			      const std::string& version, const bool onlyNeeded = false);
       bool DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind);
@@ -466,6 +470,10 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue SourceEditSet (const YCPList& args);
 	/* TYPEINFO: list<integer>(string,string)*/
         YCPValue SourceScan (const YCPString& media, const YCPString& product_dir);
+	/* TYPEINFO: string(string)*/
+	YCPValue RepositoryProbe(const YCPString& url);
+	/* TYPEINFO: list<list<string> >(string)*/
+	YCPValue RepositoryScan(const YCPString& url);
 
 	// target related
 	/* TYPEINFO: boolean(string,boolean)*/

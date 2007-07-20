@@ -38,12 +38,12 @@
 #include <zypp/target/store/PersistentStorage.h>
 #include <zypp/media/MediaManager.h>
 #include <zypp/Pathname.h>
-#include <zypp/MediaProducts.h>
 
 #include <zypp/RepoInfo.h>
 #include <zypp/RepoManager.h>
 #include <zypp/Fetcher.h>
 #include <zypp/repo/RepoType.h>
+#include <zypp/MediaProducts.h>
 
 #include <zypp/base/String.h>
 
@@ -53,6 +53,17 @@
 /*
   Textdomain "pkg-bindings"
 */
+
+zypp::MediaProductSet scanProducts(const zypp::Url &url)
+{
+    // scan available products
+    zypp::MediaProductSet products;
+
+    y2milestone("Scanning products in %s ...", url.asString().c_str());
+    zypp::productsInMedia(url, products);
+
+    return products;
+}
 
 void PkgModuleFunctions::CallSourceReportStart(const std::string &text)
 {
@@ -636,23 +647,8 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
     if (!repo)
 	return YCPVoid ();
 
-    if (type_conversion_table.empty())
-    {
-      // initialize the conversion map
-      type_conversion_table["rpm-md"] = "YUM";
-      type_conversion_table["yast2"] = "YaST";
-      type_conversion_table["plaindir"] = "Plaindir";
-    }
-
     // convert type to the old strings ("YaST", "YUM" or "Plaindir")
-    std::string srctype = repo->repoInfo().type().asString();
-    std::map<std::string,std::string>::const_iterator it = type_conversion_table.find(srctype);
-
-    // found in the conversion table
-    if (it != type_conversion_table.end())
-    {
-	srctype = it->second;
-    }
+    std::string srctype = zypp2yastType(repo->repoInfo().type().asString());
 
     data->add( YCPString("enabled"),		YCPBoolean(repo->repoInfo().enabled()));
     data->add( YCPString("autorefresh"),	YCPBoolean(repo->repoInfo().autorefresh()));
@@ -1200,9 +1196,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 	{
 	    // do conversion from the Yast type ("YaST", "YUM", "Plaindir")
 	    // to libzypp type ("yast", "yum", "plaindir")
-	    // we can simply use toLower instead of a conversion table
-	    // in this case
-	    repotype.parse(zypp::str::toLower(type));
+	    repotype.parse(yast2zyppType(type));
 	}
 	catch (zypp::repo::RepoUnknownTypeException &e)
 	{
@@ -1487,8 +1481,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     zypp::MediaProductSet products;
 
     try {
-	y2milestone("Scanning products in %s ...", url.asString().c_str());
-	zypp::productsInMedia(url, products);
+	products = scanProducts(url);
     }
     catch ( const zypp::Exception& excpt)
     {
@@ -1510,28 +1503,13 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	try
 	{
 	    std::vector<zypp::RepoInfo>::size_type id = createManagedSource(url, it->_dir, base, type);
-
 	    YRepo_Ptr repo = logFindRepository(id);
-	    repo->repoInfo().setEnabled(true);
-	
-	    zypp::RepoManager repomanager = CreateRepoManager();
 
-	    // update Repository
-	    zypp::Repository r = repomanager.createFromCache(repo->repoInfo());
-
-	    // add resolvables
-	    zypp_ptr()->addResolvables(r.resolvables());
-
-	    CallSourceReportInit();
-	    CallSourceReportStart(_("Parsing files..."));
-    	    zypp_ptr()->addResolvables (r.resolvables());
-	    CallSourceReportEnd(_("Parsing files..."));
-	    CallSourceReportDestroy();
+	    LoadResolvablesFrom(repo->repoInfo());
 
 	    // return the id of the first product
 	    if ( it == products.begin() )
 		ret = id;
-
 	}
 	catch ( const zypp::Exception& excpt)
 	{
@@ -1551,15 +1529,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	YRepo_Ptr repo = logFindRepository(ret);
 	repo->repoInfo().setEnabled(true);
 
-	zypp::RepoManager repomanager = CreateRepoManager();
-	// update Repository
-	zypp::Repository r = repomanager.createFromCache(repo->repoInfo());
-
-	CallSourceReportInit();
-	CallSourceReportStart(_("Parsing files..."));
-    	zypp_ptr()->addResolvables (r.resolvables());
-	CallSourceReportEnd(_("Parsing files..."));
-	CallSourceReportDestroy();
+	LoadResolvablesFrom(repo->repoInfo());
     }
     catch ( const zypp::Exception& excpt)
     {
@@ -2039,12 +2009,12 @@ bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
 	}
 
 	zypp::Repository repository = repomanager.createFromCache(repoinfo);
+	const zypp::ResStore &store = repository.resolvables();
 
 	// load resolvables
-	zypp::ResStore store = repository.resolvables();
 	zypp_ptr()->addResolvables(store);
 
-	y2milestone("Found %d resolvables", store.size());
+	y2milestone("Loaded %d resolvables", store.size());
     }
     catch(const zypp::repo::RepoNotCachedException &excpt )
     {
@@ -2068,3 +2038,104 @@ bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
 
     return success;
 }
+
+YCPValue PkgModuleFunctions::RepositoryProbe(const YCPString& url)
+{
+    y2milestone("Probing repository type: '%s'...", url->value().c_str());
+    zypp::RepoManager repomanager = CreateRepoManager();
+    std::string ret;
+
+    try
+    {
+	zypp::Url probe_url(url->value());
+
+	// autoprobe type of the repository 
+	zypp::repo::RepoType repotype = repomanager.probe(probe_url);
+
+	ret = zypp2yastType(repotype.asString());
+	y2milestone("Detected type: '%s'...", ret.c_str());
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	_last_error.setLastError(excpt.asUserString());
+	y2error( "Cannot detect the repository type" );
+	return YCPString("");
+    }
+
+    return YCPString(ret);
+}
+
+YCPValue PkgModuleFunctions::RepositoryScan(const YCPString& url)
+{
+    zypp::MediaProductSet products;
+
+    try
+    {
+	zypp::Url baseurl(url->value());
+	products = scanProducts(baseurl);
+    }
+    catch ( const zypp::Exception& excpt)
+    {
+	_last_error.setLastError(excpt.asUserString());
+	y2error( "Cannot read the product list from the media" );
+	return YCPList();
+    }
+
+    YCPList ret;
+
+    for( zypp::MediaProductSet::const_iterator it = products.begin();
+	it != products.end() ; ++it )
+    {
+	YCPList prod;
+
+	// add product directory
+	prod.add(YCPString(it->_name));
+	// add product name
+	prod.add(YCPString(it->_dir.asString()));
+
+	ret.add(prod);
+    }
+
+    y2milestone("Found products: %s", ret->toString().c_str());
+
+    return ret;
+}
+
+// convert libzypp type to yast strings ("YaST", "YUM" or "Plaindir")
+std::string PkgModuleFunctions::zypp2yastType(const std::string &type)
+{
+    std::string ret(type);
+
+    if (type_conversion_table.empty())
+    {
+      // initialize the conversion map
+      type_conversion_table["rpm-md"] = "YUM";
+      type_conversion_table["yast2"] = "YaST";
+      type_conversion_table["plaindir"] = "Plaindir";
+    }
+
+    std::map<std::string,std::string>::const_iterator it = type_conversion_table.find(type);
+
+    // found in the conversion table
+    if (it != type_conversion_table.end())
+    {
+	ret = it->second;
+    }
+    else
+    {
+	y2error("Cannot convert type '%s'", type.c_str());
+    }
+
+    return ret;
+}
+
+std::string PkgModuleFunctions::yast2zyppType(const std::string &type)
+{
+    // do conversion from the Yast type ("YaST", "YUM", "Plaindir")
+    // to libzypp type ("yast", "yum", "plaindir")
+    // we can simply use toLower instead of a conversion table
+    // in this case
+    return zypp::str::toLower(type);
+}
+
+
