@@ -140,6 +140,7 @@ class PkgModuleFunctions : public Y2Namespace
       void RemoveResolvablesFrom(const std::string &alias);
       bool AnyResolvableFrom(const std::string &alias);
       bool LoadResolvablesFrom(const zypp::RepoInfo &repoinfo);
+      std::string UniqueAlias(const std::string &alias);
 
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);
       YCPValue PkgProp( zypp::PoolItem_Ref item );
@@ -474,6 +475,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue RepositoryProbe(const YCPString& url);
 	/* TYPEINFO: list<list<string> >(string)*/
 	YCPValue RepositoryScan(const YCPString& url);
+	/* TYPEINFO: integer(map)*/
+	YCPValue RepositoryAdd(const YCPMap &params);
 
 	// target related
 	/* TYPEINFO: boolean(string,boolean)*/

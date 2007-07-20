@@ -1153,6 +1153,28 @@ static std::string removeAlias (const zypp::Url & old_url,
   return alias;
 }
 
+std::string PkgModuleFunctions::UniqueAlias(const std::string &alias)
+{
+    // make a copy
+    std::string ret = alias;
+
+    unsigned int id = 0;
+    while(aliasExists(ret))
+    {
+	y2milestone("Alias %s already found: %d", ret.c_str(), logFindAlias(ret));
+
+	// the alias already exists - add a counter 
+	std::ostringstream ostr;
+	ostr << alias << "_" << id;
+
+	ret = ostr.str();
+
+	y2milestone("Using alias %s", ret.c_str());
+	++id;
+    }
+
+    return ret;
+}
 
 /** Create a Source and immediately put it into the SourceManager.
  * \return the SourceId
@@ -1234,23 +1256,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 
     y2milestone("Name of the repository: '%s'", name.c_str());
 
-    // make a copy
-    std::string alias_copy = alias;
-
-    unsigned int id = 0;
-    while(aliasExists(alias))
-    {
-	y2milestone("Alias %s already found: %d", alias.c_str(), logFindAlias(alias));
-
-	// the alias already exists - add a counter 
-	std::ostringstream ostr;
-	ostr << alias_copy << "_" << id;
-
-	alias = ostr.str();
-
-	y2milestone("Using alias %s", alias.c_str());
-	++id;
-    }
+    alias = UniqueAlias(alias);
 
     repo.setAlias(alias);
     repo.setName(name);
@@ -1281,6 +1287,159 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 
     // the source is at the end of the list
     return repos.size() - 1;
+}
+
+/****************************************************************************************
+ * @builtin RepositoryAdd
+ *
+ * @short Register a new repository
+ * @description
+ * Adds a new repository to the internal structures. The repository is only registered,
+ * metadata are not downloaded, use Pkg::SourceRefreshNow() for that. The metadata are also loaded
+ * automatically when loading the repository content (Pkg::SourceLoad())
+ *
+ * @param map map with repository parameters: $[ "enabled" : boolean, "autorefresh" : boolean, "name" : string,
+ *   "alias" : string, "base_urls" : list<string>, "prod_dir" : string, "type" : string ] 
+ * @return integer Repository ID or nil on error
+ **/
+YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
+{
+    zypp::RepoInfo repo;
+
+    // turn on the repo by default
+    repo.setEnabled(true);
+    repo.setAutorefresh(true);
+
+    if (params->value( YCPString("enabled") ).isNull() || !params->value(YCPString("enabled"))->isBoolean())
+    {
+	repo.setEnabled(params->value(YCPString("enabled"))->asBoolean()->value());
+    }
+
+    if (params->value( YCPString("autorefresh") ).isNull() || !params->value(YCPString("autorefresh"))->isBoolean())
+    {
+	repo.setAutorefresh(params->value(YCPString("autorefresh"))->asBoolean()->value());
+    }
+
+    std::string alias;
+
+    if (params->value( YCPString("alias") ).isNull() || !params->value(YCPString("alias"))->isString())
+    {
+	alias = params->value(YCPString("alias"))->asString()->value();
+    }
+
+    if (alias.empty())
+    {
+	alias = timestamp();
+
+	// the alias must be unique
+	alias = UniqueAlias(alias);
+    }
+    else
+    {
+	if (aliasExists(alias))
+	{
+	    ycperror("alias %s already exists", alias.c_str());
+	    return YCPVoid();
+	}
+    }
+   
+    repo.setAlias(alias);
+
+    // use the first base URL as a fallback name 
+    std::string first_url;
+
+    if (params->value( YCPString("base_urls") ).isNull() || !params->value(YCPString("base_urls"))->isList())
+    {
+	YCPList lst(params->value(YCPString("base_urls"))->asList());
+
+	for (int index = 0; index < lst->size(); ++index)
+	{
+	    if( ! lst->value(index)->isString() )
+	    {
+		ycperror( "Pkg::RepositoryAdd(): entry not a string at index %d: %s", index, lst->toString().c_str());
+		return YCPVoid();
+	    }
+
+	    zypp::Url url;
+
+	    try
+	    {
+		url = lst->value(index)->asString()->value();
+		zypp::Url url_new;
+
+		std::string name = removeAlias(url, url_new);
+
+		if (!name.empty())
+		{
+		    repo.setName(name);
+		    url = url_new;
+		}
+	    }
+	    catch(const zypp::Exception & expt)
+	    {
+		y2error("Invalid URL: %s", expt.asString().c_str());
+		_last_error.setLastError(expt.asUserString());
+		return YCPVoid();
+	    }
+
+	    if (index == 0)
+	    {
+		first_url = url.asString();
+	    }
+
+	    repo.addBaseUrl(url);
+	}
+    }
+    else
+    {
+	ycperror("Missing \"base_urls\" key in the map");
+	return YCPVoid();
+    }
+
+    // check name parameter
+    if (params->value( YCPString("name") ).isNull() || !params->value(YCPString("name"))->isString())
+    {
+	repo.setName(params->value(YCPString("name"))->asString()->value());
+    }
+    else
+    {
+	// if the key "name" is missing and the name hasn't been set by ?alias= in the URL
+	// then use the first URL as the name
+	if (repo.name().empty())
+	{
+	    repo.setName(first_url);
+	}
+    }
+
+    if (params->value( YCPString("type") ).isNull() || !params->value(YCPString("type"))->isString())
+    {
+	zypp::repo::RepoType repotype;
+	std::string type = yast2zyppType(params->value(YCPString("type"))->asString()->value());
+
+	try
+	{
+	    repotype.parse(yast2zyppType(type));
+	}
+	catch (zypp::repo::RepoUnknownTypeException &e)
+	{
+	    ycperror("Unknown source type '%s': %s", type.c_str(), e.asString().c_str());
+	    _last_error.setLastError(e.asUserString());
+	    return YCPVoid();
+	}
+
+	repo.setType(repotype);
+    }
+
+
+    if (params->value( YCPString("prod_dir") ).isNull() || !params->value(YCPString("prod_dir"))->isString())
+    {
+	#warning FIXME TODO: add product directory support
+    }
+
+    repos.push_back(new YRepo(repo));
+
+    // the new source is at the end of the list
+    return YCPInteger(repos.size() - 1);
 }
 
 /****************************************************************************************
