@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Jul 23 17:11:28 CEST 2007 - lslezak@suse.cz
+
+- added RepositoryAdd(), RepositoryScan() and RepositoryProbe()
+- 2.15.32
+
+-------------------------------------------------------------------
 Wed Jul 18 16:11:08 CEST 2007 - lslezak@suse.cz
 
 - SourceLoad(), SourceRefreshNow() - rebuild cache after

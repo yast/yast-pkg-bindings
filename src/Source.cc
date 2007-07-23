@@ -1218,7 +1218,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 	{
 	    // do conversion from the Yast type ("YaST", "YUM", "Plaindir")
 	    // to libzypp type ("yast", "yum", "plaindir")
-	    repotype.parse(yast2zyppType(type));
+	    repotype = repotype.parse(yast2zyppType(type));
 	}
 	catch (zypp::repo::RepoUnknownTypeException &e)
 	{
@@ -1295,7 +1295,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
  * @short Register a new repository
  * @description
  * Adds a new repository to the internal structures. The repository is only registered,
- * metadata are not downloaded, use Pkg::SourceRefreshNow() for that. The metadata are also loaded
+ * metadata is not downloaded, use Pkg::SourceRefreshNow() for that. The metadata is also loaded
  * automatically when loading the repository content (Pkg::SourceLoad())
  *
  * @param map map with repository parameters: $[ "enabled" : boolean, "autorefresh" : boolean, "name" : string,
@@ -1308,21 +1308,22 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
 
     // turn on the repo by default
     repo.setEnabled(true);
+    // enable autorefresh by default
     repo.setAutorefresh(true);
 
-    if (params->value( YCPString("enabled") ).isNull() || !params->value(YCPString("enabled"))->isBoolean())
+    if (!params->value( YCPString("enabled") ).isNull() && params->value(YCPString("enabled"))->isBoolean())
     {
 	repo.setEnabled(params->value(YCPString("enabled"))->asBoolean()->value());
     }
 
-    if (params->value( YCPString("autorefresh") ).isNull() || !params->value(YCPString("autorefresh"))->isBoolean())
+    if (!params->value( YCPString("autorefresh") ).isNull() && params->value(YCPString("autorefresh"))->isBoolean())
     {
 	repo.setAutorefresh(params->value(YCPString("autorefresh"))->asBoolean()->value());
     }
 
     std::string alias;
 
-    if (params->value( YCPString("alias") ).isNull() || !params->value(YCPString("alias"))->isString())
+    if (!params->value( YCPString("alias") ).isNull() && params->value(YCPString("alias"))->isString())
     {
 	alias = params->value(YCPString("alias"))->asString()->value();
     }
@@ -1348,7 +1349,7 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
     // use the first base URL as a fallback name 
     std::string first_url;
 
-    if (params->value( YCPString("base_urls") ).isNull() || !params->value(YCPString("base_urls"))->isList())
+    if (!params->value( YCPString("base_urls") ).isNull() && params->value(YCPString("base_urls"))->isList())
     {
 	YCPList lst(params->value(YCPString("base_urls"))->asList());
 
@@ -1397,7 +1398,7 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
     }
 
     // check name parameter
-    if (params->value( YCPString("name") ).isNull() || !params->value(YCPString("name"))->isString())
+    if (!params->value( YCPString("name") ).isNull() && params->value(YCPString("name"))->isString())
     {
 	repo.setName(params->value(YCPString("name"))->asString()->value());
     }
@@ -1411,14 +1412,14 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
 	}
     }
 
-    if (params->value( YCPString("type") ).isNull() || !params->value(YCPString("type"))->isString())
+    if (!params->value( YCPString("type") ).isNull() && params->value(YCPString("type"))->isString())
     {
-	zypp::repo::RepoType repotype;
 	std::string type = yast2zyppType(params->value(YCPString("type"))->asString()->value());
 
 	try
 	{
-	    repotype.parse(yast2zyppType(type));
+	    zypp::repo::RepoType repotype(type);
+	    repo.setType(repotype);
 	}
 	catch (zypp::repo::RepoUnknownTypeException &e)
 	{
@@ -1427,11 +1428,9 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
 	    return YCPVoid();
 	}
 
-	repo.setType(repotype);
     }
 
-
-    if (params->value( YCPString("prod_dir") ).isNull() || !params->value(YCPString("prod_dir"))->isString())
+    if (!params->value( YCPString("prod_dir") ).isNull() && params->value(YCPString("prod_dir"))->isString())
     {
 	#warning FIXME TODO: add product directory support
     }
@@ -2198,6 +2197,13 @@ bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
     return success;
 }
 
+/****************************************************************************************
+ * @builtin RepositoryProbe
+ *
+ * @short Probe type of the repository
+ * @param url specifies the path to the repository
+ * @return string repository type ("NONE" if type could be determined, nil if an error occurred (e.g. resolving the hostname)
+ **/
 YCPValue PkgModuleFunctions::RepositoryProbe(const YCPString& url)
 {
     y2milestone("Probing repository type: '%s'...", url->value().c_str());
@@ -2218,12 +2224,19 @@ YCPValue PkgModuleFunctions::RepositoryProbe(const YCPString& url)
     {
 	_last_error.setLastError(excpt.asUserString());
 	y2error( "Cannot detect the repository type" );
-	return YCPString("");
+	return YCPVoid();
     }
 
     return YCPString(ret);
 }
 
+/****************************************************************************************
+ * @builtin RepositoryScan
+ *
+ * @short Scan available products in the repository
+ * @param url specifies the path to the repository
+ * @return list<list<string>> list of the products: [ [ <product_name_1> <directory_1> ], ...]
+ **/
 YCPValue PkgModuleFunctions::RepositoryScan(const YCPString& url)
 {
     zypp::MediaProductSet products;
@@ -2271,6 +2284,7 @@ std::string PkgModuleFunctions::zypp2yastType(const std::string &type)
       type_conversion_table["rpm-md"] = "YUM";
       type_conversion_table["yast2"] = "YaST";
       type_conversion_table["plaindir"] = "Plaindir";
+      type_conversion_table["NONE"] = "NONE";
     }
 
     std::map<std::string,std::string>::const_iterator it = type_conversion_table.find(type);

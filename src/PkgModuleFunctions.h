@@ -475,7 +475,7 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue RepositoryProbe(const YCPString& url);
 	/* TYPEINFO: list<list<string> >(string)*/
 	YCPValue RepositoryScan(const YCPString& url);
-	/* TYPEINFO: integer(map)*/
+	/* TYPEINFO: integer(map<string,any>)*/
 	YCPValue RepositoryAdd(const YCPMap &params);
 
 	// target related
