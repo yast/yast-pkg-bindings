@@ -217,7 +217,7 @@ PkgModuleFunctions::PkgModuleFunctions ()
 {
     registerFunctions ();
 
-    char *domain = "pkg-bindings";
+    const char *domain = "pkg-bindings";
     bindtextdomain( domain, LOCALEDIR );
     bind_textdomain_codeset( domain, "utf8" );
     textdomain( domain );
