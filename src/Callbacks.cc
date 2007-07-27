@@ -435,6 +435,7 @@ namespace ZyppRecipients {
 		callback.addInt( task.numericId() );
 		callback.addStr( task.name() );
 		callback.addBool( task.reportPercent() );
+		callback.addBool( task.reportAlive() );
 		callback.addInt( task.min() );
 		callback.addInt( task.max() );
 		callback.addInt( task.val() );
@@ -2495,7 +2496,7 @@ YCPValue PkgModuleFunctions::CallbackAuthentication( const YCPString& func ) {
 /**
  * @builtin CallbackProgressReportStart
  * @short Register a callback function
- * @param string func Name of the callback handler function. Required callback prototype is <code>void(integer id, string task, boolean in_percent, integer min, integer max, integer val_raw, integer val_percent)</code>. Parameter id is used for callback identification in the Progress() and in the End() callbacks, task describe the action. Parameter in_percent defines whether the progress will be reported in percent or it will be 'still alive' tick.
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void(integer id, string task, boolean in_percent, boolean is_alive, integer min, integer max, integer val_raw, integer val_percent)</code>. Parameter id is used for callback identification in the Progress() and in the End() callbacks, task describe the action. Parameter in_percent defines whether the progress will be reported in percent, if is_alive is true then the progress will be 'still alive' tick, if both in_percent and is_alive are then a raw value is reported (e.g. number of processed files without knowing the total number).
  * The callback function is evaluated when an progress event starts
  * @return void
  */

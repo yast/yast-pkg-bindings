@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jul 27 11:19:44 CEST 2007 - lslezak@suse.cz
+
+- support for "raw" Progress callbacks
+- 2.15.35
+
+-------------------------------------------------------------------
 Thu Jul 26 14:15:02 CEST 2007 - lslezak@suse.cz
 
 - created yast2-pkg-bindings-devel-doc subpackage with the
