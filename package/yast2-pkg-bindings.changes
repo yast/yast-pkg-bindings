@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Jul 30 15:06:16 CEST 2007 - lslezak@suse.cz
+
+- download missing metadata before building the cache (required
+  for repositories added in offline mode)
+- 2.15.36
+
+-------------------------------------------------------------------
 Fri Jul 27 11:19:44 CEST 2007 - lslezak@suse.cz
 
 - support for "raw" Progress callbacks

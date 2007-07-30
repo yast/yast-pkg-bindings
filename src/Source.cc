@@ -2162,6 +2162,13 @@ bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
 	// build cache if needed
 	if (!repomanager.isCached(repoinfo))
 	{
+	    zypp::RepoStatus raw_metadata_status = repomanager.metadataStatus(repoinfo);
+	    if (raw_metadata_status.empty())
+	    {
+		y2milestone("Missing metadata for source '%s', downloading...", repoinfo.alias().c_str());
+		repomanager.refreshMetadata(repoinfo);
+	    }
+
 	    y2milestone("Caching source '%s'...", repoinfo.alias().c_str());
 	    repomanager.buildCache(repoinfo);
 	}
