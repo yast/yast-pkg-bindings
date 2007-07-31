@@ -411,11 +411,9 @@ PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 {
     YCPList res;
 
-    unsigned long index = 0;
-    for( std::vector<YRepo_Ptr>::const_iterator it = repos.begin(); it != repos.end() ; ++it )
+    std::vector<YRepo_Ptr>::size_type index = 0;
+    for( std::vector<YRepo_Ptr>::const_iterator it = repos.begin(); it != repos.end() ; ++it, ++index )
     {
-	index++;
-
 	// ignore disabled sources if requested
 	if (enabled->value())
 	{

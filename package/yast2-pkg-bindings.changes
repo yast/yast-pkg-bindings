@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Jul 31 10:35:56 CEST 2007 - lslezak@suse.cz
+
+- Pkg::SourceGetCurrent() - return correct IDs (fixed nasty off
+  by one bug) (#295901)
+- 2.15.37
+
+-------------------------------------------------------------------
 Mon Jul 30 15:06:16 CEST 2007 - lslezak@suse.cz
 
 - download missing metadata before building the cache (required
