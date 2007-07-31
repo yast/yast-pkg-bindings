@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Jul 31 15:49:30 CEST 2007 - lslezak@suse.cz
+
+- Pkg::SourceChangeUrl() adapted to the latest libzypp
+- implemented Pkg::SourceMoveDownloadArea()
+
+-------------------------------------------------------------------
 Tue Jul 31 10:35:56 CEST 2007 - lslezak@suse.cz
 
 - Pkg::SourceGetCurrent() - return correct IDs (fixed nasty off

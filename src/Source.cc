@@ -1019,10 +1019,7 @@ PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
         if (repo->repoInfo().baseUrlsSize() > 1)
         {
             // store current urls
-            std::set<zypp::Url> baseUrls;
-            for (std::set<zypp::Url>::const_iterator i = repo->repoInfo().baseUrlsBegin();
-                    i != repo->repoInfo().baseUrlsEnd(); ++i)
-                baseUrls.insert(*i);
+            std::set<zypp::Url> baseUrls (repo->repoInfo().baseUrlsBegin(), repo->repoInfo().baseUrlsEnd());
             
             // reset url list and store the new one there
             repo->repoInfo().setBaseUrl(zypp::Url(u->value()));
@@ -2083,23 +2080,21 @@ PkgModuleFunctions::SourceSaveRanks ()
 YCPValue
 PkgModuleFunctions::SourceMoveDownloadArea (const YCPString & path)
 {
-#warning SourceMoveDownloadArea is NOT implemented
-// TODO FIXME
-    /*
     try
     {
-	y2milestone( "Moving download area of all sources to %s", path->value().c_str()) ;
-	zypp::SourceManager::sourceManager()->reattachSources (path->value());
+	y2milestone("Moving download area of all sources to %s", path->value().c_str());
+	zypp::media::MediaManager manager;
+	manager.setAttachPrefix(path->value());
     }
     catch (zypp::Exception & excpt)
     {
 	_last_error.setLastError(excpt.asUserString());
-	y2error("Pkg::SourceMoveDownloadArea has failed: %s", excpt.msg().c_str() );
+	y2error("Pkg::SourceMoveDownloadArea has failed: %s", excpt.msg().c_str());
 	return YCPBoolean(false);
     }
 
     y2milestone( "Download areas moved");
-*/
+
     return YCPBoolean(true);
 }
 
