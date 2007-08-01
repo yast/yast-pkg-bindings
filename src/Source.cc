@@ -966,6 +966,29 @@ PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPIn
 YCPValue
 PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mid, const YCPString& d)
 {
+    y2warning("Pkg::SourceProvideDir() is obsoleted use Pkg::SourceProvideDirectory() instead");
+    // non optional, non recursive
+    SourceProvideDirectory(id, mid, d, false, false);
+}
+
+
+/****************************************************************************************
+ * @builtin SourceProvideDirectory
+ * @short make a directory available at the local filesystem
+ * @description
+ * Download a directory from repository (make it available at the local filesystem) and
+ * all the files within it.
+ *
+ * @param integer id repository to use (id)
+ * @param integer mid Number of the media where the directory is located on ('1' for the 1st media).
+ * @param string d Directory name relative to the media root.
+ * @param boolean optional set to true if the directory may not exist (do not report errors)
+ * @param boolean recursive set to true to provide all subdirectories recursively
+ * @return string local path as string or nil when an error occured
+ */
+YCPValue
+PkgModuleFunctions::SourceProvideDirectory(const YCPInteger& id, const YCPInteger& mid, const YCPString& d, const YCPBoolean &optional, const YCPBoolean &recursive)
+{
     bool found = true;
     YRepo_Ptr repo = logFindRepository(id->value());
     if (!repo)
@@ -973,11 +996,19 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
 
     zypp::filesystem::Pathname path; // FIXME user ManagedMedia
 
+    extern ZyppRecipients::MediaChangeSensitivity _silent_probing;
+    // remember the current value
+    ZyppRecipients::MediaChangeSensitivity _silent_probing_old = _silent_probing;
+
+    // disable media change callback for optional file
+    if (optional->value())
+	_silent_probing = ZyppRecipients::MEDIA_CHANGE_OPTIONALFILE;
+
     if (found)
     {
 	try
 	{
-	    path = repo->mediaAccess()->provideDir(d->value(), true, mid->value());
+	    path = repo->mediaAccess()->provideDir(d->value(), recursive->value(), mid->value());
 	}
 	catch (const zypp::Exception& excpt)
 	{
@@ -986,6 +1017,9 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
             found = false;
 	}
     }
+
+    // set the original probing value
+    _silent_probing = _silent_probing_old;
 
     if (found)
     {

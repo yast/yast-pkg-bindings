@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Wed Aug  1 10:14:28 CEST 2007 - lslezak@suse.cz
+
+- Pkg::SourceProvideDir() is non-recursive now (backward comaptible
+  behavior)
+- added Pkg::SourceProvideDirectory() -- optional and/or recursive
+  directory download from a repository (required for FATE #302018)
+- internal support for Pkg functions with 5 arguments
+- 2.15.38
+
+-------------------------------------------------------------------
 Tue Jul 31 15:49:30 CEST 2007 - lslezak@suse.cz
 
 - Pkg::SourceChangeUrl() adapted to the latest libzypp

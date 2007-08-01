@@ -441,6 +441,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue SourceProvideOptionalFile (const YCPInteger&, const YCPInteger&, const YCPString&);
 	/* TYPEINFO: string(integer,integer,string)*/
 	YCPValue SourceProvideDir (const YCPInteger&, const YCPInteger&, const YCPString&);
+	/* TYPEINFO: string(integer,integer,string,boolean,boolean)*/
+	YCPValue SourceProvideDirectory(const YCPInteger& id, const YCPInteger& mid, const YCPString& d, const YCPBoolean &optional, const YCPBoolean &recursive);
 	/* TYPEINFO: boolean(string)*/
 	YCPValue SourceCacheCopyTo (const YCPString&);
 	/* TYPEINFO: boolean(boolean)*/

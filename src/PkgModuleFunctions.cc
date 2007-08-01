@@ -56,6 +56,7 @@ class Y2PkgFunction: public Y2Function
     YCPValue m_param2;
     YCPValue m_param3;
     YCPValue m_param4;
+    YCPValue m_param5;
     string m_name;
 public:
 
@@ -77,6 +78,7 @@ public:
 	, m_param2 ( YCPNull () )
 	, m_param3 ( YCPNull () )
 	, m_param4 ( YCPNull () )
+	, m_param5 ( YCPNull () )
 	, m_name (name)
     {
     };
@@ -89,6 +91,7 @@ public:
 	    case 1: m_param2 = arg; break;
 	    case 2: m_param3 = arg; break;
 	    case 3: m_param4 = arg; break;
+	    case 4: m_param5 = arg; break;
 	    default: return false;
 	}
 
@@ -120,7 +123,12 @@ public:
 	    m_param4 = arg;
 	    return true;
 	}
-	y2internal ("appendParameter > 3 not implemented");
+	else if (m_param5.isNull ())
+	{
+	    m_param5 = arg;
+	    return true;
+	}
+	y2internal ("appendParameter > 5 not implemented");
 	return false;
     }
 
@@ -158,6 +166,7 @@ public:
 	m_param2 = YCPNull ();
 	m_param3 = YCPNull ();
 	m_param4 = YCPNull ();
+	m_param5 = YCPNull ();
 
 	return true;
     }
