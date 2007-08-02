@@ -790,9 +790,7 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
     data->add( YCPString("enabled"),		YCPBoolean(repo->repoInfo().enabled()));
     data->add( YCPString("autorefresh"),	YCPBoolean(repo->repoInfo().autorefresh()));
     data->add( YCPString("type"),		YCPString(srctype));
-#warning FIXME: "product_dir" is always "/"
-//    data->add( YCPString("product_dir"),	YCPString(repo->path().asString()));
-    data->add( YCPString("product_dir"),	YCPString("/"));
+    data->add( YCPString("product_dir"),	YCPString(repo->repoInfo().path().asString()));
     
     // check if there is an URL
     if (repo->repoInfo().baseUrlsBegin() != repo->repoInfo().baseUrlsEnd())
@@ -1365,18 +1363,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
     std::string alias = removeAlias(url_r, url);
     y2milestone("Alias from URL: '%s'", alias.c_str());
 
-#warning FIXME: use base_source (base_source vs. addon)
-#warning FIXME: use path_r (product directory)
-/*
-    FIXME: add the product dir to the URL?
-    std::string prod_dir = path_r.asString();
-    if (!prod_dir.empty() && prod_dir != "/")
-    {
-	y2milestone("Using product directory: %s", prod_dir.c_str());
-	std::string path = url.getPathName();
-	path = path + "/"
-    }
-*/
+#warning FIXME: use base_source (base_source vs. addon) (will be probably not needed)
 
     // repository type
     zypp::repo::RepoType repotype;
@@ -1432,6 +1419,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
     repo.setName(name);
     repo.setType(repotype);
     repo.addBaseUrl(url);
+    repo.setPath(path_r);
     repo.setEnabled(true);
     repo.setAutorefresh(true);
 
@@ -1602,7 +1590,7 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
 
     if (!params->value( YCPString("prod_dir") ).isNull() && params->value(YCPString("prod_dir"))->isString())
     {
-	#warning FIXME TODO: add product directory support
+	repo.setPath(params->value(YCPString("prod_dir"))->asString()->value());
     }
 
     repos.push_back(new YRepo(repo));
