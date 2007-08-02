@@ -54,15 +54,46 @@
   Textdomain "pkg-bindings"
 */
 
-zypp::MediaProductSet scanProducts(const zypp::Url &url)
+// scanned available products
+// hack: zypp/MediaProducts.h cannot be included in PkgModuleFunctions.h
+zypp::MediaProductSet available_products;
+
+// this method should be used instead of zypp::productsInMedia()
+// it initializes the download callbacks
+void PkgModuleFunctions::ScanProductsWithCallBacks(const zypp::Url &url)
 {
-    // scan available products
-    zypp::MediaProductSet products;
+    CallInitDownload(std::string(_("Scanning products in ") + url.asString()));
+
+    extern ZyppRecipients::MediaChangeSensitivity _silent_probing;
+    // remember the current value
+    ZyppRecipients::MediaChangeSensitivity _silent_probing_old = _silent_probing;
+
+    // disable media change callback for optional file
+    _silent_probing = ZyppRecipients::MEDIA_CHANGE_DISABLE;
 
     y2milestone("Scanning products in %s ...", url.asString().c_str());
-    zypp::productsInMedia(url, products);
 
-    return products;
+    try
+    {
+	available_products.clear();
+	zypp::productsInMedia(url, available_products);
+    }
+    catch(...)
+    {
+	// call the final event even in case of exception
+	CallDestDownload();
+
+	// restore the probing flag
+	_silent_probing = _silent_probing_old;
+
+	// rethrow the execption
+	throw;
+    }
+
+    CallDestDownload();
+
+    // restore the probing flag
+    _silent_probing = _silent_probing_old;
 }
 
 void PkgModuleFunctions::CallSourceReportStart(const std::string &text)
@@ -125,6 +156,94 @@ void PkgModuleFunctions::CallSourceReportDestroy()
 	// evaluate the callback function
 	ycp_handler->evaluateCall();
     }
+}
+
+void PkgModuleFunctions::CallInitDownload(const std::string &task)
+{
+    // get the YCP callback handler for destroy event
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_InitDownload);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	ycp_handler->appendParameter(YCPString(task));
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+}
+
+void PkgModuleFunctions::CallDestDownload()
+{
+    // get the YCP callback handler for destroy event
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_DestDownload);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+}
+
+// this method should be used instead of RepoManager::refreshMetadata()
+void PkgModuleFunctions::RefreshWithCallbacks(const zypp::RepoInfo &repo)
+{
+    CallInitDownload(std::string(_("Refreshing repository ") + repo.alias()));
+
+    try
+    {
+	zypp::RepoManager repomanager = CreateRepoManager();
+	repomanager.refreshMetadata(repo);
+    }
+    catch(...)
+    {
+	// call the final event even in case of exception
+	CallDestDownload();
+	// rethrow the execption
+	throw;
+    }
+
+    CallDestDownload();
+}
+
+// this method should be used instead of RepoManager::probe()
+zypp::repo::RepoType PkgModuleFunctions::ProbeWithCallbacks(const zypp::Url &url)
+{
+    CallInitDownload(std::string(_("Probing repository ") + url.asString()));
+
+    zypp::repo::RepoType repotype;
+
+    extern ZyppRecipients::MediaChangeSensitivity _silent_probing;
+    // remember the current value
+    ZyppRecipients::MediaChangeSensitivity _silent_probing_old = _silent_probing;
+
+    // disable media change callback for optional file
+    _silent_probing = ZyppRecipients::MEDIA_CHANGE_DISABLE;
+
+    try
+    {
+	// probe type of the repository 
+	zypp::RepoManager repomanager = CreateRepoManager();
+	repotype = repomanager.probe(url);
+    }
+    catch(...)
+    {
+	// call the final event even in case of exception
+	CallDestDownload();
+
+	// restore the probing flag
+	_silent_probing = _silent_probing_old;
+
+	// rethrow the execption
+	throw;
+    }
+
+    CallDestDownload();
+
+    // restore the probing flag
+    _silent_probing = _silent_probing_old;
+
+    return repotype;
 }
 
 /**
@@ -289,15 +408,25 @@ PkgModuleFunctions::SourceLoad()
 	    // autorefresh the source
 	    if ((*it)->repoInfo().autorefresh())
 	    {
-		y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
-		repomanager.refreshMetadata((*it)->repoInfo());
+		try
+		{
+		    y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
+		    RefreshWithCallbacks((*it)->repoInfo());
 
-		// rebuild cache (the default policy is "if needed")
-		y2milestone("Rebuilding cache for '%s'...", (*it)->repoInfo().alias().c_str());
-		repomanager.buildCache((*it)->repoInfo());
+		    // rebuild cache (the default policy is "if needed")
+		    y2milestone("Rebuilding cache for '%s'...", (*it)->repoInfo().alias().c_str());
+		    repomanager.buildCache((*it)->repoInfo());
+		}
+		catch (const zypp::Exception& excpt)
+		{
+		    // FIXME: assuming the sources are already initialized
+		    y2error ("Error in SourceLoad: %s", excpt.asString().c_str());
+		    _last_error.setLastError(excpt.asUserString());
+		    success = false;
+		}
 	    }
 
-	    success = LoadResolvablesFrom((*it)->repoInfo());
+	    success = success && LoadResolvablesFrom((*it)->repoInfo());
 	}
     }
 
@@ -493,21 +622,31 @@ PkgModuleFunctions::SourceSaveAll ()
 	if ((*it)->isDeleted())
 	{
 	    std::string repo_alias = (*it)->repoInfo().alias();
-	    // remove the cache
-	    if (repomanager.isCached((*it)->repoInfo()))
-	    {
-		y2milestone("Removing cache for '%s'...", repo_alias.c_str());
-		repomanager.cleanCache((*it)->repoInfo());
-	    }
 
 	    try
 	    {
+		// remove the metadata
+		zypp::RepoStatus raw_metadata_status = repomanager.metadataStatus((*it)->repoInfo());
+		if (!raw_metadata_status.empty())
+		{
+		    y2milestone("Removing metadata for source '%s'...", repo_alias.c_str());
+		    repomanager.cleanMetadata((*it)->repoInfo());
+		}
+
+		// remove the cache
+		if (repomanager.isCached((*it)->repoInfo()))
+		{
+		    y2milestone("Removing cache for '%s'...", repo_alias.c_str());
+		    repomanager.cleanCache((*it)->repoInfo());
+		}
+
 		repomanager.getRepositoryInfo(repo_alias);
 		y2milestone("Removing repository '%s'", repo_alias.c_str());
 		repomanager.removeRepository((*it)->repoInfo());
 	    }
 	    catch (const zypp::repo::RepoNotFoundException &ex)
 	    {
+		// repository not found -- not critical, continue
 		y2warning("No such repository: %s", repo_alias.c_str());
 	    }
 	    catch (const zypp::Exception & excpt)
@@ -859,8 +998,7 @@ YCPValue PkgModuleFunctions::SourceProvideFileCommon(const YCPInteger &id,
 					       const YCPString& f,
 					       const YCPBoolean & optional)
 {
-    CallSourceReportInit();
-    CallSourceReportStart(_("Downloading file..."));
+    CallInitDownload(std::string(_("Downloading ") + f->value()));
 
     bool found = true;
     YRepo_Ptr repo = logFindRepository(id->value());
@@ -898,8 +1036,7 @@ YCPValue PkgModuleFunctions::SourceProvideFileCommon(const YCPInteger &id,
     // set the original probing value
     _silent_probing = _silent_probing_old;
 
-    CallSourceReportEnd(_("Downloading file..."));
-    CallSourceReportDestroy();
+    CallDestDownload();
 
     if (found)
     {
@@ -968,7 +1105,7 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
 {
     y2warning("Pkg::SourceProvideDir() is obsoleted use Pkg::SourceProvideDirectory() instead");
     // non optional, non recursive
-    SourceProvideDirectory(id, mid, d, false, false);
+    return SourceProvideDirectory(id, mid, d, false, false);
 }
 
 
@@ -989,6 +1126,8 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
 YCPValue
 PkgModuleFunctions::SourceProvideDirectory(const YCPInteger& id, const YCPInteger& mid, const YCPString& d, const YCPBoolean &optional, const YCPBoolean &recursive)
 {
+    CallInitDownload(std::string(_("Downloading ") + d->value()));
+
     bool found = true;
     YRepo_Ptr repo = logFindRepository(id->value());
     if (!repo)
@@ -1020,6 +1159,8 @@ PkgModuleFunctions::SourceProvideDirectory(const YCPInteger& id, const YCPIntege
 
     // set the original probing value
     _silent_probing = _silent_probing_old;
+
+    CallDestDownload();
 
     if (found)
     {
@@ -1261,7 +1402,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 	y2milestone("Probing source type: '%s'", url.asString().c_str());
 
 	// autoprobe type of the repository 
-	repotype = repomanager.probe(url);
+	repotype = ProbeWithCallbacks(url);
     }
 
     y2milestone("Using source type: %s", repotype.asString().c_str());
@@ -1296,7 +1437,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 
     y2milestone("Adding source '%s' (%s)", repo.alias().c_str(), url.asString().c_str());
     // note: exceptions should be caught by the calling code
-    repomanager.refreshMetadata(repo);
+    RefreshWithCallbacks(repo);
 
     // build cache if needed
     if (!repomanager.isCached(repo))
@@ -1536,7 +1677,8 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     try
     {
 	y2milestone("Scanning products in %s ...", url.asString().c_str());
-	zypp::productsInMedia(url, products);
+	ScanProductsWithCallBacks(url);
+	products = available_products;
     }
     catch ( const zypp::Exception& excpt)
     {
@@ -1668,7 +1810,8 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     zypp::MediaProductSet products;
 
     try {
-	products = scanProducts(url);
+	ScanProductsWithCallBacks(url);
+	products = available_products;
     }
     catch ( const zypp::Exception& excpt)
     {
@@ -1843,7 +1986,7 @@ PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
     {
 	zypp::RepoManager repomanager = CreateRepoManager();
 	y2milestone("Refreshing metadata '%s'", repo->repoInfo().alias().c_str());
-	repomanager.refreshMetadata(repo->repoInfo());
+	RefreshWithCallbacks(repo->repoInfo());
 
 	y2milestone("Caching source '%s'...", repo->repoInfo().alias().c_str());
 	repomanager.buildCache(repo->repoInfo());
@@ -2193,7 +2336,7 @@ bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
 	    if (raw_metadata_status.empty())
 	    {
 		y2milestone("Missing metadata for source '%s', downloading...", repoinfo.alias().c_str());
-		repomanager.refreshMetadata(repoinfo);
+		RefreshWithCallbacks(repoinfo);
 	    }
 
 	    y2milestone("Caching source '%s'...", repoinfo.alias().c_str());
@@ -2249,7 +2392,7 @@ YCPValue PkgModuleFunctions::RepositoryProbe(const YCPString& url)
 	zypp::Url probe_url(url->value());
 
 	// autoprobe type of the repository 
-	zypp::repo::RepoType repotype = repomanager.probe(probe_url);
+	zypp::repo::RepoType repotype = ProbeWithCallbacks(probe_url);
 
 	ret = zypp2yastType(repotype.asString());
 	y2milestone("Detected type: '%s'...", ret.c_str());
@@ -2278,7 +2421,8 @@ YCPValue PkgModuleFunctions::RepositoryScan(const YCPString& url)
     try
     {
 	zypp::Url baseurl(url->value());
-	products = scanProducts(baseurl);
+	ScanProductsWithCallBacks(baseurl);
+	products = available_products;
     }
     catch ( const zypp::Exception& excpt)
     {

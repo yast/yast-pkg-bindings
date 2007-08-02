@@ -82,7 +82,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_StartDeltaApply, CB_ProgressDeltaApply, CB_ProblemDeltaApply,
       CB_StartPatchDownload, CB_ProgressPatchDownload, CB_ProblemPatchDownload,
       CB_FinishDeltaDownload, CB_FinishDeltaApply, CB_FinishPatchDownload,
-      CB_StartDownload, CB_ProgressDownload, CB_DoneDownload,
+      CB_StartDownload, CB_ProgressDownload, CB_DoneDownload, CB_InitDownload, CB_DestDownload,
 
       CB_SourceProbeStart, CB_SourceProbeFailed, CB_SourceProbeSucceeded, CB_SourceProbeEnd, CB_SourceProbeProgress, CB_SourceProbeError, 
       CB_SourceReportStart, CB_SourceReportProgress, CB_SourceReportError, CB_SourceReportEnd, CB_SourceReportInit, CB_SourceReportDestroy,
@@ -136,6 +136,8 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( StartDownload );
 	ENUM_OUT( ProgressDownload );
 	ENUM_OUT( DoneDownload );
+	ENUM_OUT( InitDownload );
+	ENUM_OUT( DestDownload );
 
 	ENUM_OUT( ScriptStart );
 	ENUM_OUT( ScriptProgress );

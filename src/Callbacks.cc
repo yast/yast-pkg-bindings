@@ -822,8 +822,17 @@ namespace ZyppRecipients {
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneDownload ) );
 
+	    zypp::media::DownloadProgressReport::Error err = error;
+
+	    // ignore errors for optional files
+	    if ( _silent_probing == MEDIA_CHANGE_DISABLE ||
+		_silent_probing == MEDIA_CHANGE_OPTIONALFILE)
+	    {
+		err = zypp::media::DownloadProgressReport::NO_ERROR;
+	    }
+
 	    if ( callback._set ) {
-		callback.addInt( error );
+		callback.addInt( err );
 		callback.addStr( reason );
 		callback.evaluate();
 	    }
@@ -2528,4 +2537,11 @@ YCPValue PkgModuleFunctions::CallbackProgressReportEnd(const YCPString& func)
     return SET_YCP_CB( CB_ProgressDone, func );
 }
 
+YCPValue PkgModuleFunctions::CallbackInitDownload( const YCPString& args ) {
+    return SET_YCP_CB( CB_InitDownload, args );
+}
+
+YCPValue PkgModuleFunctions::CallbackDestDownload( const YCPString& args ) {
+    return SET_YCP_CB( CB_DestDownload, args );
+}
 #undef SET_YCP_CB

@@ -1,4 +1,19 @@
 -------------------------------------------------------------------
+Thu Aug  2 09:56:21 CEST 2007 - lslezak@suse.cz
+
+- added Pkg::CallbackInitDownload() and Pkg::CallbackDestDownload()
+  for registering the initial and the final even when downloading
+  a file (to leave the progress popup open and avoid flashing)
+- call the new callbacks when scanning, probing, refreshing
+  and downloading a file or directory
+- Pkg::SourceSaveAll() - remove also raw metadata cache for the
+  removed repositories
+- ignore errors in the download callback when probing or scanning
+  a repository (the downloaded files are optional)
+- Pkg::SourceProvideDir() - return the correct value
+- 2.15.39
+
+-------------------------------------------------------------------
 Wed Aug  1 10:14:28 CEST 2007 - lslezak@suse.cz
 
 - Pkg::SourceProvideDir() is non-recursive now (backward comaptible

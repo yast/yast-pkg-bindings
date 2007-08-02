@@ -162,6 +162,12 @@ class PkgModuleFunctions : public Y2Namespace
       void CallSourceReportInit();
       void CallSourceReportDestroy();
 
+      void CallInitDownload(const std::string &task);
+      void CallDestDownload();
+      void RefreshWithCallbacks(const zypp::RepoInfo &repo);
+      zypp::repo::RepoType ProbeWithCallbacks(const zypp::Url &url);
+      void ScanProductsWithCallBacks(const zypp::Url &url);
+
       // After all, APPL_HIGH might be more appropriate, because we suggest
       // the user what he should do and if it does not work, it's his job to
       // fix it (using USER). --ma
@@ -270,6 +276,10 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue CallbackProgressDownload (const YCPString& func);
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackDoneDownload (const YCPString& func);
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackInitDownload( const YCPString& args );
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackDestDownload( const YCPString& args );
 
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackSourceCreateStart( const YCPString& func);
