@@ -405,6 +405,14 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 		zypp::Repository repo = (*it)->repository();
 		info->add(YCPString("source"), YCPInteger(logFindAlias(repo.info().alias())));
 
+		// add license info if it is defined
+		std::string license = (*it)->licenseToConfirm();
+		if (!license.empty())
+		{
+		    info->add(YCPString("license_confirmed"), YCPBoolean(it->status().isLicenceConfirmed()));
+		    info->add(YCPString("license"), YCPString(license));
+		}
+
 		// product specific info
 		if( req_kind == "product" ) {
 		    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(it->resolvable());

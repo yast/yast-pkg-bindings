@@ -286,7 +286,7 @@ YRepo_Ptr PkgModuleFunctions::logFindRepository(std::vector<YRepo_Ptr>::size_typ
     return YRepo_Ptr();
 }
 
-std::vector<YRepo_Ptr>::size_type PkgModuleFunctions::logFindAlias(const std::string &alias) const
+long long PkgModuleFunctions::logFindAlias(const std::string &alias) const
 {
     std::vector<YRepo_Ptr>::size_type index = 0;
 
@@ -296,7 +296,7 @@ std::vector<YRepo_Ptr>::size_type PkgModuleFunctions::logFindAlias(const std::st
 	    return index;
     }
 
-    return -1;
+    return -1LL;
 }
 
 bool PkgModuleFunctions::aliasExists(const std::string &alias) const
@@ -1329,7 +1329,7 @@ std::string PkgModuleFunctions::UniqueAlias(const std::string &alias)
     unsigned int id = 0;
     while(aliasExists(ret))
     {
-	y2milestone("Alias %s already found: %d", ret.c_str(), logFindAlias(ret));
+	y2milestone("Alias %s already found: %lld", ret.c_str(), logFindAlias(ret));
 
 	// the alias already exists - add a counter 
 	std::ostringstream ostr;
@@ -1784,7 +1784,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
   {
     y2error ("Invalid URL: %s", expt.asString().c_str());
     _last_error.setLastError(expt.asUserString());
-    return YCPInteger (-1);
+    return YCPInteger (-1LL);
   }
 
 
@@ -1834,7 +1834,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	    y2error("SourceCreate for '%s' product '%s' has failed"
 		, url.asString().c_str(), pn.asString().c_str());
 	    _last_error.setLastError(excpt.asUserString());
-	    return YCPInteger(-1);
+	    return YCPInteger(-1LL);
 	}
     }
   } else {

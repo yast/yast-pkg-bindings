@@ -1003,8 +1003,8 @@ PkgModuleFunctions::PkgProp( zypp::PoolItem_Ref item )
     data->add( YCPString("arch"), YCPString( pkg->arch().asString() ) );
     data->add( YCPString("medianr"), YCPInteger( pkg->mediaNr() ) );
 
-    std::vector<YRepo_Ptr>::size_type sid = logFindAlias(pkg->repository().info().alias());
-    y2debug("srcId: %d", sid );
+    long long sid = logFindAlias(pkg->repository().info().alias());
+    y2debug("srcId: %lld", sid );
     data->add( YCPString("srcid"), YCPInteger( sid ) );
 
     std::string status("available");

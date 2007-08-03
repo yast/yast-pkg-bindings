@@ -717,7 +717,7 @@ class PkgModuleFunctions : public Y2Namespace
 	virtual ~PkgModuleFunctions ();
 
 	// must be public, used in callbacks
-	std::vector<YRepo_Ptr>::size_type logFindAlias(const std::string &alias) const;
+	long long logFindAlias(const std::string &alias) const;
 
 	virtual const string name () const
 	{

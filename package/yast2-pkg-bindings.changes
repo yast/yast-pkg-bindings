@@ -1,7 +1,11 @@
 -------------------------------------------------------------------
-Thu Aug  2 15:05:39 CEST 2007 - lslezak@suse.cz
+Fri Aug  3 11:00:23 CEST 2007 - lslezak@suse.cz
 
 - added product directory support
+- Pkg::ResolvableProperties() returns license and status if
+  available
+- fixed id of undefined repository (-1 returned as unsigned)
+- 2.15.40
 
 -------------------------------------------------------------------
 Thu Aug  2 09:56:21 CEST 2007 - lslezak@suse.cz
