@@ -437,6 +437,7 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 			info->add(YCPString("short_name"), YCPString(product_summary));
 		    }
 
+		    info->add(YCPString("type"), YCPString(product->type()));
 
 		    YCPList updateUrls;
 		    std::list<zypp::Url> pupdateUrls = product->updateUrls();
