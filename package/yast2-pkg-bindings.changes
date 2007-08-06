@@ -1,11 +1,12 @@
 -------------------------------------------------------------------
-Mon Aug  6 14:15:43 CEST 2007 - lslezak@suse.cz
+Mon Aug  6 16:51:58 CEST 2007 - lslezak@suse.cz
 
 - mount repositories in readonly mode (FATE #302347)
 - fixed Pkg::RepositoryProbe() - now it accepts two arguments
   (URL and product directory)
 - Pkg::ResolvableProperties() - returns type of product (key "TYPE"
   in SUSEtags content file)
+- 2.15.41
 
 -------------------------------------------------------------------
 Fri Aug  3 11:00:23 CEST 2007 - lslezak@suse.cz
