@@ -37,6 +37,7 @@
 #include <zypp/Product.h>
 #include <zypp/target/store/PersistentStorage.h>
 #include <zypp/media/MediaManager.h>
+#include <zypp/media/Mount.h>
 #include <zypp/Pathname.h>
 
 #include <zypp/RepoInfo.h>
@@ -1344,6 +1345,44 @@ std::string PkgModuleFunctions::UniqueAlias(const std::string &alias)
     return ret;
 }
 
+
+/**
+ * helper - add "mountoptions=ro" for mountable URL schemes if "mountoptions" option is not empty and
+ * "rw" or "ro" option is missing
+ */
+zypp::Url addRO(const zypp::Url &url)
+{
+    zypp::Url ret(url);
+    std::string scheme = zypp::str::toLower(url.getScheme());
+
+    if (scheme == "nfs"
+	|| scheme == "hd"
+	|| scheme == "smb"
+	|| scheme == "iso"
+	|| scheme == "cd"
+	|| scheme == "dvd"
+    )
+    {
+	const std::string mountoptions = "mountoptions";
+	zypp::media::Mount::Options options(url.getQueryParam(mountoptions));
+
+	y2debug("Current mountoptions: %s", options.asString().c_str());
+
+	// if mountoptions are empty lizypp uses "ro" by default
+	// don't override "rw" option from application
+	// don't add "ro" if it's already present
+	if (!options.empty() && !options.has("rw") && !options.has("ro"))
+	{
+	    options["ro"];
+
+	    ret.setQueryParam(mountoptions, options.asString());
+	    y2milestone("Adding read only mount option: '%s' -> '%s'", url.asString().c_str(), ret.asString().c_str());
+	}
+    }
+
+    return ret;
+}
+
 /** Create a Source and immediately put it into the SourceManager.
  * \return the SourceId
  * \throws Exception if Source creation fails
@@ -1411,9 +1450,13 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 	name = alias;
     }
 
+
     y2milestone("Name of the repository: '%s'", name.c_str());
 
     alias = UniqueAlias(alias);
+
+    // add read only mount option to the URL if needed
+    url = addRO(url);
 
     repo.setAlias(alias);
     repo.setName(name);
@@ -1533,6 +1576,9 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
 		    repo.setName(name);
 		    url = url_new;
 		}
+
+		// add read only mount option to the URL if needed
+		url = addRO(url);
 	    }
 	    catch(const zypp::Exception & expt)
 	    {
@@ -2367,9 +2413,10 @@ bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
  *
  * @short Probe type of the repository
  * @param url specifies the path to the repository
+ * @param prod_dir product directory (if empty the url is probed directly)
  * @return string repository type ("NONE" if type could be determined, nil if an error occurred (e.g. resolving the hostname)
  **/
-YCPValue PkgModuleFunctions::RepositoryProbe(const YCPString& url)
+YCPValue PkgModuleFunctions::RepositoryProbe(const YCPString& url, const YCPString& prod_dir)
 {
     y2milestone("Probing repository type: '%s'...", url->value().c_str());
     zypp::RepoManager repomanager = CreateRepoManager();
@@ -2378,6 +2425,28 @@ YCPValue PkgModuleFunctions::RepositoryProbe(const YCPString& url)
     try
     {
 	zypp::Url probe_url(url->value());
+
+	// add the product directory
+	std::string prod = prod_dir->value();
+
+	if (!prod.empty())
+	{
+	    // add "/" at the begining if it's missing
+	    if (std::string(prod, 0, 1) != "/")
+	    {
+		prod = "/" + prod;
+	    }
+
+	    // merge the URL path and the product path
+	    std::string path = probe_url.getPathName();
+	    path += prod;
+
+	    y2milestone("Using probing path: %s", path.c_str());
+	    probe_url.setPathName(path);
+	}
+
+	// add "ro" mount option
+	probe_url = addRO(probe_url);
 
 	// autoprobe type of the repository 
 	zypp::repo::RepoType repotype = ProbeWithCallbacks(probe_url);
@@ -2409,6 +2478,9 @@ YCPValue PkgModuleFunctions::RepositoryScan(const YCPString& url)
     try
     {
 	zypp::Url baseurl(url->value());
+
+	baseurl = addRO(baseurl);
+
 	ScanProductsWithCallBacks(baseurl);
 	products = available_products;
     }

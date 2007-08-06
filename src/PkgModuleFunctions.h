@@ -483,8 +483,8 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue SourceEditSet (const YCPList& args);
 	/* TYPEINFO: list<integer>(string,string)*/
         YCPValue SourceScan (const YCPString& media, const YCPString& product_dir);
-	/* TYPEINFO: string(string)*/
-	YCPValue RepositoryProbe(const YCPString& url);
+	/* TYPEINFO: string(string,string)*/
+	YCPValue RepositoryProbe(const YCPString& url, const YCPString& prod_dir);
 	/* TYPEINFO: list<list<string> >(string)*/
 	YCPValue RepositoryScan(const YCPString& url);
 	/* TYPEINFO: integer(map<string,any>)*/
