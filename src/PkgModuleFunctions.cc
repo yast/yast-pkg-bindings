@@ -192,7 +192,10 @@ YRepo::~YRepo()
     if (_maccess)
     {
         try { _maccess->release(); }
-        catch (const zypp::media::MediaException & ex) {}
+        catch (const zypp::media::MediaException & ex)
+	{
+	    y2error("Error in ~Yrepo(): %s", ex.asString().c_str());
+	}
     }
 }
 

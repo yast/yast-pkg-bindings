@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Aug  8 17:11:58 CEST 2007 - lslezak@suse.cz
+
+- Pkg::SourceScan(), Pkg::SourceCreate() - use product name or URL
+  as alias and name, don't use timestamp
+- create a shorter version of the URL if it is used as alias or
+  name (avoid too long aliases/names)
+
+-------------------------------------------------------------------
 Mon Aug  6 16:51:58 CEST 2007 - lslezak@suse.cz
 
 - mount repositories in readonly mode (FATE #302347)

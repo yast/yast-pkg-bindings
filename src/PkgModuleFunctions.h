@@ -176,6 +176,8 @@ class PkgModuleFunctions : public Y2Namespace
       // convert MountPointSet to YCP Map
       YCPMap MPS2YCPMap(const zypp::DiskUsageCounter::MountPointSet &mps);
 
+      zypp::Url shortenUrl(const zypp::Url &url);
+
     private:
 
       /**
@@ -194,7 +196,8 @@ class PkgModuleFunctions : public Y2Namespace
 	YRepo_Ptr logFindRepository(std::vector<YRepo_Ptr>::size_type id);
 	
 	std::vector<YRepo_Ptr>::size_type createManagedSource(const zypp::Url & url_r,
-	    const zypp::Pathname & path_r, const bool base_source, const std::string& type);
+	    const zypp::Pathname & path_r, const bool base_source, const std::string& type,
+	    const std::string &alias_r);
 
       /**
        * provides SourceProvideFile and SourceProvideFileCommon

@@ -1383,6 +1383,66 @@ zypp::Url addRO(const zypp::Url &url)
     return ret;
 }
 
+// helper function
+zypp::Url PkgModuleFunctions::shortenUrl(const zypp::Url &url)
+{
+    std::string url_path = url.getPathName();
+    std::string begin_path;
+    std::string end_path;
+
+    // try to convert 'http://server/dir1/dir2/dir3/dir4' -> 'http://server/dir1/.../dir4'
+    unsigned int pos_first = url_path.find("/");
+    if (pos_first == 0)
+    {
+	pos_first = url_path.find("/", 1);
+    }
+
+    if (pos_first == std::string::npos)
+    {
+	const int num = 5;
+
+	// "/" not found use the beginning and the end part
+	// 'http://server/very_long_directory_name' -> 'http://server/very_..._name'
+	begin_path = std::string(url_path, 0, num);
+	end_path = std::string(url_path, url_path.size() - num - 1, num);
+    }
+    else
+    {
+	unsigned int pos_last = url_path.rfind("/");
+	if (pos_last == url_path.size() - 1)
+	{
+	    pos_last = url_path.rfind("/", url_path.size() - 1);
+	}
+
+	if (pos_last == pos_first || pos_last < pos_first)
+	{
+	    const int num = 5;
+
+	    // "/" not found use the beginning and the end part
+	    begin_path = std::string(url_path, 0, num);
+	    end_path = std::string(url_path, url_path.size() - num - 1, num);
+	}
+	else
+	{
+	    begin_path = std::string(url_path, 0, pos_first + 1);
+	    end_path = std::string(url_path, pos_last);
+	}
+    }
+
+    std::string new_path = begin_path + "..." + end_path;
+    zypp::Url ret(url);
+
+    // use the shorter path
+    ret.setPathName(new_path);
+    // remove query parameters
+    ret.setQueryString("");
+    // remove fragmet
+    ret.setFragment("");
+
+    y2milestone("Using shortened URL: '%s' -> '%s'", url.asString().c_str(), ret.asString().c_str());
+    return ret;
+}
+
 /** Create a Source and immediately put it into the SourceManager.
  * \return the SourceId
  * \throws Exception if Source creation fails
@@ -1391,7 +1451,8 @@ std::vector<zypp::RepoInfo>::size_type
 PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 		     const zypp::Pathname & path_r,
 		     const bool base_source,
-		     const std::string& type )
+		     const std::string& type,
+		     const std::string &alias_r )
 {
     // parse URL
     y2milestone ("Original URL: %s", url_r.asString().c_str());
@@ -1439,11 +1500,31 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 
     std::string name;
 
-    // set url and name
+    // set alias and name
     if (alias.empty())
     {
-	alias = timestamp();
-	name = url.asString();
+	// alias not set via URL, use the passed alias or the URL
+	if (alias_r.empty())
+	{
+	    // use URL
+	    std::string url_path = url.getPathName();
+
+	    // the URL is too long, extract only the most interesting parts
+	    if (url_path.size() > 15)
+	    {
+		alias = shortenUrl(url).asString();
+	    }
+	    else
+	    {
+		alias = url.asString();
+	    }
+	}
+	else
+	{
+	    alias = alias_r;
+	}
+
+	name = alias;
     }
     else
     {
@@ -1453,6 +1534,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 
     y2milestone("Name of the repository: '%s'", name.c_str());
 
+    // alias must be unique, add a suffix if it's already used
     alias = UniqueAlias(alias);
 
     // add read only mount option to the URL if needed
@@ -1735,7 +1817,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 	try
 	{
 	    y2milestone("Using product %s in directory %s", it->_name.c_str(), it->_dir.c_str());
-	    id = createManagedSource(url, it->_dir, false, "");
+	    id = createManagedSource(url, it->_dir, false, "", it->_name);
 	    ids->add( YCPInteger(id) );
 	}
 	catch ( const zypp::Exception& excpt)
@@ -1750,7 +1832,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 
     try
     {
-	id = createManagedSource(url, pn, false, "");
+	id = createManagedSource(url, pn, false, "", "");
 	ids->add( YCPInteger(id) );
     }
     catch ( const zypp::Exception& excpt)
@@ -1866,7 +1948,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     {
 	try
 	{
-	    std::vector<zypp::RepoInfo>::size_type id = createManagedSource(url, it->_dir, base, type);
+	    std::vector<zypp::RepoInfo>::size_type id = createManagedSource(url, it->_dir, base, type, it->_name);
 	    YRepo_Ptr repo = logFindRepository(id);
 
 	    LoadResolvablesFrom(repo->repoInfo());
@@ -1888,7 +1970,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
     try
     {
-	ret = createManagedSource(url, pn, base, type);
+	ret = createManagedSource(url, pn, base, type, "");
 
 	YRepo_Ptr repo = logFindRepository(ret);
 	repo->repoInfo().setEnabled(true);
