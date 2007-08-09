@@ -427,7 +427,14 @@ PkgModuleFunctions::SourceLoad()
 		}
 	    }
 
-	    success = success && LoadResolvablesFrom((*it)->repoInfo());
+	    if (AnyResolvableFrom((*it)->repoInfo().alias()))
+	    {
+		y2milestone("Resolvables from '%s' are already present, not loading", (*it)->repoInfo().alias().c_str());
+	    }
+	    else
+	    {
+		success = success && LoadResolvablesFrom((*it)->repoInfo());
+	    }
 	}
     }
 
@@ -2418,9 +2425,6 @@ void PkgModuleFunctions::RemoveResolvablesFrom(const std::string &alias)
  */
 bool PkgModuleFunctions::AnyResolvableFrom(const std::string &alias)
 {
-    // FIXME: can be implemented better? we need a ResStore object for removing,
-    // which means search for a resolvable in the pool and get the Repository
-    // object which can be asked for all resolvables in it
     for (zypp::ResPool::const_iterator it = zypp_ptr()->pool().begin()
 	; it != zypp_ptr()->pool().end()
 	; ++it)
@@ -2436,10 +2440,13 @@ bool PkgModuleFunctions::AnyResolvableFrom(const std::string &alias)
 
 /*
  * A helper function - load resolvable from the repository into the pool
+ * Warning: Use AnyResolvableFrom() method for checing if the resolvables might be already loaded
  */
 bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
 {
     bool success = true;
+    unsigned int size_start = zypp_ptr()->pool().size();
+    y2milestone("Loading resolvables from '%s', pool size at start: %d", repoinfo.alias().c_str(), size_start);
 
     try 
     {
@@ -2487,6 +2494,8 @@ bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
 	success = false;
     }
 
+    unsigned int size_end = zypp_ptr()->pool().size();
+    y2milestone("Pool size at end: %d (loaded %d resolvables)", size_end, size_start - size_end);
     return success;
 }
 

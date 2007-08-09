@@ -1,10 +1,12 @@
 -------------------------------------------------------------------
-Wed Aug  8 17:11:58 CEST 2007 - lslezak@suse.cz
+Thu Aug  9 10:20:08 CEST 2007 - lslezak@suse.cz
 
 - Pkg::SourceScan(), Pkg::SourceCreate() - use product name or URL
-  as alias and name, don't use timestamp
+  as alias and name, don't use timestamp (#298723)
 - create a shorter version of the URL if it is used as alias or
   name (avoid too long aliases/names)
+- Pkg::SourceLoad() - do not load already loaded resolvables
+- 2.15.42
 
 -------------------------------------------------------------------
 Mon Aug  6 16:51:58 CEST 2007 - lslezak@suse.cz
