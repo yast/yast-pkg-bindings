@@ -178,6 +178,9 @@ class PkgModuleFunctions : public Y2Namespace
 
       zypp::Url shortenUrl(const zypp::Url &url);
 
+      // convert Exception to string represenatation
+      std::string ExceptionAsString(const zypp::Exception &e);
+
     private:
 
       /**

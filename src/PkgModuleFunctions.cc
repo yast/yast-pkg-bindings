@@ -635,6 +635,22 @@ zypp::RepoManager PkgModuleFunctions::CreateRepoManager()
     return zypp::RepoManager(repo_options);
 }
 
+// convert Exception object to string represenatation
+std::string PkgModuleFunctions::ExceptionAsString(const zypp::Exception &e)
+{
+    std::string ret = e.asUserString();
+
+    if (e.historySize() > 0)
+    {
+	ret += "\n" + e.historyAsString();
+    }
+
+    y2debug("Error message: %s", ret.c_str());
+
+    return ret;
+}
+
+
 /** ------------------------
  * Convert InstSrcDescr to product info YCPMap:
  * <TABLE>

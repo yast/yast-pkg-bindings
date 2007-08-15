@@ -363,7 +363,7 @@ PkgModuleFunctions::SourceRestore()
     {
 	// FIXME: assuming the sources are already initialized
 	y2error ("Error in SourceRestore: %s", excpt.asString().c_str());
-	_last_error.setLastError(excpt.asUserString());
+	_last_error.setLastError(ExceptionAsString(excpt));
 	success = false;
     }
 
@@ -422,7 +422,7 @@ PkgModuleFunctions::SourceLoad()
 		{
 		    // FIXME: assuming the sources are already initialized
 		    y2error ("Error in SourceLoad: %s", excpt.asString().c_str());
-		    _last_error.setLastError(excpt.asUserString());
+		    _last_error.setLastError(ExceptionAsString(excpt));
 		    success = false;
 		}
 	    }
@@ -502,7 +502,7 @@ PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
     catch (const zypp::Exception& excpt)
     {
 	y2error ("Error in SourceStartCache: %s", excpt.asString().c_str());
-	_last_error.setLastError(excpt.asUserString());
+	_last_error.setLastError(ExceptionAsString(excpt));
     }
     // catch an exception from boost (e.g. a file cannot be read by non-root user)
     catch (const std::exception& err)
@@ -660,7 +660,7 @@ PkgModuleFunctions::SourceSaveAll ()
 	    catch (const zypp::Exception & excpt)
 	    {
 		y2error("Pkg::SourceSaveAll has failed: %s", excpt.msg().c_str() );
-		_last_error.setLastError(excpt.asUserString());
+		_last_error.setLastError(ExceptionAsString(excpt));
 		return YCPBoolean(false);
 	    }
 	}
@@ -693,7 +693,7 @@ PkgModuleFunctions::SourceSaveAll ()
 	    catch (zypp::Exception & excpt)
 	    {
 		y2error("Pkg::SourceSaveAll has failed: %s", excpt.msg().c_str() );
-		_last_error.setLastError(excpt.asUserString());
+		_last_error.setLastError(ExceptionAsString(excpt));
 		return YCPBoolean(false);
 	    }
 	}
@@ -748,7 +748,7 @@ PkgModuleFunctions::SourceFinishAll ()
     catch (zypp::Exception & excpt)
     {
 	y2error("Pkg::SourceFinishAll has failed: %s", excpt.msg().c_str() );
-	_last_error.setLastError(excpt.asUserString());
+	_last_error.setLastError(ExceptionAsString(excpt));
 	return YCPBoolean(false);
     }
 
@@ -1033,7 +1033,7 @@ YCPValue PkgModuleFunctions::SourceProvideFileCommon(const YCPInteger &id,
 
 	    if (!optional->value())
 	    {
-		_last_error.setLastError(excpt.asUserString());
+		_last_error.setLastError(ExceptionAsString(excpt));
 		y2milestone("File not found: %s", f->value_cstr());
 	    }
 	}
@@ -1157,7 +1157,7 @@ PkgModuleFunctions::SourceProvideDirectory(const YCPInteger& id, const YCPIntege
 	}
 	catch (const zypp::Exception& excpt)
 	{
-            _last_error.setLastError(excpt.asUserString());
+            _last_error.setLastError(ExceptionAsString(excpt));
             y2milestone ("Directory not found: %s", d->value_cstr());
             found = false;
 	}
@@ -1215,7 +1215,7 @@ PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
     }
     catch (const zypp::Exception & excpt)
     {
-        _last_error.setLastError(excpt.asUserString());
+        _last_error.setLastError(ExceptionAsString(excpt));
         y2error ("Cannot set the new URL for source %s (%lld): %s",
             repo->repoInfo().alias().c_str(), id->asInteger()->value(), excpt.msg().c_str());
 	return YCPBoolean(false);
@@ -1672,7 +1672,7 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
 	    catch(const zypp::Exception & expt)
 	    {
 		y2error("Invalid URL: %s", expt.asString().c_str());
-		_last_error.setLastError(expt.asUserString());
+		_last_error.setLastError(ExceptionAsString(expt));
 		return YCPVoid();
 	    }
 
@@ -1717,7 +1717,7 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
 	catch (zypp::repo::RepoUnknownTypeException &e)
 	{
 	    ycperror("Unknown source type '%s': %s", type.c_str(), e.asString().c_str());
-	    _last_error.setLastError(e.asUserString());
+	    _last_error.setLastError(ExceptionAsString(e));
 	    return YCPVoid();
 	}
 
@@ -1783,7 +1783,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
   catch(const zypp::Exception & expt )
   {
     y2error ("Invalid URL: %s", expt.asString().c_str());
-    _last_error.setLastError(expt.asUserString());
+    _last_error.setLastError(ExceptionAsString(expt));
     return YCPList();
   }
 
@@ -1807,7 +1807,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     {
 	y2error("Scanning products for '%s' has failed"
 		, url.asString().c_str());
-	_last_error.setLastError(excpt.asUserString());
+	_last_error.setLastError(ExceptionAsString(excpt));
 	return ids;
     }
     
@@ -1831,7 +1831,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 	{
 	    y2error("SourceScan for '%s' product '%s' has failed"
 		, url.asString().c_str(), pn.asString().c_str());
-	    _last_error.setLastError(excpt.asUserString());
+	    _last_error.setLastError(ExceptionAsString(excpt));
 	}
     }
   } else {
@@ -1846,7 +1846,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     {
 	y2error("SourceScan for '%s' product '%s' has failed"
 	    , url.asString().c_str(), pn.asString().c_str());
-	_last_error.setLastError(excpt.asUserString());
+	_last_error.setLastError(ExceptionAsString(excpt));
     }
   }
 
@@ -1918,7 +1918,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
   catch(const zypp::Exception & expt )
   {
     y2error ("Invalid URL: %s", expt.asString().c_str());
-    _last_error.setLastError(expt.asUserString());
+    _last_error.setLastError(ExceptionAsString(expt));
     return YCPInteger (-1LL);
   }
 
@@ -1938,7 +1938,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     }
     catch ( const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
+	_last_error.setLastError(ExceptionAsString(excpt));
 	y2error( "Cannot read the product list from the media" );
 	return YCPInteger(ret);
     }
@@ -1968,7 +1968,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	{
 	    y2error("SourceCreate for '%s' product '%s' has failed"
 		, url.asString().c_str(), pn.asString().c_str());
-	    _last_error.setLastError(excpt.asUserString());
+	    _last_error.setLastError(ExceptionAsString(excpt));
 	    return YCPInteger(-1LL);
 	}
     }
@@ -1988,7 +1988,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     {
 	y2error("SourceCreate for '%s' product '%s' has failed"
 	    , url.asString().c_str(), pn.asString().c_str());
-	_last_error.setLastError(excpt.asUserString());
+	_last_error.setLastError(ExceptionAsString(excpt));
     }
   }
 
@@ -2046,7 +2046,7 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
     {
 	std::string alias = repo->repoInfo().alias();
 	y2error ("Error for '%s': %s", alias.c_str(), excpt.asString().c_str());
-	_last_error.setLastError(alias + ": " + excpt.asUserString());
+	_last_error.setLastError(alias + ": " + ExceptionAsString(excpt));
 	success = false;
     }
 
@@ -2157,7 +2157,7 @@ PkgModuleFunctions::SourceDelete (const YCPInteger& id)
     {
 	std::string alias = repo->repoInfo().alias();
 	y2error ("Error for '%s': %s", alias.c_str(), excpt.asString().c_str());
-	_last_error.setLastError(alias + ": " + excpt.asUserString());
+	_last_error.setLastError(alias + ": " + ExceptionAsString(excpt));
 	success = false;
     }
 
@@ -2388,7 +2388,7 @@ PkgModuleFunctions::SourceMoveDownloadArea (const YCPString & path)
     }
     catch (zypp::Exception & excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
+	_last_error.setLastError(ExceptionAsString(excpt));
 	y2error("Pkg::SourceMoveDownloadArea has failed: %s", excpt.msg().c_str());
 	return YCPBoolean(false);
     }
@@ -2478,7 +2478,7 @@ bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
     {
 	std::string alias = repoinfo.alias();
 	y2error ("Resolvables from '%s' havn't been loaded: %s", alias.c_str(), excpt.asString().c_str());
-	_last_error.setLastError("'" + alias + "': " + excpt.asUserString());
+	_last_error.setLastError("'" + alias + "': " + ExceptionAsString(excpt));
 	success = false;
 
 	// FIXME ??
@@ -2495,7 +2495,7 @@ bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
     }
 
     unsigned int size_end = zypp_ptr()->pool().size();
-    y2milestone("Pool size at end: %d (loaded %d resolvables)", size_end, size_start - size_end);
+    y2milestone("Pool size at end: %d (loaded %d resolvables)", size_end, size_end - size_start);
     return success;
 }
 
@@ -2547,7 +2547,7 @@ YCPValue PkgModuleFunctions::RepositoryProbe(const YCPString& url, const YCPStri
     }
     catch (const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
+	_last_error.setLastError(ExceptionAsString(excpt));
 	y2error( "Cannot detect the repository type" );
 	return YCPVoid();
     }
@@ -2577,7 +2577,7 @@ YCPValue PkgModuleFunctions::RepositoryScan(const YCPString& url)
     }
     catch ( const zypp::Exception& excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
+	_last_error.setLastError(ExceptionAsString(excpt));
 	y2error( "Cannot read the product list from the media" );
 	return YCPList();
     }

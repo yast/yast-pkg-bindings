@@ -2152,7 +2152,7 @@ PkgModuleFunctions::PkgSolveCheckTargetOnly()
     catch (const zypp::Exception& excpt)
     {
 	y2error("An error occurred during Pkg::PkgSolveCheckTargetOnly");
-	_last_error.setLastError(excpt.asUserString());
+	_last_error.setLastError(ExceptionAsString(excpt));
     }
 
     return YCPBoolean(result);
@@ -2229,7 +2229,7 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
     catch (const zypp::Exception& excpt)
     {
 	y2error("Pkg::Commit has failed: ZYpp::commit has failed");
-	_last_error.setLastError(excpt.asUserString());
+	_last_error.setLastError(ExceptionAsString(excpt));
 	return YCPVoid();
     }
 
