@@ -1569,13 +1569,22 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
     // add read only mount option to the URL if needed
     url = addRO(url);
 
+    bool autorefresh = true;
+
+    std::string scheme = zypp::str::toLower(url.getScheme());
+    if (scheme == "cd" || scheme == "dvd")
+    {
+	y2milestone("Disabling autorefresh for CD/DVD repository");
+	autorefresh = false;
+    }
+
     repo.setAlias(alias);
     repo.setName(name);
     repo.setType(repotype);
     repo.addBaseUrl(url);
     repo.setPath(path_r);
     repo.setEnabled(true);
-    repo.setAutorefresh(true);
+    repo.setAutorefresh(autorefresh);
 
     y2milestone("Adding source '%s' (%s)", repo.alias().c_str(), url.asString().c_str());
     // note: exceptions should be caught by the calling code

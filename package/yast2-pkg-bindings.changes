@@ -4,6 +4,9 @@ Wed Aug 15 13:51:11 CEST 2007 - lslezak@suse.cz
 - return history of exceptions in Pkg::LastError() result (#299716)
 - Pkg::SourceCreate() - use the last path component from URL as
   name (#299816)
+- Pkg::SourceCreate() - disable autorefresh for CD/DVD repositories
+  (#300928)
+- 2.15.43
 
 -------------------------------------------------------------------
 Thu Aug  9 10:20:08 CEST 2007 - lslezak@suse.cz
