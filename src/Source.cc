@@ -1510,20 +1510,42 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
     // set alias and name
     if (alias.empty())
     {
-	// alias not set via URL, use the passed alias or the URL
+	// alias not set via URL, use the passed alias or the URL path
 	if (alias_r.empty())
 	{
-	    // use URL
+	    // use the last path element in URL 
 	    std::string url_path = url.getPathName();
 
-	    // the URL is too long, extract only the most interesting parts
-	    if (url_path.size() > 15)
+	    std::string::size_type pos_begin = url_path.rfind("/");
+	    std::string::size_type pos_end = std::string::npos;
+
+	    // ignore the trailing slash
+	    if (pos_begin == url_path.size() - 1)
 	    {
-		alias = shortenUrl(url).asString();
+		pos_begin = url_path.rfind("/", url_path.size() - 2);
+
+		if (pos_begin != std::string::npos)
+		{
+		    pos_end = url_path.size() - pos_begin - 2;
+		}
 	    }
 	    else
 	    {
-		alias = url.asString();
+		pos_end = url_path.size() - pos_begin - 1;
+	    }
+
+	    // ignore the found slash character
+	    pos_begin++;
+
+	    alias = std::string(url_path, pos_begin, pos_end);
+
+	    y2milestone("Alias from URL path: %s", alias.c_str());
+
+	    // fallback
+	    if (alias.empty())
+	    {
+		y2milestone("URL alias is empty using 'Repository'");
+		alias = "Repository";
 	    }
 	}
 	else
