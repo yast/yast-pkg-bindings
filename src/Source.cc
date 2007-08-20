@@ -404,35 +404,35 @@ PkgModuleFunctions::SourceLoad()
 	// load resolvables only from enabled repos
 	if ((*it)->repoInfo().enabled())
 	{
-	    zypp::RepoManager repomanager = CreateRepoManager();
-
-	    // autorefresh the source
-	    if ((*it)->repoInfo().autorefresh())
-	    {
-		try
-		{
-		    y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
-		    RefreshWithCallbacks((*it)->repoInfo());
-
-		    // rebuild cache (the default policy is "if needed")
-		    y2milestone("Rebuilding cache for '%s'...", (*it)->repoInfo().alias().c_str());
-		    repomanager.buildCache((*it)->repoInfo());
-		}
-		catch (const zypp::Exception& excpt)
-		{
-		    // FIXME: assuming the sources are already initialized
-		    y2error ("Error in SourceLoad: %s", excpt.asString().c_str());
-		    _last_error.setLastError(ExceptionAsString(excpt));
-		    success = false;
-		}
-	    }
-
 	    if (AnyResolvableFrom((*it)->repoInfo().alias()))
 	    {
 		y2milestone("Resolvables from '%s' are already present, not loading", (*it)->repoInfo().alias().c_str());
 	    }
 	    else
 	    {
+		zypp::RepoManager repomanager = CreateRepoManager();
+
+		// autorefresh the source
+		if ((*it)->repoInfo().autorefresh())
+		{
+		    try
+		    {
+			y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
+			RefreshWithCallbacks((*it)->repoInfo());
+
+			// rebuild cache (the default policy is "if needed")
+			y2milestone("Rebuilding cache for '%s'...", (*it)->repoInfo().alias().c_str());
+			repomanager.buildCache((*it)->repoInfo());
+		    }
+		    catch (const zypp::Exception& excpt)
+		    {
+			y2error ("Error in SourceLoad: %s", excpt.asString().c_str());
+			_last_error.setLastError(ExceptionAsString(excpt));
+			success = false;
+		    }
+		}
+
+		// load objects
 		success = success && LoadResolvablesFrom((*it)->repoInfo());
 	    }
 	}

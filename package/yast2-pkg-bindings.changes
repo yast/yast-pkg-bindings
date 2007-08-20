@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Aug 20 17:27:57 CEST 2007 - lslezak@suse.cz
+
+- Pkg::SourceLoad() (and related) - do not refresh already loaded
+  repositories (#300891)
+- 2.15.44
+
+-------------------------------------------------------------------
 Wed Aug 15 13:51:11 CEST 2007 - lslezak@suse.cz
 
 - return history of exceptions in Pkg::LastError() result (#299716)
