@@ -433,7 +433,7 @@ PkgModuleFunctions::SourceLoad()
 		}
 
 		// load objects
-		success = success && LoadResolvablesFrom((*it)->repoInfo());
+		success = LoadResolvablesFrom((*it)->repoInfo()) && success;
 	    }
 	}
     }

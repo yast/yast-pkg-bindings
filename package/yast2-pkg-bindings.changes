@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Aug 23 14:03:19 CEST 2007 - lslezak@suse.cz
+
+- load resolvables from all working repositories even when some of
+  them fails (#302432)
+
+-------------------------------------------------------------------
 Mon Aug 20 17:27:57 CEST 2007 - lslezak@suse.cz
 
 - Pkg::SourceLoad() (and related) - do not refresh already loaded
