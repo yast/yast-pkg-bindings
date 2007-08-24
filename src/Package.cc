@@ -202,42 +202,12 @@ PkgModuleFunctions::PkgMediaNames ()
 	{
 	    try
 	    {
-		// find a product for the given source
-		zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Product>::kind);
+		std::string repo_name = (*repoit)->repoInfo().name();
+		YCPList src_desc;
 
-		for( ; it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind)
-		    ; ++it) {
-		    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
-
-		    y2debug ("Checking product: %s", product->summary().c_str());
-		    if( product->repository().info().alias() == (*repoit)->repoInfo().alias())
-		    {
-			y2debug ("Found");
-
-			YCPList src_desc;
-
-			// use name if the summary is empty
-			std::string product_name = product->summary();
-			if (product_name.empty())
-			{
-			    product_name = product->name();
-			}
-
-			src_desc->add( YCPString( product_name ) );
-			src_desc->add( YCPInteger( index ) );
-
-			res->add( src_desc );
-			break;
-		    }
-		}
-
-		// the product hasn't been found, resolvables are probably not loaded
-		// use URL as the product name in such case
-		if( it == zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind) )
+		if (repo_name.empty())
 		{
-		    y2warning("Product for source '%d' not found", index);
-
-		    YCPList src_desc;
+		    y2warning("Name of repository '%d' is empty, using URL", index);
 
 		    // use URL as the product name
 		    std::string name;
@@ -253,6 +223,13 @@ PkgModuleFunctions::PkgMediaNames ()
 		    }
 
 		    src_desc->add( YCPString( name ));
+		    src_desc->add( YCPInteger( index ) );
+
+		    res->add( src_desc );
+		}
+		else
+		{
+		    src_desc->add( YCPString( repo_name ));
 		    src_desc->add( YCPInteger( index ) );
 
 		    res->add( src_desc );
