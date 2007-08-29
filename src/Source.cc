@@ -45,6 +45,7 @@
 #include <zypp/Fetcher.h>
 #include <zypp/repo/RepoType.h>
 #include <zypp/MediaProducts.h>
+#include <zypp/ExternalProgram.h>
 
 #include <zypp/base/String.h>
 
@@ -1774,14 +1775,81 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
  * To be called at end of initial installation.
  *
  * @param string dir Root directory of target.
- * @return boolean
+ * @return boolean true on success
  **/
 YCPValue
 PkgModuleFunctions::SourceCacheCopyTo (const YCPString& dir)
 {
-  y2warning( "Pkg::SourceCacheCopyTo is obsolete now, it does nothing" );
+    // error message (followed by detailed description)
+    const std::string msg = _("Error: Cannot copy the cache to the target directory\n");
 
-  return YCPBoolean( true );
+    std::string d = dir->value();
+    y2milestone("Copying source cache to '%s'...", d.c_str());
+
+    if (d.empty())
+    {
+	y2error("Empty parameter in Pkg::SourceCacheCopyTo()!");
+	return YCPBoolean(false);
+    }
+
+    std::string target = d + "/var/cache";
+
+    // create the target dir
+    const char* argv[] =
+    {
+      "mkdir",
+      // create parent dir
+      "-p",
+      // finish parameter list
+      "--",
+      // target
+      target.c_str(),
+      NULL
+    };
+
+    // discard stderr, no pty, stderr_fd = -1, use the default locale
+    zypp::ExternalProgram prog(argv, zypp::ExternalProgram::Discard_Stderr, false, -1, true);
+
+    int code = prog.close();
+
+    if (code)
+    {
+	// error message (followed by directory name)
+	_last_error.setLastError(msg + _("Cannot create directory ") + target);
+	y2error("Cannot create target directory %s", target.c_str());
+	return YCPBoolean(false);
+    }
+
+    // copy /var/cache/zypp to the target system
+    const char* argv2[] =
+    {
+      "cp",
+      // preserve time stamps
+      "-a",
+      // recursive
+      "-r",
+      // finish parameter list
+      "--",
+      // source
+      "/var/cache/zypp",
+      // target
+      target.c_str(),
+      NULL
+    };
+
+    // discard stderr, no pty, stderr_fd = -1, use the default locale
+    zypp::ExternalProgram prog2(argv2, zypp::ExternalProgram::Discard_Stderr, false, -1, true);
+
+    int code2 = prog2.close();
+
+    if (code2)
+    {
+	// error message
+	_last_error.setLastError(msg + _("Copying failed"));
+	y2error("Cannot copy /var/cache/zypp to %s", d.c_str());
+    }
+
+    return YCPBoolean(!code2);
 }
 
 /****************************************************************************************
