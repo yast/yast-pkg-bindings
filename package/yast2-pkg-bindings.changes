@@ -5,6 +5,7 @@ Thu Aug 30 19:57:49 CEST 2007 - lslezak@suse.cz
   (#306458)
 - preliminary fix for source redirection (compile fix only)
   (#294481)
+- report errors when adding a new repository (#306272)
 
 -------------------------------------------------------------------
 Wed Aug 29 09:36:00 CEST 2007 - lslezak@suse.cz

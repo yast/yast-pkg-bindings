@@ -2130,12 +2130,12 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 	    // load resolvables only when they are missing
 	    if (!AnyResolvableFrom(repo->repoInfo().alias()))
 	    {
-		LoadResolvablesFrom(repo->repoInfo());
+		success = LoadResolvablesFrom(repo->repoInfo());
 	    }
 	}
 	else
 	{
-	    // the source has been disables, remove resolvables from the pool
+	    // the source has been disabled, remove resolvables from the pool
 	    RemoveResolvablesFrom(repo->repoInfo().alias());
 	}
 
@@ -2216,6 +2216,7 @@ PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
     catch ( const zypp::Exception & expt )
     {
 	y2error ("Error while refreshing the source: %s", expt.asString().c_str());
+	_last_error.setLastError(repo->repoInfo().alias() + ": " + ExceptionAsString(expt));
 	return YCPBoolean(false);
     }
 
@@ -2589,7 +2590,9 @@ bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
     }
     catch (const zypp::Exception& excpt)
     {
-	y2internal("Caught unknown error");
+	std::string alias = repoinfo.alias();
+	y2internal("Error: Loading resolvables failed: %s", ExceptionAsString(excpt).c_str());
+	_last_error.setLastError("'" + alias + "': " + ExceptionAsString(excpt));
 	success = false;
     }
 
