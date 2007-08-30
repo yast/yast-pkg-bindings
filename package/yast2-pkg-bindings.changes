@@ -6,6 +6,10 @@ Thu Aug 30 19:57:49 CEST 2007 - lslezak@suse.cz
 - preliminary fix for source redirection (compile fix only)
   (#294481)
 - report errors when adding a new repository (#306272)
+- added new builtins PkgAvailable() and PkgInstalled() which work
+  with package names (in contrast to IsAvailable() or IsProvided()
+  which work with 'provides' property) (#299683,#302246)
+- 2.15.47
 
 -------------------------------------------------------------------
 Wed Aug 29 09:36:00 CEST 2007 - lslezak@suse.cz

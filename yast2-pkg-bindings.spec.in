@@ -2,11 +2,11 @@
 
 @HEADER@
 BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer rpm-devel sgml-skel yast2-core-devel yast2-devtools boost boost-devel dbus-1-devel hal-devel
-BuildRequires: libzypp-devel >= 3.13.11
-BuildRequires: libzypp >= 3.13.11
+BuildRequires: libzypp-devel >= 3.21.0
+BuildRequires: libzypp >= 3.21.0
 
-# new API (RepoManager instead of SourceManager)
-Requires:	libzypp >= 3.13.11
+# changed requestMedia callback
+Requires:	libzypp >= 3.21.0
 
 Summary:	-
 

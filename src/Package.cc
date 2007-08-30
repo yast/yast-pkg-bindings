@@ -526,6 +526,81 @@ PkgModuleFunctions::IsAvailable (const YCPString& tag)
     return YCPBoolean( match.item );
 }
 
+YCPValue
+PkgModuleFunctions::searchPackage(const YCPString &package, bool installed)
+{
+    bool found = false;
+    std::string pkg = package->value();
+
+    if (pkg.empty())
+    {
+	y2warning("Pkg::%s: Package name is empty", installed ? "PkgInstalled" : "PkgAvailable");
+	return YCPBoolean(false);
+    }
+
+    try
+    {
+	for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(pkg);
+	    it != zypp_ptr()->pool().byNameEnd(pkg);
+	    ++it)
+	{
+	    zypp::Package::constPtr pkg = zypp::asKind<zypp::Package>( it->resolvable() );
+
+	    if (pkg != NULL)
+	    {
+		long long sid = logFindAlias(pkg->repository().info().alias());
+		if ((installed && sid >= 0LL) || (!installed && sid < 0LL))
+		{
+		    found = true;
+		    break;
+		}
+	    }
+	}
+    }
+    catch (...)
+    {
+    }
+
+    y2milestone("Package '%s' %s: %s", pkg.c_str(), installed ? "installed" : "available", found ? "true" : "false");
+
+    return YCPBoolean(found);
+}
+
+/**
+ *  @builtin PkgInstalled
+ *
+ *  @short returns 'true' if the package is installed in the system
+ *  @description
+ *  tag can be a package name, a string from requires/provides
+ *  or a file name (since a package implictly provides all its files)
+ *
+ *  @param string package name of the package
+ *  @return boolean
+ *  @usage Pkg::PkgInstalled("glibc") -> true
+*/
+YCPValue
+PkgModuleFunctions::PkgInstalled(const YCPString& package)
+{
+    return searchPackage(package, true);
+}
+
+// ------------------------
+/**
+ *  @builtin PkgAvailable
+ *  @short Check if package is available
+ *  @description
+ *  returns 'true' if the package is available on any of the currently
+ *  active installation sources. (i.e. it is installable)
+ *
+ *  @param string package name of the package
+ *  @return boolean
+ *  @usage Pkg::PkgInstalled("yast2") -> true
+*/
+YCPValue
+PkgModuleFunctions::PkgAvailable(const YCPString& package)
+{
+    return searchPackage(package, false);
+}
 
 struct ProvideProcess
 {

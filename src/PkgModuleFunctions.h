@@ -181,6 +181,8 @@ class PkgModuleFunctions : public Y2Namespace
       // convert Exception to string represenatation
       std::string ExceptionAsString(const zypp::Exception &e);
 
+      YCPValue searchPackage(const YCPString &package, bool installed);
+
     private:
 
       /**
@@ -566,9 +568,13 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: boolean(string)*/
 	YCPValue IsProvided (const YCPString& tag);
 	/* TYPEINFO: boolean(string)*/
+	YCPValue PkgInstalled(const YCPString& package);
+	/* TYPEINFO: boolean(string)*/
 	YCPValue IsSelected (const YCPString& tag);
 	/* TYPEINFO: boolean(string)*/
 	YCPValue IsAvailable (const YCPString& tag);
+	/* TYPEINFO: boolean(string)*/
+	YCPValue PkgAvailable(const YCPString& package);
 	/* TYPEINFO: map<string,any>(list<string>)*/
 	YCPValue DoProvide (const YCPList& args);
 	/* TYPEINFO: map<string,any>(list<string>)*/
