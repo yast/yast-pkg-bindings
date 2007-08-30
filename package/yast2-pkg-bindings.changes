@@ -3,6 +3,8 @@ Thu Aug 30 19:57:49 CEST 2007 - lslezak@suse.cz
 
 - don't log debug messages from zypp if debug logging is turned off
   (#306458)
+- preliminary fix for source redirection (compile fix only)
+  (#294481)
 
 -------------------------------------------------------------------
 Wed Aug 29 09:36:00 CEST 2007 - lslezak@suse.cz

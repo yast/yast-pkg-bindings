@@ -43,7 +43,7 @@ ZyppRecipients::MediaChangeSensitivity _silent_probing = ZyppRecipients::MEDIA_C
 
 // remember redirected URLs
 // FIXME huh?
-std::map<std::vector<zypp::RepoInfo>::size_type, std::map<unsigned, std::string> > redirect_map;
+std::map<zypp::Url, std::map<unsigned, std::string> > redirect_map;
 
 ///////////////////////////////////////////////////////////////////
 namespace ZyppRecipients {
@@ -993,7 +993,7 @@ namespace ZyppRecipients {
     {
 	MediaChangeReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual Action requestMedia(zypp::Repository source, unsigned mediumNr, zypp::media::MediaChangeReport::Error error, const std::string &description)
+	virtual Action requestMedia(zypp::Url &url, unsigned int mediumNr, zypp::media::MediaChangeReport::Error error, const std::string &description)
 	{
 	    if ( _silent_probing == MEDIA_CHANGE_DISABLE )
 		return zypp::media::MediaChangeReport::ABORT;
@@ -1009,7 +1009,7 @@ namespace ZyppRecipients {
 		callback.addStr( description );
 
 		// search URL in the redirection map
-		std::map<std::vector<zypp::RepoInfo>::size_type, std::map<unsigned, std::string> >::const_iterator source_it = redirect_map.find(source.numericId());
+		std::map<zypp::Url, std::map<unsigned, std::string> >::const_iterator source_it = redirect_map.find(url);
 		bool found = false;
 		std::string report_url;
 
@@ -1025,13 +1025,7 @@ namespace ZyppRecipients {
 			// report the redirected URL
 			report_url = (*media_it).second;
 
-			std::string original_url;
-			if (source.info().baseUrlsBegin() != source.info().baseUrlsEnd())
-			{
-			    original_url = source.info().baseUrlsBegin()->asString();
-			}
-
-			y2milestone("Using redirected URL %s, original URL: %s", report_url.c_str(), original_url.c_str());
+			y2milestone("Using redirected URL %s, original URL: %s", report_url.c_str(), url.asString().c_str());
 		    }
 		}
 
@@ -1039,17 +1033,14 @@ namespace ZyppRecipients {
 		{
 		    // the source has not been redirected
 		    // use URL of the source 
-		    if (source.info().baseUrlsBegin() != source.info().baseUrlsEnd())
-		    {
-			report_url = source.info().baseUrlsBegin()->asString();
-		    }
+		    report_url = url.asString();
 		}
 
 		// current URL
 		callback.addStr( report_url );
 
 		// current product name (use the alias, see #214886)
-		callback.addStr( source.info().alias() );
+		callback.addStr( std::string() /*FIXME*/ );
 
 		// current medium, -1 means enable [Ignore]
 		callback.addInt( 0 );
@@ -1086,15 +1077,16 @@ namespace ZyppRecipients {
 		// otherwise change media URL
 		// try/catch to catch invalid URLs
 		try {
+		    // FIXME set the new URL
 		    zypp::Url ret_url (ret);
 #warning FIXME: MediaChange callback - redirection is missing!
 		    y2internal("Source redirection is not yet implemented in yast2-pkg-bindings");
 		    //source.redirect( mediumNr, ret_url );
 
 		    // remember the redirection		    
-		    std::map<unsigned, std::string> source_redir = redirect_map[source.numericId()];
+		    std::map<unsigned, std::string> source_redir = redirect_map[url];
 		    source_redir[mediumNr] = ret;
-		    redirect_map[source.numericId()] = source_redir;
+		    redirect_map[url] = source_redir;
 
 		    y2milestone("Source redirected to %s", ret.c_str());
 
@@ -1108,7 +1100,7 @@ namespace ZyppRecipients {
 	    }
 
 	    // return default value from the parent class
-	    return zypp::media::MediaChangeReport::requestMedia(source, mediumNr, error, description);
+	    return zypp::media::MediaChangeReport::requestMedia(url, mediumNr, error, description);
 	}
     };
 
