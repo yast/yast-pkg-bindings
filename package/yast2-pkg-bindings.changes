@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Aug 31 11:28:08 CEST 2007 - lslezak@suse.cz
+
+- fixed inverted result of PkgAvailable() and PkgInstalled()
+- 2.15.48
+
+-------------------------------------------------------------------
 Thu Aug 30 19:57:49 CEST 2007 - lslezak@suse.cz
 
 - don't log debug messages from zypp if debug logging is turned off

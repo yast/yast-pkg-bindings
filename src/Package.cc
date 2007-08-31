@@ -530,9 +530,9 @@ YCPValue
 PkgModuleFunctions::searchPackage(const YCPString &package, bool installed)
 {
     bool found = false;
-    std::string pkg = package->value();
+    std::string pkgname = package->value();
 
-    if (pkg.empty())
+    if (pkgname.empty())
     {
 	y2warning("Pkg::%s: Package name is empty", installed ? "PkgInstalled" : "PkgAvailable");
 	return YCPBoolean(false);
@@ -540,8 +540,8 @@ PkgModuleFunctions::searchPackage(const YCPString &package, bool installed)
 
     try
     {
-	for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(pkg);
-	    it != zypp_ptr()->pool().byNameEnd(pkg);
+	for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(pkgname);
+	    it != zypp_ptr()->pool().byNameEnd(pkgname);
 	    ++it)
 	{
 	    zypp::Package::constPtr pkg = zypp::asKind<zypp::Package>( it->resolvable() );
@@ -549,7 +549,8 @@ PkgModuleFunctions::searchPackage(const YCPString &package, bool installed)
 	    if (pkg != NULL)
 	    {
 		long long sid = logFindAlias(pkg->repository().info().alias());
-		if ((installed && sid >= 0LL) || (!installed && sid < 0LL))
+		y2debug("Package '%s' repo: %lld", pkgname.c_str(), sid);
+		if ((installed && sid < 0LL) || (!installed && sid >= 0LL))
 		{
 		    found = true;
 		    break;
@@ -561,7 +562,7 @@ PkgModuleFunctions::searchPackage(const YCPString &package, bool installed)
     {
     }
 
-    y2milestone("Package '%s' %s: %s", pkg.c_str(), installed ? "installed" : "available", found ? "true" : "false");
+    y2milestone("Package '%s' %s: %s", pkgname.c_str(), installed ? "installed" : "available", found ? "true" : "false");
 
     return YCPBoolean(found);
 }
