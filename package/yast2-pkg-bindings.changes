@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Sep  3 13:01:12 CEST 2007 - lslezak@suse.cz
+
+- reimplemented media redirection in media change callback
+  (#294481)
+- 2.15.49
+
+-------------------------------------------------------------------
 Fri Aug 31 11:28:08 CEST 2007 - lslezak@suse.cz
 
 - fixed inverted result of PkgAvailable() and PkgInstalled()
