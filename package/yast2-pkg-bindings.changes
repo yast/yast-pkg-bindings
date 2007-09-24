@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Sep 24 17:43:01 CEST 2007 - lslezak@suse.cz
+
+- set path to metadata files when registering a new repository,
+  required to set the media verifier correctly (#293428)
+- 2.15.51
+
+-------------------------------------------------------------------
 Mon Sep 24 09:02:57 CEST 2007 - lslezak@suse.cz
 
 - search the correct package instance in license bindings
