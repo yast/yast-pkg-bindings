@@ -2419,23 +2419,21 @@ YCPString PkgModuleFunctions::PkgGetLicenseToConfirm( const YCPString & package 
     {
 	try
 	{
-	    // find the uninstalled (!) package
-	    zypp::ResPool::byName_iterator it = std::find_if (
-		zypp_ptr()->pool().byNameBegin(pkgname)
-		, zypp_ptr()->pool().byNameEnd(pkgname)
-		, zypp::functor::chain(
-		    zypp::resfilter::ByUninstalled (),
-		    zypp::resfilter::ByKind( zypp::ResTraits<zypp::Package>::kind ) )
-	    );
-
-	    if (it != zypp_ptr()->pool().byNameEnd(pkgname) && !it->status().isLicenceConfirmed())
+	    for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(pkgname);
+		it != zypp_ptr()->pool().byNameEnd(pkgname);
+		++it)
 	    {
-		// cast to Package object
+		// is it a package?
 		zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
 
-		// get the license
-		zypp::License license = package->licenseToConfirm();
-		return YCPString(license);
+		// a package scheduled for installation, with unconfirmed license, not installed yet
+		if (package && it->status().isToBeInstalled() && !it->status().isLicenceConfirmed()
+		    && !it->status().isInstalled())
+		{
+		    // get the license
+		    zypp::License license = package->licenseToConfirm();
+		    return YCPString(license);
+		}
 	    }
 	}
 	catch (...)
@@ -2462,38 +2460,12 @@ YCPMap PkgModuleFunctions::PkgGetLicensesToConfirm( const YCPList & packages )
     YCPMap ret;
 
     for ( int i = 0; i < packages->size(); ++i ) {
-	std::string pkgname = packages->value(i)->asString()->value();
+	YCPString license = PkgGetLicenseToConfirm(packages->value(i)->asString());
 
-	if (!pkgname.empty())
+	// found a license to confirm?
+	if (!license->value().empty())
 	{
-	    try
-	    {
-		// find the uninstalled (!) package
-		zypp::ResPool::byName_iterator it = std::find_if(
-		    zypp_ptr()->pool().byNameBegin(pkgname)
-		    , zypp_ptr()->pool().byNameEnd(pkgname)
-		    , zypp::functor::chain(
-			zypp::resfilter::ByUninstalled (),
-			zypp::resfilter::ByKind( zypp::ResTraits<zypp::Package>::kind ) )
-		);
-
-		// found a package?
-		if (it != zypp_ptr()->pool().byNameEnd(pkgname))
-		{
-		    // cast to Package object
-		    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
-		    zypp::License license = package->licenseToConfirm();
-
-		    // has the license already been confirmed?
-		    if (!license.empty() && !it->status().isLicenceConfirmed())
-		    {
-			ret->add(packages->value(i), YCPString(license));
-		    }
-		}
-	    }
-	    catch (...)
-	    {
-	    }
+	    ret->add(packages->value(i), license);
 	}
     }
 
@@ -2507,7 +2479,6 @@ YCPMap PkgModuleFunctions::PkgGetLicensesToConfirm( const YCPList & packages )
    @param string name of a package
    @return boolean true if the license has been successfuly confirmed
 */
-#warning This is bogus, as we have multiple matching packages
 YCPBoolean PkgModuleFunctions::PkgMarkLicenseConfirmed (const YCPString & package)
 {
     std::string pkgname = package->value();
@@ -2516,20 +2487,21 @@ YCPBoolean PkgModuleFunctions::PkgMarkLicenseConfirmed (const YCPString & packag
     {
 	try
 	{
-	    // find the package
-	    zypp::ResPool::byName_iterator it = std::find_if(
-		zypp_ptr()->pool().byNameBegin(pkgname)
-		, zypp_ptr()->pool().byNameEnd(pkgname)
-		, zypp::functor::chain(
-		    zypp::resfilter::ByUninstalled (),
-		    zypp::resfilter::ByKind( zypp::ResTraits<zypp::Package>::kind ) )
-	    );
-
-	    if (it != zypp_ptr()->pool().byNameEnd(pkgname))
+	    for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(pkgname);
+		it != zypp_ptr()->pool().byNameEnd(pkgname);
+		++it)
 	    {
-		// confirm the license
-		it->status().setLicenceConfirmed(true);
-		return YCPBoolean( true );
+		// is it a package?
+		zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
+
+		// a package scheduled for installation, with unconfirmed license, not installed yet
+		if (package && it->status().isToBeInstalled() && !it->status().isLicenceConfirmed()
+		    && !it->status().isInstalled())
+		{
+		    // confirm the license
+		    it->status().setLicenceConfirmed(true);
+		    return YCPBoolean( true );
+		}
 	    }
 	}
 	catch (...)

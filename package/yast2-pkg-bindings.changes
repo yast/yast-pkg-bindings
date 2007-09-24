@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Mon Sep 24 09:02:57 CEST 2007 - lslezak@suse.cz
+
+- search the correct package instance in license bindings
+  (Pkg::PkgGetLicenseToConfirm(), Pkg::PkgGetLicensesToConfirm()
+  and Pkg::PkgMarkLicenseConfirmed()) - fixes the double license
+  confirmation bug (#326277)
+- 2.15.50
+
+-------------------------------------------------------------------
 Mon Sep  3 13:01:12 CEST 2007 - lslezak@suse.cz
 
 - reimplemented media redirection in media change callback
