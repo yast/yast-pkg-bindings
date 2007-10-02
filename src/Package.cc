@@ -1509,7 +1509,7 @@ PkgModuleFunctions::FilterPackages(const YCPBoolean& y_byAuto, const YCPBoolean&
 		((byAuto && it->status().isBySolver()) ||
 #warning FilterPackages: APPL_LOW and APPL_HIGH are treated as one level for now
 		    (byApp && (it->status().isByApplHigh() || it->status().isByApplLow())) ||
-		    byUser && it->status().isByUser()
+		    (byUser && it->status().isByUser())
 		))
 		{
 		    pkg2list(packages, it, names_only);
