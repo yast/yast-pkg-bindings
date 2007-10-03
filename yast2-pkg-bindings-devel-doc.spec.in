@@ -33,5 +33,4 @@ echo "doc" > SUBDIRS
 %doc @docdir@/html
 %dir @docdir@
 %exclude @docdir@/COPYING
-%exclude @docdir@/COPYRIGHT.english
 %exclude @docdir@/README
