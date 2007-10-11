@@ -402,8 +402,8 @@ PkgModuleFunctions::SourceLoad()
     for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
        it != repos.end(); ++it)
     {
-	// load resolvables only from enabled repos
-	if ((*it)->repoInfo().enabled())
+	// load resolvables only from enabled repos which are not deleted
+	if ((*it)->repoInfo().enabled() && !(*it)->isDeleted())
 	{
 	    if (AnyResolvableFrom((*it)->repoInfo().alias()))
 	    {
