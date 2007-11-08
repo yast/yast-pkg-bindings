@@ -3,6 +3,8 @@ Thu Nov  8 13:44:29 CET 2007 - lslezak@suse.cz
 
 - fixed PkgTaboo() and PkgNeutral() - set all available instaces
   of the package (from all reposiories) (#297083)
+- fixed PkgDelete() - mark all installed instances for removal
+- 2.16.2
 
 -------------------------------------------------------------------
 Thu Oct 11 15:59:43 CEST 2007 - lslezak@suse.cz

@@ -1801,12 +1801,11 @@ PkgModuleFunctions::PkgSrcInstall (const YCPString& p)
 /**
    @builtin PkgDelete
 
-   @short Select package for deletion
+   @short Select package for deletion (deletes all installed instances of the package)
    @param string package
    @return boolean
 
 */
-#warning This is bogus, as we have multiple matching (kernel) packages
 
 YCPValue
 PkgModuleFunctions::PkgDelete (const YCPString& p)
@@ -1815,30 +1814,35 @@ PkgModuleFunctions::PkgDelete (const YCPString& p)
     if (name.empty())
 	return YCPBoolean (false);
 
+    bool ret = true;
+
     try
     {
-	// find the package
-	zypp::ResPool::byName_iterator it = std::find_if (
-	    zypp_ptr()->pool().byNameBegin(name)
-	    , zypp_ptr()->pool().byNameEnd(name)
-	    , zypp::functor::chain (
-		zypp::resfilter::ByInstalled (),
-		zypp::resfilter::ByKind( zypp::ResTraits<zypp::Package>::kind )
-	      )
-	);
+	bool found = false;
 
+	for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(name);
+	    it != zypp_ptr()->pool().byNameEnd(name); ++it)
+	{
+	    // is it an installed package?
+	    if (zypp::isKind<zypp::Package>(it->resolvable()) && it->status().isInstalled())
+	    {
+		found = true;
+		ret = it->status().setToBeUninstalled(whoWantsIt) && ret;
+	    }
+	}
 
-	// set the status to uninstalled
-	return YCPBoolean( (it != zypp_ptr()->pool().byNameEnd(name))
-	    && it->status().setToBeUninstalled(whoWantsIt) );
+	if (!found)
+	{
+	    ret = false;
+	}
     }
     catch (...)
     {
+	ret = false;
     }
 
-    return YCPBoolean (false);
+    return YCPBoolean(ret);
 }
-
 
 /**
    @builtin PkgTaboo
