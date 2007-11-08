@@ -1794,12 +1794,11 @@ PkgModuleFunctions::PkgDelete (const YCPString& p)
 /**
    @builtin PkgTaboo
 
-   @short Set package to taboo
+   @short Set package to taboo (sets all instances of the package - all versions, from all repositories)
    @param string package
    @return boolean
 
 */
-#warning This is bogus, as we have multiple matching packages
 
 YCPValue
 PkgModuleFunctions::PkgTaboo (const YCPString& p)
@@ -1808,39 +1807,51 @@ PkgModuleFunctions::PkgTaboo (const YCPString& p)
     if (name.empty())
 	return YCPBoolean (false);
 
+    bool ret = true;
+
     try
     {
-	// find the package
-	zypp::ResPool::byName_iterator it = std::find_if (
-	    zypp_ptr()->pool().byNameBegin(name)
-	    , zypp_ptr()->pool().byNameEnd(name)
-	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
-	);
+	bool found = false;
 
-	// remove the transactions, lock the status
-	return YCPBoolean( (it != zypp_ptr()->pool().byNameEnd(name))
-	    && it->status().resetTransact(whoWantsIt)
-	    // lock the package at the USER level (bug #186205)
-	    && it->status().resetTransact(zypp::ResStatus::USER)
-	    && it->status().setLock(true, zypp::ResStatus::USER)
-	);
+	for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(name);
+	    it != zypp_ptr()->pool().byNameEnd(name); ++it)
+	{
+	    // is it a package?
+	    // installed package cannot be set to taboo
+	    if (zypp::isKind<zypp::Package>(it->resolvable()) && !it->status().isInstalled())
+	    {
+		found = true;
+
+		bool res = it->status().resetTransact(whoWantsIt)
+		// lock the package at the USER level (bug #186205)
+		&& it->status().resetTransact(zypp::ResStatus::USER)
+		&& it->status().setLock(true, zypp::ResStatus::USER);
+
+		ret = ret && res;
+	    }
+	}
+
+	if (!found)
+	{
+	    ret = false;
+	}
     }
     catch (...)
     {
+	ret = false;
     }
 
-    return YCPBoolean (false);
+    return YCPBoolean(ret);
 }
 
 /**
    @builtin PkgNeutral
 
-   @short Set package to neutral (drop install/delete flags)
+   @short Set package to neutral (drop install/delete flags) (sets all instances of the package - all versions, from all repositories)
    @param string package
    @return boolean
 
 */
-#warning This is bogus, as we have multiple matching packages
 
 YCPValue
 PkgModuleFunctions::PkgNeutral (const YCPString& p)
@@ -1849,24 +1860,34 @@ PkgModuleFunctions::PkgNeutral (const YCPString& p)
     if (name.empty())
 	return YCPBoolean (false);
 
+    bool ret = true;
+
     try
     {
-	// find the package
-	zypp::ResPool::byName_iterator it = std::find_if (
-	    zypp_ptr()->pool().byNameBegin(name)
-	    , zypp_ptr()->pool().byNameEnd(name)
-	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Package>::kind)
-	);
+	bool found = false;
 
-	// reset all transactions
-	return YCPBoolean( (it != zypp_ptr()->pool().byNameEnd(name))
-	    && it->status().resetTransact(whoWantsIt) );
+	for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(name);
+	    it != zypp_ptr()->pool().byNameEnd(name); ++it)
+	{
+	    // is it a package?
+	    if (zypp::isKind<zypp::Package>(it->resolvable()))
+	    {
+		found = true;
+		ret = it->status().resetTransact(whoWantsIt) && ret;
+	    }
+	}
+
+	if (!found)
+	{
+	    ret = false;
+	}
     }
     catch (...)
     {
+	ret = false;
     }
 
-    return YCPBoolean (false);
+    return YCPBoolean(ret);
 }
 
 
