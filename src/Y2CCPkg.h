@@ -51,6 +51,8 @@ public:
      * We provide the Pkg namespace
      */
     virtual  Y2Component *provideNamespace(const char *name);
+
+    ~Y2CCPkg();
 };
 
 

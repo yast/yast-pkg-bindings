@@ -286,9 +286,11 @@ zypp::ZYpp::Ptr PkgModuleFunctions::zypp_ptr()
  */
 PkgModuleFunctions::~PkgModuleFunctions ()
 {
-    SourceFinishAll ();
-    TargetFinish ();
     delete &_callbackHandler;
+
+    y2milestone("Releasing the zypp pointer...");
+    zypp_pointer = NULL;
+    y2milestone("Zypp pointer released");
 }
 
 Y2Function* PkgModuleFunctions::createFunctionCall (const string name, constFunctionTypePtr type)

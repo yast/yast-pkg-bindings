@@ -44,6 +44,8 @@ class PkgModule : public PkgModuleFunctions
 
     static PkgModule* instance ();
 
+    static void destroy();
+
   private:
     static PkgModule* current_pkg;
 

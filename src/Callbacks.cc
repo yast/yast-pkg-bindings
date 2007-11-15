@@ -1870,6 +1870,7 @@ PkgModuleFunctions::CallbackHandler::CallbackHandler(const PkgModuleFunctions &p
 //
 PkgModuleFunctions::CallbackHandler::~CallbackHandler()
 {
+  y2debug("Deleting callback handler");
   delete &_zyppReceive;
   delete &_ycpCallbacks;
 }

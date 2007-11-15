@@ -97,3 +97,12 @@ PkgModule::~PkgModule ()
 {
 }
 
+void PkgModule::destroy()
+{
+    if (current_pkg != NULL)
+    {
+	y2debug("Deleting PkgModule object...");
+	delete current_pkg;
+	current_pkg = NULL;
+    }
+}

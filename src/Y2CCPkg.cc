@@ -57,6 +57,12 @@ Y2Component* Y2CCPkg::provideNamespace(const char* name)
     }
 }
 
+Y2CCPkg::~Y2CCPkg()
+{
+    y2debug("~Y2CCPkg");
+    Y2PkgComponent::destroy();
+}
+
 // Create global variable to register this component creator
 
 Y2CCPkg g_y2ccPkg;
