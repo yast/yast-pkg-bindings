@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Nov 15 09:47:09 CET 2007 - lslezak@suse.cz
+
+- remove temporary files /var/tmp/zypp-xmlstore-*-script-* at
+  the end: correctly call the destructor at the end, call
+  finishTarget() and release the zypp pointer (#228176)
+- 2.13.119
+
+-------------------------------------------------------------------
 Thu Nov  8 13:44:29 CET 2007 - lslezak@suse.cz
 
 - fixed PkgTaboo() and PkgNeutral() - set all available instaces

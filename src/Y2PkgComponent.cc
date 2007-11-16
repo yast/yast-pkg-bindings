@@ -30,3 +30,12 @@ Y2PkgComponent* Y2PkgComponent::instance ()
     return m_instance;
 }
 
+void Y2PkgComponent::destroy()
+{
+    PkgModule::destroy();
+}
+
+Y2PkgComponent::~Y2PkgComponent()
+{
+    PkgModule::destroy();
+}
