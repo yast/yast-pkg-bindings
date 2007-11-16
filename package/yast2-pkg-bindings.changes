@@ -1,7 +1,10 @@
 -------------------------------------------------------------------
 Thu Nov 15 09:47:09 CET 2007 - lslezak@suse.cz
 
-- correctly call the destructor at the end (part of #228176)
+- remove temporary files /var/tmp/zypp-xmlstore-*-script-* at
+  the end: correctly call the destructor at the end, call
+  finishTarget() and release the zypp pointer (#228176)
+- 2.16.3
 
 -------------------------------------------------------------------
 Thu Nov  8 13:44:29 CET 2007 - lslezak@suse.cz
