@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Nov 20 11:27:56 CET 2007 - lslezak@suse.cz
+
+- use the correct directory when probing a repository with
+  non empty product directory (#341617)
+
+-------------------------------------------------------------------
 Thu Nov 15 09:47:09 CET 2007 - lslezak@suse.cz
 
 - remove temporary files /var/tmp/zypp-xmlstore-*-script-* at

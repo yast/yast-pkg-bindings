@@ -25,7 +25,6 @@
 //#include <sys/statvfs.h>
 
 #include <iostream>
-#include <ycp/y2log.h>
 
 #include <ycpTools.h>
 #include <PkgModule.h>
@@ -1463,7 +1462,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 		     const std::string &alias_r )
 {
     // parse URL
-    y2milestone ("Original URL: %s", url_r.asString().c_str());
+    y2milestone ("Original URL: %s, product directory: %s", url_r.asString().c_str(), path_r.asString().c_str());
 
     // #158850#c17, if the URL contains an alias, we use that
     zypp::Url url;
@@ -1494,10 +1493,20 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
     // the type is not specified or is wrong, autoprobe the type 
     if (repotype == zypp::repo::RepoType::NONE)
     {
-	y2milestone("Probing source type: '%s'", url.asString().c_str());
+        zypp::Url probe_url(url_r);
+
+	if (!path_r.asString().empty())
+	{
+	    zypp::Pathname pth(probe_url.getPathName());
+	    pth /= path_r;
+
+	    probe_url.setPathName(pth.asString());
+	}
+
+	y2milestone("Probing source type: '%s'", probe_url.asString().c_str());
 
 	// autoprobe type of the repository 
-	repotype = ProbeWithCallbacks(url);
+	repotype = ProbeWithCallbacks(probe_url);
     }
 
     y2milestone("Using source type: %s", repotype.asString().c_str());
@@ -1591,7 +1600,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
     zypp::Pathname metadatapath = repomanager.metadataPath(repo);
     repo.setMetadataPath(metadatapath);
 
-    y2milestone("Adding source '%s' (%s)", repo.alias().c_str(), url.asString().c_str());
+    y2milestone("Adding source '%s' (%s, dir: %s)", repo.alias().c_str(), url.asString().c_str(), path_r.asString().c_str());
     // note: exceptions should be caught by the calling code
     RefreshWithCallbacks(repo);
 
