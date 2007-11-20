@@ -24,7 +24,6 @@
 
 #include <fstream>
 
-#include <ycp/y2log.h>
 #include <PkgModule.h>
 #include <PkgModuleFunctions.h>
 

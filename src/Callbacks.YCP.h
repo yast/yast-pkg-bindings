@@ -36,7 +36,7 @@
 #include "ycpTools.h"
 #include "Callbacks.h"
 
-#include <ycp/y2log.h>
+//#include <ycp/y2log.h>
 
 using namespace std;
 

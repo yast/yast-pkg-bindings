@@ -21,7 +21,6 @@
 /-*/
 
 
-#include <ycp/y2log.h>
 #include <ycp/YExpression.h>
 #include <ycp/YBlock.h>
 #include "PkgModuleFunctions.h"

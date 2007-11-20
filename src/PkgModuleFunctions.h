@@ -26,6 +26,9 @@
 #include <string>
 #include <ycpTools.h>
 
+#define y2log_component "Pkg"
+#include <ycp/y2log.h>
+
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPValue.h>
 #include <ycp/YCPList.h>

@@ -21,7 +21,6 @@
 		from WFMInterpreter.
 /-*/
 
-#include <ycp/y2log.h>
 #include "PkgModuleFunctions.h"
 
 #include <ycp/YCPVoid.h>

@@ -23,7 +23,9 @@
  */
 
 
+#define y2log_component "Pkg"
 #include <ycp/y2log.h>
+
 #include <y2/Y2Component.h>
 #include "Y2CCPkg.h"
 #include "Y2PkgComponent.h"

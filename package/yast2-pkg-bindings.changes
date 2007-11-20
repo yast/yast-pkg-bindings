@@ -6,6 +6,8 @@ Tue Nov 20 11:27:56 CET 2007 - lslezak@suse.cz
 - Pkg::ResolvableProperties() - return download and install size
   of packages (#331538), return status "removed" when the
   resolvable is marked for removal
+- use component "Pkg" in y2log
+- 2.16.4
 
 -------------------------------------------------------------------
 Thu Nov 15 09:47:09 CET 2007 - lslezak@suse.cz
