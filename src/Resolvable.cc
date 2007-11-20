@@ -20,7 +20,6 @@
    Purpose:     Handles package related Pkg::function (list_of_arguments) calls.
 /-*/
 
-#include <ycp/y2log.h>
 #include "PkgModuleFunctions.h"
 
 #include <sstream>
@@ -37,6 +36,7 @@
 #include <zypp/Patch.h>
 #include <zypp/Pattern.h>
 #include <zypp/Language.h>
+#include <zypp/Package.h>
 #include <zypp/base/PtrTypes.h>
 #include <zypp/Dep.h>
 #include <zypp/CapSet.h>
@@ -301,7 +301,7 @@ PkgModuleFunctions::ResolvableSetSoftLock ( const YCPString& name_r, const YCPSy
    @param version version of the resolvable, if empty all versions are returned
 
    @return list<map<string,any>> list of $[ "name":string, "version":string, "arch":string, "source":integer, "status":symbol, "locked":boolean ] maps
-   status is `installed, `selected or `available, source is source ID or -1 if the resolvable is installed in the target
+   status is `installed, `removed, `selected or `available, source is source ID or -1 if the resolvable is installed in the target
    if status is `available and locked is true then the object is set to taboo,
    if status is `installed and locked is true then the object locked
 */
@@ -385,7 +385,7 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 
 		if (it->status().isInstalled())
 		{
-		    stat = "installed";
+		    stat = (it->status().isToBeUninstalled()) ? "removed" : "installed";
 		}
 		else if (it->status().isToBeInstalled())
 		{
@@ -413,11 +413,34 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 		    info->add(YCPString("license"), YCPString(license));
 		}
 
+		info->add(YCPString("download_size"), YCPInteger((*it)->downloadSize()));
+		info->add(YCPString("inst_size"), YCPInteger((*it)->size()));
+
+		info->add(YCPString("medium_nr"), YCPInteger((*it)->mediaNr()));
+		info->add(YCPString("vendor"), YCPString((*it)->vendor()));
+
+		
+		// package specific info
+		if( req_kind == "package" )
+		{
+		    zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
+
+		    std::string tmp = pkg->location().filename().asString();
+		    if (!tmp.empty())
+		    {
+			info->add(YCPString("path"), YCPString(tmp));
+		    }
+
+		    tmp = pkg->location().filename().basename();
+		    if (!tmp.empty())
+		    {
+			info->add(YCPString("location"), YCPString(tmp));
+		    }
+		}
 		// product specific info
-		if( req_kind == "product" ) {
+		else if( req_kind == "product" ) {
 		    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(it->resolvable());
 		    info->add(YCPString("category"), YCPString(product->category()));
-		    info->add(YCPString("vendor"), YCPString(product->vendor()));
 		    info->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
 
 		    std::string product_summary = product->summary();
@@ -478,9 +501,8 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 			info->add(YCPString("optional_urls"), optionalUrls);
 		    }
 		}
-
 		// pattern specific info
-		if ( req_kind == "pattern" ) {
+		else if ( req_kind == "pattern" ) {
 		    zypp::Pattern::constPtr pattern = boost::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable());
 		    info->add(YCPString("category"), YCPString(pattern->category()));
 		    info->add(YCPString("user_visible"), YCPBoolean(pattern->userVisible()));
@@ -488,9 +510,8 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 		    info->add(YCPString("icon"), YCPString(pattern->icon().asString()));
 		    info->add(YCPString("script"), YCPString(pattern->script().asString()));
 		}
-
 		// patch specific info
-		if ( req_kind == "patch" )
+		else if ( req_kind == "patch" )
 		{
 		    zypp::Patch::constPtr patch_ptr = boost::dynamic_pointer_cast<const zypp::Patch>(it->resolvable());
 		    

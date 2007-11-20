@@ -3,6 +3,9 @@ Tue Nov 20 11:27:56 CET 2007 - lslezak@suse.cz
 
 - use the correct directory when probing a repository with
   non empty product directory (#341617)
+- Pkg::ResolvableProperties() - return download and install size
+  of packages (#331538), return status "removed" when the
+  resolvable is marked for removal
 
 -------------------------------------------------------------------
 Thu Nov 15 09:47:09 CET 2007 - lslezak@suse.cz
