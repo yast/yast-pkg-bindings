@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Nov 21 14:11:42 CET 2007 - lslezak@suse.cz
+
+- Pkg::SourceCreate(): return -1 instead of 4294967295 when
+  a non-existing dir:// repository is used (#342242)
+
+-------------------------------------------------------------------
 Tue Nov 20 11:27:56 CET 2007 - lslezak@suse.cz
 
 - use the correct directory when probing a repository with

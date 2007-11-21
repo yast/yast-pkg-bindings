@@ -2057,7 +2057,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     {
 	_last_error.setLastError(ExceptionAsString(excpt));
 	y2error( "Cannot read the product list from the media" );
-	return YCPInteger(ret);
+	return YCPInteger(-1LL);
     }
 
     if( products.empty() )
