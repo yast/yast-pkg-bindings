@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Nov 21 14:16:14 CET 2007 - lslezak@suse.cz
+
+- Pkg::SourceCreate(): return -1 instead of 4294967295 when
+  a non-existing dir:// repository is used (#342242)
+- 2.13.120
+
+-------------------------------------------------------------------
 Thu Nov 15 09:47:09 CET 2007 - lslezak@suse.cz
 
 - remove temporary files /var/tmp/zypp-xmlstore-*-script-* at

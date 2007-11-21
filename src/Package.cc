@@ -2248,7 +2248,7 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
     {
 	y2milestone ("Installation aborted by user");
 	YCPList ret;
-	ret->add(YCPInteger(-1));
+	ret->add(YCPInteger(-1LL));
 	return ret;
     }
     catch (const zypp::Exception& excpt)

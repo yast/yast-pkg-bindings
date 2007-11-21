@@ -1223,7 +1223,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
   {
     y2error ("Invalid URL: %s", expt.asString().c_str());
     _last_error.setLastError(expt.asUserString());
-    return YCPInteger (-1);
+    return YCPInteger (-1LL);
   }
 
 
@@ -1244,7 +1244,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     {
 	_last_error.setLastError(excpt.asUserString());
 	y2error( "Cannot read the product list from the media" );
-	return YCPInteger(ret);
+	return YCPInteger(-1LL);
     }
 
     if( products.empty() )
