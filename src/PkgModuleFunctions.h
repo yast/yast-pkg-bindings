@@ -319,6 +319,8 @@ class PkgModuleFunctions : public Y2Namespace
         YCPValue SourceStartManager (const YCPBoolean&);
 	/* TYPEINFO: boolean()*/
 	YCPValue SourceRestore();
+	/* TYPEINFO: list<string>()*/
+	YCPValue SourceGetBrokenSources();
 	/* TYPEINFO: boolean()*/
 	YCPValue SourceLoad();
 	/* TYPEINFO: integer(string,string)*/

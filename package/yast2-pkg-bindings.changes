@@ -1,7 +1,10 @@
 -------------------------------------------------------------------
-Fri Nov 23 10:26:17 CET 2007 - lslezak@suse.cz
+Fri Nov 23 12:28:09 CET 2007 - lslezak@suse.cz
 
 - allow to change name (alias) of a source (FATE #300645)
+- added Pkg::SourceGetBrokenSources() - return list of broken
+  sources (initialization has failed) (#285580)
+- 2.13.121
 
 -------------------------------------------------------------------
 Wed Nov 21 14:16:14 CET 2007 - lslezak@suse.cz
