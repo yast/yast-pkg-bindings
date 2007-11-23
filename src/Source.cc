@@ -1517,6 +1517,7 @@ PkgModuleFunctions::SourceEditGet ()
 	src_map->add(YCPString("SrcId"), YCPInteger(*it));
 	src_map->add(YCPString("enabled"), YCPBoolean(src.enabled()));
 	src_map->add(YCPString("autorefresh"), YCPBoolean(src.autorefresh()));
+	src_map->add(YCPString("alias"), YCPString(src.alias()));
 
 	ret->add(src_map);
     }
@@ -1593,6 +1594,12 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
     if( !descr->value(YCPString("autorefresh")).isNull() && descr->value(YCPString("autorefresh"))->isBoolean ())
     {
 	src.setAutorefresh( descr->value(YCPString("autorefresh"))->asBoolean ()->value() );
+    }
+
+    if( !descr->value(YCPString("alias")).isNull() && descr->value(YCPString("alias"))->isString())
+    {
+	// rename the source
+	zypp::SourceManager::sourceManager()->renameSource(src.numericId(), descr->value(YCPString("alias"))->asString()->value() );
     }
 
 #warning SourceEditSet ordering not implemented yet

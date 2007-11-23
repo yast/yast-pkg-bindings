@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Nov 23 10:26:17 CET 2007 - lslezak@suse.cz
+
+- allow to change name (alias) of a source (FATE #300645)
+
+-------------------------------------------------------------------
 Wed Nov 21 14:16:14 CET 2007 - lslezak@suse.cz
 
 - Pkg::SourceCreate(): return -1 instead of 4294967295 when
