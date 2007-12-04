@@ -632,7 +632,7 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	ptr = this;
     }
 
-    YCPValue ret = SourceStartManagerImpl(source_receiver);
+    YCPValue ret = SourceStartManagerImpl(enable, source_receiver);
 
     if (enable->value())
     {
@@ -668,7 +668,7 @@ PkgModuleFunctions::SourceStartManagerImpl(const YCPBoolean& enable, const zypp:
 	}
 
 	// enable all sources and load the resolvables
-	success = YCPBoolean(SourceLoadImpl(source_receiver)->asBoolean()->value() && success->asBoolean()->value());
+	success = YCPBoolean(SourceLoadImpl(progress)->asBoolean()->value() && success->asBoolean()->value());
     }
 
     return success;
