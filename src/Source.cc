@@ -614,7 +614,51 @@ PkgModuleFunctions::SourceLoadImpl(const zypp::ProgressData::ReceiverFnc &progre
 YCPValue
 PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 {
+    // display the progress only when 'enable' is true
+    if (enable->value())
+    {
+	std::list<std::string> stages;
+	stages.push_back("Load Sources");
+	stages.push_back("Refresh Sources");
+	stages.push_back("Rebuild Cache");
+	stages.push_back("Load Data");
+
+	// 3 steps per repository (download, cache rebuild, load resolvables)
+	ProcessStart("Loading the Package Manager...", stages, "help");
+
+	// mark refreshing as in progress now
+	ProcessNextStage();
+
+	ptr = this;
+    }
+
+    YCPValue ret = SourceStartManagerImpl(source_receiver);
+
+    if (enable->value())
+    {
+	ProcessDone();
+	ptr = NULL;
+    }
+
+    return ret;
+}
+
+/****************************************************************************************
+ * @builtin SourceStartManager
+ *
+ * @short Start the source manager - restore the sources and load the resolvables
+ * @description
+ * Calls SourceRestore(), if argument enable is true SourceLoad() is called.
+ * @param boolean enable If true the resolvables are loaded from the enabled sources
+ *
+ * @return boolean
+ **/
+YCPValue
+PkgModuleFunctions::SourceStartManagerImpl(const YCPBoolean& enable, const zypp::ProgressData::ReceiverFnc &progress)
+{
     YCPValue success = SourceRestore();
+
+    ProcessNextStage();
 
     if( enable->value() )
     {
@@ -624,7 +668,7 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	}
 
 	// enable all sources and load the resolvables
-	success = YCPBoolean(SourceLoad()->asBoolean()->value() && success->asBoolean()->value());
+	success = YCPBoolean(SourceLoadImpl(source_receiver)->asBoolean()->value() && success->asBoolean()->value());
     }
 
     return success;

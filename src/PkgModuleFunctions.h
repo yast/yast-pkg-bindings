@@ -178,6 +178,7 @@ class PkgModuleFunctions : public Y2Namespace
       void ProcessDone();
 
       YCPValue SourceLoadImpl(const zypp::ProgressData::ReceiverFnc & progress = zypp::ProgressData::ReceiverFnc());
+      YCPValue SourceStartManagerImpl(const YCPBoolean&, const zypp::ProgressData::ReceiverFnc & progress = zypp::ProgressData::ReceiverFnc());
 
       // After all, APPL_HIGH might be more appropriate, because we suggest
       // the user what he should do and if it does not work, it's his job to
