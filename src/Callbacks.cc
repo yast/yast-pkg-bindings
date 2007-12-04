@@ -2538,4 +2538,25 @@ YCPValue PkgModuleFunctions::CallbackInitDownload( const YCPString& args ) {
 YCPValue PkgModuleFunctions::CallbackDestDownload( const YCPString& args ) {
     return SET_YCP_CB( CB_DestDownload, args );
 }
+
+YCPValue PkgModuleFunctions::CallbackProcessStart( const YCPString& func )
+{
+    return SET_YCP_CB( CB_ProcessStart, func );
+}
+
+YCPValue PkgModuleFunctions::CallbackProcessNextStage( const YCPString& func )
+{
+    return SET_YCP_CB( CB_ProcessNextStage, func );
+}
+
+YCPValue PkgModuleFunctions::CallbackProcessDone( const YCPString& func )
+{
+    return SET_YCP_CB( CB_ProcessFinished, func );
+}
+
+YCPValue PkgModuleFunctions::CallbackProcessProgress( const YCPString& func )
+{
+    return SET_YCP_CB( CB_ProcessProgress, func);
+}
+
 #undef SET_YCP_CB

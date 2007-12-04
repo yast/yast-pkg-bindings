@@ -45,6 +45,7 @@
 #include <zypp/repo/RepoType.h>
 #include <zypp/MediaProducts.h>
 #include <zypp/ExternalProgram.h>
+#include <zypp/ProgressData.h>
 
 #include <zypp/base/String.h>
 
@@ -384,6 +385,35 @@ YCPValue PkgModuleFunctions::SourceGetBrokenSources()
     return YCPList();
 }
 
+bool PkgModuleFunctions::SourceLoadReceiver(const zypp::ProgressData &progress)
+{
+    y2milestone("Source Load receiver: %lld (%lld%%)", progress.val(), progress.reportValue());
+
+    // get the YCP callback handler for destroy event
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_ProcessProgress);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	ycp_handler->appendParameter(YCPInteger(progress.reportValue()));
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+
+    return true;
+}
+
+PkgModuleFunctions *ptr = NULL;
+
+bool source_receiver(const zypp::ProgressData &progress)
+{
+    if (ptr != NULL)
+    {
+	return ptr->SourceLoadReceiver(progress);
+    }
+
+    return true;
+}
 
 /****************************************************************************************
  * @builtin SourceLoad
@@ -396,7 +426,52 @@ YCPValue PkgModuleFunctions::SourceGetBrokenSources()
 YCPValue
 PkgModuleFunctions::SourceLoad()
 {
+    std::list<std::string> stages;
+    stages.push_back("Refresh Sources");
+    stages.push_back("Rebuild Cache");
+    stages.push_back("Load Data");
+
+    // 3 steps per repository (download, cache rebuild, load resolvables)
+    ProcessStart("Loading the Package Manager...", stages, "help");
+
+    ptr = this;
+
+    YCPValue ret = SourceLoadImpl(source_receiver);
+
+    ProcessDone();
+
+    ptr = NULL;
+
+    return ret;
+}
+
+
+/****************************************************************************************
+ * @builtin SourceLoad
+ *
+ * @short Load resolvables from the installation sources
+ * @description
+ * Refresh the pool - Add/remove resolvables from the enabled/disabled sources.
+ * @return boolean True on success
+ **/
+YCPValue
+PkgModuleFunctions::SourceLoadImpl(const zypp::ProgressData::ReceiverFnc &progress)
+{
     bool success = true;
+
+    int repos_to_load = 0;
+    for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
+       it != repos.end(); ++it)
+    {
+	if ((*it)->repoInfo().enabled() && !(*it)->isDeleted())
+	{
+	    repos_to_load++;
+	}
+    }
+
+    // set max. value (3 steps per repository)
+    zypp::ProgressData prog_total(repos_to_load * 3);
+    prog_total.sendTo(progress);
 
     for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
        it != repos.end(); ++it)
@@ -404,6 +479,11 @@ PkgModuleFunctions::SourceLoad()
 	// load resolvables only from enabled repos which are not deleted
 	if ((*it)->repoInfo().enabled() && !(*it)->isDeleted())
 	{
+	    // sub tasks
+	    zypp::CombinedProgressData refresh_subprogress(prog_total, 1);
+	    zypp::CombinedProgressData rebuild_subprogress(prog_total, 1);
+	    zypp::CombinedProgressData load_subprogress(prog_total, 1);
+
 	    if (AnyResolvableFrom((*it)->repoInfo().alias()))
 	    {
 		y2milestone("Resolvables from '%s' are already present, not loading", (*it)->repoInfo().alias().c_str());
@@ -418,12 +498,23 @@ PkgModuleFunctions::SourceLoad()
 		    try
 		    {
 			y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
+
+			zypp::ProgressData prog(1);
+		        prog.sendTo(refresh_subprogress);
+			// TODO pass progress to RefreshWithCallbacks
 			RefreshWithCallbacks((*it)->repoInfo());
+			prog.toMax();
 
 			// rebuild cache (the default policy is "if needed")
 			y2milestone("Rebuilding cache for '%s'...", (*it)->repoInfo().alias().c_str());
+
+			zypp::ProgressData prog_build(1);
+		        prog.sendTo(rebuild_subprogress);
 			repomanager.buildCache((*it)->repoInfo());
+			prog_build.toMax();
 		    }
+		    // NOTE: subtask progresses are reported as done in the descructor
+		    // no need to handle them in the exception code
 		    catch (const zypp::Exception& excpt)
 		    {
 			y2error ("Error in SourceLoad: %s", excpt.asString().c_str());
@@ -437,6 +528,9 @@ PkgModuleFunctions::SourceLoad()
 	    }
 	}
     }
+
+    // report 100%
+    prog_total.toMax();
 
     return YCPBoolean(success);
 }
@@ -465,7 +559,7 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	}
 
 	// enable all sources and load the resolvables
-	success = YCPBoolean(SourceLoad()->asBoolean()->value() && success->asBoolean()->value());
+	success = YCPBoolean(SourceLoadImpl()->asBoolean()->value() && success->asBoolean()->value());
     }
 
     return success;
@@ -2758,6 +2852,81 @@ std::string PkgModuleFunctions::yast2zyppType(const std::string &type)
     // we can simply use toLower instead of a conversion table
     // in this case
     return zypp::str::toLower(type);
+}
+
+void PkgModuleFunctions::ProcessStart( const std::string &process, const std::list<std::string> &stages,
+    const std::string &help)
+{
+    // get the YCP callback handler for destroy event
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_ProcessStart);
+
+    y2debug("ProcessStart");
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	y2debug("Evaluating ProcessStart callback...");
+	ycp_handler->appendParameter(YCPString(process));
+
+	// create list of stages
+	YCPList lst;
+
+	for(std::list<std::string>::const_iterator it = stages.begin();
+	    it != stages.end() ; ++it )
+	{
+	    lst->add(YCPString(*it) );
+	}
+
+	ycp_handler->appendParameter(lst);
+
+	ycp_handler->appendParameter(YCPString(help));
+
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+}
+
+
+void PkgModuleFunctions::ProcessNextStage()
+{
+    // get the YCP callback handler for destroy event
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_ProcessNextStage);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+}
+
+void PkgModuleFunctions::ProcessProgress(int percent)
+{
+    // get the YCP callback handler for destroy event
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_ProcessProgress);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	ycp_handler->appendParameter( YCPInteger((long long) percent));
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+}
+
+void PkgModuleFunctions::ProcessDone()
+{
+    y2debug("ProcessDone");
+    // get the YCP callback handler for destroy event
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_ProcessFinished);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	y2milestone("Evaluating ProcessDone callback...");
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
 }
 
 

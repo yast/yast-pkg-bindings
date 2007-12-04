@@ -50,6 +50,7 @@
 #include <zypp/RepoInfo.h>
 #include <zypp/RepoManager.h>
 #include <zypp/MediaSetAccess.h>
+#include <zypp/ProgressData.h>
 
 #include "PkgError.h"
 
@@ -170,6 +171,13 @@ class PkgModuleFunctions : public Y2Namespace
       void RefreshWithCallbacks(const zypp::RepoInfo &repo);
       zypp::repo::RepoType ProbeWithCallbacks(const zypp::Url &url);
       void ScanProductsWithCallBacks(const zypp::Url &url);
+
+      void ProcessStart(const std::string &process, const std::list<std::string> &stages, const std::string &help);
+      void ProcessProgress(int percent);
+      void ProcessNextStage();
+      void ProcessDone();
+
+      YCPValue SourceLoadImpl(const zypp::ProgressData::ReceiverFnc & progress = zypp::ProgressData::ReceiverFnc());
 
       // After all, APPL_HIGH might be more appropriate, because we suggest
       // the user what he should do and if it does not work, it's his job to
@@ -419,6 +427,17 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue CallbackTrustedKeyRemoved( const YCPString& func );	
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackAcceptFileWithoutChecksum( const YCPString& func );	
+
+
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProcessStart( const YCPString& func );	
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProcessProgress( const YCPString& func );	
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProcessNextStage( const YCPString& func );	
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackProcessDone( const YCPString& func );	
+
 
 	// source related
 	/* TYPEINFO: boolean(boolean)*/
@@ -725,6 +744,8 @@ class PkgModuleFunctions : public Y2Namespace
 	 * Constructor.
 	 */
 	PkgModuleFunctions ();
+      
+        bool SourceLoadReceiver(const zypp::ProgressData &progress);
 
 	/**
 	 * Destructor.

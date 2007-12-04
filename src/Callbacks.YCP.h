@@ -103,7 +103,12 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_AcceptVerificationFailed,
       CB_AcceptWrongDigest, CB_AcceptUnknownDigest,
       CB_TrustedKeyAdded,
-      CB_TrustedKeyRemoved
+      CB_TrustedKeyRemoved,
+
+      CB_ProcessStart,
+      CB_ProcessNextStage,
+      CB_ProcessProgress,
+      CB_ProcessFinished,
     };
 
     /**
@@ -201,6 +206,11 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( TrustedKeyRemoved );
 	ENUM_OUT( AcceptWrongDigest );
 	ENUM_OUT( AcceptUnknownDigest );
+
+        ENUM_OUT( ProcessStart );
+        ENUM_OUT( ProcessNextStage );
+        ENUM_OUT( ProcessProgress );
+        ENUM_OUT( ProcessFinished );
 #undef ENUM_OUT
 	// no default! let compiler warn missing values
       }
