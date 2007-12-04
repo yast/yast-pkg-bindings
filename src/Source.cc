@@ -434,6 +434,9 @@ PkgModuleFunctions::SourceLoad()
     // 3 steps per repository (download, cache rebuild, load resolvables)
     ProcessStart("Loading the Package Manager...", stages, "help");
 
+    // mark refreshing as in progress now
+    ProcessNextStage();
+
     ptr = this;
 
     YCPValue ret = SourceLoadImpl(source_receiver);
@@ -473,6 +476,9 @@ PkgModuleFunctions::SourceLoadImpl(const zypp::ProgressData::ReceiverFnc &progre
     zypp::ProgressData prog_total(repos_to_load * 3);
     prog_total.sendTo(progress);
 
+    zypp::RepoManager repomanager = CreateRepoManager();
+
+    // refresh metadata
     for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
        it != repos.end(); ++it)
     {
@@ -481,8 +487,6 @@ PkgModuleFunctions::SourceLoadImpl(const zypp::ProgressData::ReceiverFnc &progre
 	{
 	    // sub tasks
 	    zypp::CombinedProgressData refresh_subprogress(prog_total, 1);
-	    zypp::CombinedProgressData rebuild_subprogress(prog_total, 1);
-	    zypp::CombinedProgressData load_subprogress(prog_total, 1);
 
 	    if (AnyResolvableFrom((*it)->repoInfo().alias()))
 	    {
@@ -490,28 +494,18 @@ PkgModuleFunctions::SourceLoadImpl(const zypp::ProgressData::ReceiverFnc &progre
 	    }
 	    else
 	    {
-		zypp::RepoManager repomanager = CreateRepoManager();
-
 		// autorefresh the source
 		if ((*it)->repoInfo().autorefresh())
 		{
 		    try
 		    {
 			y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
+			RefreshWithCallbacks((*it)->repoInfo());
 
 			zypp::ProgressData prog(1);
-		        prog.sendTo(refresh_subprogress);
-			// TODO pass progress to RefreshWithCallbacks
+			prog.sendTo(refresh_subprogress);
 			RefreshWithCallbacks((*it)->repoInfo());
 			prog.toMax();
-
-			// rebuild cache (the default policy is "if needed")
-			y2milestone("Rebuilding cache for '%s'...", (*it)->repoInfo().alias().c_str());
-
-			zypp::ProgressData prog_build(1);
-		        prog.sendTo(rebuild_subprogress);
-			repomanager.buildCache((*it)->repoInfo());
-			prog_build.toMax();
 		    }
 		    // NOTE: subtask progresses are reported as done in the descructor
 		    // no need to handle them in the exception code
@@ -522,12 +516,83 @@ PkgModuleFunctions::SourceLoadImpl(const zypp::ProgressData::ReceiverFnc &progre
 			success = false;
 		    }
 		}
-
-		// load objects
-		success = LoadResolvablesFrom((*it)->repoInfo()) && success;
 	    }
 	}
     }
+
+    ProcessNextStage();
+
+    // rebuild cache
+    for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
+       it != repos.end(); ++it)
+    {
+	// load resolvables only from enabled repos which are not deleted
+	if ((*it)->repoInfo().enabled() && !(*it)->isDeleted())
+	{
+	    // sub tasks
+	    zypp::CombinedProgressData rebuild_subprogress(prog_total, 1);
+
+	    if (AnyResolvableFrom((*it)->repoInfo().alias()))
+	    {
+		y2milestone("Resolvables from '%s' are already present, not loading", (*it)->repoInfo().alias().c_str());
+	    }
+	    else
+	    {
+		// autorefresh the source
+		if ((*it)->repoInfo().autorefresh())
+		{
+		    try
+		    {
+			// rebuild cache (the default policy is "if needed")
+			y2milestone("Rebuilding cache for '%s'...", (*it)->repoInfo().alias().c_str());
+
+			zypp::ProgressData prog(1);
+			prog.sendTo(rebuild_subprogress);
+			repomanager.buildCache((*it)->repoInfo());
+			prog.toMax();
+		    }
+		    // NOTE: subtask progresses are reported as done in the descructor
+		    // no need to handle them in the exception code
+		    catch (const zypp::Exception& excpt)
+		    {
+			y2error ("Error in SourceLoad: %s", excpt.asString().c_str());
+			_last_error.setLastError(ExceptionAsString(excpt));
+			success = false;
+		    }
+		}
+	    }
+	}
+    }
+
+    ProcessNextStage();
+
+    for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
+       it != repos.end(); ++it)
+    {
+	// load resolvables only from enabled repos which are not deleted
+	if ((*it)->repoInfo().enabled() && !(*it)->isDeleted())
+	{
+	    // sub tasks
+	    zypp::CombinedProgressData load_subprogress(prog_total, 1);
+
+	    if (AnyResolvableFrom((*it)->repoInfo().alias()))
+	    {
+		y2milestone("Resolvables from '%s' are already present, not loading", (*it)->repoInfo().alias().c_str());
+	    }
+	    else
+	    {
+		zypp::ProgressData prog(1);
+		prog.sendTo(load_subprogress);
+
+		// load objects
+		success = LoadResolvablesFrom((*it)->repoInfo()) && success;
+
+		prog.toMax();
+	    }
+	}
+    }
+
+    ProcessNextStage();
 
     // report 100%
     prog_total.toMax();
@@ -559,7 +624,7 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	}
 
 	// enable all sources and load the resolvables
-	success = YCPBoolean(SourceLoadImpl()->asBoolean()->value() && success->asBoolean()->value());
+	success = YCPBoolean(SourceLoad()->asBoolean()->value() && success->asBoolean()->value());
     }
 
     return success;
