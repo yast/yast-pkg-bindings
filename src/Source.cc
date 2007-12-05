@@ -34,7 +34,6 @@
 #include <Callbacks.YCP.h>
 
 #include <zypp/Product.h>
-#include <zypp/target/store/PersistentStorage.h>
 #include <zypp/media/MediaManager.h>
 #include <zypp/media/Mount.h>
 #include <zypp/Pathname.h>
@@ -46,8 +45,6 @@
 #include <zypp/MediaProducts.h>
 #include <zypp/ExternalProgram.h>
 #include <zypp/ProgressData.h>
-
-#include <zypp/base/String.h>
 
 #include <sstream> // ostringstream
 

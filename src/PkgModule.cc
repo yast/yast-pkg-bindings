@@ -25,11 +25,7 @@
 #include <y2util/y2log.h>
 #include <zypp/base/Logger.h>
 #include <zypp/base/LogControl.h>
-#include <zypp/Pathname.h>
 
-// it is never deleted :-/
-// which may be a good thing, because ~PkgModuleFunctions would call
-// the badly designed SourceFinishAll. #176013
 PkgModule* PkgModule::current_pkg = NULL;
 
 struct YaSTZyppLogger : public zypp::base::LogControl::LineWriter

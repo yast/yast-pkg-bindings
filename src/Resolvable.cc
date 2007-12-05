@@ -37,7 +37,6 @@
 #include <zypp/Pattern.h>
 #include <zypp/Language.h>
 #include <zypp/Package.h>
-#include <zypp/base/PtrTypes.h>
 #include <zypp/Dep.h>
 #include <zypp/CapSet.h>
 #include <zypp/PoolItem.h>
