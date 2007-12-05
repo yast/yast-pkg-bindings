@@ -42,7 +42,7 @@ void PkgProgress::Start( const std::string &process, const std::list<std::string
     if (stages.size() > 0)
     {
 	// set the first stage to 'in progress' state
-	pkgprogress.NextStage();
+	NextStage();
     }
 }
 

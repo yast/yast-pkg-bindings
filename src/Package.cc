@@ -206,7 +206,7 @@ PkgModuleFunctions::PkgMediaNames ()
 
 		if (repo_name.empty())
 		{
-		    y2warning("Name of repository '%d' is empty, using URL", index);
+		    y2warning("Name of repository '%zd' is empty, using URL", index);
 
 		    // use URL as the product name
 		    std::string name;

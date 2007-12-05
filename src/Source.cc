@@ -269,7 +269,7 @@ YRepo_Ptr PkgModuleFunctions::logFindRepository(std::vector<YRepo_Ptr>::size_typ
 
 	if (repos[id]->isDeleted())
 	{
-	    y2error("Source %d has been deleted, the ID is not valid", id);
+	    y2error("Source %zd has been deleted, the ID is not valid", id);
 	    return YRepo_Ptr();
 	}
 
@@ -277,7 +277,7 @@ YRepo_Ptr PkgModuleFunctions::logFindRepository(std::vector<YRepo_Ptr>::size_typ
     }
     catch (...)
     {
-	y2error("Cannot find source with ID: %d", id);
+	y2error("Cannot find source with ID: %zd", id);
 	// TODO: improve the error message
 	_last_error.setLastError(_("Cannot find source"));
     }
@@ -340,7 +340,7 @@ PkgModuleFunctions::SourceRestore()
 {
     if (repos.size() > 0)
     {
-	y2warning("Number of registered repositories: %d, skipping repository load!", repos.size());
+	y2warning("Number of registered repositories: %zd, skipping repository load!", repos.size());
 	return YCPBoolean(true);
     }
 
@@ -1576,7 +1576,7 @@ zypp::Url PkgModuleFunctions::shortenUrl(const zypp::Url &url)
     std::string end_path;
 
     // try to convert 'http://server/dir1/dir2/dir3/dir4' -> 'http://server/dir1/.../dir4'
-    unsigned int pos_first = url_path.find("/");
+    std::string::size_type pos_first = url_path.find("/");
     if (pos_first == 0)
     {
 	pos_first = url_path.find("/", 1);
@@ -2555,7 +2555,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 
 	if (repo->repoInfo().enabled() != enable)
 	{
-	    ycpwarning("Pkg::SourceEditSet() does not refresh the pool (src: %d, state: %s)", id, enable ? "disabled -> enabled" : "enabled -> disabled");
+	    ycpwarning("Pkg::SourceEditSet() does not refresh the pool (src: %zd, state: %s)", id, enable ? "disabled -> enabled" : "enabled -> disabled");
 	}
 
         y2debug("set enabled: %d", enable);
@@ -2768,7 +2768,7 @@ bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
 	// load resolvables
 	zypp_ptr()->addResolvables(store);
 
-	y2milestone("Loaded %d resolvables", store.size());
+	y2milestone("Loaded %zd resolvables", store.size());
     }
     catch(const zypp::repo::RepoNotCachedException &excpt )
     {

@@ -773,7 +773,7 @@ PkgModuleFunctions::TargetStoreRemove(const YCPString& root, const YCPSymbol& ki
 	// get all resolvables of the required kind
 	std::list<ResObject::Ptr> objects = store.storedObjects(kind);
 
-	y2warning("Removing %d objects of kind '%s' from %s", objects.size(), req_kind.c_str(), target_root.c_str());
+	y2warning("Removing %zd objects of kind '%s' from %s", objects.size(), req_kind.c_str(), target_root.c_str());
 
 	// remove the resolvables
 	for( std::list<ResObject::Ptr>::const_iterator it = objects.begin(); it != objects.end(); ++it)

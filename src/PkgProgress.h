@@ -40,7 +40,7 @@ class PkgProgress
 	~PkgProgress();
 
     private:
-	PkgModuleFunctions::CallbackHandler &callback_handler;
+	const PkgModuleFunctions::CallbackHandler &callback_handler;
 	zypp::ProgressData::ReceiverFnc progress_handler;
 	bool running;
 
