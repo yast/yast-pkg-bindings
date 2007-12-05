@@ -51,6 +51,7 @@
 
 #include <sstream> // ostringstream
 
+#include <boost/bind.hpp>
 
 /*
   Textdomain "pkg-bindings"
@@ -403,18 +404,6 @@ bool PkgModuleFunctions::SourceLoadReceiver(const zypp::ProgressData &progress)
     return true;
 }
 
-PkgModuleFunctions *ptr = NULL;
-
-bool source_receiver(const zypp::ProgressData &progress)
-{
-    if (ptr != NULL)
-    {
-	return ptr->SourceLoadReceiver(progress);
-    }
-
-    return true;
-}
-
 /****************************************************************************************
  * @builtin SourceLoad
  *
@@ -437,13 +426,10 @@ PkgModuleFunctions::SourceLoad()
     // mark refreshing as in progress now
     ProcessNextStage();
 
-    ptr = this;
-
-    YCPValue ret = SourceLoadImpl(source_receiver);
+    // boost::bind(&PkgModuleFunctions::SourceLoadReceiver, this, _1);
+    YCPValue ret = SourceLoadImpl(boost::bind(&PkgModuleFunctions::SourceLoadReceiver, this, _1));
 
     ProcessDone();
-
-    ptr = NULL;
 
     return ret;
 }
@@ -472,7 +458,7 @@ PkgModuleFunctions::SourceLoadImpl(const zypp::ProgressData::ReceiverFnc &progre
 	}
     }
 
-    // set max. value (3 steps per repository)
+    // set max. value (3 steps per repository - refresh, rebuild, load)
     zypp::ProgressData prog_total(repos_to_load * 3);
     prog_total.sendTo(progress);
 
@@ -592,8 +578,6 @@ PkgModuleFunctions::SourceLoadImpl(const zypp::ProgressData::ReceiverFnc &progre
 	}
     }
 
-    ProcessNextStage();
-
     // report 100%
     prog_total.toMax();
 
@@ -628,16 +612,13 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 
 	// mark refreshing as in progress now
 	ProcessNextStage();
-
-	ptr = this;
     }
 
-    YCPValue ret = SourceStartManagerImpl(enable, source_receiver);
+    YCPValue ret = SourceStartManagerImpl(enable, boost::bind(&PkgModuleFunctions::SourceLoadReceiver, this, _1));
 
     if (enable->value())
     {
 	ProcessDone();
-	ptr = NULL;
     }
 
     return ret;
