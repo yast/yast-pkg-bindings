@@ -22,6 +22,7 @@ libpy2Pkg_la_SOURCES =				\
 	Y2CCPkg.cc Y2CCPkg.h			\
 	ycpTools.cc ycpTools.h			\
 	PkgModule.cc PkgModule.h		\
+	PkgProgress.cc PkgProgress.h		\
 	PkgModuleFunctions.h			\
 	PkgModuleFunctions.cc			\
 	Package.cc				\

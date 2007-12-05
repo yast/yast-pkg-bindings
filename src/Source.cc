@@ -48,7 +48,7 @@
 
 #include <sstream> // ostringstream
 
-#include <boost/bind.hpp>
+#include <PkgProgress.h>
 
 /*
   Textdomain "pkg-bindings"
@@ -417,16 +417,14 @@ PkgModuleFunctions::SourceLoad()
     stages.push_back("Rebuild Cache");
     stages.push_back("Load Data");
 
+    PkgProgress pkgprogress(_callbackHandler);
+
     // 3 steps per repository (download, cache rebuild, load resolvables)
-    ProcessStart("Loading the Package Manager...", stages, "help");
+    pkgprogress.Start("Loading the Package Manager...", stages, "help");
 
-    // mark refreshing as in progress now
-    ProcessNextStage();
+    YCPValue ret = SourceLoadImpl(pkgprogress);
 
-    // boost::bind(&PkgModuleFunctions::SourceLoadReceiver, this, _1);
-    YCPValue ret = SourceLoadImpl(boost::bind(&PkgModuleFunctions::SourceLoadReceiver, this, _1));
-
-    ProcessDone();
+    pkgprogress.Done();
 
     return ret;
 }
@@ -441,7 +439,7 @@ PkgModuleFunctions::SourceLoad()
  * @return boolean True on success
  **/
 YCPValue
-PkgModuleFunctions::SourceLoadImpl(const zypp::ProgressData::ReceiverFnc &progress)
+PkgModuleFunctions::SourceLoadImpl(PkgProgress &progress)
 {
     bool success = true;
 
@@ -457,7 +455,7 @@ PkgModuleFunctions::SourceLoadImpl(const zypp::ProgressData::ReceiverFnc &progre
 
     // set max. value (3 steps per repository - refresh, rebuild, load)
     zypp::ProgressData prog_total(repos_to_load * 3);
-    prog_total.sendTo(progress);
+    prog_total.sendTo(progress.Receiver());
 
     zypp::RepoManager repomanager = CreateRepoManager();
 
@@ -503,7 +501,7 @@ PkgModuleFunctions::SourceLoadImpl(const zypp::ProgressData::ReceiverFnc &progre
 	}
     }
 
-    ProcessNextStage();
+    progress.NextStage();
 
     // rebuild cache
     for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
@@ -547,7 +545,7 @@ PkgModuleFunctions::SourceLoadImpl(const zypp::ProgressData::ReceiverFnc &progre
 	}
     }
 
-    ProcessNextStage();
+    progress.NextStage();
 
     for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
        it != repos.end(); ++it)
@@ -595,6 +593,8 @@ PkgModuleFunctions::SourceLoadImpl(const zypp::ProgressData::ReceiverFnc &progre
 YCPValue
 PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 {
+    PkgProgress pkgprogress(_callbackHandler);
+
     // display the progress only when 'enable' is true
     if (enable->value())
     {
@@ -603,19 +603,16 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	stages.push_back("Refresh Sources");
 	stages.push_back("Rebuild Cache");
 	stages.push_back("Load Data");
-
+    
 	// 3 steps per repository (download, cache rebuild, load resolvables)
-	ProcessStart("Loading the Package Manager...", stages, "help");
-
-	// mark refreshing as in progress now
-	ProcessNextStage();
+	pkgprogress.Start("Loading the Package Manager...", stages, "help");
     }
 
-    YCPValue ret = SourceStartManagerImpl(enable, boost::bind(&PkgModuleFunctions::SourceLoadReceiver, this, _1));
+    YCPValue ret = SourceStartManagerImpl(enable, pkgprogress);
 
     if (enable->value())
     {
-	ProcessDone();
+	pkgprogress.Done();
     }
 
     return ret;
@@ -632,11 +629,11 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceStartManagerImpl(const YCPBoolean& enable, const zypp::ProgressData::ReceiverFnc &progress)
+PkgModuleFunctions::SourceStartManagerImpl(const YCPBoolean& enable, PkgProgress &progress)
 {
     YCPValue success = SourceRestore();
 
-    ProcessNextStage();
+    progress.NextStage();
 
     if( enable->value() )
     {
@@ -2940,80 +2937,4 @@ std::string PkgModuleFunctions::yast2zyppType(const std::string &type)
     // in this case
     return zypp::str::toLower(type);
 }
-
-void PkgModuleFunctions::ProcessStart( const std::string &process, const std::list<std::string> &stages,
-    const std::string &help)
-{
-    // get the YCP callback handler for destroy event
-    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_ProcessStart);
-
-    y2debug("ProcessStart");
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
-    {
-	y2debug("Evaluating ProcessStart callback...");
-	ycp_handler->appendParameter(YCPString(process));
-
-	// create list of stages
-	YCPList lst;
-
-	for(std::list<std::string>::const_iterator it = stages.begin();
-	    it != stages.end() ; ++it )
-	{
-	    lst->add(YCPString(*it) );
-	}
-
-	ycp_handler->appendParameter(lst);
-
-	ycp_handler->appendParameter(YCPString(help));
-
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
-    }
-}
-
-
-void PkgModuleFunctions::ProcessNextStage()
-{
-    // get the YCP callback handler for destroy event
-    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_ProcessNextStage);
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
-    {
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
-    }
-}
-
-void PkgModuleFunctions::ProcessProgress(int percent)
-{
-    // get the YCP callback handler for destroy event
-    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_ProcessProgress);
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
-    {
-	ycp_handler->appendParameter( YCPInteger((long long) percent));
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
-    }
-}
-
-void PkgModuleFunctions::ProcessDone()
-{
-    y2debug("ProcessDone");
-    // get the YCP callback handler for destroy event
-    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_ProcessFinished);
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
-    {
-	y2milestone("Evaluating ProcessDone callback...");
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
-    }
-}
-
 

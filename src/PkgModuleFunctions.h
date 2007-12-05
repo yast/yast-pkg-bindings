@@ -53,7 +53,8 @@
 #include <zypp/ProgressData.h>
 
 #include "PkgError.h"
-
+//#include "PkgProgress.h"
+class PkgProgress;
 
 // textdomain
 extern "C" {
@@ -172,13 +173,8 @@ class PkgModuleFunctions : public Y2Namespace
       zypp::repo::RepoType ProbeWithCallbacks(const zypp::Url &url);
       void ScanProductsWithCallBacks(const zypp::Url &url);
 
-      void ProcessStart(const std::string &process, const std::list<std::string> &stages, const std::string &help);
-      void ProcessProgress(int percent);
-      void ProcessNextStage();
-      void ProcessDone();
-
-      YCPValue SourceLoadImpl(const zypp::ProgressData::ReceiverFnc & progress = zypp::ProgressData::ReceiverFnc());
-      YCPValue SourceStartManagerImpl(const YCPBoolean&, const zypp::ProgressData::ReceiverFnc & progress = zypp::ProgressData::ReceiverFnc());
+      YCPValue SourceLoadImpl(PkgProgress &progress);
+      YCPValue SourceStartManagerImpl(const YCPBoolean& enable, PkgProgress &progress);
 
       // After all, APPL_HIGH might be more appropriate, because we suggest
       // the user what he should do and if it does not work, it's his job to
