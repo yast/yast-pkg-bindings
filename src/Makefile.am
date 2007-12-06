@@ -25,16 +25,29 @@ libpy2Pkg_la_SOURCES =				\
 	PkgProgress.cc PkgProgress.h		\
 	PkgModuleFunctions.h			\
 	PkgModuleFunctions.cc			\
+	PkgModuleFunctions_Register.cc		\
 	Package.cc				\
 	Patch.cc				\
 	Resolvable.cc				\
 	Selection.cc				\
 	Target.cc				\
-	Source.cc				\
+	Locale.cc				\
+	Source_Callbacks.cc			\
+	Source_Create.cc			\
+	Source_Download.cc			\
+	Source_Get.cc				\
+	Source_Installation.cc			\
+	Source_Load.cc				\
+	Source_Misc.cc				\
+	Source_Resolvables.cc			\
+	Source_Save.cc				\
+	Source_Set.cc				\
 	Keyring.cc				\
 	Callbacks.h				\
-	Callbacks.YCP.h				\
-	Callbacks.cc
+	Callbacks.YCP.h Callbacks.YCP.cc	\
+	Callbacks.cc Callbacks_Register.cc	\
+	Y2PkgFunction.cc Y2PkgFunction.h	\
+	YRepo.h YRepo.cc
 
 
 libpy2Pkg_la_LDFLAGS = -version-info 2:0

@@ -52,6 +52,8 @@
 #include <zypp/MediaSetAccess.h>
 #include <zypp/ProgressData.h>
 
+#include <YRepo.h>
+
 #include "PkgError.h"
 //#include "PkgProgress.h"
 class PkgProgress;
@@ -68,31 +70,6 @@ extern "C" {
 
 // define new _ macro
 #define _(MSG) ::dgettext("pkg-bindings", MSG)
-
-DEFINE_PTR_TYPE(YRepo);
-class YRepo : public zypp::base::ReferenceCounted
-{
-private:
-    zypp::RepoInfo _repo;
-    zypp::MediaSetAccess_Ptr _maccess;
-    bool _deleted;
-
-    YRepo() {}
-
-public:
-    YRepo(zypp::RepoInfo & repo);
-    ~YRepo();
-
-    const zypp::RepoInfo & repoInfo() const { return _repo; }
-    zypp::RepoInfo & repoInfo() { return _repo; }
-    zypp::MediaSetAccess_Ptr & mediaAccess();
-
-    bool isDeleted() {return _deleted;}
-    void setDeleted() {_deleted = true;}
-
-public:
-    static const YRepo NOREPO;
-};
 
 /**
  * A simple class for package management access
