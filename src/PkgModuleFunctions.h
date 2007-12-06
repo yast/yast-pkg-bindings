@@ -49,8 +49,6 @@
 #include <zypp/DiskUsageCounter.h>
 #include <zypp/RepoInfo.h>
 #include <zypp/RepoManager.h>
-#include <zypp/MediaSetAccess.h>
-#include <zypp/ProgressData.h>
 
 #include <YRepo.h>
 
@@ -719,8 +717,6 @@ class PkgModuleFunctions : public Y2Namespace
 	 */
 	PkgModuleFunctions ();
       
-        bool SourceLoadReceiver(const zypp::ProgressData &progress);
-
 	/**
 	 * Destructor.
 	 */

@@ -19,7 +19,7 @@
  */
 
 /*
-   File:	$Id:$
+   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions for initializing the package manager
 */
@@ -89,24 +89,6 @@ YCPValue PkgModuleFunctions::SourceGetBrokenSources()
 {
     y2warning("Pkg::SourceGetBrokenSources() is obsoleted, it's not needed anymore.");
     return YCPList();
-}
-
-bool PkgModuleFunctions::SourceLoadReceiver(const zypp::ProgressData &progress)
-{
-    y2milestone("Source Load receiver: %lld (%lld%%)", progress.val(), progress.reportValue());
-
-    // get the YCP callback handler for destroy event
-    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_ProcessProgress);
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
-    {
-	ycp_handler->appendParameter(YCPInteger(progress.reportValue()));
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
-    }
-
-    return true;
 }
 
 /****************************************************************************************
