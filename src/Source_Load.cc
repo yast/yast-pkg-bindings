@@ -103,14 +103,14 @@ YCPValue
 PkgModuleFunctions::SourceLoad()
 {
     std::list<std::string> stages;
-    stages.push_back("Refresh Sources");
-    stages.push_back("Rebuild Cache");
-    stages.push_back("Load Data");
+    stages.push_back(_("Refresh Sources"));
+    stages.push_back(_("Rebuild Cache"));
+    stages.push_back(_("Load Data"));
 
     PkgProgress pkgprogress(_callbackHandler);
 
     // 3 steps per repository (download, cache rebuild, load resolvables)
-    pkgprogress.Start("Loading the Package Manager...", stages, "help");
+    pkgprogress.Start(_("Loading the Package Manager..."), stages, _("help"));
 
     YCPValue ret = SourceLoadImpl(pkgprogress);
 
@@ -289,13 +289,13 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
     if (enable->value())
     {
 	std::list<std::string> stages;
-	stages.push_back("Load Sources");
-	stages.push_back("Refresh Sources");
-	stages.push_back("Rebuild Cache");
-	stages.push_back("Load Data");
+	stages.push_back(_("Load Sources"));
+	stages.push_back(_("Refresh Sources"));
+	stages.push_back(_("Rebuild Cache"));
+	stages.push_back(_("Load Data"));
     
 	// 3 steps per repository (download, cache rebuild, load resolvables)
-	pkgprogress.Start("Loading the Package Manager...", stages, "help");
+	pkgprogress.Start(_("Loading the Package Manager..."), stages, _("help"));
     }
 
     YCPValue ret = SourceStartManagerImpl(enable, pkgprogress);
