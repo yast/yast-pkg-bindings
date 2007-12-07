@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Dec  7 12:58:09 CET 2007 - lslezak@suse.cz
+
+- added Process callbacks for handling multistage progress
+- some source files have been split to smaller parts
+- added total progress to source and target initialization
+- 2.16.5
+
+-------------------------------------------------------------------
 Wed Nov 21 14:11:42 CET 2007 - lslezak@suse.cz
 
 - Pkg::SourceCreate(): return -1 instead of 4294967295 when
