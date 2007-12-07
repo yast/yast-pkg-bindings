@@ -32,6 +32,10 @@
 
 #include <PkgProgress.h>
 
+/*
+  Textdomain "pkg-bindings"
+*/
+
 /****************************************************************************************
  * @builtin SourceRestore
  *

@@ -31,6 +31,10 @@
 #include <PkgModuleFunctions.h>
 
 /*
+  Textdomain "pkg-bindings"
+*/
+
+/*
  * A helper function - remove all resolvables from the repository from the pool
  */
 void PkgModuleFunctions::RemoveResolvablesFrom(const std::string &alias)

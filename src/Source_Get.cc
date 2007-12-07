@@ -32,6 +32,10 @@
 
 #include <zypp/Product.h>
 
+/*
+  Textdomain "pkg-bindings"
+*/
+
 /****************************************************************************************
  * @builtin SourceGetCurrent
  *

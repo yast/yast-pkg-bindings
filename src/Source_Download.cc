@@ -30,6 +30,9 @@
 #include <PkgModule.h>
 #include <PkgModuleFunctions.h>
 
+/*
+  Textdomain "pkg-bindings"
+*/
 
 YCPValue PkgModuleFunctions::SourceProvideFileCommon(const YCPInteger &id,
 					       const YCPInteger &mid,

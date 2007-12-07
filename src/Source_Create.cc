@@ -33,6 +33,10 @@
 #include <zypp/MediaProducts.h>
 #include <zypp/media/Mount.h>
 
+/*
+  Textdomain "pkg-bindings"
+*/
+
 // scanned available products
 // hack: zypp/MediaProducts.h cannot be included in PkgModuleFunctions.h
 zypp::MediaProductSet available_products;

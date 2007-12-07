@@ -19,7 +19,7 @@
  */
 
 /*
-   File:	$Id:$
+   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Generic functions for accessing repositories from Yast
 */
@@ -31,6 +31,10 @@
 #include <PkgModuleFunctions.h>
 
 #include <sstream> // ostringstream
+
+/*
+  Textdomain "pkg-bindings"
+*/
 
 /**
  * Logging helper:

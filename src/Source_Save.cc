@@ -30,6 +30,9 @@
 #include <PkgModule.h>
 #include <PkgModuleFunctions.h>
 
+/*
+  Textdomain "pkg-bindings"
+*/
 
 /****************************************************************************************
  * @builtin SourceReleaseAll

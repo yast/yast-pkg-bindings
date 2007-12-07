@@ -32,6 +32,10 @@
 
 #include <zypp/ExternalProgram.h>
 
+/*
+  Textdomain "pkg-bindings"
+*/
+
 /****************************************************************************************
  * @builtin SourceSetRamCache
  * @short Obsoleted function, do not use

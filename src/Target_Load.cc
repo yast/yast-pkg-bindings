@@ -38,6 +38,10 @@
 #include <zypp/Target.h>
 #include "PkgProgress.h"
 
+/*
+  Textdomain "pkg-bindings"
+*/
+
 /** ------------------------
  *
  * @builtin TargetInit

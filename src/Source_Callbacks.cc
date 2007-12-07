@@ -30,6 +30,10 @@
 #include <PkgModule.h>
 #include <PkgModuleFunctions.h>
 
+/*
+  Textdomain "pkg-bindings"
+*/
+
 void PkgModuleFunctions::CallSourceReportStart(const std::string &text)
 {
     // get the YCP callback handler
