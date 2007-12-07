@@ -62,19 +62,22 @@ void PkgProgress::NextStage()
 
 void PkgProgress::Done()
 {
-    y2debug("ProcessDone");
-    // get the YCP callback handler for destroy event
-    Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgModuleFunctions::CallbackHandler::YCPCallbacks::CB_ProcessFinished);
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
+    if (running)
     {
-	y2milestone("Evaluating ProcessDone callback...");
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
-    }
+	y2debug("ProcessDone");
+	// get the YCP callback handler for destroy event
+	Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgModuleFunctions::CallbackHandler::YCPCallbacks::CB_ProcessFinished);
 
-    running = false;
+	// is the callback registered?
+	if (ycp_handler != NULL)
+	{
+	    y2milestone("Evaluating ProcessDone callback...");
+	    // evaluate the callback function
+	    ycp_handler->evaluateCall();
+	}
+
+	running = false;
+    }
 }
 
 bool PkgProgress::Receiver(const zypp::ProgressData &progress)
