@@ -1,5 +1,5 @@
 
-#include "PkgModuleFunctions.h";
+#include "PkgModuleFunctions.h"
 
 void PkgModuleFunctions::registerFunctions()
 {
