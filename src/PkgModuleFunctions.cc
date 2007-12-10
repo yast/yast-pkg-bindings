@@ -40,7 +40,7 @@
 // textdomain
 #include <libintl.h>                                                                                                                                           
 
-#include "Y2PkgFunction.h";
+#include "Y2PkgFunction.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
