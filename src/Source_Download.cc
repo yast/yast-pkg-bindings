@@ -19,7 +19,7 @@
  */
 
 /*
-   File:	$Id:$
+   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions for downloading files from a repository
 */
@@ -29,6 +29,7 @@
 
 #include <PkgModule.h>
 #include <PkgModuleFunctions.h>
+#include <PkgProgress.h>
 
 /*
   Textdomain "pkg-bindings"
@@ -232,11 +233,29 @@ PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
     if (!repo)
 	return YCPBoolean(false);
 
+    PkgProgress pkgprogress(_callbackHandler);
+    std::list<std::string> stages;
+
+    // stages: "download", "build cache"
+    stages.push_back(_("Refresh Metadata"));
+    stages.push_back(_("Rebuild Cache"));
+
+    // two steps
+    zypp::ProgressData prog_total(2);
+    prog_total.sendTo(pkgprogress.Receiver());
+
+    // 3 steps per repository (download, cache rebuild, load resolvables)
+    pkgprogress.Start(_("Refreshing Repository..."), stages, _("TODO: help"));
+
     try
     {
 	zypp::RepoManager repomanager = CreateRepoManager();
 	y2milestone("Refreshing metadata '%s'", repo->repoInfo().alias().c_str());
 	RefreshWithCallbacks(repo->repoInfo());
+
+	// next stage, increase progress
+	prog_total.incr();
+	pkgprogress.NextStage();
 
 	y2milestone("Caching source '%s'...", repo->repoInfo().alias().c_str());
 	repomanager.buildCache(repo->repoInfo());
@@ -247,6 +266,8 @@ PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
 	_last_error.setLastError(repo->repoInfo().alias() + ": " + ExceptionAsString(expt));
 	return YCPBoolean(false);
     }
+
+    pkgprogress.Done();
 
     return YCPBoolean( true );
 }

@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Dec 10 14:25:09 CET 2007 - lslezak@suse.cz
+
+- added total progress to Pkg::SourceRefreshNow()
+
+-------------------------------------------------------------------
 Fri Dec  7 12:58:09 CET 2007 - lslezak@suse.cz
 
 - added Process callbacks for handling multistage progress
