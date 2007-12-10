@@ -2,6 +2,7 @@
 Mon Dec 10 14:25:09 CET 2007 - lslezak@suse.cz
 
 - added total progress to Pkg::SourceRefreshNow()
+- added total progress to Pkg::SourceSaveAll()
 
 -------------------------------------------------------------------
 Fri Dec  7 12:58:09 CET 2007 - lslezak@suse.cz

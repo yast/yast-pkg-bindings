@@ -19,7 +19,7 @@
  */
 
 /*
-   File:	$Id:$
+   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions for saving repository configuration
 */
@@ -29,6 +29,7 @@
 
 #include <PkgModule.h>
 #include <PkgModuleFunctions.h>
+#include <PkgProgress.h>
 
 /*
   Textdomain "pkg-bindings"
@@ -74,6 +75,53 @@ PkgModuleFunctions::SourceSaveAll ()
 {
     y2milestone("Saving the source setup...");
 
+    // nothing to save, return success
+    if (repos.size() == 0)
+    {
+	y2debug("No repository defined, saving skipped");
+	return YCPBoolean(true);
+    }
+
+    // count removed repos
+    int removed_repos = 0;
+    for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
+	it != repos.end(); ++it)
+    {
+	// the repo has been removed
+	if ((*it)->isDeleted())
+	{
+	    removed_repos++;
+	}
+    }
+
+    y2debug("Found %d removed repositories", removed_repos);
+
+    // number of steps:
+    //   for removed repository: 3 (remove metadata, remove from cache, remove .repo file)
+    //   for other repositories: 1 (just save/update .repo file)
+    //   (so there are 2 extra steps for removed repos)
+    int save_steps = 2*removed_repos + repos.size();
+
+    PkgProgress pkgprogress(_callbackHandler);
+    std::list<std::string> stages;
+
+    if (removed_repos > 0)
+    {
+	stages.push_back(_("Remove Repositories"));
+    }
+
+
+    // stages: "download", "build cache"
+    stages.push_back(_("Save Repositories"));
+
+    // set number of step
+    zypp::ProgressData prog_total(save_steps);
+    // set the receiver
+    prog_total.sendTo(pkgprogress.Receiver());
+
+    // start the process
+    pkgprogress.Start(_("Saving Repositories..."), stages, _("TODO: help"));
+
     zypp::RepoManager repomanager = CreateRepoManager();
 
     // remove deleted repos (the old configurations) at first
@@ -94,6 +142,7 @@ PkgModuleFunctions::SourceSaveAll ()
 		    y2milestone("Removing metadata for source '%s'...", repo_alias.c_str());
 		    repomanager.cleanMetadata((*it)->repoInfo());
 		}
+		prog_total.incr();
 
 		// remove the cache
 		if (repomanager.isCached((*it)->repoInfo()))
@@ -101,10 +150,13 @@ PkgModuleFunctions::SourceSaveAll ()
 		    y2milestone("Removing cache for '%s'...", repo_alias.c_str());
 		    repomanager.cleanCache((*it)->repoInfo());
 		}
+		prog_total.incr();
 
+		// does the repository exist?
 		repomanager.getRepositoryInfo(repo_alias);
 		y2milestone("Removing repository '%s'", repo_alias.c_str());
 		repomanager.removeRepository((*it)->repoInfo());
+		prog_total.incr();
 	    }
 	    catch (const zypp::repo::RepoNotFoundException &ex)
 	    {
@@ -118,6 +170,11 @@ PkgModuleFunctions::SourceSaveAll ()
 		return YCPBoolean(false);
 	    }
 	}
+    }
+
+    if (removed_repos > 0)
+    {
+	pkgprogress.NextStage();
     }
 
     // save all repos (the current configuration)
@@ -150,6 +207,8 @@ PkgModuleFunctions::SourceSaveAll ()
 		_last_error.setLastError(ExceptionAsString(excpt));
 		return YCPBoolean(false);
 	    }
+
+	    prog_total.incr();
 	}
     }
 
