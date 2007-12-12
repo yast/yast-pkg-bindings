@@ -8,6 +8,7 @@ Wed Dec 12 09:21:54 CET 2007 - lslezak@suse.cz
 - PkgProgress - don't evaluate the callbacks when the progress
   is not enabled (started)
 - added total progress to Pkg::SourceCreate()
+- merged Pkg::SourceCreate() and Pkg::SourceScan() code 
 
 -------------------------------------------------------------------
 Fri Dec  7 12:58:09 CET 2007 - lslezak@suse.cz

@@ -428,7 +428,7 @@ class PkgModuleFunctions : public Y2Namespace
 	YCPValue SourceCreateBase (const YCPString&, const YCPString&);
 	/* TYPEINFO: integer(string,string,string)*/
 	YCPValue SourceCreateType (const YCPString& media, const YCPString& pd, const YCPString& type);
-	YCPValue SourceCreateEx (const YCPString&, const YCPString&, bool, const YCPString& source_type);
+	YCPValue SourceCreateEx (const YCPString&, const YCPString&, bool, const YCPString& source_type, bool scan_only = false);
 	/* TYPEINFO: list<integer>(boolean)*/
 	YCPValue SourceStartCache (const YCPBoolean&);
 	/* TYPEINFO: boolean()*/

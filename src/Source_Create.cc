@@ -560,7 +560,7 @@ PkgModuleFunctions::SourceCreateType (const YCPString& media, const YCPString& p
 }
 
 YCPValue
-PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool base, const YCPString& source_type)
+PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool base, const YCPString& source_type, bool scan_only)
 {
   y2debug("Creating source...");
 
@@ -577,10 +577,6 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     _last_error.setLastError(ExceptionAsString(expt));
     return YCPInteger (-1LL);
   }
-
-
-  YCPList ids;
-  std::vector<zypp::RepoInfo>::size_type ret = -1LL;
 
   const std::string type = source_type->value();
   const bool scan = pd->value().empty();
@@ -602,13 +598,20 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
   stages.push_back(_("Download Descriptions"));
   stages.push_back(_("Rebuild Cache"));
-  stages.push_back(_("Load Data"));
+
+  if (!scan_only)
+  {
+    stages.push_back(_("Load Data"));
+  }
 
   pkgprogress.Start(_("Adding the Repository..."), stages, _("TODO: help"));
 
   zypp::ProgressData prg(100);
   prg.sendTo(pkgprogress.Receiver());
   prg.toMin();
+
+  // remember the new ids for loading the resolvables
+  std::list<std::vector<zypp::RepoInfo>::size_type> new_repos;
 
   if (scan) {
     // scan all sources
@@ -636,9 +639,6 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     prg.set(5);
     pkgprogress.NextStage();
 
-    // remember the new ids for loading the resolvables
-    std::list<std::vector<zypp::RepoInfo>::size_type> new_repos;
-
     // register the repositories
     for( zypp::MediaProductSet::const_iterator it = products.begin();
 	it != products.end() ; ++it )
@@ -661,31 +661,30 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	}
     }
 
-    // load resolvables
-    for(std::list<std::vector<zypp::RepoInfo>::size_type>::const_iterator it = new_repos.begin();
-	it != new_repos.end() ; ++it )
+    if (!scan_only)
     {
-	zypp::CombinedProgressData subprogrcv2(prg, 10/products.size());
-
-	try
+	// load resolvables
+	for(std::list<std::vector<zypp::RepoInfo>::size_type>::const_iterator it = new_repos.begin();
+	    it != new_repos.end() ; ++it )
 	{
-	    YRepo_Ptr repo = logFindRepository(*it);
+	    zypp::CombinedProgressData subprogrcv2(prg, 10/products.size());
 
-	    // no detailed progress needed, refresh has been done in createManagedSource()
-	    LoadResolvablesFrom(repo->repoInfo(), subprogrcv2);
-	}
-	catch ( const zypp::Exception& excpt)
-	{
-	    y2error("SourceCreate for '%s' product '%s' has failed"
-		, url.asString().c_str(), pn.asString().c_str());
-	    _last_error.setLastError(ExceptionAsString(excpt));
-	    return YCPInteger(-1LL);
+	    try
+	    {
+		YRepo_Ptr repo = logFindRepository(*it);
+
+		// no detailed progress needed, refresh has been done in createManagedSource()
+		LoadResolvablesFrom(repo->repoInfo(), subprogrcv2);
+	    }
+	    catch ( const zypp::Exception& excpt)
+	    {
+		y2error("SourceCreate for '%s' product '%s' has failed"
+		    , url.asString().c_str(), pn.asString().c_str());
+		_last_error.setLastError(ExceptionAsString(excpt));
+		return YCPInteger(-1LL);
+	    }
 	}
     }
-
-    // return ID of the _first_ repository
-    ret = *new_repos.begin();
-
   } else {
     y2debug("Creating source...");
 
@@ -694,14 +693,18 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
     try
     {
-	ret = createManagedSource(url, pn, base, type, "", pkgprogress, subprogrcv_create);
-	pkgprogress.NextStage();
+	std::vector<zypp::RepoInfo>::size_type new_id = createManagedSource(url, pn, base, type, "", pkgprogress, subprogrcv_create);
+	new_repos.push_back(new_id);
 
-	YRepo_Ptr repo = logFindRepository(ret);
-	repo->repoInfo().setEnabled(true);
+	if (!scan_only)
+	{
+	    pkgprogress.NextStage();
 
-	// load the resolvables
-	LoadResolvablesFrom(repo->repoInfo(), subprogrcv_load);
+	    YRepo_Ptr repo = logFindRepository(new_id);
+
+	    // load the resolvables
+	    LoadResolvablesFrom(repo->repoInfo(), subprogrcv_load);
+	}
     }
     catch ( const zypp::Exception& excpt)
     {
@@ -713,9 +716,24 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
   prg.toMax();
 
-  PkgFreshen();
+  if (!scan_only)
+  {
+      PkgFreshen();
+      return YCPInteger(*new_repos.begin());
+  }
+  else
+  {
+      YCPList ids;
 
-  return YCPInteger(ret);
+      // load resolvables
+      for(std::list<std::vector<zypp::RepoInfo>::size_type>::const_iterator it = new_repos.begin();
+	it != new_repos.end() ; ++it )
+      {
+	    ids->add(YCPInteger(*it));
+      }
+    
+      return ids;
+  }
 }
 
 /****************************************************************************************
@@ -797,87 +815,8 @@ YCPValue PkgModuleFunctions::RepositoryProbe(const YCPString& url, const YCPStri
 YCPValue
 PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 {
-  zypp::Url url;
-
-  try {
-    url = zypp::Url(media->value ());
-  }
-  catch(const zypp::Exception & expt )
-  {
-    y2error ("Invalid URL: %s", expt.asString().c_str());
-    _last_error.setLastError(ExceptionAsString(expt));
-    return YCPList();
-  }
-
-  zypp::Pathname pn(pd->value ());
-
-  YCPList ids;
-  std::vector<zypp::RepoInfo>::size_type id;
-
-  // TODO add total progress
-  PkgProgress pkgprogress(_callbackHandler);
-
-  if ( pd->value().empty() ) {
-
-    // scan all sources
-    zypp::MediaProductSet products;
-
-    try
-    {
-	y2milestone("Scanning products in %s ...", url.asString().c_str());
-	ScanProductsWithCallBacks(url);
-	products = available_products;
-    }
-    catch ( const zypp::Exception& excpt)
-    {
-	y2error("Scanning products for '%s' has failed"
-		, url.asString().c_str());
-	_last_error.setLastError(ExceptionAsString(excpt));
-	return ids;
-    }
-    
-    if( products.empty() )
-    {
-	// no products found, use the base URL instead
-	zypp::MediaProductEntry entry;
-	products.insert(entry);
-    }
-    
-    for( zypp::MediaProductSet::const_iterator it = products.begin();
-	it != products.end() ; ++it )
-    {
-	try
-	{
-	    y2milestone("Using product %s in directory %s", it->_name.c_str(), it->_dir.c_str());
-	    id = createManagedSource(url, it->_dir, false, "", it->_name, pkgprogress);
-	    ids->add( YCPInteger(id) );
-	}
-	catch ( const zypp::Exception& excpt)
-	{
-	    y2error("SourceScan for '%s' product '%s' has failed"
-		, url.asString().c_str(), pn.asString().c_str());
-	    _last_error.setLastError(ExceptionAsString(excpt));
-	}
-    }
-  } else {
-    y2debug("Creating source...");
-
-    try
-    {
-	id = createManagedSource(url, pn, false, "", "", pkgprogress);
-	ids->add( YCPInteger(id) );
-    }
-    catch ( const zypp::Exception& excpt)
-    {
-	y2error("SourceScan for '%s' product '%s' has failed"
-	    , url.asString().c_str(), pn.asString().c_str());
-	_last_error.setLastError(ExceptionAsString(excpt));
-    }
-  }
-
-  y2milestone("Found sources: %s", ids->toString().c_str() );
-
-  return ids;
+    // not base product, autoprobe source type, scanning only
+    return SourceCreateEx(media, pd, false, YCPString(""), true);
 }
 
 /****************************************************************************************
