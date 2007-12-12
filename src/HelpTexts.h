@@ -24,6 +24,10 @@
    Summary:     Help texts for callbacks
 */
 
+/*
+  Textdomain "pkg-bindings"
+*/
+
 #include <i18n.h>
 
 namespace HelpTexts

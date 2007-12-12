@@ -10,6 +10,7 @@ Wed Dec 12 09:21:54 CET 2007 - lslezak@suse.cz
 - added total progress to Pkg::SourceCreate()
 - merged Pkg::SourceCreate() and Pkg::SourceScan() code 
 - added help texts to total progresses
+- added POTFILES (to read texts from src/HelpTexts.h)
 - 2.16.6
 
 -------------------------------------------------------------------
