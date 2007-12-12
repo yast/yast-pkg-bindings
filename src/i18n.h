@@ -1,4 +1,3 @@
-
 /* ------------------------------------------------------------------------------
  * Copyright (c) 2007 Novell, Inc. All Rights Reserved.
  *
@@ -22,39 +21,19 @@
 /*
    File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
-   Summary:     YRepo class is a Yast representaion of a repository
+   Summary:     definition of _() translation macro
 */
 
-#ifndef YRepo_h
-#define YRepo_h
+// textdomain
+extern "C" {
+#include <libintl.h>
+}
 
-#include <zypp/RepoInfo.h>
-#include <zypp/MediaSetAccess.h>
-#include <zypp/base/ReferenceCounted.h>
-
-DEFINE_PTR_TYPE(YRepo);
-class YRepo : public zypp::base::ReferenceCounted
-{
-private:
-    zypp::RepoInfo _repo;
-    zypp::MediaSetAccess_Ptr _maccess;
-    bool _deleted;
-
-    YRepo() {}
-
-public:
-    YRepo(zypp::RepoInfo & repo);
-    ~YRepo();
-
-    const zypp::RepoInfo & repoInfo() const { return _repo; }
-    zypp::RepoInfo & repoInfo() { return _repo; }
-    zypp::MediaSetAccess_Ptr & mediaAccess();
-
-    bool isDeleted() {return _deleted;}
-    void setDeleted() {_deleted = true;}
-
-public:
-    static const YRepo NOREPO;
-};
-
+// undefine _ macro from libzypp
+#ifdef _
+#undef _
 #endif
+
+// define new _ macro
+#define _(MSG) ::dgettext("pkg-bindings", MSG)
+

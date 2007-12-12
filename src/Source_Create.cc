@@ -31,6 +31,8 @@
 #include <PkgModuleFunctions.h>
 #include <PkgProgress.h>
 
+#include <HelpTexts.h>
+
 #include <zypp/MediaProducts.h>
 #include <zypp/media/Mount.h>
 
@@ -604,7 +606,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     stages.push_back(_("Load Data"));
   }
 
-  pkgprogress.Start(_("Adding the Repository..."), stages, _("TODO: help"));
+  pkgprogress.Start(_("Adding the Repository..."), stages, HelpTexts::create_help);
 
   zypp::ProgressData prg(100);
   prg.sendTo(pkgprogress.Receiver());

@@ -9,6 +9,8 @@ Wed Dec 12 09:21:54 CET 2007 - lslezak@suse.cz
   is not enabled (started)
 - added total progress to Pkg::SourceCreate()
 - merged Pkg::SourceCreate() and Pkg::SourceScan() code 
+- added help texts to total progresses
+- 2.16.6
 
 -------------------------------------------------------------------
 Fri Dec  7 12:58:09 CET 2007 - lslezak@suse.cz

@@ -49,7 +49,8 @@ libpy2Pkg_la_SOURCES =				\
 	Callbacks.YCP.h Callbacks.YCP.cc	\
 	Callbacks.cc Callbacks_Register.cc	\
 	Y2PkgFunction.cc Y2PkgFunction.h	\
-	YRepo.h YRepo.cc
+	YRepo.h YRepo.cc			\
+	HelpTexts.h i18n.h
 
 
 libpy2Pkg_la_LDFLAGS = -version-info 2:0

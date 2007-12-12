@@ -31,6 +31,7 @@
 #include <PkgModuleFunctions.h>
 
 #include <PkgProgress.h>
+#include <HelpTexts.h>
 
 /*
   Textdomain "pkg-bindings"
@@ -114,7 +115,7 @@ PkgModuleFunctions::SourceLoad()
     PkgProgress pkgprogress(_callbackHandler);
 
     // 3 steps per repository (download, cache rebuild, load resolvables)
-    pkgprogress.Start(_("Loading the Package Manager..."), stages, _("TODO: help"));
+    pkgprogress.Start(_("Loading the Package Manager..."), stages, HelpTexts::load_resolvables);
 
     YCPValue ret = SourceLoadImpl(pkgprogress);
 
@@ -304,7 +305,7 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
 	stages.push_back(_("Load Data"));
     
 	// 3 steps per repository (download, cache rebuild, load resolvables)
-	pkgprogress.Start(_("Loading the Package Manager..."), stages, _("TODO: help"));
+	pkgprogress.Start(_("Loading the Package Manager..."), stages, HelpTexts::load_resolvables);
     }
 
     YCPValue ret = SourceStartManagerImpl(enable, pkgprogress);

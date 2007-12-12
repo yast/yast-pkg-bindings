@@ -52,23 +52,11 @@
 #include <zypp/ProgressData.h>
 
 #include <YRepo.h>
+#include <i18n.h>
 
 #include "PkgError.h"
 //#include "PkgProgress.h"
 class PkgProgress;
-
-// textdomain
-extern "C" {
-#include <libintl.h>
-}
-
-// undefine _ macro from libzypp
-#ifdef _
-#undef _
-#endif
-
-// define new _ macro
-#define _(MSG) ::dgettext("pkg-bindings", MSG)
 
 /**
  * A simple class for package management access

@@ -31,6 +31,8 @@
 #include <PkgModuleFunctions.h>
 #include <PkgProgress.h>
 
+#include <HelpTexts.h>
+
 /*
   Textdomain "pkg-bindings"
 */
@@ -245,7 +247,7 @@ PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
     prog_total.sendTo(pkgprogress.Receiver());
 
     // 3 steps per repository (download, cache rebuild, load resolvables)
-    pkgprogress.Start(_("Refreshing Repository..."), stages, _("TODO: help"));
+    pkgprogress.Start(_("Refreshing Repository..."), stages, HelpTexts::refresh_help);
 
     try
     {

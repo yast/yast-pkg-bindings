@@ -31,6 +31,7 @@
 #include <PkgModuleFunctions.h>
 
 #include <PkgProgress.h>
+#include <HelpTexts.h>
 
 /*
   Textdomain "pkg-bindings"
@@ -70,9 +71,17 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 	    // load resolvables only when they are missing
 	    if (!AnyResolvableFrom(repo->repoInfo().alias()))
 	    {
+		std::list<std::string> stages;
+		stages.push_back(_("Load Data"));
+
 		PkgProgress pkgprogress(_callbackHandler);
-		// TODO: start pkgprogress
-		success = LoadResolvablesFrom(repo->repoInfo(), pkgprogress.Receiver());
+		zypp::ProgressData prog_total(100);
+		prog_total.sendTo(pkgprogress.Receiver());
+		zypp::CombinedProgressData load_subprogress(prog_total, 100);
+
+		pkgprogress.Start(_("Loading the Package Manager..."), stages, HelpTexts::load_resolvables);
+
+		success = LoadResolvablesFrom(repo->repoInfo(), load_subprogress);
 	    }
 	}
 	else

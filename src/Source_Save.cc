@@ -31,6 +31,8 @@
 #include <PkgModuleFunctions.h>
 #include <PkgProgress.h>
 
+#include <HelpTexts.h>
+
 /*
   Textdomain "pkg-bindings"
 */
@@ -120,7 +122,7 @@ PkgModuleFunctions::SourceSaveAll ()
     prog_total.sendTo(pkgprogress.Receiver());
 
     // start the process
-    pkgprogress.Start(_("Saving Repositories..."), stages, _("TODO: help"));
+    pkgprogress.Start(_("Saving Repositories..."), stages, HelpTexts::save_help);
 
     zypp::RepoManager repomanager = CreateRepoManager();
 
