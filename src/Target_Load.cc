@@ -48,7 +48,7 @@
  * @deprecated
  * @short Initialize Target and load resolvables
  * @param string root Root Directory
- * @param boolean new If true, initialize new rpm database
+ * @param boolean unused Dummy option, only for backward compatibility
  * @return boolean
  */
 YCPValue
@@ -65,7 +65,7 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unus
 
     try
     {
-	zypp_ptr()->initTarget(r);
+	zypp_ptr()->initializeTarget(r);
 	pkgprogress.NextStage();
         zypp_ptr()->addResolvables( zypp_ptr()->target()->resolvables(), true );
     }
