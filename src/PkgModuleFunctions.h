@@ -49,6 +49,7 @@
 #include <zypp/DiskUsageCounter.h>
 #include <zypp/RepoInfo.h>
 #include <zypp/RepoManager.h>
+#include <zypp/ProgressData.h>
 
 #include <YRepo.h>
 
@@ -119,7 +120,7 @@ class PkgModuleFunctions : public Y2Namespace
 
       void RemoveResolvablesFrom(const std::string &alias);
       bool AnyResolvableFrom(const std::string &alias);
-      bool LoadResolvablesFrom(const zypp::RepoInfo &repoinfo);
+      bool LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc());
       std::string UniqueAlias(const std::string &alias);
 
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);
@@ -144,7 +145,8 @@ class PkgModuleFunctions : public Y2Namespace
 
       void CallInitDownload(const std::string &task);
       void CallDestDownload();
-      void RefreshWithCallbacks(const zypp::RepoInfo &repo);
+      void RefreshWithCallbacks(const zypp::RepoInfo &repo,
+	const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc());
       zypp::repo::RepoType ProbeWithCallbacks(const zypp::Url &url);
       void ScanProductsWithCallBacks(const zypp::Url &url);
 
@@ -185,7 +187,7 @@ class PkgModuleFunctions : public Y2Namespace
 	
 	std::vector<YRepo_Ptr>::size_type createManagedSource(const zypp::Url & url_r,
 	    const zypp::Pathname & path_r, const bool base_source, const std::string& type,
-	    const std::string &alias_r);
+	    const std::string &alias_r, PkgProgress &progress, const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc());
 
       /**
        * provides SourceProvideFile and SourceProvideFileCommon

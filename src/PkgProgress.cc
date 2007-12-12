@@ -9,54 +9,64 @@
 void PkgProgress::Start( const std::string &process, const std::list<std::string> &stages,
     const std::string &help)
 {
-    // get the YCP callback handler for destroy event
-    Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgModuleFunctions::CallbackHandler::YCPCallbacks::CB_ProcessStart);
-
-    y2debug("ProcessStart");
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
+    if (!running)
     {
-	y2debug("Evaluating ProcessStart callback...");
-	ycp_handler->appendParameter(YCPString(process));
+	// get the YCP callback handler for destroy event
+	Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgModuleFunctions::CallbackHandler::YCPCallbacks::CB_ProcessStart);
 
-	// create list of stages
-	YCPList lst;
+	y2debug("ProcessStart");
 
-	for(std::list<std::string>::const_iterator it = stages.begin();
-	    it != stages.end() ; ++it )
+	// is the callback registered?
+	if (ycp_handler != NULL)
 	{
-	    lst->add(YCPString(*it) );
+	    y2debug("Evaluating ProcessStart callback...");
+	    ycp_handler->appendParameter(YCPString(process));
+
+	    // create list of stages
+	    YCPList lst;
+
+	    for(std::list<std::string>::const_iterator it = stages.begin();
+		it != stages.end() ; ++it )
+	    {
+		lst->add(YCPString(*it) );
+	    }
+
+	    ycp_handler->appendParameter(lst);
+
+	    ycp_handler->appendParameter(YCPString(help));
+
+	    // evaluate the callback function
+	    ycp_handler->evaluateCall();
 	}
 
-	ycp_handler->appendParameter(lst);
+	running = true;
 
-	ycp_handler->appendParameter(YCPString(help));
-
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
+	if (stages.size() > 0)
+	{
+	    // set the first stage to 'in progress' state
+	    NextStage();
+	}
     }
-
-    running = true;
-
-    if (stages.size() > 0)
+    else
     {
-	// set the first stage to 'in progress' state
-	NextStage();
+	y2error("PkgProgress is already running, ignoring Start()");
     }
 }
 
 
 void PkgProgress::NextStage()
 {
-    // get the YCP callback handler for destroy event
-    Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgModuleFunctions::CallbackHandler::YCPCallbacks::CB_ProcessNextStage);
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
+    if (running)
     {
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
+	// get the YCP callback handler for destroy event
+	Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgModuleFunctions::CallbackHandler::YCPCallbacks::CB_ProcessNextStage);
+
+	// is the callback registered?
+	if (ycp_handler != NULL)
+	{
+	    // evaluate the callback function
+	    ycp_handler->evaluateCall();
+	}
     }
 }
 
@@ -80,19 +90,23 @@ void PkgProgress::Done()
     }
 }
 
-bool PkgProgress::Receiver(const zypp::ProgressData &progress)
+bool PkgProgress::_receiver(const zypp::ProgressData &progress)
 {
-    y2milestone("PkgReceiver progress: %lld (%lld%%)", progress.val(), progress.reportValue());
+    y2milestone("PkgReceiver progress: %lld (%lld%%), running: %s",
+	progress.val(), progress.reportValue(), running ? "true" : "false");
 
-    // get the YCP callback handler for destroy event
-    Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgModuleFunctions::CallbackHandler::YCPCallbacks::CB_ProcessProgress);
-
-    // is the callback registered?
-    if (ycp_handler != NULL)
+    if (running)
     {
-	ycp_handler->appendParameter(YCPInteger(progress.reportValue()));
-	// evaluate the callback function
-	ycp_handler->evaluateCall();
+	// get the YCP callback handler for destroy event
+	Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgModuleFunctions::CallbackHandler::YCPCallbacks::CB_ProcessProgress);
+
+	// is the callback registered?
+	if (ycp_handler != NULL)
+	{
+	    ycp_handler->appendParameter(YCPInteger(progress.reportValue()));
+	    // evaluate the callback function
+	    ycp_handler->evaluateCall();
+	}
     }
 
     return true;

@@ -22,7 +22,7 @@ class PkgProgress
 
 	PkgProgress(PkgModuleFunctions::CallbackHandler &handler_ref)
 	    : callback_handler(handler_ref),
-	    progress_handler(boost::bind(&PkgProgress::Receiver, this, _1)),
+	    progress_handler(boost::bind(&PkgProgress::_receiver, this, _1)),
 	    running(false)
 	{}
 
@@ -45,7 +45,7 @@ class PkgProgress
 	bool running;
 
     protected:
-	bool Receiver(const zypp::ProgressData &progress);
+	bool _receiver(const zypp::ProgressData &progress);
 };
 
 #endif

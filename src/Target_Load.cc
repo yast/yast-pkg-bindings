@@ -61,7 +61,7 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unus
     stages.push_back(_("Read Installed Packages"));
 
     PkgProgress pkgprogress(_callbackHandler);
-    pkgprogress.Start(_("Loading the Package Manager..."), stages, _("help"));
+    pkgprogress.Start(_("Loading the Package Manager..."), stages, _("TODO: help"));
 
     try
     {
@@ -125,7 +125,7 @@ PkgModuleFunctions::TargetLoad ()
 
     PkgProgress pkgprogress(_callbackHandler);
 
-    pkgprogress.Start(_("Loading the Package Manager..."), stages, _("help"));
+    pkgprogress.Start(_("Loading the Package Manager..."), stages, _("TODO: help"));
 
     try
     {

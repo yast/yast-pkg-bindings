@@ -1,8 +1,13 @@
 -------------------------------------------------------------------
-Mon Dec 10 14:25:09 CET 2007 - lslezak@suse.cz
+Wed Dec 12 09:21:54 CET 2007 - lslezak@suse.cz
 
 - added total progress to Pkg::SourceRefreshNow()
 - added total progress to Pkg::SourceSaveAll()
+- improved source loading progress - change the total progress
+  in parallel to the subprogress
+- PkgProgress - don't evaluate the callbacks when the progress
+  is not enabled (started)
+- added total progress to Pkg::SourceCreate()
 
 -------------------------------------------------------------------
 Fri Dec  7 12:58:09 CET 2007 - lslezak@suse.cz

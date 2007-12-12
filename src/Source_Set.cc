@@ -19,7 +19,7 @@
  */
 
 /*
-   File:	$Id:$
+   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions for changing properties of a repository 
 */
@@ -29,6 +29,8 @@
 
 #include <PkgModule.h>
 #include <PkgModuleFunctions.h>
+
+#include <PkgProgress.h>
 
 /*
   Textdomain "pkg-bindings"
@@ -68,7 +70,9 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 	    // load resolvables only when they are missing
 	    if (!AnyResolvableFrom(repo->repoInfo().alias()))
 	    {
-		success = LoadResolvablesFrom(repo->repoInfo());
+		PkgProgress pkgprogress(_callbackHandler);
+		// TODO: start pkgprogress
+		success = LoadResolvablesFrom(repo->repoInfo(), pkgprogress.Receiver());
 	    }
 	}
 	else

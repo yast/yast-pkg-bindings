@@ -19,7 +19,7 @@
  */
 
 /*
-   File:	$Id:$
+   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions for adding/removing resolvables in the pool
 */
@@ -29,6 +29,8 @@
 
 #include <PkgModule.h>
 #include <PkgModuleFunctions.h>
+
+#include <PkgProgress.h>
 
 /*
   Textdomain "pkg-bindings"
@@ -78,11 +80,16 @@ bool PkgModuleFunctions::AnyResolvableFrom(const std::string &alias)
  * A helper function - load resolvable from the repository into the pool
  * Warning: Use AnyResolvableFrom() method for checing if the resolvables might be already loaded
  */
-bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
+bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zypp::ProgressData::ReceiverFnc &progressrcv)
 {
     bool success = true;
     unsigned int size_start = zypp_ptr()->pool().size();
     y2milestone("Loading resolvables from '%s', pool size at start: %d", repoinfo.alias().c_str(), size_start);
+
+    // sub tasks
+    zypp::ProgressData prog(100);
+    prog.sendTo(progressrcv);
+    zypp::CombinedProgressData load_subprogress(prog, 100);
 
     try 
     {
@@ -99,7 +106,7 @@ bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
 	    }
 
 	    y2milestone("Caching source '%s'...", repoinfo.alias().c_str());
-	    repomanager.buildCache(repoinfo);
+	    repomanager.buildCache(repoinfo, zypp::RepoManager::BuildIfNeeded, load_subprogress);
 	}
 
 	zypp::Repository repository = repomanager.createFromCache(repoinfo);
@@ -134,5 +141,8 @@ bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo)
 
     unsigned int size_end = zypp_ptr()->pool().size();
     y2milestone("Pool size at end: %d (loaded %d resolvables)", size_end, size_end - size_start);
+
+    prog.toMax();
+
     return success;
 }

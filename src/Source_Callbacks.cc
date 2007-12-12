@@ -19,7 +19,7 @@
  */
 
 /*
-   File:	$Id:$
+   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Callbacks functions related to repository registration
 */
@@ -124,14 +124,14 @@ void PkgModuleFunctions::CallDestDownload()
 }
 
 // this method should be used instead of RepoManager::refreshMetadata()
-void PkgModuleFunctions::RefreshWithCallbacks(const zypp::RepoInfo &repo)
+void PkgModuleFunctions::RefreshWithCallbacks(const zypp::RepoInfo &repo, const zypp::ProgressData::ReceiverFnc &progressrcv)
 {
     CallInitDownload(std::string(_("Refreshing repository ") + repo.alias()));
 
     try
     {
 	zypp::RepoManager repomanager = CreateRepoManager();
-	repomanager.refreshMetadata(repo);
+	repomanager.refreshMetadata(repo, zypp::RepoManager::RefreshIfNeeded, progressrcv);
     }
     catch(...)
     {

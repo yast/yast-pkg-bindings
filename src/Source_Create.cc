@@ -19,7 +19,7 @@
  */
 
 /*
-   File:	$Id:$
+   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions related to repository registration
 */
@@ -29,6 +29,7 @@
 
 #include <PkgModule.h>
 #include <PkgModuleFunctions.h>
+#include <PkgProgress.h>
 
 #include <zypp/MediaProducts.h>
 #include <zypp/media/Mount.h>
@@ -163,7 +164,9 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 		     const zypp::Pathname & path_r,
 		     const bool base_source,
 		     const std::string& type,
-		     const std::string &alias_r )
+		     const std::string &alias_r,
+		     PkgProgress &progress,
+		     const zypp::ProgressData::ReceiverFnc & progressrcv)
 {
     // parse URL
     y2milestone ("Original URL: %s, product directory: %s", url_r.asString().c_str(), path_r.asString().c_str());
@@ -180,7 +183,9 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
     zypp::repo::RepoType repotype;
     zypp::RepoManager repomanager = CreateRepoManager();
 
-    if (!type.empty())
+    const bool do_probing = type.empty();
+
+    if (!do_probing)
     {
 	try
 	{
@@ -211,6 +216,11 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
 
 	// autoprobe type of the repository 
 	repotype = ProbeWithCallbacks(probe_url);
+
+	if (do_probing)
+	{
+	    progress.NextStage();
+	}
     }
 
     y2milestone("Using source type: %s", repotype.asString().c_str());
@@ -300,21 +310,34 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
     repo.setEnabled(true);
     repo.setAutorefresh(autorefresh);
 
+{
+    zypp::ProgressData prg(90);
+    prg.sendTo(progressrcv);
+    prg.toMin();
+
+    zypp::CombinedProgressData subprogrcv_ref(prg, 20);
+    zypp::CombinedProgressData subprogrcv_build(prg, 70);
+
     // set metadata path (#293428)
     zypp::Pathname metadatapath = repomanager.metadataPath(repo);
     repo.setMetadataPath(metadatapath);
 
     y2milestone("Adding source '%s' (%s, dir: %s)", repo.alias().c_str(), url.asString().c_str(), path_r.asString().c_str());
     // note: exceptions should be caught by the calling code
-    RefreshWithCallbacks(repo);
+    RefreshWithCallbacks(repo, subprogrcv_ref);
+    progress.NextStage();
 
     // build cache if needed
     if (!repomanager.isCached(repo))
     {
 	y2milestone("Caching source '%s'...", repo.alias().c_str());
-	repomanager.buildCache(repo);
-    }
 
+	repomanager.buildCache(repo, zypp::RepoManager::BuildIfNeeded, subprogrcv_build);
+    }
+    progress.NextStage();
+
+    prg.toMax();
+}
     repos.push_back(new YRepo(repo));
 
     y2milestone("Added source '%s': '%s', enabled: %s, autorefresh: %s",
@@ -560,8 +583,34 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
   std::vector<zypp::RepoInfo>::size_type ret = -1;
 
   const std::string type = source_type->value();
+  const bool scan = pd->value().empty();
 
-  if ( pd->value().empty() ) {
+  // steps: (scan), download, build cache, load resolvables
+  PkgProgress pkgprogress(_callbackHandler);
+  std::list<std::string> stages;
+
+  // display the scan stage only when needed
+  if (scan)
+  {
+    stages.push_back(_("Search Available Products"));
+  }
+
+  if (source_type->value().empty())
+  {
+    stages.push_back(_("Probe Source Type"));
+  }
+
+  stages.push_back(_("Download Descriptions"));
+  stages.push_back(_("Rebuild Cache"));
+  stages.push_back(_("Load Data"));
+
+  pkgprogress.Start(_("Adding the Repository..."), stages, _("TODO: help"));
+
+  zypp::ProgressData prg(100);
+  prg.sendTo(pkgprogress.Receiver());
+  prg.toMin();
+
+  if (scan) {
     // scan all sources
     zypp::MediaProductSet products;
 
@@ -583,16 +632,26 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	products.insert( entry );
     }
 
+    // scanning has been finished
+    prg.set(5);
+    pkgprogress.NextStage();
+
+    zypp::CombinedProgressData subprogrcv(prg, 85);
+    zypp::CombinedProgressData subprogrcv2(prg, 10);
+
+    // TODO FIXME - fix the behavior for multiple repos
     for( zypp::MediaProductSet::const_iterator it = products.begin();
 	it != products.end() ; ++it )
     {
 	try
 	{
-	    std::vector<zypp::RepoInfo>::size_type id = createManagedSource(url, it->_dir, base, type, it->_name);
+	    std::vector<zypp::RepoInfo>::size_type id = createManagedSource(url, it->_dir, base, type, it->_name, pkgprogress, subprogrcv);
 	    YRepo_Ptr repo = logFindRepository(id);
 
-	    LoadResolvablesFrom(repo->repoInfo());
+	    // no progress needed, refresh has been done in createManagedSource()
+	    LoadResolvablesFrom(repo->repoInfo(), subprogrcv2);
 
+	    // TODO FIXME: 'ret' is not used
 	    // return the id of the first product
 	    if ( it == products.begin() )
 		ret = id;
@@ -608,14 +667,19 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
   } else {
     y2debug("Creating source...");
 
+    zypp::CombinedProgressData subprogrcv_create(prg, 80);
+    zypp::CombinedProgressData subprogrcv_load(prg, 20);
+
     try
     {
-	ret = createManagedSource(url, pn, base, type, "");
+	ret = createManagedSource(url, pn, base, type, "", pkgprogress, subprogrcv_create);
+	pkgprogress.NextStage();
 
 	YRepo_Ptr repo = logFindRepository(ret);
 	repo->repoInfo().setEnabled(true);
 
-	LoadResolvablesFrom(repo->repoInfo());
+	// load the resolvables
+	LoadResolvablesFrom(repo->repoInfo(), subprogrcv_load);
     }
     catch ( const zypp::Exception& excpt)
     {
@@ -625,7 +689,10 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     }
   }
 
+  prg.toMax();
+
   PkgFreshen();
+
   return YCPInteger(repos.size() - 1);
 }
 
@@ -725,6 +792,9 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
   YCPList ids;
   std::vector<zypp::RepoInfo>::size_type id;
 
+  // TODO add total progress
+  PkgProgress pkgprogress(_callbackHandler);
+
   if ( pd->value().empty() ) {
 
     // scan all sources
@@ -757,7 +827,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 	try
 	{
 	    y2milestone("Using product %s in directory %s", it->_name.c_str(), it->_dir.c_str());
-	    id = createManagedSource(url, it->_dir, false, "", it->_name);
+	    id = createManagedSource(url, it->_dir, false, "", it->_name, pkgprogress);
 	    ids->add( YCPInteger(id) );
 	}
 	catch ( const zypp::Exception& excpt)
@@ -772,7 +842,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 
     try
     {
-	id = createManagedSource(url, pn, false, "", "");
+	id = createManagedSource(url, pn, false, "", "", pkgprogress);
 	ids->add( YCPInteger(id) );
     }
     catch ( const zypp::Exception& excpt)
