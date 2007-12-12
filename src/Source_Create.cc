@@ -580,7 +580,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
 
   YCPList ids;
-  std::vector<zypp::RepoInfo>::size_type ret = -1;
+  std::vector<zypp::RepoInfo>::size_type ret = -1LL;
 
   const std::string type = source_type->value();
   const bool scan = pd->value().empty();
@@ -636,25 +636,21 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
     prg.set(5);
     pkgprogress.NextStage();
 
-    zypp::CombinedProgressData subprogrcv(prg, 85);
-    zypp::CombinedProgressData subprogrcv2(prg, 10);
+    // remember the new ids for loading the resolvables
+    std::list<std::vector<zypp::RepoInfo>::size_type> new_repos;
 
-    // TODO FIXME - fix the behavior for multiple repos
+    // register the repositories
     for( zypp::MediaProductSet::const_iterator it = products.begin();
 	it != products.end() ; ++it )
     {
+	y2milestone("Using product %s in directory %s", it->_name.c_str(), it->_dir.c_str());
+	zypp::CombinedProgressData subprogrcv(prg, 85/products.size());
+
 	try
 	{
 	    std::vector<zypp::RepoInfo>::size_type id = createManagedSource(url, it->_dir, base, type, it->_name, pkgprogress, subprogrcv);
-	    YRepo_Ptr repo = logFindRepository(id);
 
-	    // no progress needed, refresh has been done in createManagedSource()
-	    LoadResolvablesFrom(repo->repoInfo(), subprogrcv2);
-
-	    // TODO FIXME: 'ret' is not used
-	    // return the id of the first product
-	    if ( it == products.begin() )
-		ret = id;
+	    new_repos.push_back(id);
 	}
 	catch ( const zypp::Exception& excpt)
 	{
@@ -664,6 +660,32 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 	    return YCPInteger(-1LL);
 	}
     }
+
+    // load resolvables
+    for(std::list<std::vector<zypp::RepoInfo>::size_type>::const_iterator it = new_repos.begin();
+	it != new_repos.end() ; ++it )
+    {
+	zypp::CombinedProgressData subprogrcv2(prg, 10/products.size());
+
+	try
+	{
+	    YRepo_Ptr repo = logFindRepository(*it);
+
+	    // no detailed progress needed, refresh has been done in createManagedSource()
+	    LoadResolvablesFrom(repo->repoInfo(), subprogrcv2);
+	}
+	catch ( const zypp::Exception& excpt)
+	{
+	    y2error("SourceCreate for '%s' product '%s' has failed"
+		, url.asString().c_str(), pn.asString().c_str());
+	    _last_error.setLastError(ExceptionAsString(excpt));
+	    return YCPInteger(-1LL);
+	}
+    }
+
+    // return ID of the _first_ repository
+    ret = *new_repos.begin();
+
   } else {
     y2debug("Creating source...");
 
@@ -693,7 +715,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
   PkgFreshen();
 
-  return YCPInteger(repos.size() - 1);
+  return YCPInteger(ret);
 }
 
 /****************************************************************************************
