@@ -42,18 +42,15 @@
 void PkgModuleFunctions::RemoveResolvablesFrom(const std::string &alias)
 {
     // remove the resolvables if they have been loaded
-    // FIXME: can be implemented better? we need a ResStore object for removing,
-    // which means search for a resolvable in the pool and get the Repository
-    // object which can be asked for all resolvables in it
-    for (zypp::ResPool::const_iterator it = zypp_ptr()->pool().begin()
-	; it != zypp_ptr()->pool().end()
+    for (zypp::ResPool::repository_iterator it = zypp_ptr()->pool().knownRepositoriesBegin()
+	; it != zypp_ptr()->pool().knownRepositoriesEnd()
 	; ++it)
     {
-	if (it->resolvable()->repository().info().alias() == alias)
+	if (it->info().alias() == alias)
 	{
-	    y2milestone("Removing all resolvables from '%s' from the pool...", alias.c_str());
-	    zypp_ptr()->removeResolvables(it->resolvable()->repository().resolvables());
-	    break;
+	    y2internal("Removing resolvables from '%s'", alias.c_str());
+	    zypp_ptr()->removeResolvables(it->resolvables());
+	    return;
 	}
     }
 }
@@ -63,11 +60,12 @@ void PkgModuleFunctions::RemoveResolvablesFrom(const std::string &alias)
  */
 bool PkgModuleFunctions::AnyResolvableFrom(const std::string &alias)
 {
-    for (zypp::ResPool::const_iterator it = zypp_ptr()->pool().begin()
-	; it != zypp_ptr()->pool().end()
+    // check whether there is a known repository with the requested alias
+    for (zypp::ResPool::repository_iterator it = zypp_ptr()->pool().knownRepositoriesBegin()
+	; it != zypp_ptr()->pool().knownRepositoriesEnd()
 	; ++it)
     {
-	if (it->resolvable()->repository().info().alias() == alias)
+	if (it->info().alias() == alias)
 	{
 	    return true;
 	}
