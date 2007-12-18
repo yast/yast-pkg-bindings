@@ -49,7 +49,7 @@ PkgModuleFunctions::SourceReleaseAll ()
     y2milestone("Releasing all sources...");
     bool ret = true;
 
-    for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
+    for (RepoCont::iterator it = repos.begin();
 	it != repos.end(); ++it)
     {
         try
@@ -86,7 +86,7 @@ PkgModuleFunctions::SourceSaveAll ()
 
     // count removed repos
     int removed_repos = 0;
-    for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
+    for (RepoCont::iterator it = repos.begin();
 	it != repos.end(); ++it)
     {
 	// the repo has been removed
@@ -127,7 +127,7 @@ PkgModuleFunctions::SourceSaveAll ()
     zypp::RepoManager repomanager = CreateRepoManager();
 
     // remove deleted repos (the old configurations) at first
-    for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
+    for (RepoCont::iterator it = repos.begin();
 	it != repos.end(); ++it)
     {
 	// the repo has been removed
@@ -180,7 +180,7 @@ PkgModuleFunctions::SourceSaveAll ()
     }
 
     // save all repos (the current configuration)
-    for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
+    for (RepoCont::iterator it = repos.begin();
 	it != repos.end(); ++it)
     {
 	if (!(*it)->isDeleted())
@@ -234,7 +234,7 @@ PkgModuleFunctions::SourceFinishAll ()
     try
     {
 	bool found_enabled = false;
-	for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
+	for (RepoCont::iterator it = repos.begin();
 	    it != repos.end(); ++it)
 	{
 	    if ((*it)->repoInfo().enabled() && !(*it)->isDeleted())
@@ -253,7 +253,7 @@ PkgModuleFunctions::SourceFinishAll ()
 	SourceSaveAll();
 
 	y2milestone( "Disabling all sources...") ;
-	for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
+	for (RepoCont::iterator it = repos.begin();
 	    it != repos.end(); ++it)
 	{
             (*it)->repoInfo().setEnabled(false);

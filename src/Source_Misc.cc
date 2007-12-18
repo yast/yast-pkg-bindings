@@ -41,7 +41,7 @@
  * call zypp::SourceManager::sourceManager()->findSource
  * and in case of exception, log error and setLastError AND RETHROW
  */
-YRepo_Ptr PkgModuleFunctions::logFindRepository(std::vector<YRepo_Ptr>::size_type id)
+YRepo_Ptr PkgModuleFunctions::logFindRepository(RepoId id)
 {
     try
     {
@@ -78,9 +78,9 @@ YRepo_Ptr PkgModuleFunctions::logFindRepository(std::vector<YRepo_Ptr>::size_typ
 
 long long PkgModuleFunctions::logFindAlias(const std::string &alias) const
 {
-    std::vector<YRepo_Ptr>::size_type index = 0;
+    RepoId index = 0LL;
 
-    for(std::vector<YRepo_Ptr>::const_iterator it = repos.begin(); it != repos.end() ; ++it, ++index)
+    for(RepoCont::const_iterator it = repos.begin(); it != repos.end() ; ++it, ++index)
     {
 	if (!(*it)->isDeleted() && (*it)->repoInfo().alias() == alias)
 	    return index;
@@ -91,7 +91,7 @@ long long PkgModuleFunctions::logFindAlias(const std::string &alias) const
 
 bool PkgModuleFunctions::aliasExists(const std::string &alias) const
 {
-    for(std::vector<YRepo_Ptr>::const_iterator it = repos.begin(); it != repos.end() ; ++it)
+    for(RepoCont::const_iterator it = repos.begin(); it != repos.end() ; ++it)
     {
 	if (!(*it)->isDeleted() && (*it)->repoInfo().alias() == alias)
 	    return true;

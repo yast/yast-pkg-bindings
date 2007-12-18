@@ -192,9 +192,9 @@ PkgModuleFunctions::PkgMediaNames ()
 # warning No installation order
     YCPList res;
 
-    std::vector<YRepo_Ptr>::size_type index = 0;
+    RepoId index = 0;
     // for all enabled sources
-    for( std::vector<YRepo_Ptr>::const_iterator repoit = repos.begin();
+    for( RepoCont::const_iterator repoit = repos.begin();
 	repoit != repos.end(); ++repoit,++index)
     {
 	if ((*repoit)->repoInfo().enabled() && !(*repoit)->isDeleted())
@@ -266,10 +266,10 @@ PkgModuleFunctions::PkgMediaSizesOrCount (bool sizes)
 # warning No installation order
 
     // all enabled sources
-    std::list<std::vector<YRepo_Ptr>::size_type> source_ids;
+    std::list<RepoId> source_ids;
 
-    std::vector<YRepo_Ptr>::size_type index = 0;
-    for(std::vector<YRepo_Ptr>::const_iterator it = repos.begin(); it != repos.end() ; ++it, ++index)
+    RepoId index = 0;
+    for(RepoCont::const_iterator it = repos.begin(); it != repos.end() ; ++it, ++index)
     {
 	// ignore disabled or delted sources
 	if (!(*it)->repoInfo().enabled() || (*it)->isDeleted())
@@ -280,16 +280,16 @@ PkgModuleFunctions::PkgMediaSizesOrCount (bool sizes)
 
 
     // map SourceId -> [ number_of_media, total_size ]
-    std::map<std::vector<YRepo_Ptr>::size_type, std::vector<zypp::ByteCount> > result;
+    std::map<RepoId, std::vector<zypp::ByteCount> > result;
 
     // map alias -> SourceID
-    std::map<std::string, std::vector<YRepo_Ptr>::size_type> source_map;
+    std::map<std::string, RepoId> source_map;
 
     // initialize the structures
-    for( std::list<std::vector<YRepo_Ptr>::size_type>::const_iterator sit = source_ids.begin();
+    for( std::list<RepoId>::const_iterator sit = source_ids.begin();
 	sit != source_ids.end(); ++sit, ++index)
     {
-	std::vector<YRepo_Ptr>::size_type id = *sit;
+	RepoId id = *sit;
 
 	YRepo_Ptr repo = logFindRepository(id);
 	if (!repo)
@@ -336,7 +336,7 @@ PkgModuleFunctions::PkgMediaSizesOrCount (bool sizes)
 
     YCPList res;
 
-    for(std::map<std::vector<YRepo_Ptr>::size_type, std::vector<zypp::ByteCount> >::const_iterator it =
+    for(std::map<RepoId, std::vector<zypp::ByteCount> >::const_iterator it =
 	result.begin(); it != result.end() ; ++it)
     {
 	const std::vector<zypp::ByteCount> &values = it->second;

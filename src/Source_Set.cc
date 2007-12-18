@@ -162,7 +162,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 	continue;
     }
 
-    std::vector<YRepo_Ptr>::size_type id = descr->value( YCPString("SrcId") )->asInteger()->value();
+    RepoId id = descr->value( YCPString("SrcId") )->asInteger()->value();
 
     YRepo_Ptr repo = logFindRepository(id);
     if (!repo)

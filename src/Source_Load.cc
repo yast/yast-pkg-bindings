@@ -139,7 +139,7 @@ PkgModuleFunctions::SourceLoadImpl(PkgProgress &progress)
     bool success = true;
 
     int repos_to_load = 0;
-    for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
+    for (RepoCont::iterator it = repos.begin();
        it != repos.end(); ++it)
     {
 	if ((*it)->repoInfo().enabled() && !(*it)->isDeleted())
@@ -158,7 +158,7 @@ PkgModuleFunctions::SourceLoadImpl(PkgProgress &progress)
     zypp::RepoManager repomanager = CreateRepoManager();
 
     // refresh metadata
-    for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
+    for (RepoCont::iterator it = repos.begin();
        it != repos.end(); ++it)
     {
 	// load resolvables only from enabled repos which are not deleted
@@ -203,7 +203,7 @@ PkgModuleFunctions::SourceLoadImpl(PkgProgress &progress)
     progress.NextStage();
 
     // rebuild cache
-    for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
+    for (RepoCont::iterator it = repos.begin();
        it != repos.end(); ++it)
     {
 	// load resolvables only from enabled repos which are not deleted
@@ -249,7 +249,7 @@ PkgModuleFunctions::SourceLoadImpl(PkgProgress &progress)
 
     progress.NextStage();
 
-    for (std::vector<YRepo_Ptr>::iterator it = repos.begin();
+    for (RepoCont::iterator it = repos.begin();
        it != repos.end(); ++it)
     {
 	// load resolvables only from enabled repos which are not deleted

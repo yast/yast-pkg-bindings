@@ -3,6 +3,8 @@ Tue Dec 18 11:03:33 CET 2007 - lslezak@suse.cz
 
 - use ResPool::repository_iterator for searching resolvables from
   a repository (much faster than iterating over all resolvables) 
+- added RepoCont and RepoId typedefs to hide implementation
+  details and to make the code more understandable
 
 -------------------------------------------------------------------
 Wed Dec 12 09:21:54 CET 2007 - lslezak@suse.cz

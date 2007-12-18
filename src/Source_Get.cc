@@ -19,7 +19,7 @@
  */
 
 /*
-   File:	$Id:$
+   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions for reading repository properties
 */
@@ -51,8 +51,8 @@ PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 {
     YCPList res;
 
-    std::vector<YRepo_Ptr>::size_type index = 0;
-    for( std::vector<YRepo_Ptr>::const_iterator it = repos.begin(); it != repos.end() ; ++it, ++index )
+    RepoId index = 0LL;
+    for( RepoCont::const_iterator it = repos.begin(); it != repos.end() ; ++it, ++index )
     {
 	// ignore disabled sources if requested
 	if (enabled->value())
@@ -345,7 +345,7 @@ PkgModuleFunctions::SourceEditGet ()
     YCPList ret;
 
     unsigned long index = 0;
-    for( std::vector<YRepo_Ptr>::const_iterator it = repos.begin(); it != repos.end(); ++it, ++index)
+    for( RepoCont::const_iterator it = repos.begin(); it != repos.end(); ++it, ++index)
     {
 	if (!(*it)->isDeleted())
 	{

@@ -87,10 +87,16 @@ class PkgModuleFunctions : public Y2Namespace
 	zypp::ZYpp::Ptr zypp_ptr();
 
 
+	// container for the internal structure
+	typedef std::vector<YRepo_Ptr> RepoCont;
+	// ID type
+	typedef RepoCont::size_type RepoId;
+
+
     private: // source related
     
       // all known installation sources
-      std::vector<YRepo_Ptr> repos;
+      RepoCont repos;
 
       // table for converting libzypp source type to Yast type (for backward compatibility)
       std::map<std::string, std::string> type_conversion_table;
@@ -171,9 +177,9 @@ class PkgModuleFunctions : public Y2Namespace
        * search for a repository and in case of exception, log error
        * and setLastError AND RETHROW
        */
-	YRepo_Ptr logFindRepository(std::vector<YRepo_Ptr>::size_type id);
+	YRepo_Ptr logFindRepository(RepoId id);
 	
-	std::vector<YRepo_Ptr>::size_type createManagedSource(const zypp::Url & url_r,
+	RepoId createManagedSource(const zypp::Url & url_r,
 	    const zypp::Pathname & path_r, const bool base_source, const std::string& type,
 	    const std::string &alias_r, PkgProgress &progress, const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc());
 
