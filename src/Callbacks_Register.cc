@@ -19,9 +19,10 @@
  */
 
 /*
-   File:	$Id:$
+   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions for registering YCP callbacks from Yast
+   Namespace:   Pkg
 */
 
 #include "PkgModuleFunctions.h"

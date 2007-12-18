@@ -22,6 +22,7 @@
    File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Install or remove resolvables
+   Namespace:   Pkg
 */
 
 #include "PkgModuleFunctions.h"

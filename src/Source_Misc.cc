@@ -22,6 +22,7 @@
    File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Generic functions for accessing repositories from Yast
+   Namespace:   Pkg
 */
 
 #include <Callbacks.h>

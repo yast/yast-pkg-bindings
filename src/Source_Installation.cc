@@ -19,9 +19,10 @@
  */
 
 /*
-   File:	$Id:$
+   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions used during system installation
+   Namespace:   Pkg
 */
 
 #include <Callbacks.h>

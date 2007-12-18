@@ -22,6 +22,7 @@
    File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions for downloading files from a repository
+   Namespace:   Pkg
 */
 
 #include <Callbacks.h>

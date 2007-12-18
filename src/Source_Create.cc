@@ -22,6 +22,7 @@
    File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions related to repository registration
+   Namespace:   Pkg
 */
 
 #include <Callbacks.h>

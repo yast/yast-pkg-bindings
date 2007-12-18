@@ -22,6 +22,7 @@
    File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions for adding/removing resolvables in the pool
+   Namespace:   Pkg
 */
 
 #include <Callbacks.h>

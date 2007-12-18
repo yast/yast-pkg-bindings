@@ -22,6 +22,7 @@
    File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Patch related functions
+   Namespace:   Pkg
 */
 
 #include "PkgModuleFunctions.h"

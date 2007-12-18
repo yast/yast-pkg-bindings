@@ -22,6 +22,7 @@
    File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Disk usage statistics
+   Namespace:   Pkg
 */
 
 #include <PkgModule.h>

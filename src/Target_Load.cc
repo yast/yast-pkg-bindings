@@ -22,6 +22,7 @@
    File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions for initializing the package manager (target system)
+   Namespace:   Pkg
 */
 
 #include <PkgModule.h>

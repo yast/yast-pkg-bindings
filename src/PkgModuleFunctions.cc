@@ -16,7 +16,7 @@
 		Stanislav Visnovsky <visnov@suse.cz>
    Maintainer:  Klaus Kaempf <kkaempf@suse.de>
    Namespace:    Pkg
-   Summary:	PkgModuleFunctions constructor, destructor and call handling
+   Summary:	PkgModuleFunctions constructor, destructor and error handling
 
 /-*/
 

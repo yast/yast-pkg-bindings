@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Dec 18 19:32:50 CET 2007 - lslezak@suse.cz
+
+- updated generating of the documentation to the new source file
+  layout
+- 2.16.7
+
+-------------------------------------------------------------------
 Wed Oct  3 10:06:31 CEST 2007 - mvidner@suse.cz
 
 - Do not try to package COPYRIGHT.english, it is gone from

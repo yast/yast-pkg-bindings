@@ -22,6 +22,7 @@
    File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions for initializing the package manager
+   Namespace:   Pkg
 */
 
 #include <Callbacks.h>
