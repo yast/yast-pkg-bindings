@@ -37,10 +37,6 @@
 #include <zypp/ResStatus.h>
 
 #include <zypp/ResPool.h>
-#include <zypp/Package.h>
-#include <zypp/Patch.h>
-#include <zypp/SrcPackage.h>
-#include <zypp/Product.h>
 #include <zypp/UpgradeStatistics.h>
 #include <zypp/target/rpm/RpmDb.h>
 #include <zypp/target/TargetException.h>

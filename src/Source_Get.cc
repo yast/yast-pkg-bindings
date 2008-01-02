@@ -25,13 +25,14 @@
    Namespace:   Pkg
 */
 
-#include <Callbacks.h>
-#include <Callbacks.YCP.h>
-
-#include <PkgModule.h>
 #include <PkgModuleFunctions.h>
 
 #include <zypp/Product.h>
+
+#include <ycp/YCPBoolean.h>
+#include <ycp/YCPMap.h>
+#include <ycp/YCPInteger.h>
+#include <ycp/YCPVoid.h>
 
 /*
   Textdomain "pkg-bindings"

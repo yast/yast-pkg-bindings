@@ -24,30 +24,29 @@
 #define PkgModuleFunctions_h
 
 #include <string>
-#include <ycpTools.h>
 
 #define y2log_component "Pkg"
 #include <ycp/y2log.h>
 
-#include <ycp/YCPBoolean.h>
-#include <ycp/YCPValue.h>
-#include <ycp/YCPList.h>
-#include <ycp/YCPMap.h>
-#include <ycp/YCPSymbol.h>
-#include <ycp/YCPString.h>
-#include <ycp/YCPInteger.h>
-#include <ycp/YCPVoid.h>
-#include <ycp/YBlock.h>
+class YCPBoolean;
+class YCPValue;
+class YCPList;
+class YCPMap;
+class YCPSymbol;
+class YCPString;
+class YCPInteger;
+class YCPVoid;
 
 #include <y2/Y2Namespace.h>
 
 #include <zypp/ZYpp.h>
-#include <zypp/base/PtrTypes.h>
-#include <zypp/Pathname.h>
-#include <zypp/Url.h>
-#include <zypp/Arch.h>
+
+class zypp::Pathname;
+class zypp::Url;
+class zypp::Arch;
+class zypp::RepoInfo;
+
 #include <zypp/DiskUsageCounter.h>
-#include <zypp/RepoInfo.h>
 #include <zypp/RepoManager.h>
 #include <zypp/ProgressData.h>
 
@@ -55,7 +54,6 @@
 #include <i18n.h>
 
 #include "PkgError.h"
-//#include "PkgProgress.h"
 class PkgProgress;
 
 /**
@@ -204,7 +202,7 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: string() */
 	YCPValue GetPackageLocale();
 	/* TYPEINFO: void(list<string>) */
-	YCPValue SetAdditionalLocales (YCPList args);
+	YCPValue SetAdditionalLocales (const YCPList &args);
 	/* TYPEINFO: list<string>() */
 	YCPValue GetAdditionalLocales ();
 	/* TYPEINFO: string() */
@@ -656,9 +654,9 @@ class PkgModuleFunctions : public Y2Namespace
 
 	// you patch related
 	/* TYPEINFO: map<any,any>()*/
-        YCPMap YouStatus ();
-	/* TYPEINFO: string(list<any>&)*/
-	YCPString YouGetServers (YCPReference strings);
+        YCPValue YouStatus ();
+	/* TYPEINFO: string(list)*/
+	YCPValue YouGetServers (const YCPList &strings);
 	/* TYPEINFO: string(map<any,any>)*/
 	YCPValue YouSetServer (const YCPMap& strings);
 	/* TYPEINFO: map<any,any>()*/
@@ -736,11 +734,7 @@ class PkgModuleFunctions : public Y2Namespace
     	    return "// not possible toString";
 	}
 
-	virtual YCPValue evaluate (bool cse = false )
-	{
-    	    if (cse) return YCPNull ();
-    	    else return YCPVoid ();
-	}
+	virtual YCPValue evaluate (bool cse = false );
 
 	virtual Y2Function* createFunctionCall (const string name, constFunctionTypePtr type);
 };

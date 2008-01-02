@@ -10,8 +10,10 @@
 #include <string>
 #include <list>
 
+//class PkgModuleFunctions::CallbackHandler;
 #include <PkgModuleFunctions.h>
 #include <Callbacks.YCP.h>
+
 
 #include <zypp/ProgressData.h>
 #include <boost/bind.hpp>

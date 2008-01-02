@@ -28,7 +28,6 @@
 #include <Callbacks.h>
 #include <Callbacks.YCP.h>
 
-#include <PkgModule.h>
 #include <PkgModuleFunctions.h>
 
 /*

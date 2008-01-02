@@ -23,7 +23,9 @@
 
 #include "PkgModuleFunctions.h"
 
-#include "Callbacks.h"
+#include <ycp/YCPList.h>
+#include <ycp/YCPString.h>
+#include <ycp/YCPVoid.h>
 
 #include <zypp/Locale.h>
 
@@ -175,7 +177,7 @@ PkgModuleFunctions::GetPackageLocale ()
  * @usage Pkg::SetAdditionalLocales(["de_DE"]);
  */
 YCPValue
-PkgModuleFunctions::SetAdditionalLocales (YCPList langycplist)
+PkgModuleFunctions::SetAdditionalLocales (const YCPList &langycplist)
 {
     zypp::ZYpp::LocaleSet lset;
 

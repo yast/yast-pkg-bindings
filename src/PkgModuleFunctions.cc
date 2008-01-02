@@ -260,3 +260,8 @@ std::string PkgModuleFunctions::ExceptionAsString(const zypp::Exception &e)
 }
 
 
+YCPValue PkgModuleFunctions::evaluate (bool cse)
+{
+    if (cse) return YCPNull ();
+    else return YCPVoid ();
+}

@@ -25,13 +25,11 @@
    Namespace:   Pkg
 */
 
-#include <PkgModule.h>
 #include <PkgModuleFunctions.h>
 
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPInteger.h>
-#include <ycp/YCPSymbol.h>
 #include <ycp/YCPString.h>
 #include <ycp/YCPList.h>
 #include <ycp/YCPMap.h>

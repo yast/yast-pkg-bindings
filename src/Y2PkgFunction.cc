@@ -23,6 +23,15 @@
 
 #include "Y2PkgFunction.h"
 
+#include <ycp/YCPBoolean.h>
+#include <ycp/YCPValue.h>
+#include <ycp/YCPList.h>
+#include <ycp/YCPMap.h>
+#include <ycp/YCPSymbol.h>
+#include <ycp/YCPString.h>
+#include <ycp/YCPInteger.h>
+#include <ycp/YCPVoid.h>
+
     Y2PkgFunction::Y2PkgFunction (string name, PkgModuleFunctions* instance, unsigned int pos) :
 	m_position (pos)
 	, m_instance (instance)

@@ -22,7 +22,6 @@
 /-*/
 
 
-#include <PkgModule.h>
 #include <PkgModuleFunctions.h>
 
 #include <ycp/YCPVoid.h>

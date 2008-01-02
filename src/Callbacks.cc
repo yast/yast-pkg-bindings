@@ -31,7 +31,6 @@
 
 #include <zypp/ZYppCallbacks.h>
 #include <zypp/Package.h>
-#include <zypp/Product.h>
 #include <zypp/KeyRing.h>
 #include <zypp/PublicKey.h>
 #include <zypp/Digest.h>

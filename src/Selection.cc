@@ -24,10 +24,8 @@
 
 #include <fstream>
 
-#include <PkgModule.h>
 #include <PkgModuleFunctions.h>
 
-#include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPInteger.h>
 #include <ycp/YCPSymbol.h>
@@ -37,13 +35,10 @@
 
 #include <zypp/ResPool.h>
 #include <zypp/ResTraits.h>
-#include <zypp/Resolvable.h>
 #include <zypp/Selection.h>
 #include <zypp/Pattern.h>
 
 using std::string;
-
-
 
 // ------------------------
 /**

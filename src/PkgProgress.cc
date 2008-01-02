@@ -1,8 +1,7 @@
 
 
-#include "PkgProgress.h"
 
-#include <Callbacks.YCP.h>
+#include "PkgProgress.h"
 
 #include <y2/Y2Function.h>
 
