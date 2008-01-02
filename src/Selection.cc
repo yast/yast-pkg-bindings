@@ -519,7 +519,7 @@ PkgModuleFunctions::SetSelection (const YCPString& selection)
 YCPValue
 PkgModuleFunctions::ClearSelection (const YCPString& selection)
 {
-    ycpwarning( "Pkg::ClearSelection does not reset add-on selections anymore");
+    y2warning( "Pkg::ClearSelection does not reset add-on selections anymore");
     return YCPBoolean( DoRemoveNameKind( selection->value(), zypp::ResTraits<zypp::Selection>::kind ) );
 }
 

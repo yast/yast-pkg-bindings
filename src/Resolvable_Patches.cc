@@ -117,8 +117,8 @@ PkgModuleFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselec
 				// schedule for installation
 				// but take the best edition. Bug #206927
 			    {
-				stringstream str; 
-				str << *i << endl;
+				std::ostringstream str; 
+				str << *i << std::endl;
 				y2milestone( "Setting '%s' to transact", str.str().c_str() );
 				// selected successfully - increase the counter
 				selected_patches++;

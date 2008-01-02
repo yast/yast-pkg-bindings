@@ -31,6 +31,7 @@
 
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPVoid.h>
+#include <ycp/YCPString.h>
 
 /*
   Textdomain "pkg-bindings"

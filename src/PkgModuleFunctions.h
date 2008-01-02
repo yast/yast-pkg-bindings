@@ -26,7 +26,7 @@
 #include <string>
 
 #define y2log_component "Pkg"
-#include <ycp/y2log.h>
+#include <y2util/y2log.h>
 
 class YCPBoolean;
 class YCPValue;

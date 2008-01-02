@@ -151,7 +151,7 @@
         Y2Component *c = Y2ComponentBroker::getNamespaceComponent (module.c_str());
         if (c == NULL)
         {
-          ycp2error ("No component can provide namespace %s for a callback of %s (callback id %d)",
+          y2error ("No component can provide namespace %s for a callback of %s (callback id %d)",
                  module.c_str (), symbol.c_str (), id_r);
           return;
         }
@@ -169,7 +169,7 @@
 
         _cbdata[id_r].push (CBdata (module, symbol, ns));
       } else {
-	ycp2error ("Callback must be a part of a namespace");
+	y2error ("Callback must be a part of a namespace");
       }
     }
     /**
@@ -228,7 +228,7 @@
       Y2Function* func = ns->createFunctionCall (name, Type::Unspec); // FIXME: here we can setup the type check
       if (func == NULL)
       {
-          ycp2error ("Cannot find function %s in module %s as a callback", name.c_str (), module.c_str());
+          y2error ("Cannot find function %s in module %s as a callback", name.c_str (), module.c_str());
 	  return NULL;
       }
 

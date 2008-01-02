@@ -32,6 +32,8 @@
 #include <ycp/YCPInteger.h>
 #include <ycp/YCPVoid.h>
 
+#include <ycp/y2log.h>
+
     Y2PkgFunction::Y2PkgFunction (string name, PkgModuleFunctions* instance, unsigned int pos) :
 	m_position (pos)
 	, m_instance (instance)

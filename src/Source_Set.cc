@@ -148,7 +148,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
   {
     if( ! states->value(index)->isMap() )
     {
-	ycperror( "Pkg::SourceEditSet, entry not a map at index %d", index);
+	y2error( "Pkg::SourceEditSet, entry not a map at index %d", index);
 	error = true;
 	continue;
     }
@@ -157,7 +157,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 
     if (descr->value( YCPString("SrcId") ).isNull() || !descr->value(YCPString("SrcId"))->isInteger())
     {
-	ycperror( "Pkg::SourceEditSet, SrcId not defined for a source description at index %d", index);
+	y2error( "Pkg::SourceEditSet, SrcId not defined for a source description at index %d", index);
 	error = true;
 	continue;
     }
@@ -167,7 +167,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
     YRepo_Ptr repo = logFindRepository(id);
     if (!repo)
     {
-	ycperror( "Pkg::SourceEditSet, source %d not found", index);
+	y2error( "Pkg::SourceEditSet, source %d not found", index);
 	error = true;
 	continue;
     }
@@ -179,7 +179,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
 
 	if (repo->repoInfo().enabled() != enable)
 	{
-	    ycpwarning("Pkg::SourceEditSet() does not refresh the pool (src: %zd, state: %s)", id, enable ? "disabled -> enabled" : "enabled -> disabled");
+	    y2warning("Pkg::SourceEditSet() does not refresh the pool (src: %zd, state: %s)", id, enable ? "disabled -> enabled" : "enabled -> disabled");
 	}
 
         y2debug("set enabled: %d", enable);

@@ -403,7 +403,7 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
     {
 	if (aliasExists(alias))
 	{
-	    ycperror("alias %s already exists", alias.c_str());
+	    y2error("alias %s already exists", alias.c_str());
 	    return YCPVoid();
 	}
     }
@@ -421,7 +421,7 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
 	{
 	    if( ! lst->value(index)->isString() )
 	    {
-		ycperror( "Pkg::RepositoryAdd(): entry not a string at index %d: %s", index, lst->toString().c_str());
+		y2error( "Pkg::RepositoryAdd(): entry not a string at index %d: %s", index, lst->toString().c_str());
 		return YCPVoid();
 	    }
 
@@ -460,7 +460,7 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
     }
     else
     {
-	ycperror("Missing \"base_urls\" key in the map");
+	y2error("Missing \"base_urls\" key in the map");
 	return YCPVoid();
     }
 
@@ -490,7 +490,7 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
 	}
 	catch (zypp::repo::RepoUnknownTypeException &e)
 	{
-	    ycperror("Unknown source type '%s': %s", type.c_str(), e.asString().c_str());
+	    y2error("Unknown source type '%s': %s", type.c_str(), e.asString().c_str());
 	    _last_error.setLastError(ExceptionAsString(e));
 	    return YCPVoid();
 	}

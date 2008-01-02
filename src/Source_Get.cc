@@ -33,6 +33,8 @@
 #include <ycp/YCPMap.h>
 #include <ycp/YCPInteger.h>
 #include <ycp/YCPVoid.h>
+#include <ycp/YCPString.h>
+#include <ycp/YCPList.h>
 
 /*
   Textdomain "pkg-bindings"

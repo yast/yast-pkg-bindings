@@ -67,7 +67,7 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unus
     catch (zypp::Exception & excpt)
     {
 	_last_error.setLastError(ExceptionAsString(excpt));
-	ycperror("TargetInit has failed: %s", excpt.msg().c_str() );
+	y2error("TargetInit has failed: %s", excpt.msg().c_str() );
         return YCPError(excpt.msg().c_str(), YCPBoolean(false));
     }
     
@@ -97,7 +97,7 @@ PkgModuleFunctions::TargetInitialize (const YCPString& root)
     catch (zypp::Exception & excpt)
     {
         _last_error.setLastError(ExceptionAsString(excpt));
-        ycperror("TargetInit has failed: %s", excpt.msg().c_str() );
+        y2error("TargetInit has failed: %s", excpt.msg().c_str() );
         return YCPError(excpt.msg().c_str(), YCPBoolean(false));
     }
     
@@ -129,7 +129,7 @@ PkgModuleFunctions::TargetLoad ()
     catch (zypp::Exception & excpt)
     {
         _last_error.setLastError(ExceptionAsString(excpt));
-        ycperror("TargetLoad has failed: %s", excpt.msg().c_str() );
+        y2error("TargetLoad has failed: %s", excpt.msg().c_str() );
         return YCPError(excpt.msg().c_str(), YCPBoolean(false));
     }
 
@@ -155,7 +155,7 @@ PkgModuleFunctions::TargetFinish ()
     catch (zypp::Exception & excpt)
     {
 	_last_error.setLastError(ExceptionAsString(excpt));
-	ycperror("TargetFinish has failed: %s", excpt.msg().c_str() );
+	y2error("TargetFinish has failed: %s", excpt.msg().c_str() );
         return YCPBoolean(false);
     }
 
