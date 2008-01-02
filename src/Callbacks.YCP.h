@@ -28,8 +28,6 @@
 //#include <y2util/Date.h>
 //#include <y2util/FSize.h>
 
-#include <y2/Y2ComponentBroker.h>
-#include <y2/Y2Component.h>
 #include <y2/Y2Namespace.h>
 #include <y2/Y2Function.h>
 
@@ -116,107 +114,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
      * (e.g. "StartProvide" for CB_StartProvide). Should
      * be in sync with @ref CBid.
      **/
-    static string cbName( CBid id_r ) {
-      switch ( id_r ) {
-#define ENUM_OUT(N) case CB_##N: return #N
-	ENUM_OUT( StartRebuildDb );
-	ENUM_OUT( ProgressRebuildDb );
-	ENUM_OUT( NotifyRebuildDb );
-	ENUM_OUT( StopRebuildDb );
-	ENUM_OUT( StartConvertDb );
-	ENUM_OUT( ProgressConvertDb );
-	ENUM_OUT( NotifyConvertDb );
-	ENUM_OUT( StopConvertDb );
-	ENUM_OUT( StartScanDb );
-	ENUM_OUT( ProgressScanDb );
-	ENUM_OUT( ErrorScanDb );
-	ENUM_OUT( DoneScanDb );
-
-	ENUM_OUT( StartProvide );
-	ENUM_OUT( ProgressProvide );
-	ENUM_OUT( DoneProvide );
-	ENUM_OUT( StartPackage );
-	ENUM_OUT( ProgressPackage );
-	ENUM_OUT( DonePackage );
-	ENUM_OUT( StartDownload );
-	ENUM_OUT( ProgressDownload );
-	ENUM_OUT( DoneDownload );
-	ENUM_OUT( InitDownload );
-	ENUM_OUT( DestDownload );
-
-	ENUM_OUT( ScriptStart );
-	ENUM_OUT( ScriptProgress );
-	ENUM_OUT( ScriptProblem );
-	ENUM_OUT( ScriptFinish );
-	ENUM_OUT( Message );
-
-	ENUM_OUT( Authentication );
-
-	ENUM_OUT( SourceCreateStart );
-	ENUM_OUT( SourceCreateProgress );
-	ENUM_OUT( SourceCreateError );
-	ENUM_OUT( SourceCreateEnd );
-	ENUM_OUT( SourceCreateInit );
-	ENUM_OUT( SourceCreateDestroy );
-
-	ENUM_OUT( SourceProbeStart );
-	ENUM_OUT( SourceProbeFailed );
-	ENUM_OUT( SourceProbeSucceeded );
-	ENUM_OUT( SourceProbeEnd );
-	ENUM_OUT( SourceProbeProgress );
-	ENUM_OUT( SourceProbeError );
-
-	ENUM_OUT( SourceReportStart );
-	ENUM_OUT( SourceReportProgress );
-	ENUM_OUT( SourceReportError );
-	ENUM_OUT( SourceReportEnd );
-	ENUM_OUT( SourceReportInit );
-	ENUM_OUT( SourceReportDestroy );
-      
-	ENUM_OUT( ProgressStart );
-	ENUM_OUT( ProgressProgress );
-	ENUM_OUT( ProgressDone );
-
-	ENUM_OUT( StartSourceRefresh );
-	ENUM_OUT( ErrorSourceRefresh );
-	ENUM_OUT( DoneSourceRefresh );
-	ENUM_OUT( ProgressSourceRefresh );
-	ENUM_OUT( StartDeltaDownload );
-	ENUM_OUT( ProgressDeltaDownload );
-	ENUM_OUT( ProblemDeltaDownload );
-	ENUM_OUT( StartDeltaApply );
-	ENUM_OUT( ProgressDeltaApply );
-	ENUM_OUT( ProblemDeltaApply );
-	ENUM_OUT( StartPatchDownload );
-	ENUM_OUT( ProgressPatchDownload );
-	ENUM_OUT( ProblemPatchDownload );
-	ENUM_OUT( FinishDeltaDownload );
-	ENUM_OUT( FinishDeltaApply );
-	ENUM_OUT( FinishPatchDownload );
-	ENUM_OUT( MediaChange );
-	ENUM_OUT( SourceChange );
-	ENUM_OUT( ResolvableReport );
-	ENUM_OUT( ImportGpgKey );
-	ENUM_OUT( AcceptNonTrustedGpgKey );
-	ENUM_OUT( AcceptUnknownGpgKey );
-	ENUM_OUT( AcceptUnsignedFile );
-	ENUM_OUT( AcceptVerificationFailed );
-	ENUM_OUT( AcceptFileWithoutChecksum );
-	ENUM_OUT( TrustedKeyAdded );
-	ENUM_OUT( TrustedKeyRemoved );
-	ENUM_OUT( AcceptWrongDigest );
-	ENUM_OUT( AcceptUnknownDigest );
-
-        ENUM_OUT( ProcessStart );
-        ENUM_OUT( ProcessNextStage );
-        ENUM_OUT( ProcessProgress );
-        ENUM_OUT( ProcessFinished );
-#undef ENUM_OUT
-	// no default! let compiler warn missing values
-      }
-      return stringutil::form( "CBid(%d)", id_r );
-    }
-
+    static string cbName( CBid id_r );
   private:
 
     struct CBdata

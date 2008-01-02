@@ -41,10 +41,14 @@ class YCPVoid;
 
 #include <zypp/ZYpp.h>
 
-class zypp::Pathname;
-class zypp::Url;
-class zypp::Arch;
-class zypp::RepoInfo;
+namespace zypp
+{
+    class Pathname;
+    class Url;
+    class Arch;
+    class RepoInfo;
+    class Locale;
+}
 
 #include <zypp/DiskUsageCounter.h>
 #include <zypp/RepoManager.h>
