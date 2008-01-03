@@ -28,7 +28,8 @@
 #include <Callbacks.h>
 #include <Callbacks.YCP.h>
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
+#include "log.h"
 
 #include <PkgProgress.h>
 
@@ -39,7 +40,7 @@
 /*
  * A helper function - remove all resolvables from the repository from the pool
  */
-void PkgModuleFunctions::RemoveResolvablesFrom(const std::string &alias)
+void PkgFunctions::RemoveResolvablesFrom(const std::string &alias)
 {
     // remove the resolvables if they have been loaded
     for (zypp::ResPool::repository_iterator it = zypp_ptr()->pool().knownRepositoriesBegin()
@@ -58,7 +59,7 @@ void PkgModuleFunctions::RemoveResolvablesFrom(const std::string &alias)
 /*
  * A helper function - is there any resolvable from the repository in the pool?
  */
-bool PkgModuleFunctions::AnyResolvableFrom(const std::string &alias)
+bool PkgFunctions::AnyResolvableFrom(const std::string &alias)
 {
     // check whether there is a known repository with the requested alias
     for (zypp::ResPool::repository_iterator it = zypp_ptr()->pool().knownRepositoriesBegin()
@@ -78,7 +79,7 @@ bool PkgModuleFunctions::AnyResolvableFrom(const std::string &alias)
  * A helper function - load resolvable from the repository into the pool
  * Warning: Use AnyResolvableFrom() method for checing if the resolvables might be already loaded
  */
-bool PkgModuleFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zypp::ProgressData::ReceiverFnc &progressrcv)
+bool PkgFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zypp::ProgressData::ReceiverFnc &progressrcv)
 {
     bool success = true;
     unsigned int size_start = zypp_ptr()->pool().size();

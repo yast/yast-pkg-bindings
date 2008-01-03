@@ -10,7 +10,7 @@
 |							 (C) SuSE GmbH |
 \----------------------------------------------------------------------/
 
-   File:	PkgModuleFunctionsPatch.cc
+   File:	Patch.cc
 
    Author:	Klaus Kaempf <kkaempf@suse.de>
    Maintainer:  Klaus Kaempf <kkaempf@suse.de>
@@ -22,7 +22,7 @@
 /-*/
 
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
 
 #include <ycp/YCPVoid.h>
 
@@ -33,7 +33,7 @@
    @return map empty map
 */
 YCPValue
-PkgModuleFunctions::YouStatus ()
+PkgFunctions::YouStatus ()
 {
     return YCPVoid();
 }
@@ -44,7 +44,7 @@ PkgModuleFunctions::YouStatus ()
    @return string empty string
 */
 YCPValue
-PkgModuleFunctions::YouSetServer (const YCPMap& servers)
+PkgFunctions::YouSetServer (const YCPMap& servers)
 {
     return YCPVoid();
 }
@@ -56,7 +56,7 @@ PkgModuleFunctions::YouSetServer (const YCPMap& servers)
    @return map empty map
 */
 YCPValue
-PkgModuleFunctions::YouGetUserPassword ()
+PkgFunctions::YouGetUserPassword ()
 {
     return YCPVoid();
 }
@@ -67,7 +67,7 @@ PkgModuleFunctions::YouGetUserPassword ()
    @return string empty string
 */
 YCPValue
-PkgModuleFunctions::YouSetUserPassword (const YCPString& user, const YCPString& passwd, const YCPBoolean& p)
+PkgFunctions::YouSetUserPassword (const YCPString& user, const YCPString& passwd, const YCPBoolean& p)
 {
     return YCPVoid();
 }
@@ -79,7 +79,7 @@ PkgModuleFunctions::YouSetUserPassword (const YCPString& user, const YCPString& 
    @return string empty string
 */
 YCPValue
-PkgModuleFunctions::YouGetServers (const YCPList&)
+PkgFunctions::YouGetServers (const YCPList&)
 {
     return YCPVoid();
 }
@@ -93,7 +93,7 @@ PkgModuleFunctions::YouGetServers (const YCPList&)
   @return string empty string
 */
 YCPValue
-PkgModuleFunctions::YouGetDirectory ()
+PkgFunctions::YouGetDirectory ()
 {
     return YCPVoid();
 }
@@ -104,7 +104,7 @@ PkgModuleFunctions::YouGetDirectory ()
   @return string empty string
 */
 YCPValue
-PkgModuleFunctions::YouRetrievePatchInfo (const YCPBoolean& download, const YCPBoolean& sig)
+PkgFunctions::YouRetrievePatchInfo (const YCPBoolean& download, const YCPBoolean& sig)
 {
     return YCPVoid();
 }
@@ -115,7 +115,7 @@ PkgModuleFunctions::YouRetrievePatchInfo (const YCPBoolean& download, const YCPB
    @return boolean true
 */
 YCPValue
-PkgModuleFunctions::YouProcessPatches ()
+PkgFunctions::YouProcessPatches ()
 {
     return YCPVoid();
 }
@@ -126,7 +126,7 @@ PkgModuleFunctions::YouProcessPatches ()
    @return void
 */
 YCPValue
-PkgModuleFunctions::YouSelectPatches ()
+PkgFunctions::YouSelectPatches ()
 {
     return YCPVoid();
 }
@@ -137,7 +137,7 @@ PkgModuleFunctions::YouSelectPatches ()
    @return boolean true
 */
 YCPValue
-PkgModuleFunctions::YouRemovePackages ()
+PkgFunctions::YouRemovePackages ()
 {
     return YCPVoid();
 }

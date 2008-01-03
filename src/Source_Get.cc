@@ -25,7 +25,8 @@
    Namespace:   Pkg
 */
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
+#include "log.h"
 
 #include <zypp/Product.h>
 
@@ -51,7 +52,7 @@
  * @return list<integer> list of SrcIds (integer)
  **/
 YCPValue
-PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
+PkgFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 {
     YCPList res;
 
@@ -114,7 +115,7 @@ PkgModuleFunctions::SourceGetCurrent (const YCPBoolean& enabled)
  * @return map
  **/
 YCPValue
-PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
+PkgFunctions::SourceGeneralData (const YCPInteger& id)
 {
     YCPMap data;
 
@@ -159,7 +160,7 @@ PkgModuleFunctions::SourceGeneralData (const YCPInteger& id)
  * @return string or nil on failure
  **/
 YCPValue
-PkgModuleFunctions::SourceURL (const YCPInteger& id)
+PkgFunctions::SourceURL (const YCPInteger& id)
 {
 
     const YRepo_Ptr repo = logFindRepository(id->value());
@@ -195,7 +196,7 @@ PkgModuleFunctions::SourceURL (const YCPInteger& id)
  * @return map
  **/
 YCPValue
-PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
+PkgFunctions::SourceMediaData (const YCPInteger& id)
 {
     YCPMap data;
     YRepo_Ptr repo = logFindRepository(id->value());
@@ -269,7 +270,7 @@ PkgModuleFunctions::SourceMediaData (const YCPInteger& id)
  * @return map
  **/
 YCPValue
-PkgModuleFunctions::SourceProductData (const YCPInteger& src_id)
+PkgFunctions::SourceProductData (const YCPInteger& src_id)
 {
     YCPMap ret;
 
@@ -282,7 +283,7 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& src_id)
 	{
 	    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
 
-	    if( logFindAlias(product->repository().info().alias()) == src_id->value() )
+	    if( logFindAlias(product->repository().info().alias()) == static_cast<size_t>(src_id->value()))
 	    {
 		ret->add( YCPString("label"),		YCPString( product->summary() ) );
 		ret->add( YCPString("vendor"),		YCPString( product->vendor() ) );
@@ -321,7 +322,7 @@ PkgModuleFunctions::SourceProductData (const YCPInteger& src_id)
  * @return map empty map
  **/
 YCPValue
-PkgModuleFunctions::SourceProduct (const YCPInteger& id)
+PkgFunctions::SourceProduct (const YCPInteger& id)
 {
     /* TODO FIXME */
   y2error("Pkg::SourceProduct() is obsoleted, use Pkg::SourceProductData() instead!");
@@ -344,7 +345,7 @@ PkgModuleFunctions::SourceProduct (const YCPInteger& id)
  * @return list<map> list of source states (map)
  **/
 YCPValue
-PkgModuleFunctions::SourceEditGet ()
+PkgFunctions::SourceEditGet ()
 {
     YCPList ret;
 

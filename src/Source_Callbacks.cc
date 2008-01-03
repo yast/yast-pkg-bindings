@@ -28,13 +28,13 @@
 #include <Callbacks.h>
 #include <Callbacks.YCP.h>
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
 
 /*
   Textdomain "pkg-bindings"
 */
 
-void PkgModuleFunctions::CallSourceReportStart(const std::string &text)
+void PkgFunctions::CallSourceReportStart(const std::string &text)
 {
     // get the YCP callback handler
     Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportStart);
@@ -51,7 +51,7 @@ void PkgModuleFunctions::CallSourceReportStart(const std::string &text)
     }
 }
 
-void PkgModuleFunctions::CallSourceReportEnd(const std::string &text)
+void PkgFunctions::CallSourceReportEnd(const std::string &text)
 {
     // get the YCP callback handler for end event
     Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportEnd);
@@ -70,7 +70,7 @@ void PkgModuleFunctions::CallSourceReportEnd(const std::string &text)
     }
 }
 
-void PkgModuleFunctions::CallSourceReportInit()
+void PkgFunctions::CallSourceReportInit()
 {
     // get the YCP callback handler for init event
     Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportInit);
@@ -83,7 +83,7 @@ void PkgModuleFunctions::CallSourceReportInit()
     }
 }
 
-void PkgModuleFunctions::CallSourceReportDestroy()
+void PkgFunctions::CallSourceReportDestroy()
 {
     // get the YCP callback handler for destroy event
     Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportDestroy);
@@ -96,7 +96,7 @@ void PkgModuleFunctions::CallSourceReportDestroy()
     }
 }
 
-void PkgModuleFunctions::CallInitDownload(const std::string &task)
+void PkgFunctions::CallInitDownload(const std::string &task)
 {
     // get the YCP callback handler for destroy event
     Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_InitDownload);
@@ -110,7 +110,7 @@ void PkgModuleFunctions::CallInitDownload(const std::string &task)
     }
 }
 
-void PkgModuleFunctions::CallDestDownload()
+void PkgFunctions::CallDestDownload()
 {
     // get the YCP callback handler for destroy event
     Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_DestDownload);
@@ -124,7 +124,7 @@ void PkgModuleFunctions::CallDestDownload()
 }
 
 // this method should be used instead of RepoManager::refreshMetadata()
-void PkgModuleFunctions::RefreshWithCallbacks(const zypp::RepoInfo &repo, const zypp::ProgressData::ReceiverFnc &progressrcv)
+void PkgFunctions::RefreshWithCallbacks(const zypp::RepoInfo &repo, const zypp::ProgressData::ReceiverFnc &progressrcv)
 {
     CallInitDownload(std::string(_("Refreshing repository ") + repo.alias()));
 
@@ -145,7 +145,7 @@ void PkgModuleFunctions::RefreshWithCallbacks(const zypp::RepoInfo &repo, const 
 }
 
 // this method should be used instead of RepoManager::probe()
-zypp::repo::RepoType PkgModuleFunctions::ProbeWithCallbacks(const zypp::Url &url)
+zypp::repo::RepoType PkgFunctions::ProbeWithCallbacks(const zypp::Url &url)
 {
     CallInitDownload(std::string(_("Probing repository ") + url.asString()));
 

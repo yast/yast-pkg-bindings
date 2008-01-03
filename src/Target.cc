@@ -10,7 +10,7 @@
 |							 (C) SuSE GmbH |
 \----------------------------------------------------------------------/
 
-   File:	PkgModuleFunctionsTarget.cc
+   File:	PkgFunctionsTarget.cc
 
    Author:	Klaus Kaempf <kkaempf@suse.de>
    Maintainer:  Klaus Kaempf <kkaempf@suse.de>
@@ -22,7 +22,7 @@
 /-*/
 
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
 
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
@@ -36,6 +36,8 @@
 #include <zypp/target/rpm/RpmDb.h>
 #include <zypp/target/store/PersistentStorage.h>
 
+#include "log.h"
+
 using namespace zypp;
 
 /** ------------------------
@@ -46,7 +48,7 @@ using namespace zypp;
  * @return boolean true on success.
  */
 YCPBoolean
-PkgModuleFunctions::TargetDisableSources ()
+PkgFunctions::TargetDisableSources ()
 {
     try
     {
@@ -87,7 +89,7 @@ PkgModuleFunctions::TargetDisableSources ()
  * @return boolean
  */
 YCPBoolean
-PkgModuleFunctions::TargetInstall(const YCPString& filename)
+PkgFunctions::TargetInstall(const YCPString& filename)
 {
     try
     {
@@ -116,7 +118,7 @@ PkgModuleFunctions::TargetInstall(const YCPString& filename)
  * @return boolean
  */
 YCPBoolean
-PkgModuleFunctions::TargetRemove(const YCPString& name)
+PkgFunctions::TargetRemove(const YCPString& name)
 {
     try
     {
@@ -141,7 +143,7 @@ PkgModuleFunctions::TargetRemove(const YCPString& name)
  * @return boolean
  */
 YCPBoolean
-PkgModuleFunctions::TargetLogfile (const YCPString& name)
+PkgFunctions::TargetLogfile (const YCPString& name)
 {
     try
     {
@@ -172,7 +174,7 @@ PkgModuleFunctions::TargetLogfile (const YCPString& name)
  */
 
 YCPList
-PkgModuleFunctions::TargetProducts ()
+PkgFunctions::TargetProducts ()
 {
     YCPList products;
 
@@ -183,7 +185,7 @@ PkgModuleFunctions::TargetProducts ()
           zypp::Product::constPtr product = asKind<const zypp::Product>( *it );
 #warning TargetProducts does not return all keys
           YCPMap prod;
-          // see also PkgModuleFunctions::Descr2Map and Product.ycp::Product
+          // see also PkgFunctions::Descr2Map and Product.ycp::Product
 // FIXME unify with code in Pkg::ResolvablePropertiesEx
           prod->add( YCPString("name"), YCPString( product->name() ) );
           prod->add( YCPString("version"), YCPString( product->edition().version() ) );
@@ -248,7 +250,7 @@ PkgModuleFunctions::TargetProducts ()
  */
 
 YCPBoolean
-PkgModuleFunctions::TargetRebuildDB ()
+PkgFunctions::TargetRebuildDB ()
 {
     try
     {
@@ -274,7 +276,7 @@ PkgModuleFunctions::TargetRebuildDB ()
 */
 
 YCPBoolean
-PkgModuleFunctions::TargetFileHasOwner (const YCPString& filepath)
+PkgFunctions::TargetFileHasOwner (const YCPString& filepath)
 {
     try
     {
@@ -300,7 +302,7 @@ PkgModuleFunctions::TargetFileHasOwner (const YCPString& filepath)
    @return boolean true = success
 */
 YCPBoolean
-PkgModuleFunctions::TargetStoreRemove(const YCPString& root, const YCPSymbol& kind_r)
+PkgFunctions::TargetStoreRemove(const YCPString& root, const YCPSymbol& kind_r)
 {
     zypp::Resolvable::Kind kind;
     std::string req_kind = kind_r->symbol();

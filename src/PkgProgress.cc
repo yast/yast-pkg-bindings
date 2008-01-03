@@ -1,7 +1,7 @@
 
 
-
 #include "PkgProgress.h"
+#include "log.h"
 
 #include <y2/Y2Function.h>
 
@@ -11,7 +11,7 @@ void PkgProgress::Start( const std::string &process, const std::list<std::string
     if (!running)
     {
 	// get the YCP callback handler for destroy event
-	Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgModuleFunctions::CallbackHandler::YCPCallbacks::CB_ProcessStart);
+	Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgFunctions::CallbackHandler::YCPCallbacks::CB_ProcessStart);
 
 	y2debug("ProcessStart");
 
@@ -58,7 +58,7 @@ void PkgProgress::NextStage()
     if (running)
     {
 	// get the YCP callback handler for destroy event
-	Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgModuleFunctions::CallbackHandler::YCPCallbacks::CB_ProcessNextStage);
+	Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgFunctions::CallbackHandler::YCPCallbacks::CB_ProcessNextStage);
 
 	// is the callback registered?
 	if (ycp_handler != NULL)
@@ -75,7 +75,7 @@ void PkgProgress::Done()
     {
 	y2debug("ProcessDone");
 	// get the YCP callback handler for destroy event
-	Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgModuleFunctions::CallbackHandler::YCPCallbacks::CB_ProcessFinished);
+	Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgFunctions::CallbackHandler::YCPCallbacks::CB_ProcessFinished);
 
 	// is the callback registered?
 	if (ycp_handler != NULL)
@@ -97,7 +97,7 @@ bool PkgProgress::_receiver(const zypp::ProgressData &progress)
     if (running)
     {
 	// get the YCP callback handler for destroy event
-	Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgModuleFunctions::CallbackHandler::YCPCallbacks::CB_ProcessProgress);
+	Y2Function* ycp_handler = callback_handler._ycpCallbacks.createCallback(PkgFunctions::CallbackHandler::YCPCallbacks::CB_ProcessProgress);
 
 	// is the callback registered?
 	if (ycp_handler != NULL)

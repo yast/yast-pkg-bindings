@@ -10,7 +10,7 @@
 |							 (C) SuSE GmbH |
 \----------------------------------------------------------------------/
 
-   File:	PkgModuleFunctionsPackage.cc
+   File:	Package.cc
 
    Author:	Klaus Kaempf <kkaempf@suse.de>
    Maintainer:  Klaus Kaempf <kkaempf@suse.de>
@@ -21,7 +21,8 @@
 		from WFMInterpreter.
 /-*/
 
-#include "PkgModuleFunctions.h"
+#include "PkgFunctions.h"
+#include "log.h"
 
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
@@ -30,6 +31,8 @@
 #include <ycp/YCPString.h>
 #include <ycp/YCPList.h>
 #include <ycp/YCPMap.h>
+
+#include <ycp/Type.h>
 
 #include <zypp/base/Algorithm.h>
 #include <zypp/ResFilters.h>
@@ -87,7 +90,7 @@ namespace zypp {
  *  @usage Pkg::PkgQueryProvides( string tag ) -> [ [string, symbol, symbol], [string, symbol, symbol], ...]
  */
 YCPList
-PkgModuleFunctions::PkgQueryProvides( const YCPString& tag )
+PkgFunctions::PkgQueryProvides( const YCPString& tag )
 {
     YCPList ret;
     std::string name = tag->value();
@@ -183,7 +186,7 @@ inline std::string join( const std::list<std::string> & lines_r, const std::stri
  *  @usage Pkg::PkgMediaNames () -> [ ["source_1_name", source_1_id] , ["source_2_name", source_2_id], ...]
  */
 YCPValue
-PkgModuleFunctions::PkgMediaNames ()
+PkgFunctions::PkgMediaNames ()
 {
 # warning No installation order
     YCPList res;
@@ -257,7 +260,7 @@ PkgModuleFunctions::PkgMediaNames ()
  *  @usage Pkg::PkgMediaSizes () -> [ [src1_media_1_size, src1_media_2_size, ...], ..]
  */
 YCPValue
-PkgModuleFunctions::PkgMediaSizesOrCount (bool sizes)
+PkgFunctions::PkgMediaSizesOrCount (bool sizes)
 {
 # warning No installation order
 
@@ -364,7 +367,7 @@ PkgModuleFunctions::PkgMediaSizesOrCount (bool sizes)
  *  @usage Pkg::PkgMediaSizes () -> [ [src1_media_1_size, src1_media_2_size, ...], ..]
  */
 YCPValue
-PkgModuleFunctions::PkgMediaSizes()
+PkgFunctions::PkgMediaSizes()
 {
     return PkgMediaSizesOrCount (true);
 }
@@ -380,7 +383,7 @@ PkgModuleFunctions::PkgMediaSizes()
  *  @usage Pkg::PkgMediaCount() -> [ [src1_media_1_count, src1_media_2_count, ...], ...]
  */
 YCPValue
-PkgModuleFunctions::PkgMediaCount()
+PkgFunctions::PkgMediaCount()
 {
     return PkgMediaSizesOrCount (false);
 }
@@ -411,7 +414,7 @@ struct CaIMatch
  *  @usage Pkg::IsProvided ("glibc") -> true
 */
 YCPValue
-PkgModuleFunctions::IsProvided (const YCPString& tag)
+PkgFunctions::IsProvided (const YCPString& tag)
 {
     std::string name = tag->value ();
     if (name.empty())
@@ -453,7 +456,7 @@ PkgModuleFunctions::IsProvided (const YCPString& tag)
  *  @usage Pkg::IsSelected ("yast2") -> true
 */
 YCPValue
-PkgModuleFunctions::IsSelected (const YCPString& tag)
+PkgFunctions::IsSelected (const YCPString& tag)
 {
     std::string name = tag->value ();
     if (name.empty())
@@ -495,7 +498,7 @@ PkgModuleFunctions::IsSelected (const YCPString& tag)
  *  @usage Pkg::IsAvailable ("yast2") -> true
 */
 YCPValue
-PkgModuleFunctions::IsAvailable (const YCPString& tag)
+PkgFunctions::IsAvailable (const YCPString& tag)
 {
     y2milestone("IsAvailable called");
     std::string name = tag->value ();
@@ -522,7 +525,7 @@ PkgModuleFunctions::IsAvailable (const YCPString& tag)
 }
 
 YCPValue
-PkgModuleFunctions::searchPackage(const YCPString &package, bool installed)
+PkgFunctions::searchPackage(const YCPString &package, bool installed)
 {
     bool found = false;
     std::string pkgname = package->value();
@@ -575,7 +578,7 @@ PkgModuleFunctions::searchPackage(const YCPString &package, bool installed)
  *  @usage Pkg::PkgInstalled("glibc") -> true
 */
 YCPValue
-PkgModuleFunctions::PkgInstalled(const YCPString& package)
+PkgFunctions::PkgInstalled(const YCPString& package)
 {
     return searchPackage(package, true);
 }
@@ -593,7 +596,7 @@ PkgModuleFunctions::PkgInstalled(const YCPString& package)
  *  @usage Pkg::PkgInstalled("yast2") -> true
 */
 YCPValue
-PkgModuleFunctions::PkgAvailable(const YCPString& package)
+PkgFunctions::PkgAvailable(const YCPString& package)
 {
     return searchPackage(package, false);
 }
@@ -660,7 +663,7 @@ struct ProvideProcess
 */
 
 bool
-PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
+PkgFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
 				       const std::string & version ,const bool onlyNeeded)
 {
     try
@@ -696,7 +699,7 @@ PkgModuleFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvabl
  * Helper function
  */
 bool
-PkgModuleFunctions::DoAllKind(zypp::Resolvable::Kind kind, bool provide)
+PkgFunctions::DoAllKind(zypp::Resolvable::Kind kind, bool provide)
 {
     bool ret = true;
 
@@ -721,13 +724,13 @@ PkgModuleFunctions::DoAllKind(zypp::Resolvable::Kind kind, bool provide)
 }
 
 bool
-PkgModuleFunctions::DoProvideAllKind(zypp::Resolvable::Kind kind)
+PkgFunctions::DoProvideAllKind(zypp::Resolvable::Kind kind)
 {
     return DoAllKind(kind, true);
 }
 
 bool
-PkgModuleFunctions::DoRemoveAllKind(zypp::Resolvable::Kind kind)
+PkgFunctions::DoRemoveAllKind(zypp::Resolvable::Kind kind)
 {
     return DoAllKind(kind, false);
 }
@@ -742,7 +745,7 @@ PkgModuleFunctions::DoRemoveAllKind(zypp::Resolvable::Kind kind)
 */
 
 bool
-PkgModuleFunctions::DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind)
+PkgFunctions::DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind)
 {
     zypp::Dep dep( zypp::Dep::PROVIDES );
     CaIMatch match;
@@ -790,7 +793,7 @@ PkgModuleFunctions::DoRemoveNameKind( const std::string & name, zypp::Resolvable
    @return map
 */
 YCPValue
-PkgModuleFunctions::DoProvide (const YCPList& tags)
+PkgFunctions::DoProvide (const YCPList& tags)
 {
     YCPMap ret;
     if (tags->size() > 0)
@@ -831,7 +834,7 @@ PkgModuleFunctions::DoProvide (const YCPList& tags)
    @return list Result
 */
 YCPValue
-PkgModuleFunctions::DoRemove (const YCPList& tags)
+PkgFunctions::DoRemove (const YCPList& tags)
 {
     YCPMap ret;
     if (tags->size() > 0)
@@ -913,7 +916,7 @@ find_package( const string & name, zypp::PoolItem_Ref & item, zypp::ResPool pool
 #warning This is bogus, as we have multiple matching packages
 
 YCPValue
-PkgModuleFunctions::PkgSummary (const YCPString& p)
+PkgFunctions::PkgSummary (const YCPString& p)
 {
     try
     {
@@ -948,7 +951,7 @@ PkgModuleFunctions::PkgSummary (const YCPString& p)
 #warning This is bogus, as we have multiple matching packages
 
 YCPValue
-PkgModuleFunctions::PkgVersion (const YCPString& p)
+PkgFunctions::PkgVersion (const YCPString& p)
 {
     try
     {
@@ -982,7 +985,7 @@ PkgModuleFunctions::PkgVersion (const YCPString& p)
 #warning This is bogus, as we have multiple matching packages
 
 YCPValue
-PkgModuleFunctions::PkgSize (const YCPString& p)
+PkgFunctions::PkgSize (const YCPString& p)
 {
     try
     {
@@ -1016,7 +1019,7 @@ PkgModuleFunctions::PkgSize (const YCPString& p)
 #warning This is bogus, as we have multiple matching packages
 
 YCPValue
-PkgModuleFunctions::PkgGroup (const YCPString& p)
+PkgFunctions::PkgGroup (const YCPString& p)
 {
     try
     {
@@ -1039,7 +1042,7 @@ PkgModuleFunctions::PkgGroup (const YCPString& p)
 
 
 YCPValue
-PkgModuleFunctions::PkgProp( zypp::PoolItem_Ref item )
+PkgFunctions::PkgProp( zypp::PoolItem_Ref item )
 {
     YCPMap data;
     zypp::Package::constPtr pkg = zypp::asKind<zypp::Package>( item.resolvable() );
@@ -1099,7 +1102,7 @@ PkgModuleFunctions::PkgProp( zypp::PoolItem_Ref item )
 #warning This is bogus, as we have multiple matching packages
 
 YCPValue
-PkgModuleFunctions::PkgProperties (const YCPString& p)
+PkgFunctions::PkgProperties (const YCPString& p)
 {
     try
     {
@@ -1118,7 +1121,7 @@ PkgModuleFunctions::PkgProperties (const YCPString& p)
 }
 
 YCPValue
-PkgModuleFunctions::PkgPropertiesAll (const YCPString& p)
+PkgFunctions::PkgPropertiesAll (const YCPString& p)
 {
     std::string pkgname = p->value();
     YCPList data;
@@ -1147,7 +1150,7 @@ PkgModuleFunctions::PkgPropertiesAll (const YCPString& p)
 
 /* helper function */
 YCPValue
-PkgModuleFunctions::GetPkgLocation (const YCPString& p, bool full_path)
+PkgFunctions::GetPkgLocation (const YCPString& p, bool full_path)
 {
     zypp::PoolItem_Ref item;
 
@@ -1180,7 +1183,7 @@ PkgModuleFunctions::GetPkgLocation (const YCPString& p, bool full_path)
 
 */
 YCPValue
-PkgModuleFunctions::PkgLocation (const YCPString& p)
+PkgFunctions::PkgLocation (const YCPString& p)
 {
     return GetPkgLocation(p, false);
 }
@@ -1197,7 +1200,7 @@ PkgModuleFunctions::PkgLocation (const YCPString& p)
 
 */
 YCPValue
-PkgModuleFunctions::PkgPath (const YCPString& p)
+PkgFunctions::PkgPath (const YCPString& p)
 {
     return GetPkgLocation(p, true);
 }
@@ -1222,7 +1225,7 @@ PkgModuleFunctions::PkgPath (const YCPString& p)
  *  @return list file list
  *
  **/
-YCPList PkgModuleFunctions::PkgGetFilelist( const YCPString & package, const YCPSymbol & which )
+YCPList PkgFunctions::PkgGetFilelist( const YCPString & package, const YCPSymbol & which )
 {
     std::string pkgname = package->value();
     std::string type = which->symbol();
@@ -1287,7 +1290,7 @@ YCPList PkgModuleFunctions::PkgGetFilelist( const YCPString & package, const YCP
 
 */
 YCPValue
-PkgModuleFunctions::SaveState ()
+PkgFunctions::SaveState ()
 {
 # warning SaveState is not implemented
     return YCPBoolean (true);
@@ -1311,7 +1314,7 @@ PkgModuleFunctions::SaveState ()
 
 */
 YCPValue
-PkgModuleFunctions::RestoreState (const YCPBoolean& ch)
+PkgFunctions::RestoreState (const YCPBoolean& ch)
 {
 # warning RestoreState is not implemented
     if (!ch.isNull () && ch->value () == true)
@@ -1330,7 +1333,7 @@ PkgModuleFunctions::RestoreState (const YCPBoolean& ch)
 
 */
 YCPValue
-PkgModuleFunctions::ClearSaveState ()
+PkgFunctions::ClearSaveState ()
 {
 # warning ClearSaveState is not implemented
     return YCPBoolean (true);
@@ -1348,7 +1351,7 @@ PkgModuleFunctions::ClearSaveState ()
 
 */
 YCPValue
-PkgModuleFunctions::IsManualSelection ()
+PkgFunctions::IsManualSelection ()
 {
     try
     {
@@ -1381,7 +1384,7 @@ PkgModuleFunctions::IsManualSelection ()
 
 */
 YCPValue
-PkgModuleFunctions::PkgAnyToDelete ()
+PkgFunctions::PkgAnyToDelete ()
 {
     bool ret = false;
 
@@ -1418,7 +1421,7 @@ PkgModuleFunctions::PkgAnyToDelete ()
 
 */
 YCPValue
-PkgModuleFunctions::PkgAnyToInstall ()
+PkgFunctions::PkgAnyToInstall ()
 {
     bool ret = false;
 
@@ -1484,7 +1487,7 @@ pkg2list (YCPList &list, const zypp::ResPool::byKind_iterator& it, bool names_on
 
 */
 YCPValue
-PkgModuleFunctions::FilterPackages(const YCPBoolean& y_byAuto, const YCPBoolean& y_byApp, const YCPBoolean& y_byUser, const YCPBoolean& y_names_only)
+PkgFunctions::FilterPackages(const YCPBoolean& y_byAuto, const YCPBoolean& y_byApp, const YCPBoolean& y_byUser, const YCPBoolean& y_names_only)
 {
     bool byAuto = y_byAuto->value();
     bool byApp  = y_byApp->value();
@@ -1537,7 +1540,7 @@ PkgModuleFunctions::FilterPackages(const YCPBoolean& y_byAuto, const YCPBoolean&
 */
 
 YCPValue
-PkgModuleFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_only)
+PkgFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_only)
 {
     string which = y_which->symbol();
     bool names_only = y_names_only->value();
@@ -1661,7 +1664,7 @@ PkgModuleFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_na
  */
 
 YCPValue
-PkgModuleFunctions::PkgUpdateAll (const YCPMap& options)
+PkgFunctions::PkgUpdateAll (const YCPMap& options)
 {
     zypp::UpgradeStatistics stats;
 
@@ -1761,7 +1764,7 @@ PkgModuleFunctions::PkgUpdateAll (const YCPMap& options)
 
 */
 YCPValue
-PkgModuleFunctions::PkgInstall (const YCPString& p)
+PkgFunctions::PkgInstall (const YCPString& p)
 {
     std::string name = p->value();
     if (name.empty())
@@ -1781,7 +1784,7 @@ PkgModuleFunctions::PkgInstall (const YCPString& p)
 
 */
 YCPValue
-PkgModuleFunctions::PkgSrcInstall (const YCPString& p)
+PkgFunctions::PkgSrcInstall (const YCPString& p)
 {
     std::string name = p->value();
     if (name.empty())
@@ -1803,7 +1806,7 @@ PkgModuleFunctions::PkgSrcInstall (const YCPString& p)
 */
 
 YCPValue
-PkgModuleFunctions::PkgDelete (const YCPString& p)
+PkgFunctions::PkgDelete (const YCPString& p)
 {
     std::string name = p->value();
     if (name.empty())
@@ -1849,7 +1852,7 @@ PkgModuleFunctions::PkgDelete (const YCPString& p)
 */
 
 YCPValue
-PkgModuleFunctions::PkgTaboo (const YCPString& p)
+PkgFunctions::PkgTaboo (const YCPString& p)
 {
     std::string name = p->value();
     if (name.empty())
@@ -1902,7 +1905,7 @@ PkgModuleFunctions::PkgTaboo (const YCPString& p)
 */
 
 YCPValue
-PkgModuleFunctions::PkgNeutral (const YCPString& p)
+PkgFunctions::PkgNeutral (const YCPString& p)
 {
     std::string name = p->value();
     if (name.empty())
@@ -1947,7 +1950,7 @@ PkgModuleFunctions::PkgNeutral (const YCPString& p)
  */
 
 YCPValue
-PkgModuleFunctions::PkgReset ()
+PkgFunctions::PkgReset ()
 {
     try
     {
@@ -1978,7 +1981,7 @@ PkgModuleFunctions::PkgReset ()
  */
 
 YCPValue
-PkgModuleFunctions::PkgApplReset ()
+PkgFunctions::PkgApplReset ()
 {
     try
     {
@@ -2009,7 +2012,7 @@ PkgModuleFunctions::PkgApplReset ()
 
 */
 YCPBoolean
-PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
+PkgFunctions::PkgSolve (const YCPBoolean& filter)
 {
     bool result = false;
 
@@ -2077,7 +2080,7 @@ PkgModuleFunctions::PkgSolve (const YCPBoolean& filter)
 
 */
 YCPBoolean
-PkgModuleFunctions::PkgEstablish ()
+PkgFunctions::PkgEstablish ()
 {
     bool result = false;
 
@@ -2137,7 +2140,7 @@ PkgModuleFunctions::PkgEstablish ()
 */
 
 YCPBoolean
-PkgModuleFunctions::PkgFreshen()
+PkgFunctions::PkgFreshen()
 {
     bool result = false;
 
@@ -2195,7 +2198,7 @@ PkgModuleFunctions::PkgFreshen()
    @return boolean
 */
 YCPBoolean
-PkgModuleFunctions::PkgSolveCheckTargetOnly()
+PkgFunctions::PkgSolveCheckTargetOnly()
 {
     // create pool just with objects from target
     zypp::ResStore store;
@@ -2242,7 +2245,7 @@ PkgModuleFunctions::PkgSolveCheckTargetOnly()
    @return integer
 */
 YCPValue
-PkgModuleFunctions::PkgSolveErrors()
+PkgFunctions::PkgSolveErrors()
 {
     try
     {
@@ -2271,7 +2274,7 @@ PkgModuleFunctions::PkgSolveErrors()
 
 */
 YCPValue
-PkgModuleFunctions::PkgCommit (const YCPInteger& media)
+PkgFunctions::PkgCommit (const YCPInteger& media)
 {
     int medianr = media->value ();
 
@@ -2365,7 +2368,7 @@ PkgModuleFunctions::PkgCommit (const YCPInteger& media)
 */
 
 YCPValue
-PkgModuleFunctions::GetBackupPath ()
+PkgFunctions::GetBackupPath ()
 {
     try
     {
@@ -2386,7 +2389,7 @@ PkgModuleFunctions::GetBackupPath ()
 
 */
 YCPValue
-PkgModuleFunctions::SetBackupPath (const YCPString& p)
+PkgFunctions::SetBackupPath (const YCPString& p)
 {
     try
     {
@@ -2407,7 +2410,7 @@ PkgModuleFunctions::SetBackupPath (const YCPString& p)
    @return void
 */
 YCPValue
-PkgModuleFunctions::CreateBackups (const YCPBoolean& flag)
+PkgFunctions::CreateBackups (const YCPBoolean& flag)
 {
     try
     {
@@ -2431,7 +2434,7 @@ PkgModuleFunctions::CreateBackups (const YCPBoolean& flag)
    @param string package
    @return string
 */
-YCPString PkgModuleFunctions::PkgGetLicenseToConfirm( const YCPString & package )
+YCPString PkgFunctions::PkgGetLicenseToConfirm( const YCPString & package )
 {
     std::string pkgname = package->value();
 
@@ -2475,7 +2478,7 @@ YCPString PkgModuleFunctions::PkgGetLicenseToConfirm( const YCPString & package 
    @return map<string,string>
 
 */
-YCPMap PkgModuleFunctions::PkgGetLicensesToConfirm( const YCPList & packages )
+YCPMap PkgFunctions::PkgGetLicensesToConfirm( const YCPList & packages )
 {
     YCPMap ret;
 
@@ -2499,7 +2502,7 @@ YCPMap PkgModuleFunctions::PkgGetLicensesToConfirm( const YCPList & packages )
    @param string name of a package
    @return boolean true if the license has been successfuly confirmed
 */
-YCPBoolean PkgModuleFunctions::PkgMarkLicenseConfirmed (const YCPString & package)
+YCPBoolean PkgFunctions::PkgMarkLicenseConfirmed (const YCPString & package)
 {
     std::string pkgname = package->value();
 
@@ -2538,7 +2541,7 @@ YCPBoolean PkgModuleFunctions::PkgMarkLicenseConfirmed (const YCPString & packag
  * @param string filename
  * @return boolean True if filename is a rpm package with valid signature.
  **/
-YCPBoolean PkgModuleFunctions::RpmChecksig( const YCPString & filename )
+YCPBoolean PkgFunctions::RpmChecksig( const YCPString & filename )
 {
     try
     {
@@ -2553,7 +2556,7 @@ YCPBoolean PkgModuleFunctions::RpmChecksig( const YCPString & filename )
 
 
 YCPValue
-PkgModuleFunctions::PkgDU(const YCPString& package)
+PkgFunctions::PkgDU(const YCPString& package)
 {
     // get partitioning
     zypp::DiskUsageCounter::MountPointSet mps = zypp_ptr()->getPartitions();

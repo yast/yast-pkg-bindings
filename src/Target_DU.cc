@@ -25,7 +25,8 @@
    Namespace:   Pkg
 */
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
+#include "log.h"
 
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
@@ -72,7 +73,7 @@ get_disk_stats (const char *fs, long long *used, long long *size, long long *bsi
  * @return integer
  */
 YCPInteger
-PkgModuleFunctions::TargetCapacity (const YCPString& dir)
+PkgFunctions::TargetCapacity (const YCPString& dir)
 {
     long long used, size, bsize, avail;
     get_disk_stats (dir->value().c_str(), &used, &size, &bsize, &avail);
@@ -90,7 +91,7 @@ PkgModuleFunctions::TargetCapacity (const YCPString& dir)
  *
  */
 YCPInteger
-PkgModuleFunctions::TargetUsed (const YCPString& dir)
+PkgFunctions::TargetUsed (const YCPString& dir)
 {
     long long used, size, bsize, avail;
     get_disk_stats (dir->value().c_str(), &used, &size, &bsize, &avail);
@@ -108,7 +109,7 @@ PkgModuleFunctions::TargetUsed (const YCPString& dir)
  *
  */
 YCPInteger
-PkgModuleFunctions::TargetAvailable(const YCPString& dir)
+PkgFunctions::TargetAvailable(const YCPString& dir)
 {
     long long used, size, bsize, avail;
     get_disk_stats (dir->value().c_str(), &used, &size, &bsize, &avail);
@@ -126,7 +127,7 @@ PkgModuleFunctions::TargetAvailable(const YCPString& dir)
  *
  */
 YCPInteger
-PkgModuleFunctions::TargetBlockSize (const YCPString& dir)
+PkgFunctions::TargetBlockSize (const YCPString& dir)
 {
     long long used, size, bsize, avail;
     get_disk_stats (dir->value().c_str(), &used, &size, &bsize, &avail);
@@ -136,7 +137,7 @@ PkgModuleFunctions::TargetBlockSize (const YCPString& dir)
 
 // helper funtion
 // initialize the disk usage counter with the current values from the system
-void PkgModuleFunctions::SetCurrentDU()
+void PkgFunctions::SetCurrentDU()
 {
     // read data from system
     zypp::DiskUsageCounter::MountPointSet system = zypp::DiskUsageCounter::detectMountPoints();
@@ -145,7 +146,7 @@ void PkgModuleFunctions::SetCurrentDU()
     zypp_ptr()->setPartitions(system);
 }
 
-YCPMap PkgModuleFunctions::MPS2YCPMap(const zypp::DiskUsageCounter::MountPointSet &mps)
+YCPMap PkgFunctions::MPS2YCPMap(const zypp::DiskUsageCounter::MountPointSet &mps)
 {
     YCPMap dirmap;
 
@@ -197,7 +198,7 @@ YCPMap PkgModuleFunctions::MPS2YCPMap(const zypp::DiskUsageCounter::MountPointSe
  * @return void
  */
 YCPValue
-PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
+PkgFunctions::TargetInitDU (const YCPList& dirlist)
 {
     // remember partitioning
     if (dirlist->size() == 0)
@@ -324,7 +325,7 @@ PkgModuleFunctions::TargetInitDU (const YCPList& dirlist)
  * @return map
  */
 YCPValue
-PkgModuleFunctions::TargetGetDU ()
+PkgFunctions::TargetGetDU ()
 {
     YCPMap dirmap;
 

@@ -28,7 +28,8 @@
 #include <Callbacks.h>
 #include <Callbacks.YCP.h>
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
+#include "log.h"
 
 #include <PkgProgress.h>
 #include <HelpTexts.h>
@@ -47,7 +48,7 @@
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
+PkgFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 {
     YRepo_Ptr repo = logFindRepository(id->value());
     if (!repo)
@@ -114,7 +115,7 @@ PkgModuleFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean& e)
+PkgFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean& e)
 {
     YRepo_Ptr repo = logFindRepository(id->value());
     if (!repo)
@@ -140,7 +141,7 @@ PkgModuleFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceEditSet (const YCPList& states)
+PkgFunctions::SourceEditSet (const YCPList& states)
 {
   bool error = false;
 
@@ -218,7 +219,7 @@ PkgModuleFunctions::SourceEditSet (const YCPList& states)
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
+PkgFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 {
     YRepo_Ptr repo = logFindRepository(id->value());
     if (!repo)
@@ -269,7 +270,7 @@ PkgModuleFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
  * @return bool
  **/
 YCPValue
-PkgModuleFunctions::SourceRaisePriority (const YCPInteger& id)
+PkgFunctions::SourceRaisePriority (const YCPInteger& id)
 {
 #warning SourceRaisePriority is not implemented
     y2warning("SourceRaisePriority is NOT implemented");
@@ -301,7 +302,7 @@ PkgModuleFunctions::SourceRaisePriority (const YCPInteger& id)
  * @return bool
  */
 YCPValue
-PkgModuleFunctions::SourceLowerPriority (const YCPInteger& id)
+PkgFunctions::SourceLowerPriority (const YCPInteger& id)
 {
 #warning SourceLowerPriority is not implemented
     y2warning("SourceLowerPriority is NOT implemented");
@@ -329,7 +330,7 @@ PkgModuleFunctions::SourceLowerPriority (const YCPInteger& id)
  * @return boolean true
  **/
 YCPValue
-PkgModuleFunctions::SourceSaveRanks ()
+PkgFunctions::SourceSaveRanks ()
 {
   y2error( "SourceSaveRanks not implemented" );
 
@@ -343,7 +344,7 @@ PkgModuleFunctions::SourceSaveRanks ()
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceInstallOrder (const YCPMap& ord)
+PkgFunctions::SourceInstallOrder (const YCPMap& ord)
 {
 #warning SourceInstallOrder is not implemented
   return YCPBoolean( true );
@@ -362,7 +363,7 @@ PkgModuleFunctions::SourceInstallOrder (const YCPMap& ord)
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceDelete (const YCPInteger& id)
+PkgFunctions::SourceDelete (const YCPInteger& id)
 {
     YRepo_Ptr repo = logFindRepository(id->value());
     if (!repo)

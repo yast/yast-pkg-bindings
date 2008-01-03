@@ -23,18 +23,18 @@
 
 #include <iosfwd>
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
 
 ///////////////////////////////////////////////////////////////////
 //
-//	CLASS NAME : PkgModuleFunctions::CallbackHandler
+//	CLASS NAME : PkgFunctions::CallbackHandler
 /**
  * @short Handler for Callbacks received or triggered. Needs access to WFM.
  *
  * <B>NOTE:</B> Public references to @ref YCPCallbacks and @ref ZyppReceive are
  * intentionally not usable outside PkgModuleCallbacks.cc, because both class
  * definitions reside within the implementation file. They are public because
- * callback realated @ref PkgModuleFunctions methods are defined in the same file
+ * callback realated @ref PkgFunctions methods are defined in the same file
  * and use them to set the YCP callbacks. Appart from this, there's no need to
  * propagate the interface.
  *
@@ -42,7 +42,7 @@
  * <OL>
  * <LI>In class @ref YCPCallbacks introduce a new value in enum CBid.
  *     This enum value is used to set and access the YCP callbacks data.
- * <LI>In class @ref PkgModuleFunctions declare a method CallbackWhateverName,
+ * <LI>In class @ref PkgFunctions declare a method CallbackWhateverName,
  *     and implement it in PkgModuleCallbacks.cc to set the calback data.
  * <LI>Finaly adjust @ref PkgModule::evaluate to make the method available to
  *     the YCP code.
@@ -63,7 +63,7 @@
  * different recipients.
  *
  **/
-class PkgModuleFunctions::CallbackHandler {
+class PkgFunctions::CallbackHandler {
   CallbackHandler & operator=( const CallbackHandler & );
   CallbackHandler            ( const CallbackHandler & );
 
@@ -87,7 +87,7 @@ class PkgModuleFunctions::CallbackHandler {
      * Constructor. Setup handler and redirect Y2PMCallbacks
      * to the ZyppReceiver.
      **/
-    CallbackHandler(const PkgModuleFunctions &);
+    CallbackHandler(const PkgFunctions &);
 
     /**
      * Destructor. Reset Y2PMCallbacks to it's defaults.

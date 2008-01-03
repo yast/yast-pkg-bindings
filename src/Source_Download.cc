@@ -28,8 +28,9 @@
 #include <Callbacks.h>
 #include <Callbacks.YCP.h>
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
 #include <PkgProgress.h>
+#include "log.h"
 
 #include <HelpTexts.h>
 
@@ -37,7 +38,7 @@
   Textdomain "pkg-bindings"
 */
 
-YCPValue PkgModuleFunctions::SourceProvideFileCommon(const YCPInteger &id,
+YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 					       const YCPInteger &mid,
 					       const YCPString& f,
 					       const YCPBoolean & optional)
@@ -107,7 +108,7 @@ YCPValue PkgModuleFunctions::SourceProvideFileCommon(const YCPInteger &id,
  * @return string local path as string
  **/
 YCPValue
-PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
+PkgFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
     return SourceProvideFileCommon(id, mid, f, false /*optional*/);
 }
@@ -127,7 +128,7 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
  * @return string local path as string
  **/
 YCPValue
-PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
+PkgFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
     return SourceProvideFileCommon(id, mid, f, true /*optional*/);
 }
@@ -145,7 +146,7 @@ PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPIn
  * @return string local path as string
  */
 YCPValue
-PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mid, const YCPString& d)
+PkgFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mid, const YCPString& d)
 {
     y2warning("Pkg::SourceProvideDir() is obsoleted use Pkg::SourceProvideDirectory() instead");
     // non optional, non recursive
@@ -168,7 +169,7 @@ PkgModuleFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mi
  * @return string local path as string or nil when an error occured
  */
 YCPValue
-PkgModuleFunctions::SourceProvideDirectory(const YCPInteger& id, const YCPInteger& mid, const YCPString& d, const YCPBoolean &optional, const YCPBoolean &recursive)
+PkgFunctions::SourceProvideDirectory(const YCPInteger& id, const YCPInteger& mid, const YCPString& d, const YCPBoolean &optional, const YCPBoolean &recursive)
 {
     CallInitDownload(std::string(_("Downloading ") + d->value()));
 
@@ -229,7 +230,7 @@ PkgModuleFunctions::SourceProvideDirectory(const YCPInteger& id, const YCPIntege
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceRefreshNow (const YCPInteger& id)
+PkgFunctions::SourceRefreshNow (const YCPInteger& id)
 {
     YRepo_Ptr repo = logFindRepository(id->value());
     if (!repo)

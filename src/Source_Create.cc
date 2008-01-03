@@ -28,8 +28,9 @@
 #include <Callbacks.h>
 #include <Callbacks.YCP.h>
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
 #include <PkgProgress.h>
+#include "log.h"
 
 #include <HelpTexts.h>
 
@@ -41,12 +42,12 @@
 */
 
 // scanned available products
-// hack: zypp/MediaProducts.h cannot be included in PkgModuleFunctions.h
+// hack: zypp/MediaProducts.h cannot be included in PkgFunctions.h
 zypp::MediaProductSet available_products;
 
 // this method should be used instead of zypp::productsInMedia()
 // it initializes the download callbacks
-void PkgModuleFunctions::ScanProductsWithCallBacks(const zypp::Url &url)
+void PkgFunctions::ScanProductsWithCallBacks(const zypp::Url &url)
 {
     CallInitDownload(std::string(_("Scanning products in ") + url.asString()));
 
@@ -162,7 +163,7 @@ zypp::Url addRO(const zypp::Url &url)
  * \throws Exception if Source creation fails
 */
 std::vector<zypp::RepoInfo>::size_type
-PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
+PkgFunctions::createManagedSource( const zypp::Url & url_r,
 		     const zypp::Pathname & path_r,
 		     const bool base_source,
 		     const std::string& type,
@@ -366,7 +367,7 @@ PkgModuleFunctions::createManagedSource( const zypp::Url & url_r,
  *   "alias" : string, "base_urls" : list<string>, "prod_dir" : string, "type" : string ] 
  * @return integer Repository ID or nil on error
  **/
-YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
+YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
 {
     zypp::RepoInfo repo;
 
@@ -531,14 +532,14 @@ YCPValue PkgModuleFunctions::RepositoryAdd(const YCPMap &params)
  * @return integer The source_id of the first InstSrc found on the media.
  **/
 YCPValue
-PkgModuleFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
+PkgFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
 {
   // not base product, autoprobe source type
   return SourceCreateEx (media, pd, false, YCPString(""));
 }
 
 YCPValue
-PkgModuleFunctions::SourceCreateBase (const YCPString& media, const YCPString& pd)
+PkgFunctions::SourceCreateBase (const YCPString& media, const YCPString& pd)
 {
   // base product, autoprobe source type
   return SourceCreateEx (media, pd, true, YCPString(""));
@@ -555,14 +556,14 @@ PkgModuleFunctions::SourceCreateBase (const YCPString& media, const YCPString& p
 */
 
 YCPValue
-PkgModuleFunctions::SourceCreateType (const YCPString& media, const YCPString& pd, const YCPString& type)
+PkgFunctions::SourceCreateType (const YCPString& media, const YCPString& pd, const YCPString& type)
 {
   // not base product, autoprobe source type
   return SourceCreateEx (media, pd, false, type);
 }
 
 YCPValue
-PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool base, const YCPString& source_type, bool scan_only)
+PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool base, const YCPString& source_type, bool scan_only)
 {
   y2debug("Creating source...");
 
@@ -746,7 +747,7 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
  * @param prod_dir product directory (if empty the url is probed directly)
  * @return string repository type ("NONE" if type could be determined, nil if an error occurred (e.g. resolving the hostname)
  **/
-YCPValue PkgModuleFunctions::RepositoryProbe(const YCPString& url, const YCPString& prod_dir)
+YCPValue PkgFunctions::RepositoryProbe(const YCPString& url, const YCPString& prod_dir)
 {
     y2milestone("Probing repository type: '%s'...", url->value().c_str());
     zypp::RepoManager repomanager = CreateRepoManager();
@@ -815,7 +816,7 @@ YCPValue PkgModuleFunctions::RepositoryProbe(const YCPString& url, const YCPStri
  * @return list<integer> list of SrcIds (integer).
  **/
 YCPValue
-PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
+PkgFunctions::SourceScan (const YCPString& media, const YCPString& pd)
 {
     // not base product, autoprobe source type, scanning only
     return SourceCreateEx(media, pd, false, YCPString(""), true);
@@ -828,7 +829,7 @@ PkgModuleFunctions::SourceScan (const YCPString& media, const YCPString& pd)
  * @param url specifies the path to the repository
  * @return list<list<string>> list of the products: [ [ <product_name_1> <directory_1> ], ...]
  **/
-YCPValue PkgModuleFunctions::RepositoryScan(const YCPString& url)
+YCPValue PkgFunctions::RepositoryScan(const YCPString& url)
 {
     zypp::MediaProductSet products;
 

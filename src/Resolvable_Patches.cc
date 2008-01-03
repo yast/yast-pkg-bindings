@@ -25,7 +25,8 @@
    Namespace:   Pkg
 */
 
-#include "PkgModuleFunctions.h"
+#include "PkgFunctions.h"
+#include "log.h"
 
 #include <sstream>
 
@@ -44,7 +45,7 @@
    @return integer number of preselected patches
 */
 YCPValue
-PkgModuleFunctions::ResolvableCountPatches (const YCPSymbol& kind_r)
+PkgFunctions::ResolvableCountPatches (const YCPSymbol& kind_r)
 {
     // only count the patches
     return ResolvableSetPatches(kind_r, false);
@@ -59,7 +60,7 @@ PkgModuleFunctions::ResolvableCountPatches (const YCPSymbol& kind_r)
    @return integer number of preselected patches
 */
 YCPValue
-PkgModuleFunctions::ResolvablePreselectPatches (const YCPSymbol& kind_r)
+PkgFunctions::ResolvablePreselectPatches (const YCPSymbol& kind_r)
 {
     // preselect the patches
     return ResolvableSetPatches(kind_r, true);
@@ -67,7 +68,7 @@ PkgModuleFunctions::ResolvablePreselectPatches (const YCPSymbol& kind_r)
 
 // helper function
 YCPValue
-PkgModuleFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselect)
+PkgFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselect)
 {
     long long selected_patches = 0LL;
     std::string kind = kind_r->symbol();

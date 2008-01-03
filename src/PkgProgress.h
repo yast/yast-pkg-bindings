@@ -10,8 +10,8 @@
 #include <string>
 #include <list>
 
-//class PkgModuleFunctions::CallbackHandler;
-#include <PkgModuleFunctions.h>
+//class PkgFunctions::CallbackHandler;
+#include <PkgFunctions.h>
 #include <Callbacks.YCP.h>
 
 
@@ -22,7 +22,7 @@ class PkgProgress
 {
     public:
 
-	PkgProgress(PkgModuleFunctions::CallbackHandler &handler_ref)
+	PkgProgress(PkgFunctions::CallbackHandler &handler_ref)
 	    : callback_handler(handler_ref),
 	    progress_handler(boost::bind(&PkgProgress::_receiver, this, _1)),
 	    running(false)
@@ -42,7 +42,7 @@ class PkgProgress
 	~PkgProgress();
 
     private:
-	const PkgModuleFunctions::CallbackHandler &callback_handler;
+	const PkgFunctions::CallbackHandler &callback_handler;
 	zypp::ProgressData::ReceiverFnc progress_handler;
 	bool running;
 

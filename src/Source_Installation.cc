@@ -25,7 +25,8 @@
    Namespace:   Pkg
 */
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
+#include "log.h"
 
 #include <zypp/ExternalProgram.h>
 
@@ -44,7 +45,7 @@
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
+PkgFunctions::SourceSetRamCache (const YCPBoolean& a)
 {
     y2warning( "Pkg::SourceSetRamCache is obsolete and does nothing");
     return YCPBoolean( true );
@@ -64,7 +65,7 @@ PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
  * @return boolean true on success
  **/
 YCPValue
-PkgModuleFunctions::SourceCacheCopyTo (const YCPString& dir)
+PkgFunctions::SourceCacheCopyTo (const YCPString& dir)
 {
     // error message (followed by detailed description)
     const std::string msg = _("Error: Cannot copy the cache to the target directory\n");
@@ -145,7 +146,7 @@ PkgModuleFunctions::SourceCacheCopyTo (const YCPString& dir)
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceMoveDownloadArea (const YCPString & path)
+PkgFunctions::SourceMoveDownloadArea (const YCPString & path)
 {
     try
     {
@@ -171,7 +172,7 @@ PkgModuleFunctions::SourceMoveDownloadArea (const YCPString & path)
  * @return void
  */
 YCPValue
-PkgModuleFunctions::InstSysMode ()
+PkgFunctions::InstSysMode ()
 {
     y2warning("Pkg::InstSysMode() is obsoleted, it's not needed anymore");
     return YCPVoid();

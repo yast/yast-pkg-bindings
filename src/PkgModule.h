@@ -40,7 +40,7 @@ class PkgModule : public PkgModuleFunctions
     /**
      * Destructor.
      */
-    ~PkgModule ();
+    virtual ~PkgModule ();
 
     static PkgModule* instance ();
 

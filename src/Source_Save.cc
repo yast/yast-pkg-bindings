@@ -28,7 +28,8 @@
 #include <Callbacks.h>
 #include <Callbacks.YCP.h>
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
+#include "log.h"
 #include <PkgProgress.h>
 
 #include <HelpTexts.h>
@@ -44,7 +45,7 @@
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceReleaseAll ()
+PkgFunctions::SourceReleaseAll ()
 {
     y2milestone("Releasing all sources...");
     bool ret = true;
@@ -73,7 +74,7 @@ PkgModuleFunctions::SourceReleaseAll ()
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceSaveAll ()
+PkgFunctions::SourceSaveAll ()
 {
     y2milestone("Saving the source setup...");
 
@@ -229,7 +230,7 @@ PkgModuleFunctions::SourceSaveAll ()
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceFinishAll ()
+PkgFunctions::SourceFinishAll ()
 {
     try
     {
@@ -280,7 +281,7 @@ PkgModuleFunctions::SourceFinishAll ()
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceFinish (const YCPInteger& id)
+PkgFunctions::SourceFinish (const YCPInteger& id)
 {
     return SourceSetEnabled(id, false);
 }

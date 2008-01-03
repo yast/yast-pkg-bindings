@@ -25,7 +25,8 @@
    Namespace:   Pkg
 */
 
-#include "PkgModuleFunctions.h"
+#include "PkgFunctions.h"
+#include "log.h"
 
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
@@ -42,7 +43,7 @@
    @return boolean false if failed
 */
 YCPValue
-PkgModuleFunctions::ResolvableInstallArchVersion( const YCPString& name_r, const YCPSymbol& kind_r, const YCPString& arch, const YCPString& vers )
+PkgFunctions::ResolvableInstallArchVersion( const YCPString& name_r, const YCPSymbol& kind_r, const YCPString& arch, const YCPString& vers )
 {
     zypp::Resolvable::Kind kind;
     
@@ -94,7 +95,7 @@ PkgModuleFunctions::ResolvableInstallArchVersion( const YCPString& name_r, const
    @return boolean false if failed
 */
 YCPValue
-PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r )
+PkgFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r )
 {
     return ResolvableInstallArchVersion(name_r, kind_r, YCPString(zypp_ptr()->architecture().asString()), YCPString(""));
 }
@@ -108,7 +109,7 @@ PkgModuleFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol&
    @return boolean false if failed
 */
 YCPValue
-PkgModuleFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol& kind_r )
+PkgFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol& kind_r )
 {
     zypp::Resolvable::Kind kind;
     
@@ -152,7 +153,7 @@ PkgModuleFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol&
    @return boolean false if failed
 */
 YCPValue
-PkgModuleFunctions::ResolvableNeutral ( const YCPString& name_r, const YCPSymbol& kind_r, const YCPBoolean& force_r )
+PkgFunctions::ResolvableNeutral ( const YCPString& name_r, const YCPSymbol& kind_r, const YCPBoolean& force_r )
 {
     zypp::Resolvable::Kind kind;
     
@@ -222,7 +223,7 @@ PkgModuleFunctions::ResolvableNeutral ( const YCPString& name_r, const YCPSymbol
    @return boolean false if failed
 */
 YCPValue
-PkgModuleFunctions::ResolvableSetSoftLock ( const YCPString& name_r, const YCPSymbol& kind_r )
+PkgFunctions::ResolvableSetSoftLock ( const YCPString& name_r, const YCPSymbol& kind_r )
 {
     zypp::Resolvable::Kind kind;
     

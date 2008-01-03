@@ -25,7 +25,7 @@ libpy2Pkg_la_SOURCES =				\
 	PkgProgress.cc PkgProgress.h		\
 	PkgModuleFunctions.h			\
 	PkgModuleFunctions.cc			\
-	PkgModuleFunctions_Register.cc		\
+	PkgFunctions.h PkgFunctions.cc		\
 	Package.cc				\
 	Patch.cc				\
 	Resolvable_Install.cc			\
@@ -66,7 +66,7 @@ BUILT_SOURCES = PkgBuiltinTable.h PkgBuiltinCalls.h
 
 # "foo bar: baz" is wrong
 # see "info '(automake)Multiple Outputs'"
-%BuiltinCalls.h %BuiltinTable.h : %ModuleFunctions.h
+%BuiltinCalls.h %BuiltinTable.h : %Functions.h
 	${ydatadir}/devtools/bin/generateYCPWrappers $< $*BuiltinCalls.h $*BuiltinTable.h
 
 CLEANFILES = $(BUILT_SOURCES)

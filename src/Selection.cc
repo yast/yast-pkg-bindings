@@ -10,7 +10,7 @@
 |							 (C) SuSE GmbH |
 \----------------------------------------------------------------------/
 
-   File:	PkgModuleFunctionsSelection.cc
+   File:	Selection.cc
 
    Author:	Klaus Kaempf <kkaempf@suse.de>
    Maintainer:  Klaus Kaempf <kkaempf@suse.de>
@@ -24,7 +24,8 @@
 
 #include <fstream>
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
+#include "log.h"
 
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPInteger.h>
@@ -67,7 +68,7 @@ using std::string;
 
 */
 YCPValue
-PkgModuleFunctions::GetSelections (const YCPSymbol& stat, const YCPString& cat)
+PkgFunctions::GetSelections (const YCPSymbol& stat, const YCPString& cat)
 {
     string status = stat->symbol();
     string category = cat->value();
@@ -172,7 +173,7 @@ PkgModuleFunctions::GetSelections (const YCPSymbol& stat, const YCPString& cat)
 
 */
 YCPValue
-PkgModuleFunctions::GetPatterns(const YCPSymbol& stat, const YCPString& cat)
+PkgFunctions::GetPatterns(const YCPSymbol& stat, const YCPString& cat)
 {
     std::string status = stat->symbol();
     std::string category = cat->value();
@@ -271,7 +272,7 @@ PkgModuleFunctions::GetPatterns(const YCPSymbol& stat, const YCPString& cat)
 */
 
 YCPValue
-PkgModuleFunctions::PatternData (const YCPString& pat)
+PkgFunctions::PatternData (const YCPString& pat)
 {
     YCPMap data;
     std::string name = pat->value();
@@ -351,7 +352,7 @@ PkgModuleFunctions::PatternData (const YCPString& pat)
 */
 
 YCPValue
-PkgModuleFunctions::SelectionData (const YCPString& sel)
+PkgFunctions::SelectionData (const YCPString& sel)
 {
     YCPMap data;
     string name = sel->value();
@@ -442,7 +443,7 @@ PkgModuleFunctions::SelectionData (const YCPString& sel)
 */
 
 YCPValue
-PkgModuleFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to_delete, const YCPString& lang)
+PkgFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to_delete, const YCPString& lang)
 {
 #warning Pkg::SelectionContent to_delete is not supported
 
@@ -503,7 +504,7 @@ PkgModuleFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to
    a known selection.
 */
 YCPBoolean
-PkgModuleFunctions::SetSelection (const YCPString& selection)
+PkgFunctions::SetSelection (const YCPString& selection)
 {
     return DoProvideNameKind( selection->value(), zypp::ResTraits<zypp::Selection>::kind, zypp_ptr()->architecture(), "");
 }
@@ -517,7 +518,7 @@ PkgModuleFunctions::SetSelection (const YCPString& selection)
    @return boolean
 */
 YCPValue
-PkgModuleFunctions::ClearSelection (const YCPString& selection)
+PkgFunctions::ClearSelection (const YCPString& selection)
 {
     y2warning( "Pkg::ClearSelection does not reset add-on selections anymore");
     return YCPBoolean( DoRemoveNameKind( selection->value(), zypp::ResTraits<zypp::Selection>::kind ) );
@@ -535,7 +536,7 @@ PkgModuleFunctions::ClearSelection (const YCPString& selection)
    @deprecated Use Pkg::PkgSolve instead, selections are solvable now
 */
 YCPBoolean
-PkgModuleFunctions::ActivateSelections ()
+PkgFunctions::ActivateSelections ()
 {
     y2warning ("Pkg::ActivateSelections is obsolete. Use Pkg::PkgSolve instead");
 

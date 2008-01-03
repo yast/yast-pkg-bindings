@@ -25,7 +25,8 @@
    Namespace:   Pkg
 */
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
+#include "log.h"
 
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPString.h>
@@ -47,7 +48,7 @@
  * @return boolean
  */
 YCPValue
-PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unused_and_broken*/)
+PkgFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unused_and_broken*/)
 {
     std::string r = root->value();
 
@@ -86,7 +87,7 @@ PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unus
  * @return boolean
  */
 YCPValue
-PkgModuleFunctions::TargetInitialize (const YCPString& root)
+PkgFunctions::TargetInitialize (const YCPString& root)
 {
     std::string r = root->value();
 
@@ -113,7 +114,7 @@ PkgModuleFunctions::TargetInitialize (const YCPString& root)
  * @return boolean
  */
 YCPValue
-PkgModuleFunctions::TargetLoad ()
+PkgFunctions::TargetLoad ()
 {
     std::list<std::string> stages;
     stages.push_back(_("Read Installed Packages"));
@@ -146,7 +147,7 @@ PkgModuleFunctions::TargetLoad ()
  * @return boolean
  */
 YCPBoolean
-PkgModuleFunctions::TargetFinish ()
+PkgFunctions::TargetFinish ()
 {
     try
     {

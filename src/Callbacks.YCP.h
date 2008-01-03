@@ -55,7 +55,7 @@ using namespace std;
  *   bool result = evaluateBool( callback );                // evaluate
  * </PRE>
  **/
-class PkgModuleFunctions::CallbackHandler::YCPCallbacks
+class PkgFunctions::CallbackHandler::YCPCallbacks
 {
   public:
 
@@ -221,24 +221,9 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	  bool isInt() const { return _result->isInteger(); }
 	  bool isBool() const { return _result->isBoolean(); }
 
-	  bool expecting( YCPValueType exp_r ) const {
-	    if ( _result->valuetype() == exp_r )
-	      return true;
-	    y2internal ("Wrong return type %s: Expected %s", Type::vt2type(_result->valuetype())->toString().c_str(), Type::vt2type(exp_r)->toString().c_str());
-	    return false;
-	  }
+	  bool expecting( YCPValueType exp_r ) const;
 
-	  bool evaluate() {
-	    if ( _set && _func ) {
-	      y2debug ("Evaluating callback (registered funciton: %s)", _func->name().c_str());
-	      _result = _func->evaluateCall ();
-
-	      delete _func;
-	      _func = _send.ycpcb().createCallback( _id );
-	      return true;
-	    }
-	    return false;
-	  }
+	  bool evaluate();
 
 	  bool evaluate( YCPValueType exp_r ) {
 	    return evaluate() && expecting( exp_r );

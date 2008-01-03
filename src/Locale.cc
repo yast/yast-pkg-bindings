@@ -10,18 +10,19 @@
 |							 (C) SuSE GmbH |
 \----------------------------------------------------------------------/
 
-   File:	PkgModuleFunctions.cc
+   File:	Locale.cc
 
    Author:	Klaus Kaempf <kkaempf@suse.de>
 		Stanislav Visnovsky <visnov@suse.cz>
    Maintainer:  Klaus Kaempf <kkaempf@suse.de>
    Namespace:    Pkg
-   Summary:	PkgModuleFunctions constructor, destructor and call handling
+   Summary:	PkgFunctions constructor, destructor and call handling
 
 /-*/
 
 
-#include "PkgModuleFunctions.h"
+#include "PkgFunctions.h"
+#include "log.h"
 
 #include <ycp/YCPList.h>
 #include <ycp/YCPString.h>
@@ -39,7 +40,7 @@
  * @return void
  */
 YCPValue
-PkgModuleFunctions::SetTextLocale (const YCPString &locale)
+PkgFunctions::SetTextLocale (const YCPString &locale)
 {
     try
     {
@@ -67,7 +68,7 @@ PkgModuleFunctions::SetTextLocale (const YCPString &locale)
  * @return void
  */
 YCPValue
-PkgModuleFunctions::SetPackageLocale (const YCPString &locale)
+PkgFunctions::SetPackageLocale (const YCPString &locale)
 {
     try
     {
@@ -105,7 +106,7 @@ PkgModuleFunctions::SetPackageLocale (const YCPString &locale)
  * @return void
  */
 YCPValue
-PkgModuleFunctions::SetLocale (const YCPString &locale)
+PkgFunctions::SetLocale (const YCPString &locale)
 {
     y2warning("Pkg::SetLocale() is obsoleted, use Pkg::SetTextLocale() and/or Pkg::SetPackageLocale() instead. Pkg::SetLocale() currently calls both functions");
 
@@ -122,7 +123,7 @@ PkgModuleFunctions::SetLocale (const YCPString &locale)
  * @usage Pkg::GetTextLocale() -> "en_US"
  */
 YCPValue
-PkgModuleFunctions::GetTextLocale ()
+PkgFunctions::GetTextLocale ()
 {
     try
     {
@@ -142,7 +143,7 @@ PkgModuleFunctions::GetTextLocale ()
  * @usage Pkg::GetLocale () -> "en_US"
  */
 YCPValue
-PkgModuleFunctions::GetLocale ()
+PkgFunctions::GetLocale ()
 {
     y2warning("Pkg::GetLocale() is obsoleted, use Pkg::GetTextLocale() or Pkg::GetPackageLocale() instead. Pkg::GetLocale() currently calls Pkg::GetTextLocale()");
     return GetTextLocale();
@@ -155,7 +156,7 @@ PkgModuleFunctions::GetLocale ()
  * @usage Pkg::GetPackageLocale () -> "en_US"
  */
 YCPValue
-PkgModuleFunctions::GetPackageLocale ()
+PkgFunctions::GetPackageLocale ()
 {
     // the locale hasn't been initialized
     if (preferred_locale == zypp::Locale::noCode)
@@ -177,7 +178,7 @@ PkgModuleFunctions::GetPackageLocale ()
  * @usage Pkg::SetAdditionalLocales(["de_DE"]);
  */
 YCPValue
-PkgModuleFunctions::SetAdditionalLocales (const YCPList &langycplist)
+PkgFunctions::SetAdditionalLocales (const YCPList &langycplist)
 {
     zypp::ZYpp::LocaleSet lset;
 
@@ -221,7 +222,7 @@ PkgModuleFunctions::SetAdditionalLocales (const YCPList &langycplist)
  *
  */
 YCPValue
-PkgModuleFunctions::GetAdditionalLocales ()
+PkgFunctions::GetAdditionalLocales ()
 {
     YCPList langycplist;
 

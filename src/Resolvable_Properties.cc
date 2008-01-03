@@ -25,7 +25,8 @@
    Namespace:   Pkg
 */
 
-#include "PkgModuleFunctions.h"
+#include "PkgFunctions.h"
+#include "log.h"
 
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPInteger.h>
@@ -60,7 +61,7 @@
 */
 
 YCPValue
-PkgModuleFunctions::ResolvableProperties(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version)
+PkgFunctions::ResolvableProperties(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version)
 {
     return ResolvablePropertiesEx (name, kind_r, version, false);
 }
@@ -73,13 +74,13 @@ PkgModuleFunctions::ResolvableProperties(const YCPString& name, const YCPSymbol&
    @see ResolvableProperties for more information
 */
 YCPValue
-PkgModuleFunctions::ResolvableDependencies(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version)
+PkgFunctions::ResolvableDependencies(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version)
 {
     return ResolvablePropertiesEx (name, kind_r, version, true);
 }
 
 YCPValue
-PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies)
+PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies)
 {
     zypp::Resolvable::Kind kind;
     std::string req_kind = kind_r->symbol ();
@@ -330,7 +331,7 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
    @return boolean true if a resolvable with the requested status was found
 */
 YCPValue
-PkgModuleFunctions::IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status)
+PkgFunctions::IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status)
 {
     zypp::Resolvable::Kind kind;
 

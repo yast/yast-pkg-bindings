@@ -25,7 +25,8 @@
    Namespace:   Pkg
 */
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
+#include "log.h"
 
 #include <sstream> // ostringstream
 
@@ -38,7 +39,7 @@
  * call zypp::SourceManager::sourceManager()->findSource
  * and in case of exception, log error and setLastError AND RETHROW
  */
-YRepo_Ptr PkgModuleFunctions::logFindRepository(RepoId id)
+YRepo_Ptr PkgFunctions::logFindRepository(RepoId id)
 {
     try
     {
@@ -73,7 +74,7 @@ YRepo_Ptr PkgModuleFunctions::logFindRepository(RepoId id)
     return YRepo_Ptr();
 }
 
-long long PkgModuleFunctions::logFindAlias(const std::string &alias) const
+PkgFunctions::RepoId PkgFunctions::logFindAlias(const std::string &alias) const
 {
     RepoId index = 0LL;
 
@@ -86,7 +87,7 @@ long long PkgModuleFunctions::logFindAlias(const std::string &alias) const
     return -1LL;
 }
 
-bool PkgModuleFunctions::aliasExists(const std::string &alias) const
+bool PkgFunctions::aliasExists(const std::string &alias) const
 {
     for(RepoCont::const_iterator it = repos.begin(); it != repos.end() ; ++it)
     {
@@ -98,7 +99,7 @@ bool PkgModuleFunctions::aliasExists(const std::string &alias) const
 }
 
 // convert libzypp type to yast strings ("YaST", "YUM" or "Plaindir")
-std::string PkgModuleFunctions::zypp2yastType(const std::string &type)
+std::string PkgFunctions::zypp2yastType(const std::string &type)
 {
     std::string ret(type);
 
@@ -126,7 +127,7 @@ std::string PkgModuleFunctions::zypp2yastType(const std::string &type)
     return ret;
 }
 
-std::string PkgModuleFunctions::yast2zyppType(const std::string &type)
+std::string PkgFunctions::yast2zyppType(const std::string &type)
 {
     // do conversion from the Yast type ("YaST", "YUM", "Plaindir")
     // to libzypp type ("yast", "yum", "plaindir")
@@ -135,7 +136,7 @@ std::string PkgModuleFunctions::yast2zyppType(const std::string &type)
     return zypp::str::toLower(type);
 }
 
-std::string PkgModuleFunctions::UniqueAlias(const std::string &alias)
+std::string PkgFunctions::UniqueAlias(const std::string &alias)
 {
     // make a copy
     std::string ret = alias;
@@ -143,7 +144,7 @@ std::string PkgModuleFunctions::UniqueAlias(const std::string &alias)
     unsigned int id = 0;
     while(aliasExists(ret))
     {
-	y2milestone("Alias %s already found: %lld", ret.c_str(), logFindAlias(ret));
+	y2milestone("Alias %s already found: %zd", ret.c_str(), logFindAlias(ret));
 
 	// the alias already exists - add a counter 
 	std::ostringstream ostr;
@@ -159,7 +160,7 @@ std::string PkgModuleFunctions::UniqueAlias(const std::string &alias)
 }
 
 // helper function
-zypp::Url PkgModuleFunctions::shortenUrl(const zypp::Url &url)
+zypp::Url PkgFunctions::shortenUrl(const zypp::Url &url)
 {
     std::string url_path = url.getPathName();
     std::string begin_path;

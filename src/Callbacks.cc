@@ -25,9 +25,10 @@
 
 #include <y2util/stringutil.h>
 
-#include "PkgModuleFunctions.h"
+#include "PkgFunctions.h"
+#include "log.h"
 #include "Callbacks.h"
-#include "Callbacks.YCP.h" // PkgModuleFunctions::CallbackHandler::YCPCallbacks
+#include "Callbacks.YCP.h" // PkgFunctions::CallbackHandler::YCPCallbacks
 
 #include <zypp/ZYppCallbacks.h>
 #include <zypp/Package.h>
@@ -52,7 +53,7 @@ RedirectMap redirect_map;
 namespace ZyppRecipients {
 ///////////////////////////////////////////////////////////////////
 
-  typedef PkgModuleFunctions::CallbackHandler::YCPCallbacks YCPCallbacks;
+  typedef PkgFunctions::CallbackHandler::YCPCallbacks YCPCallbacks;
 
   ///////////////////////////////////////////////////////////////////
   // Data excange. Shared between Recipients, inherited by ZyppReceive.
@@ -487,9 +488,9 @@ namespace ZyppRecipients {
     {
 	static int last_source_id;
 	static int last_source_media;
-	const PkgModuleFunctions &_pkg_ref;
+	const PkgFunctions &_pkg_ref;
 
-	DownloadResolvableReceive( RecipientCtl & construct_r, const PkgModuleFunctions &pk ) : Recipient( construct_r ), _pkg_ref(pk) {}
+	DownloadResolvableReceive( RecipientCtl & construct_r, const PkgFunctions &pk ) : Recipient( construct_r ), _pkg_ref(pk) {}
 	int last_reported;
 	int last_reported_delta_download;
 	int last_reported_delta_apply;
@@ -1350,7 +1351,7 @@ namespace ZyppRecipients {
 
     struct RepoReport : public Recipient, public zypp::callback::ReceiveReport<zypp::repo::RepoReport>
     {
-	const PkgModuleFunctions &_pkg_ref;
+	const PkgFunctions &_pkg_ref;
 	virtual void reportbegin()
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportInit ) );
@@ -1373,7 +1374,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	RepoReport( RecipientCtl & construct_r, const PkgModuleFunctions &pk ) : Recipient( construct_r ), _pkg_ref(pk) {}
+	RepoReport( RecipientCtl & construct_r, const PkgFunctions &pk ) : Recipient( construct_r ), _pkg_ref(pk) {}
 
         virtual void start(const zypp::ProgressData &task, const zypp::RepoInfo repo)
 	{
@@ -1721,12 +1722,12 @@ namespace ZyppRecipients {
 
 ///////////////////////////////////////////////////////////////////
 //
-//	CLASS NAME : PkgModuleFunctions::CallbackHandler::ZyppReceive
+//	CLASS NAME : PkgFunctions::CallbackHandler::ZyppReceive
 /**
  * @short Manages the Y2PMCallbacks we receive.
  *
  **/
-class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::RecipientCtl {
+class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::RecipientCtl {
 
   private:
 
@@ -1772,7 +1773,7 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
     
   public:
 
-    ZyppReceive( const YCPCallbacks & ycpcb_r, const PkgModuleFunctions &pkg)
+    ZyppReceive( const YCPCallbacks & ycpcb_r, const PkgFunctions &pkg)
       : RecipientCtl( ycpcb_r )
       , _convertDbReceive( *this )
       , _rebuildDbReceive( *this )
@@ -1845,17 +1846,17 @@ class PkgModuleFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::
 
 ///////////////////////////////////////////////////////////////////
 //
-//	CLASS NAME : PkgModuleFunctions::CallbackHandler
+//	CLASS NAME : PkgFunctions::CallbackHandler
 //
 ///////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////
 //
 //
-//	METHOD NAME : PkgModuleFunctions::CallbackHandler::CallbackHandler
+//	METHOD NAME : PkgFunctions::CallbackHandler::CallbackHandler
 //	METHOD TYPE : Constructor
 //
-PkgModuleFunctions::CallbackHandler::CallbackHandler(const PkgModuleFunctions &pk)
+PkgFunctions::CallbackHandler::CallbackHandler(const PkgFunctions &pk)
     : _ycpCallbacks( *new YCPCallbacks() )
     , _zyppReceive( *new ZyppReceive(_ycpCallbacks, pk) )
 {
@@ -1864,10 +1865,10 @@ PkgModuleFunctions::CallbackHandler::CallbackHandler(const PkgModuleFunctions &p
 ///////////////////////////////////////////////////////////////////
 //
 //
-//	METHOD NAME : PkgModuleFunctions::CallbackHandler::~CallbackHandler
+//	METHOD NAME : PkgFunctions::CallbackHandler::~CallbackHandler
 //	METHOD TYPE : Destructor
 //
-PkgModuleFunctions::CallbackHandler::~CallbackHandler()
+PkgFunctions::CallbackHandler::~CallbackHandler()
 {
   y2debug("Deleting callback handler");
   delete &_zyppReceive;

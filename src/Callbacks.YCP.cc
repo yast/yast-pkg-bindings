@@ -15,12 +15,13 @@
   Author:     Michael Andres <ma@suse.de>
   Maintainer: Michael Andres <ma@suse.de>
 
-  Purpose: Implementation of PkgModuleFunctions::CallbackHandler::YCPCallbacks
+  Purpose: Implementation of PkgFunctions::CallbackHandler::YCPCallbacks
            (not intended to be distributed)
 
 /-*/
 
 #include "Callbacks.YCP.h"
+#include "log.h"
 
 #include <y2/Y2ComponentBroker.h>
 #include <y2/Y2Component.h>
@@ -30,7 +31,7 @@
      * (e.g. "StartProvide" for CB_StartProvide). Should
      * be in sync with @ref CBid.
      **/
-    string PkgModuleFunctions::CallbackHandler::YCPCallbacks::cbName( CBid id_r ) {
+    string PkgFunctions::CallbackHandler::YCPCallbacks::cbName( CBid id_r ) {
       switch ( id_r ) {
 #define ENUM_OUT(N) case CB_##N: return #N
 	ENUM_OUT( StartRebuildDb );
@@ -131,7 +132,7 @@
       return stringutil::form( "CBid(%d)", id_r );
     }
 
-    void PkgModuleFunctions::CallbackHandler::YCPCallbacks::popCallback( CBid id_r ) {
+    void PkgFunctions::CallbackHandler::YCPCallbacks::popCallback( CBid id_r ) {
        _cbdata_t::iterator tmp1 = _cbdata.find(id_r);
        if (tmp1 != _cbdata.end() && !tmp1->second.empty())
            tmp1->second.pop();
@@ -140,7 +141,7 @@
     /**
      * Set a YCPCallbacks data from string "module::symbol"
      **/
-    void PkgModuleFunctions::CallbackHandler::YCPCallbacks::setCallback( CBid id_r, const string & name_r ) {
+    void PkgFunctions::CallbackHandler::YCPCallbacks::setCallback( CBid id_r, const string & name_r ) {
       y2debug ("Registering callback %s", name_r.c_str ());
       string::size_type colonpos = name_r.find("::");
       if ( colonpos != string::npos ) {
@@ -175,7 +176,7 @@
     /**
      * Set a YCPCallbacks data according to args_r.
      **/
-    bool PkgModuleFunctions::CallbackHandler::YCPCallbacks::setCallback( CBid id_r, const YCPString & args ) {
+    bool PkgFunctions::CallbackHandler::YCPCallbacks::setCallback( CBid id_r, const YCPString & args ) {
       string name = args->value();
       setCallback( id_r, name );
       return true;
@@ -184,7 +185,7 @@
      * Set the YCPCallback according to args_r.
      * @return YCPVoid on success, otherwise YCPError.
      **/
-    YCPValue PkgModuleFunctions::CallbackHandler::YCPCallbacks::setYCPCallback( CBid id_r, const YCPString & args_r ) {
+    YCPValue PkgFunctions::CallbackHandler::YCPCallbacks::setYCPCallback( CBid id_r, const YCPString & args_r ) {
        if (!args_r->value().empty ())
        {
     	   if ( ! setCallback( id_r, args_r ) ) {
@@ -202,7 +203,7 @@
      * @return Whether the YCPCallback is set. If not, there's
      * no need to create and evaluate it.
      **/
-    bool PkgModuleFunctions::CallbackHandler::YCPCallbacks::isSet( CBid id_r ) const {
+    bool PkgFunctions::CallbackHandler::YCPCallbacks::isSet( CBid id_r ) const {
        const _cbdata_t::const_iterator tmp1 = _cbdata.find(id_r);
        return tmp1 != _cbdata.end() && !tmp1->second.empty();
     }
@@ -210,7 +211,7 @@
     /**
      * @return The YCPCallback term, ready to append any arguments.
      **/
-    Y2Function* PkgModuleFunctions::CallbackHandler::YCPCallbacks::createCallback( CBid id_r ) const {
+    Y2Function* PkgFunctions::CallbackHandler::YCPCallbacks::createCallback( CBid id_r ) const {
        const _cbdata_t::const_iterator tmp1 = _cbdata.find(id_r);
        if (tmp1 == _cbdata.end() || tmp1->second.empty())
            return NULL;
@@ -234,4 +235,27 @@
 
       return func;
     }
+
+
+bool PkgFunctions::CallbackHandler::YCPCallbacks::Send::CB::expecting( YCPValueType exp_r ) const
+{
+    if ( _result->valuetype() == exp_r )
+      return true;
+    y2internal ("Wrong return type %s: Expected %s", Type::vt2type(_result->valuetype())->toString().c_str(), Type::vt2type(exp_r)->toString().c_str());
+    return false;
+}
+
+bool PkgFunctions::CallbackHandler::YCPCallbacks::Send::CB::evaluate()
+{
+    if ( _set && _func ) {
+      y2debug ("Evaluating callback (registered funciton: %s)", _func->name().c_str());
+      _result = _func->evaluateCall ();
+
+      delete _func;
+      _func = _send.ycpcb().createCallback( _id );
+      return true;
+    }
+
+    return false;
+}
 

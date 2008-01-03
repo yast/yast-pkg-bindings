@@ -18,7 +18,8 @@
 
 /-*/
 
-#include "PkgModuleFunctions.h"
+#include "PkgFunctions.h"
+#include "log.h"
 
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
@@ -37,7 +38,7 @@
  * @return void
  **/
 YCPValue
-PkgModuleFunctions::ImportGPGKey(const YCPString& filename, const YCPBoolean& trusted)
+PkgFunctions::ImportGPGKey(const YCPString& filename, const YCPBoolean& trusted)
 {
     bool trusted_key = trusted->value();
     std::string file = filename->value();

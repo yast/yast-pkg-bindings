@@ -28,7 +28,8 @@
 #include <Callbacks.h>
 #include <Callbacks.YCP.h>
 
-#include <PkgModuleFunctions.h>
+#include <PkgFunctions.h>
+#include "log.h"
 
 #include <PkgProgress.h>
 #include <HelpTexts.h>
@@ -49,7 +50,7 @@
  * @return boolean True on success
  **/
 YCPValue
-PkgModuleFunctions::SourceRestore()
+PkgFunctions::SourceRestore()
 {
     if (repos.size() > 0)
     {
@@ -90,7 +91,7 @@ PkgModuleFunctions::SourceRestore()
  * Get list of all sources which could not have been restored.
  * @return list<string> list of aliases (product names or URLs)
  **/
-YCPValue PkgModuleFunctions::SourceGetBrokenSources()
+YCPValue PkgFunctions::SourceGetBrokenSources()
 {
     y2warning("Pkg::SourceGetBrokenSources() is obsoleted, it's not needed anymore.");
     return YCPList();
@@ -105,7 +106,7 @@ YCPValue PkgModuleFunctions::SourceGetBrokenSources()
  * @return boolean True on success
  **/
 YCPValue
-PkgModuleFunctions::SourceLoad()
+PkgFunctions::SourceLoad()
 {
     std::list<std::string> stages;
     stages.push_back(_("Refresh Sources"));
@@ -134,7 +135,7 @@ PkgModuleFunctions::SourceLoad()
  * @return boolean True on success
  **/
 YCPValue
-PkgModuleFunctions::SourceLoadImpl(PkgProgress &progress)
+PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 {
     bool success = true;
 
@@ -291,7 +292,7 @@ PkgModuleFunctions::SourceLoadImpl(PkgProgress &progress)
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
+PkgFunctions::SourceStartManager (const YCPBoolean& enable)
 {
     PkgProgress pkgprogress(_callbackHandler);
 
@@ -329,7 +330,7 @@ PkgModuleFunctions::SourceStartManager (const YCPBoolean& enable)
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceStartManagerImpl(const YCPBoolean& enable, PkgProgress &progress)
+PkgFunctions::SourceStartManagerImpl(const YCPBoolean& enable, PkgProgress &progress)
 {
     YCPValue success = SourceRestore();
 
@@ -369,7 +370,7 @@ PkgModuleFunctions::SourceStartManagerImpl(const YCPBoolean& enable, PkgProgress
  * @return list<integer> list of SrcIds
  **/
 YCPValue
-PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
+PkgFunctions::SourceStartCache (const YCPBoolean& enabled)
 {
     try
     {
@@ -405,7 +406,7 @@ PkgModuleFunctions::SourceStartCache (const YCPBoolean& enabled)
  * @return boolean
  **/
 YCPValue
-PkgModuleFunctions::SourceCleanupBroken ()
+PkgFunctions::SourceCleanupBroken ()
 {
     y2warning("Pkg::SourceCleanupBroken() is obsoleted, it's not needed anymore.");
     return YCPBoolean(true);
