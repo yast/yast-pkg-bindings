@@ -1,9 +1,13 @@
 -------------------------------------------------------------------
-Thu Jan  3 16:03:29 CET 2008 - lslezak@suse.cz
+Fri Jan  4 11:35:08 CET 2008 - lslezak@suse.cz
 
 - the functionality from PkgModuleFunctions has been moved to
   PkgFunctions to reduce compile dependency, removed unnecessary
   #includes
+- implemented Pkg::SaveState() and Pkg::RestoreState() (#104579)
+  (Pkg::ClearSaveState() is empty, there is only one saved state
+  instance which cannot be removed)
+- 2.16.8
 
 -------------------------------------------------------------------
 Tue Dec 18 11:03:33 CET 2007 - lslezak@suse.cz

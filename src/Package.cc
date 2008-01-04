@@ -1277,13 +1277,14 @@ YCPList PkgFunctions::PkgGetFilelist( const YCPString & package, const YCPSymbol
     return ret;
 }
 
+bool state_saved = false;
+
 // ------------------------
 /**
    @builtin SaveState
-   @short Save the current selection state - do not use, not implemented
+   @short Save the current selection state, can be restored later using Pkg::RestoreState()
    @description
-   save the current package selection status for later
-   retrieval via Pkg::RestoreState()
+   Save the current status of all resolvables for later restoration via Pkg::RestoreState() function. Only one state is stored, the following call will rewrite the saved status.
 
    @return boolean
    @see Pkg::RestoreState
@@ -1292,15 +1293,24 @@ YCPList PkgFunctions::PkgGetFilelist( const YCPString & package, const YCPSymbol
 YCPValue
 PkgFunctions::SaveState ()
 {
-# warning SaveState is not implemented
-    return YCPBoolean (true);
+    // a state has been already saved, it will be lost...
+    if (state_saved)
+    {
+	y2warning("Pkg::SaveState() has been already called, rewriting the saved state...");
+    }
+
+    y2milestone("Saving status...");
+    zypp_ptr()->poolProxy().saveState();
+    state_saved = true;
+
+    return YCPBoolean(true);
 }
 
 // ------------------------
 /**
    @builtin RestoreState
 
-   @short Restore Saved state - do not use, not implemented
+   @short Restore Saved state - restore the state saved by Pkg::SaveState()
    @description
    restore the package selection status from a former
    call to Pkg::SaveState()
@@ -1316,26 +1326,41 @@ PkgFunctions::SaveState ()
 YCPValue
 PkgFunctions::RestoreState (const YCPBoolean& ch)
 {
-# warning RestoreState is not implemented
+    bool ret = false;
+
     if (!ch.isNull () && ch->value () == true)
     {
-	// return YCPBoolean (_y2pm.packageSelectionDiffState());
+	// check only
+	ret = zypp_ptr()->poolProxy().diffState();
     }
-    return YCPBoolean(false /*_y2pm.packageSelectionRestoreState()*/);
+    else
+    {
+	if (!state_saved)
+	{
+	    y2error("No previous state saved, state cannot be restored");
+	}
+	else
+	{
+	    y2milestone("Restoring the saved status...");
+	    zypp_ptr()->poolProxy().restoreState();
+	    ret = true;
+	}
+    }
+
+    return YCPBoolean(ret);
 }
 
 // ------------------------
 /**
    @builtin ClearSaveState
 
-   @short clear a saved state (to reduce memory consumption) - do not use, not implemented
+   @short Clear the saved state - do not use, does nothing (the saved state cannot be removed, it is part of each resolvable object)
    @return boolean
 
 */
 YCPValue
 PkgFunctions::ClearSaveState ()
 {
-# warning ClearSaveState is not implemented
     return YCPBoolean (true);
 }
 
