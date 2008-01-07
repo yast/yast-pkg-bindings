@@ -14,9 +14,12 @@
 
    Summary:     Access to the Package Manager
    Namespace:   Pkg
-   Purpose:	Access to the Package Manager - keyring related bindings
+   Purpose:	Access to the Package Manager - GPG key management related functions
 
 /-*/
+
+#include <list>
+#include <set>
 
 #include "PkgFunctions.h"
 #include "log.h"
@@ -24,8 +27,12 @@
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPString.h>
+#include <ycp/YCPList.h>
+#include <ycp/YCPMap.h>
 
 #include <zypp/KeyRing.h>
+#include <zypp/PublicKey.h>
+#include <zypp/Pathname.h>
 
 /****************************************************************************************
  * @builtin ImportGPGKey
@@ -40,8 +47,8 @@
 YCPValue
 PkgFunctions::ImportGPGKey(const YCPString& filename, const YCPBoolean& trusted)
 {
-    bool trusted_key = trusted->value();
-    std::string file = filename->value();
+    const bool trusted_key = trusted->value();
+    const std::string file = filename->value();
 
     y2milestone("importing %s key: %s", (trusted_key) ? "trusted" : "untrusted", file.c_str());
 
@@ -60,3 +67,105 @@ PkgFunctions::ImportGPGKey(const YCPString& filename, const YCPBoolean& trusted)
     return YCPVoid();
 }
 
+// A helper class
+// converts PublicKey to YCPMap and adds it to an YCPList
+class PublicKeyAdder : public std::unary_function<const zypp::PublicKey &, void>
+{
+    public:
+
+	// where to add the public key maps, which keys are trusted
+	PublicKeyAdder(YCPList &lst, bool trusted_keyring)
+	    : list(lst), trusted(trusted_keyring)
+	{
+	}
+
+	void operator() (const zypp::PublicKey &key)
+	{
+	    YCPMap ret;
+
+	    ret->add(YCPString("id"), YCPString(key.id()));
+	    ret->add(YCPString("name"), YCPString(key.name()));
+	    ret->add(YCPString("fingerprint"), YCPString(key.fingerprint()));
+
+	    // is the key trusted?
+	    ret->add(YCPString("trusted"), YCPBoolean(trusted));
+
+	    return list->add(ret);
+	}
+
+    private:
+
+	// where to add the converted value
+	YCPList &list;
+	// processing trusted or known GPG keys
+	const bool trusted;
+};
+
+/****************************************************************************************
+ * @builtin GPGKeys
+ * @short Read the GPG keys in the package manager keyring
+ * @description
+ * Read known or trusted keys from the package manager
+ *
+ * @param boolean trusted If set to true trusted keys are returned, 
+ * @return list List of maps $[ "id" : string , "name" : string, "fingerprint" : string, "trusted" : boolean ], nil when an error occurred
+ **/
+YCPValue PkgFunctions::GPGKeys(const YCPBoolean& trusted)
+{
+    try
+    {
+	YCPList ret;
+	const bool trusted_only = trusted->value();
+	const zypp::KeyRing_Ptr keyring(zypp_ptr()->keyRing());
+
+	// use the required keyring
+	std::list<zypp::PublicKey> key_list(
+	    trusted_only ? keyring->trustedPublicKeys()
+	    : keyring->publicKeys()
+	);
+
+	// convert std::list<PublicKey> to YCPList, pass the known/trusted flag
+	for_each(key_list.begin(), key_list.end(), PublicKeyAdder(ret, trusted_only));
+
+	return ret;
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	y2error("Cannot read GPG keys: %s", excpt.asString().c_str());
+	_last_error.setLastError(ExceptionAsString(excpt));
+	return YCPVoid();
+    }
+}
+
+/****************************************************************************************
+ * @builtin DeleteGPGKey
+ * @short Remove the GPG key from the package manager keyring
+ * @description
+ * Remove the GPG key from the known or trusted keyring
+ *
+ * @param key_id GPG key ID of the key to remove
+ * @param trusted If set to true the key will be removed from the trusted keyring otherwise it's removed from the known keyring
+ * @return boolean true on success
+ **/
+YCPValue PkgFunctions::DeleteGPGKey(const YCPString& key_id, const YCPBoolean& trusted)
+{
+    bool ret;
+    try
+    {
+	zypp_ptr()->keyRing()->deleteKey(key_id->value(), trusted->value());
+	ret = true;
+    }
+    catch(const zypp::Exception &excpt)
+    {
+	y2error("Cannot delete GPG key %s from %s keying: %s",
+	    key_id->value().c_str(),
+	    trusted->value() ? "trusted" : "known",
+	    excpt.asString().c_str()
+	);
+
+	_last_error.setLastError(ExceptionAsString(excpt));
+	ret = false;
+    }
+
+    return YCPBoolean(ret);
+}

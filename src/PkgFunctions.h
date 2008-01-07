@@ -689,6 +689,10 @@ class PkgFunctions
 	// keyring related
 	/* TYPEINFO: void(string,boolean)*/
 	YCPValue ImportGPGKey(const YCPString& filename, const YCPBoolean& trusted);
+	/* TYPEINFO: list<map<string,any>>(boolean)*/
+	YCPValue GPGKeys(const YCPBoolean& trusted);
+	/* TYPEINFO: boolean(string,boolean)*/
+	YCPValue DeleteGPGKey(const YCPString&, const YCPBoolean&);
 
 	/* TYPEINFO: boolean()*/
 	YCPValue SourceReleaseAll ();

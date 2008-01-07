@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Mon Jan  7 16:40:35 CET 2008 - lslezak@suse.cz
+
+- added missing "log.h" file in Makefile.am
+- added GPG key management functions (FATE 300754):
+  Pkg::GPGKeys() - get list of the known or trusted GPG keys
+  Pkg::DeleteGPGKey() - delete the GPG key from the known or
+  trusted keyring
+- 2.16.9
+
+-------------------------------------------------------------------
 Fri Jan  4 11:35:08 CET 2008 - lslezak@suse.cz
 
 - the functionality from PkgModuleFunctions has been moved to
