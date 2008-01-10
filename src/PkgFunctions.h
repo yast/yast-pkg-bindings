@@ -693,6 +693,8 @@ class PkgFunctions
 	YCPValue GPGKeys(const YCPBoolean& trusted);
 	/* TYPEINFO: boolean(string,boolean)*/
 	YCPValue DeleteGPGKey(const YCPString&, const YCPBoolean&);
+	/* TYPEINFO: map<string,any>(string)*/
+	YCPValue CheckGPGKeyFile(const YCPString&);
 
 	/* TYPEINFO: boolean()*/
 	YCPValue SourceReleaseAll ();

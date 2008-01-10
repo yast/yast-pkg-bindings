@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Jan 10 16:02:50 CET 2008 - lslezak@suse.cz
+
+- added Pkg::CheckGPGKeyFile() function - check whether the file
+  contains a valid GPG key
+
+-------------------------------------------------------------------
 Mon Jan  7 16:40:35 CET 2008 - lslezak@suse.cz
 
 - added missing "log.h" file in Makefile.am

@@ -67,6 +67,30 @@ PkgFunctions::ImportGPGKey(const YCPString& filename, const YCPBoolean& trusted)
     return YCPVoid();
 }
 
+class GPGMap
+{
+    public:
+
+	GPGMap(const zypp::PublicKey &key, bool trusted)
+	{
+	    gpg_map->add(YCPString("id"), YCPString(key.id()));
+	    gpg_map->add(YCPString("name"), YCPString(key.name()));
+	    gpg_map->add(YCPString("fingerprint"), YCPString(key.fingerprint()));
+
+	    // is the key trusted?
+	    gpg_map->add(YCPString("trusted"), YCPBoolean(trusted));
+	}
+
+	YCPMap getMap() const
+	{
+	    return gpg_map;
+	}
+
+    private:
+
+	YCPMap gpg_map;
+};
+
 // A helper class
 // converts PublicKey to YCPMap and adds it to an YCPList
 class PublicKeyAdder : public std::unary_function<const zypp::PublicKey &, void>
@@ -81,16 +105,9 @@ class PublicKeyAdder : public std::unary_function<const zypp::PublicKey &, void>
 
 	void operator() (const zypp::PublicKey &key)
 	{
-	    YCPMap ret;
+	    GPGMap gpgmap(key, trusted);
 
-	    ret->add(YCPString("id"), YCPString(key.id()));
-	    ret->add(YCPString("name"), YCPString(key.name()));
-	    ret->add(YCPString("fingerprint"), YCPString(key.fingerprint()));
-
-	    // is the key trusted?
-	    ret->add(YCPString("trusted"), YCPBoolean(trusted));
-
-	    return list->add(ret);
+	    return list->add(gpgmap.getMap());
 	}
 
     private:
@@ -169,3 +186,26 @@ YCPValue PkgFunctions::DeleteGPGKey(const YCPString& key_id, const YCPBoolean& t
 
     return YCPBoolean(ret);
 }
+
+/****************************************************************************************
+ * @builtin CheckGPGKeyFile
+ * @short Check whether the file contains a valid GPG key
+ *
+ * @param keyfile path to the file
+ * @return true if the GPG key is valid
+ **/
+YCPValue PkgFunctions::CheckGPGKeyFile(const YCPString& keyfile)
+{
+    try
+    {
+	zypp::PublicKey key(keyfile->value());
+
+	GPGMap gpgmap(key, false);
+	return gpgmap.getMap();
+    }
+    catch(...)
+    {}
+
+    return YCPVoid();
+}
+
