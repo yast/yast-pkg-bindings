@@ -29,10 +29,12 @@
 #include <ycp/YCPString.h>
 #include <ycp/YCPList.h>
 #include <ycp/YCPMap.h>
+#include <ycp/YCPInteger.h>
 
 #include <zypp/KeyRing.h>
 #include <zypp/PublicKey.h>
 #include <zypp/Pathname.h>
+#include <zypp/Date.h>
 
 /****************************************************************************************
  * @builtin ImportGPGKey
@@ -79,6 +81,16 @@ class GPGMap
 
 	    // is the key trusted?
 	    gpg_map->add(YCPString("trusted"), YCPBoolean(trusted));
+
+	    zypp::Date date(key.created());
+	    // %x = date only, see man strftime
+	    gpg_map->add(YCPString("created"), YCPString(date.form("%x")));
+	    gpg_map->add(YCPString("created_raw"), YCPInteger(zypp::Date::ValueType(date)));
+
+	    date = key.expires();
+	    std::string expires((date == 0) ? _("Never") : date.form("%x"));
+	    gpg_map->add(YCPString("expires"), YCPString(expires));
+	    gpg_map->add(YCPString("expires_raw"), YCPInteger(zypp::Date::ValueType(date)));
 	}
 
 	YCPMap getMap() const
@@ -125,7 +137,8 @@ class PublicKeyAdder : public std::unary_function<const zypp::PublicKey &, void>
  * Read known or trusted keys from the package manager
  *
  * @param boolean trusted If set to true trusted keys are returned, 
- * @return list List of maps $[ "id" : string , "name" : string, "fingerprint" : string, "trusted" : boolean ], nil when an error occurred
+ * @return list List of maps $[ "id" : string , "name" : string, "fingerprint" : string, "trusted" : boolean,
+ *    "created" : string, "created_raw" : integer, "expires" : string, "expires_raw" : integer ] or nil when an error occurred
  **/
 YCPValue PkgFunctions::GPGKeys(const YCPBoolean& trusted)
 {
