@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Jan 14 16:32:38 CET 2008 - lslezak@suse.cz
+
+- 2.16.10
+
+-------------------------------------------------------------------
 Thu Jan 10 16:02:50 CET 2008 - lslezak@suse.cz
 
 - added Pkg::CheckGPGKeyFile() function - check whether the file
