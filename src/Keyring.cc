@@ -36,6 +36,10 @@
 #include <zypp/Pathname.h>
 #include <zypp/Date.h>
 
+/*
+  Textdomain "pkg-bindings"
+*/
+
 /****************************************************************************************
  * @builtin ImportGPGKey
  * @short Import a GPG key into the keyring
