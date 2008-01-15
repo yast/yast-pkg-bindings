@@ -687,7 +687,7 @@ class PkgFunctions
 	YCPValue IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status);
 
 	// keyring related
-	/* TYPEINFO: void(string,boolean)*/
+	/* TYPEINFO: boolean(string,boolean)*/
 	YCPValue ImportGPGKey(const YCPString& filename, const YCPBoolean& trusted);
 	/* TYPEINFO: list<map<string,any>>(boolean)*/
 	YCPValue GPGKeys(const YCPBoolean& trusted);

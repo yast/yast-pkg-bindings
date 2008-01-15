@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Jan 15 13:47:35 CET 2008 - lslezak@suse.cz
+
+- Pkg::ImportGPGKey() return boolean (true on success) instead of
+  void
+
+-------------------------------------------------------------------
 Mon Jan 14 16:32:38 CET 2008 - lslezak@suse.cz
 
 - 2.16.10

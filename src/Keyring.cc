@@ -48,7 +48,7 @@
  *
  * @param string filename Path to the key file
  * @param boolean trusted Set to true if the key is trusted
- * @return void
+ * @return boolean true on success
  **/
 YCPValue
 PkgFunctions::ImportGPGKey(const YCPString& filename, const YCPBoolean& trusted)
@@ -68,9 +68,10 @@ PkgFunctions::ImportGPGKey(const YCPString& filename, const YCPBoolean& trusted)
     catch (...)
     {
 	y2error("Key %s: Import failed", file.c_str());
+	return YCPBoolean(false);
     }
 
-    return YCPVoid();
+    return YCPBoolean(true);
 }
 
 class GPGMap
