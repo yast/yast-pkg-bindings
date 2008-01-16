@@ -22,19 +22,18 @@
 #include <set>
 
 #include "PkgFunctions.h"
+#include "GPGMap.h"
 #include "log.h"
 
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPString.h>
 #include <ycp/YCPList.h>
-#include <ycp/YCPMap.h>
 #include <ycp/YCPInteger.h>
 
 #include <zypp/KeyRing.h>
 #include <zypp/PublicKey.h>
 #include <zypp/Pathname.h>
-#include <zypp/Date.h>
 
 /*
   Textdomain "pkg-bindings"
@@ -74,40 +73,6 @@ PkgFunctions::ImportGPGKey(const YCPString& filename, const YCPBoolean& trusted)
     return YCPBoolean(true);
 }
 
-class GPGMap
-{
-    public:
-
-	GPGMap(const zypp::PublicKey &key, bool trusted)
-	{
-	    gpg_map->add(YCPString("id"), YCPString(key.id()));
-	    gpg_map->add(YCPString("name"), YCPString(key.name()));
-	    gpg_map->add(YCPString("fingerprint"), YCPString(key.fingerprint()));
-
-	    // is the key trusted?
-	    gpg_map->add(YCPString("trusted"), YCPBoolean(trusted));
-
-	    zypp::Date date(key.created());
-	    // %x = date only, see man strftime
-	    gpg_map->add(YCPString("created"), YCPString(date.form("%x")));
-	    gpg_map->add(YCPString("created_raw"), YCPInteger(zypp::Date::ValueType(date)));
-
-	    date = key.expires();
-	    std::string expires((date == 0) ? _("Never") : date.form("%x"));
-	    gpg_map->add(YCPString("expires"), YCPString(expires));
-	    gpg_map->add(YCPString("expires_raw"), YCPInteger(zypp::Date::ValueType(date)));
-	}
-
-	YCPMap getMap() const
-	{
-	    return gpg_map;
-	}
-
-    private:
-
-	YCPMap gpg_map;
-};
-
 // A helper class
 // converts PublicKey to YCPMap and adds it to an YCPList
 class PublicKeyAdder : public std::unary_function<const zypp::PublicKey &, void>
@@ -122,7 +87,8 @@ class PublicKeyAdder : public std::unary_function<const zypp::PublicKey &, void>
 
 	void operator() (const zypp::PublicKey &key)
 	{
-	    GPGMap gpgmap(key, trusted);
+	    GPGMap gpgmap(key);
+	    gpgmap.setTrusted(trusted);
 
 	    return list->add(gpgmap.getMap());
 	}
@@ -218,7 +184,7 @@ YCPValue PkgFunctions::CheckGPGKeyFile(const YCPString& keyfile)
     {
 	zypp::PublicKey key(keyfile->value());
 
-	GPGMap gpgmap(key, false);
+	GPGMap gpgmap(key);
 	return gpgmap.getMap();
     }
     catch(...)

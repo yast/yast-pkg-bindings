@@ -29,6 +29,7 @@
 #include "log.h"
 #include "Callbacks.h"
 #include "Callbacks.YCP.h" // PkgFunctions::CallbackHandler::YCPCallbacks
+#include "GPGMap.h"
 
 #include <zypp/ZYppCallbacks.h>
 #include <zypp/Package.h>
@@ -1593,9 +1594,9 @@ namespace ZyppRecipients {
 
 	    if (callback._set)
 	    {
-		callback.addStr(key.id());
-		callback.addStr(key.name());
-                callback.addStr(key.fingerprint());
+		GPGMap gpgmap(key);
+
+		callback.addMap(gpgmap.getMap());
 
 		bool res = callback.evaluateBool();
 		y2milestone("Callback ImportGpgKey value: %s", res ? "true" : "false");
@@ -1614,11 +1615,9 @@ namespace ZyppRecipients {
 
 	    if (callback._set)
 	    {
-		callback.addStr(key.path().asString());
-		callback.addStr(key.id());
+		GPGMap gpgmap(key);
 
-		callback.addStr(key.name());
-                callback.addStr(key.fingerprint());
+		callback.addMap(gpgmap.getMap());
 
 		bool res = callback.evaluateBool();
 		y2milestone("Callback AcceptNonTrustedGpgKey value: %s", res ? "true" : "false");
@@ -1671,10 +1670,10 @@ namespace ZyppRecipients {
 
 	    if (callback._set)
 	    {
+		GPGMap gpgmap(key);
+
 		callback.addStr(file);
-		callback.addStr(key.id());
-		callback.addStr(key.name());
-                callback.addStr(key.fingerprint());
+		callback.addMap(gpgmap.getMap());
 
 		return callback.evaluateBool();
 	    }
@@ -1696,9 +1695,10 @@ namespace ZyppRecipients {
 
 	    if (callback._set)
 	    {
-		callback.addStr(key.id());
-		callback.addStr(key.name());
-                callback.addStr(key.fingerprint());
+		GPGMap gpgmap(key);
+
+		callback.addMap(gpgmap.getMap());
+		callback.evaluate();
 	    }
 	}
 
@@ -1708,9 +1708,10 @@ namespace ZyppRecipients {
 
 	    if (callback._set)
 	    {
-		callback.addStr(key.id());
-		callback.addStr(key.name());
-                callback.addStr(key.fingerprint());
+		GPGMap gpgmap(key);
+
+		callback.addMap(gpgmap.getMap());
+		callback.evaluate();
 	    }
 	}
     };

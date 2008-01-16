@@ -3,12 +3,12 @@
 #
 
 # -Woverloaded-virtual catches mis-overridden callbacks
-AM_CXXFLAGS = -DY2LOG=\"wfm\"			\
+AM_CXXFLAGS = -DY2LOG=\"Pkg\"			\
 	-DSUSEVERSION=\"${SUSEVERSION}\"	\
 	-DLOCALEDIR=\"${localedir}\"		\
 	-fno-inline				\
 	-Woverloaded-virtual			\
-	-DZYPP_BASE_LOGGER_LOGGROUP=\"pkgbindings\"
+	-DZYPP_BASE_LOGGER_LOGGROUP=\"Pkg\"
 
 
 # to look for the packagemanager in the prefix first (really first?)
@@ -44,7 +44,7 @@ libpy2Pkg_la_SOURCES =				\
 	Source_Resolvables.cc			\
 	Source_Save.cc				\
 	Source_Set.cc				\
-	Keyring.cc				\
+	Keyring.cc GPGMap.cc GPGMap.h		\
 	Callbacks.h				\
 	Callbacks.YCP.h Callbacks.YCP.cc	\
 	Callbacks.cc Callbacks_Register.cc	\
