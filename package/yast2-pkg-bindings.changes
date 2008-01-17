@@ -1,9 +1,11 @@
 -------------------------------------------------------------------
-Wed Jan 16 15:45:20 CET 2008 - lslezak@suse.cz
+Thu Jan 17 13:02:06 CET 2008 - lslezak@suse.cz
 
 - GPG key callbacks - pass a map with key information in one
   parameter (instead of 2 or 3 parameters), the map contains more
   information (see FATE 300754)
+- fixed documentaion of the changed callbacks
+- 2.16.11
 
 -------------------------------------------------------------------
 Tue Jan 15 13:47:35 CET 2008 - lslezak@suse.cz

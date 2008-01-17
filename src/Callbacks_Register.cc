@@ -68,7 +68,7 @@ YCPValue PkgFunctions::CallbackResolvableReport( const YCPString& args ) {
 /**
  * @builtin CallbackImportGpgKey
  * @short Register callback function
- * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string keyid, string keyname, string keydetails)</code>. The callback function should ask user whether the key is trusted, returned true value means the key is trusted.
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(map<string,any> key)</code>. The callback function should ask user whether the key is trusted, returned true value means the key is trusted.
  * @return void
  */
 YCPValue PkgFunctions::CallbackImportGpgKey( const YCPString& args ) {
@@ -88,7 +88,7 @@ YCPValue PkgFunctions::CallbackAcceptUnknownGpgKey( const YCPString& args ) {
 /**
  * @builtin CallbackAcceptNonTrustedGpgKey
  * @short Register callback function
- * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, string keyid, string keyname, string fingerprint)</code>. The callback function should ask user whether the unknown key can be accepted, returned true value means to accept the file.
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, map<string,any> key)</code>. The callback function should ask user whether the unknown key can be accepted, returned true value means to accept the file.
  * @return void
  */
 YCPValue PkgFunctions::CallbackAcceptNonTrustedGpgKey( const YCPString& args ) {
@@ -118,7 +118,7 @@ YCPValue PkgFunctions::CallbackAcceptFileWithoutChecksum( const YCPString& args 
 /**
  * @builtin CallbackAcceptVerificationFailed
  * @short Register callback function
- * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, string keyid, string keyname)</code>. The callback function should ask user whether the unsigned file can be accepted, returned true value means to accept the file.
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, map<string,any> key)</code>. The callback function should ask user whether the unsigned file can be accepted, returned true value means to accept the file.
  * @return void
  */
 YCPValue PkgFunctions::CallbackAcceptVerificationFailed( const YCPString& args ) {
