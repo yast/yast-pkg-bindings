@@ -34,6 +34,10 @@
 #include <zypp/Date.h>
 #include <zypp/PublicKey.h>
 
+/*
+  Textdomain "pkg-bindings"
+*/
+
 GPGMap::GPGMap(const zypp::PublicKey &key)
 {
     gpg_map->add(YCPString("id"), YCPString(key.id()));
