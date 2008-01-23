@@ -54,6 +54,7 @@ const zypp::ResStatus::TransactByValue PkgFunctions::whoWantsIt = zypp::ResStatu
  */
 PkgFunctions::PkgFunctions () :
       _target_root( "/" )
+    , _target_loaded(false)
     , zypp_pointer(NULL)
     ,_callbackHandler( *new CallbackHandler(*this) )
 {

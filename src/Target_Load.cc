@@ -50,20 +50,30 @@
 YCPValue
 PkgFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unused_and_broken*/)
 {
-    std::string r = root->value();
+    const std::string r(root->value());
+
+    // display the progress if the target is changed or if the resolvables haven't been loaded
+    // otherwise there will be a quick flashing progress with no real action
+    bool progress_needed = (_target_root != r) || !_target_loaded;
+    y2milestone("TargetInit(\"%s\"): progress needed: %s", r.c_str(), progress_needed ? "true" : "false");
 
     std::list<std::string> stages;
     stages.push_back(_("Initialize the Target System"));
     stages.push_back(_("Read Installed Packages"));
 
     PkgProgress pkgprogress(_callbackHandler);
-    pkgprogress.Start(_("Loading the Package Manager..."), stages, HelpTexts::load_target);
+
+    if (progress_needed)
+    {
+	pkgprogress.Start(_("Loading the Package Manager..."), stages, HelpTexts::load_target);
+    }
 
     try
     {
 	zypp_ptr()->initializeTarget(r);
 	pkgprogress.NextStage();
         zypp_ptr()->addResolvables( zypp_ptr()->target()->resolvables(), true );
+	_target_loaded = true;
     }
     catch (zypp::Exception & excpt)
     {
@@ -72,7 +82,7 @@ PkgFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unused_and
         return YCPError(excpt.msg().c_str(), YCPBoolean(false));
     }
     
-    _target_root = zypp::Pathname(root->value());
+    _target_root = zypp::Pathname(r);
 
     pkgprogress.Done();
     
@@ -116,6 +126,12 @@ PkgFunctions::TargetInitialize (const YCPString& root)
 YCPValue
 PkgFunctions::TargetLoad ()
 {
+    if (_target_loaded)
+    {
+	y2milestone("The target system is already loaded");
+	return YCPBoolean(true);
+    }
+
     std::list<std::string> stages;
     stages.push_back(_("Read Installed Packages"));
 
@@ -126,6 +142,7 @@ PkgFunctions::TargetLoad ()
     try
     {
         zypp_ptr()->addResolvables( zypp_ptr()->target()->resolvables(), true );
+	_target_loaded = true;
     }
     catch (zypp::Exception & excpt)
     {
@@ -159,6 +176,10 @@ PkgFunctions::TargetFinish ()
 	y2error("TargetFinish has failed: %s", excpt.msg().c_str() );
         return YCPBoolean(false);
     }
+
+    // reset the target
+    _target_root = zypp::Pathname();
+    _target_loaded = false;
 
     return YCPBoolean(true);
 }
