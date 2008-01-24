@@ -1,8 +1,10 @@
 -------------------------------------------------------------------
-Wed Jan 23 15:39:12 CET 2008 - lslezak@suse.cz
+Thu Jan 24 11:14:20 CET 2008 - lslezak@suse.cz
 
-- Pkg::TargetInit(), Pkg::TargetLoad() - don't display callbacks
-  for repeated calls (avoids flashing windows with no action)
+- Pkg::TargetInit(), Pkg::TargetLoad(), Pkg::SourceStartManager(),
+  Pkg::SourceStartCache() - don't display callbacks for repeated
+  calls (avoids flashing windows with no action)
+- 2.16.12
 
 -------------------------------------------------------------------
 Thu Jan 17 13:02:06 CET 2008 - lslezak@suse.cz

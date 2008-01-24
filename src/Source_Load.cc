@@ -296,8 +296,8 @@ PkgFunctions::SourceStartManager (const YCPBoolean& enable)
 {
     PkgProgress pkgprogress(_callbackHandler);
 
-    // display the progress only when 'enable' is true
-    if (enable->value())
+    // display the progress only when sources will be loaded
+    if (enable->value() && repos.size() == 0)
     {
 	std::list<std::string> stages;
 	stages.push_back(_("Load Sources"));
@@ -320,8 +320,7 @@ PkgFunctions::SourceStartManager (const YCPBoolean& enable)
 }
 
 /****************************************************************************************
- * @builtin SourceStartManager
- *
+ * Helper function
  * @short Start the source manager - restore the sources and load the resolvables
  * @description
  * Calls SourceRestore(), if argument enable is true SourceLoad() is called.

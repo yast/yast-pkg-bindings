@@ -54,8 +54,11 @@ PkgFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unused_and
 
     // display the progress if the target is changed or if the resolvables haven't been loaded
     // otherwise there will be a quick flashing progress with no real action
-    bool progress_needed = (_target_root != r) || !_target_loaded;
-    y2milestone("TargetInit(\"%s\"): progress needed: %s", r.c_str(), progress_needed ? "true" : "false");
+    if (_target_root == r && _target_loaded)
+    {
+	y2milestone("Target %s is already initialized", r.c_str());
+	return YCPBoolean(true);
+    }
 
     std::list<std::string> stages;
     stages.push_back(_("Initialize the Target System"));

@@ -31,8 +31,6 @@
 #include <PkgFunctions.h>
 #include "log.h"
 
-#include <PkgProgress.h>
-
 /*
   Textdomain "pkg-bindings"
 */
