@@ -65,11 +65,7 @@ PkgFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unused_and
     stages.push_back(_("Read Installed Packages"));
 
     PkgProgress pkgprogress(_callbackHandler);
-
-    if (progress_needed)
-    {
-	pkgprogress.Start(_("Loading the Package Manager..."), stages, HelpTexts::load_target);
-    }
+    pkgprogress.Start(_("Loading the Package Manager..."), stages, HelpTexts::load_target);
 
     try
     {
