@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Feb 15 11:48:14 CET 2008 - coolo@suse.de
+
+- port to new libzypp (based on satsolver)
+- 2.16.13
+
+-------------------------------------------------------------------
 Thu Jan 24 11:14:20 CET 2008 - lslezak@suse.cz
 
 - Pkg::TargetInit(), Pkg::TargetLoad(), Pkg::SourceStartManager(),
