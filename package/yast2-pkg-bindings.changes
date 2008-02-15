@@ -1100,7 +1100,7 @@ Thu Apr  6 20:26:26 CEST 2006 - visnov@suse.cz
 - 2.13.51
 
 -------------------------------------------------------------------
-Thu Apr  6 20:26:27 CEST 2006 - jsrain@suse.de
+Thu Apr  6 20:26:25 CEST 2006 - jsrain@suse.de
 
 - fixed YCP signature of Pkg::SourceCleanupBroken
 - 2.13.50
