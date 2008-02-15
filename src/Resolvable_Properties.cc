@@ -41,7 +41,6 @@
 #include <zypp/Package.h>
 
 #include <zypp/Dep.h>
-#include <zypp/CapSet.h>
 
 /**
    @builtin ResolvableProperties
@@ -51,7 +50,7 @@
    return list of resolvables of selected kind with required name
  
    @param name name of the resolvable, if empty returns all resolvables of the kind
-   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection, `pattern or `language
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `pattern or `language
    @param version version of the resolvable, if empty all versions are returned
 
    @return list<map<string,any>> list of $[ "name":string, "version":string, "arch":string, "source":integer, "status":symbol, "locked":boolean ] maps
@@ -97,14 +96,8 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
     else if ( req_kind == "package" ) {
 	kind = zypp::ResTraits<zypp::Package>::kind;
     }
-    else if ( req_kind == "selection" ) {
-	kind = zypp::ResTraits<zypp::Selection>::kind;
-    }
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResTraits<zypp::Pattern>::kind;
-    }
-    else if ( req_kind == "language" ) {
-	kind = zypp::ResTraits<zypp::Language>::kind;
     }
     else
     {
@@ -194,7 +187,9 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		// product specific info
 		else if( req_kind == "product" ) {
 		    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(it->resolvable());
-		    info->add(YCPString("category"), YCPString(product->category()));
+#warning "Product::category is deprecated, remove from YCP code and this map"
+                    info->add(YCPString("category"), YCPString(product->type()));
+                    info->add(YCPString("type"), YCPString(product->type()));
 		    info->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
 
 		    std::string product_summary = product->summary();
@@ -295,11 +290,11 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		    {
 			try {
 			    zypp::Dep depkind(*kind_it);
-			    zypp::CapSet deps = it->resolvable()->dep(depkind);
-			    for (zypp::CapSet::const_iterator d = deps.begin(); d != deps.end(); ++d)
+			    zypp::Capabilities deps = it->resolvable()->dep(depkind);
+			    for (zypp::Capabilities::const_iterator d = deps.begin(); d != deps.end(); ++d)
 			    {
 				YCPMap ycpdep;
-				ycpdep->add (YCPString ("res_kind"), YCPString (d->refers().asString()));
+				//FIXME ycpdep->add (YCPString ("res_kind"), YCPString (d.kind().asString()));
 				ycpdep->add (YCPString ("name"), YCPString (d->asString()));
 				ycpdep->add (YCPString ("dep_kind"), YCPString (*kind_it));
 				ycpdeps->add (ycpdep);
@@ -326,7 +321,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 /**
    @builtin IsAnyResolvable
    @short Is there any resolvable in the requried state?
-   @param symbol kind_r kind of resolvable, can be `product, `patch, `package, `selection, `pattern, `language or `any for any kind of resolvable
+   @param symbol kind_r kind of resolvable, can be `product, `patch, `package, `pattern, `language or `any for any kind of resolvable
    @param symbol status status of resolvable, can be `to_install or `to_remove
    @return boolean true if a resolvable with the requested status was found
 */
@@ -347,14 +342,8 @@ PkgFunctions::IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status)
     else if ( req_kind == "package" ) {
 	kind = zypp::ResTraits<zypp::Package>::kind;
     }
-    else if ( req_kind == "selection" ) {
-	kind = zypp::ResTraits<zypp::Selection>::kind;
-    }
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResTraits<zypp::Pattern>::kind;
-    }
-    else if ( req_kind == "language" ) {
-	kind = zypp::ResTraits<zypp::Language>::kind;
     }
     else if ( req_kind == "any" ) {
 	try

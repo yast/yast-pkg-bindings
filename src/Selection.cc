@@ -36,7 +36,6 @@
 
 #include <zypp/ResPool.h>
 #include <zypp/ResTraits.h>
-#include <zypp/Selection.h>
 #include <zypp/Pattern.h>
 
 using std::string;
@@ -70,78 +69,7 @@ using std::string;
 YCPValue
 PkgFunctions::GetSelections (const YCPSymbol& stat, const YCPString& cat)
 {
-    string status = stat->symbol();
-    string category = cat->value();
-
-    // FIXME: this should be done more nicely
-    if ( category == "base" ) 
-	category = "baseconf";
-
     YCPList selections;
-
-    try
-    {
-	for (zypp::ResPool::byKind_iterator it 
-	    = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Selection>::kind);
-	    it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Selection>::kind) ; ++it )
-	{
-	    string selection;
-
-	    if (status == "all")
-	    {
-		selection = it->resolvable()->name();
-	    }
-	    else if (status == "available")
-	    {
-		// ignore installed selections
-		zypp::Repository src = (*it)->repository();
-
-		if (src != zypp::Repository::noRepository)
-		    selection = it->resolvable()->name();
-	    }
-	    else if (status == "selected")
-	    {
-		if( it->status().isToBeInstalled() )
-		    selection = it->resolvable()->name();
-	    }
-	    else if (status == "installed")
-	    {
-		if( it->status().wasInstalled() )
-		    selection = it->resolvable()->name();
-	    }
-	    else
-	    {
-		y2warning("Unknown status in Pkg::GetSelections(%s, ...)", status.c_str());
-		break;
-	    }
-
-	    if (selection.empty())
-	    {
-		continue;
-	    }
-
-	    string selection_cat = zypp::dynamic_pointer_cast<const zypp::Selection>(it->resolvable())->category();
-	    if (category != "")
-	    {
-		if ( selection_cat != category)
-		{
-		    continue;			// asked for explicit category
-		}
-	    }
-	    else	// category == ""
-	    {
-		if (selection_cat == "baseconf")
-		{
-		    continue;			// asked for non-base
-		}
-	    }
-	    selections->add (YCPString (selection));
-	}
-    }
-    catch (...)
-    {
-    }
-
     return selections;
 }
 
@@ -355,75 +283,6 @@ YCPValue
 PkgFunctions::SelectionData (const YCPString& sel)
 {
     YCPMap data;
-    string name = sel->value();
-
-    /* TODO FIXME
-
-    data->add (YCPString ("archivesize"), YCPInteger ((long long) (selection->archivesize())));
-
-    tiny_helper_no1 (&data, "requires", selection->requires ());
-    tiny_helper_no1 (&data, "conflicts", selection->conflicts ());
-    tiny_helper_no1 (&data, "provides", selection->provides ());
-    tiny_helper_no1 (&data, "obsoletes", selection->obsoletes ());
-    */
-
-    try
-    {
-       zypp::ResPool::byName_iterator it = std::find_if (
-	    zypp_ptr()->pool().byNameBegin(name)
-	    , zypp_ptr()->pool().byNameEnd(name)
-	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Selection>::kind)
-	);
-
-	if ( it != zypp_ptr()->pool().byNameEnd(name) )
-	{
-	    zypp::Selection::constPtr selection = 
-		zypp::dynamic_pointer_cast<const zypp::Selection>(it->resolvable ());
-
-	    // selection found
-	    data->add (YCPString ("summary"), YCPString (selection->summary()));
-	    data->add (YCPString ("category"), YCPString (selection->category()));
-	    data->add (YCPString ("visible"), YCPBoolean (selection->visible()));
-	    data->add (YCPString ("order"), YCPString (selection->order()));
-	    data->add (YCPString ("description"), YCPString (selection->description()));
-
-    /*	YCPList recommendslist;
-	    std::set<std::string> recommends = selection->recommends();
-
-	    for (std::set<std::string>::const_iterator rec = recommends.begin();
-		rec != recommends.end(); rec++)
-	    {
-		if (!((*rec).empty()))
-		{
-		    recommendslist->add(YCPString(*rec));
-		}
-	    }
-	    data->add (YCPString("recommends"), recommendslist);
-
-	    YCPList suggestslist;
-	    std::set<std::string> suggests = selection->suggests();
-
-	    for (std::set<std::string>::const_iterator sug = suggests.begin();
-		sug != suggests.end(); sug++)
-	    {
-		if (!((*sug).empty()))
-		{
-		    suggestslist->add(YCPString(*sug));
-		}
-	    }
-	    data->add (YCPString("suggests"), recommendslist);
-    */
-#warning Report also archivesize, requires, provides, conflicts and obsoletes
-	}
-	else
-	{
-	    return YCPError ("Selection '" + name + "' not found", data);
-	}
-    }
-    catch (...)
-    {
-    }
-
     return data;
 }
 
@@ -446,46 +305,8 @@ YCPValue
 PkgFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to_delete, const YCPString& lang)
 {
 #warning Pkg::SelectionContent to_delete is not supported
-
     YCPList data;
-    std::string name = sel->value();
-    std::string locale = lang->value();
-
-    try
-    {    
-	zypp::ResPool::byName_iterator it = std::find_if (
-	    zypp_ptr()->pool().byNameBegin(name)
-	    , zypp_ptr()->pool().byNameEnd(name)
-	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Selection>::kind)
-	);
-
-	if ( it != zypp_ptr()->pool().byNameEnd(name) )
-	{
-	    zypp::Selection::constPtr selection = 
-		zypp::dynamic_pointer_cast<const zypp::Selection>(it->resolvable ());
-
 #warning implemented correctly?
-	    // is it correct?
-	    std::set<std::string> inst = selection->install_packages(zypp::Locale(locale));
-
-	    for (std::set<std::string>::const_iterator inst_it = inst.begin();
-		inst_it != inst.end(); inst_it++)
-	    {
-		if (!((*inst_it).empty()))
-		{
-		    data->add(YCPString(*inst_it));
-		}
-	    }
-	}
-	else
-	{
-	    return YCPError ("Selection '" + name + "' not found", data);
-	}
-    }
-    catch (...)
-    {
-    }
-
     return data;
 }
 
@@ -506,7 +327,7 @@ PkgFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to_delet
 YCPBoolean
 PkgFunctions::SetSelection (const YCPString& selection)
 {
-    return DoProvideNameKind( selection->value(), zypp::ResTraits<zypp::Selection>::kind, zypp_ptr()->architecture(), "");
+    return YCPBoolean(false);
 }
 
 // ------------------------
@@ -521,7 +342,7 @@ YCPValue
 PkgFunctions::ClearSelection (const YCPString& selection)
 {
     y2warning( "Pkg::ClearSelection does not reset add-on selections anymore");
-    return YCPBoolean( DoRemoveNameKind( selection->value(), zypp::ResTraits<zypp::Selection>::kind ) );
+    return YCPBoolean(false);
 }
 
 

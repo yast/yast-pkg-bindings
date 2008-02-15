@@ -34,7 +34,6 @@
 
 #include <zypp/Product.h>
 #include <zypp/target/rpm/RpmDb.h>
-#include <zypp/target/store/PersistentStorage.h>
 
 #include "log.h"
 
@@ -180,58 +179,64 @@ PkgFunctions::TargetProducts ()
 
     try
     {
-        for (ResStore::resfilter_const_iterator it = zypp_ptr()->target()->byKindBegin(ResTraits<Product>::kind); it != zypp_ptr()->target()->byKindEnd(ResTraits<Product>::kind); ++it)
+        for (ResPool::const_iterator it = zypp_ptr()->pool().begin(); it != zypp_ptr()->pool().end(); ++it)
         {
-          zypp::Product::constPtr product = asKind<const zypp::Product>( *it );
-#warning TargetProducts does not return all keys
-          YCPMap prod;
-          // see also PkgFunctions::Descr2Map and Product.ycp::Product
-// FIXME unify with code in Pkg::ResolvablePropertiesEx
-          prod->add( YCPString("name"), YCPString( product->name() ) );
-          prod->add( YCPString("version"), YCPString( product->edition().version() ) );
-	  prod->add(YCPString("category"), YCPString(product->category()));
-	  prod->add(YCPString("vendor"), YCPString(product->vendor()));
-	  prod->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
-	  std::string product_summary = product->summary();
-	  if (product_summary.size() > 0)
-	  {
-	    prod->add(YCPString("display_name"), YCPString(product_summary));
-	  }
-	  std::string product_shortname = product->shortName();
-	  if (product_shortname.size() > 0)
-	  {
-	    prod->add(YCPString("short_name"), YCPString(product_shortname));
-	  }
-	  // use summary for the short name if it's defined
-	  else if (product_summary.size() > 0)
-	  {
-	    prod->add(YCPString("short_name"), YCPString(product_summary));
-	  }
-	  prod->add(YCPString("description"), YCPString((*it)->description()));
-
-	  std::string resolvable_summary = (*it)->summary();
-	  if (resolvable_summary.size() > 0)
-	  {
-	    prod->add(YCPString("summary"), YCPString((*it)->summary()));
-	  }
-	  YCPList updateUrls;
-	  std::list<zypp::Url> pupdateUrls = product->updateUrls();
-	  for (std::list<zypp::Url>::const_iterator it = pupdateUrls.begin(); it != pupdateUrls.end(); ++it)
-	  {
-	    updateUrls->add(YCPString(it->asString()));
-	  }
-	  prod->add(YCPString("update_urls"), updateUrls);
-
-	  YCPList flags;
-	  std::list<std::string> pflags = product->flags();
-	  for (std::list<std::string>::const_iterator flag_it = pflags.begin();
-	    flag_it != pflags.end(); ++flag_it)
-	  {
-	    flags->add(YCPString(*flag_it));
-	  }
-	  prod->add(YCPString("flags"), flags);
-
-          products->add(prod);
+          if ( isKind<zypp::Product>( it->resolvable() )  && it->status().isInstalled() )
+          {
+            zypp::Product::constPtr product = asKind<zypp::Product>( it->resolvable() );
+          
+            #warning TargetProducts does not return all keys
+            YCPMap prod;
+            // see also PkgFunctions::Descr2Map and Product.ycp::Product
+            // FIXME unify with code in Pkg::ResolvablePropertiesEx
+            prod->add( YCPString("name"), YCPString( product->name() ) );
+            prod->add( YCPString("version"), YCPString( product->edition().version() ) );
+            #warning "Product::category is deprecated, remove from map and ycp code"
+            prod->add(YCPString("type"), YCPString(product->type()));
+            prod->add(YCPString("category"), YCPString(product->type()));
+            prod->add(YCPString("vendor"), YCPString(product->vendor()));
+            prod->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
+            std::string product_summary = product->summary();
+            if (product_summary.size() > 0)
+            {
+              prod->add(YCPString("display_name"), YCPString(product_summary));
+            }
+            std::string product_shortname = product->shortName();
+            if (product_shortname.size() > 0)
+            {
+              prod->add(YCPString("short_name"), YCPString(product_shortname));
+            }
+            // use summary for the short name if it's defined
+            else if (product_summary.size() > 0)
+            {
+              prod->add(YCPString("short_name"), YCPString(product_summary));
+            }
+            prod->add(YCPString("description"), YCPString((*it)->description()));
+  
+            std::string resolvable_summary = (*it)->summary();
+            if (resolvable_summary.size() > 0)
+            {
+              prod->add(YCPString("summary"), YCPString((*it)->summary()));
+            }
+            YCPList updateUrls;
+            std::list<zypp::Url> pupdateUrls = product->updateUrls();
+            for (std::list<zypp::Url>::const_iterator it = pupdateUrls.begin(); it != pupdateUrls.end(); ++it)
+            {
+              updateUrls->add(YCPString(it->asString()));
+            }
+            prod->add(YCPString("update_urls"), updateUrls);
+  
+            YCPList flags;
+            std::list<std::string> pflags = product->flags();
+            for (std::list<std::string>::const_iterator flag_it = pflags.begin();
+              flag_it != pflags.end(); ++flag_it)
+            {
+              flags->add(YCPString(*flag_it));
+            }
+            prod->add(YCPString("flags"), flags);
+  
+            products->add(prod);
+          }
         }
     }
     catch(...)
@@ -280,7 +285,7 @@ PkgFunctions::TargetFileHasOwner (const YCPString& filepath)
 {
     try
     {
-	return YCPBoolean (zypp_ptr()->target()->whoOwnsFile(filepath->value()));
+	return YCPBoolean (!zypp_ptr()->target()->whoOwnsFile(filepath->value()).empty());
     }
     catch (...)
     {
@@ -304,70 +309,5 @@ PkgFunctions::TargetFileHasOwner (const YCPString& filepath)
 YCPBoolean
 PkgFunctions::TargetStoreRemove(const YCPString& root, const YCPSymbol& kind_r)
 {
-    zypp::Resolvable::Kind kind;
-    std::string req_kind = kind_r->symbol();
-
-    if( req_kind == "product" ) {
-	kind = zypp::ResTraits<zypp::Product>::kind;
-    }
-    else if ( req_kind == "patch" ) {
-    	kind = zypp::ResTraits<zypp::Patch>::kind;
-    }
-    else if ( req_kind == "package" ) {
-	kind = zypp::ResTraits<zypp::Package>::kind;
-    }
-    else if ( req_kind == "selection" ) {
-	kind = zypp::ResTraits<zypp::Selection>::kind;
-    }
-    else if ( req_kind == "pattern" ) {
-	kind = zypp::ResTraits<zypp::Pattern>::kind;
-    }
-    else if ( req_kind == "language" ) {
-	kind = zypp::ResTraits<zypp::Language>::kind;
-    }
-    else
-    {
-	y2error("Pkg::TargetStoreRemove: unknown symbol: %s", req_kind.c_str());
-	return YCPBoolean(false);
-    }
-
-    bool success = true;
-
-    std::string target_root = root->value();
-    if (target_root.empty())
-    {
-	y2error("Pkg::TargetStoreRemove: parameter root is empty");
-	return YCPBoolean(false);
-    }
-
-    try
-    {
-	// create a storage
-	zypp::storage::PersistentStorage store;
-	store.init( target_root );
-
-	// get all resolvables of the required kind
-	std::list<ResObject::Ptr> objects = store.storedObjects(kind);
-
-	y2warning("Removing %zd objects of kind '%s' from %s", objects.size(), req_kind.c_str(), target_root.c_str());
-
-	// remove the resolvables
-	for( std::list<ResObject::Ptr>::const_iterator it = objects.begin(); it != objects.end(); ++it)
-	{
-	    try {
-		store.deleteObject(*it);
-	    } catch( const zypp::Exception& excpt )
-	    {
-		y2error("TargetStoreRemove has failed: %s", excpt.msg().c_str());
-		success = false;
-	    }
-	}
-    }
-    catch( const zypp::Exception& excpt )
-    {
-	y2error("TargetStoreRemove has failed: %s", excpt.msg().c_str());
-	success = false;
-    }
-    
-    return YCPBoolean(success);
+    return YCPBoolean(true);
 }

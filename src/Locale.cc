@@ -75,7 +75,7 @@ PkgFunctions::SetPackageLocale (const YCPString &locale)
 	zypp::Locale loc = zypp::Locale(locale->value());
 
 	// add packages for the preferred locale, preserve additional locales
-	zypp::ZYpp::LocaleSet lset = zypp_ptr()->getRequestedLocales();
+	zypp::LocaleSet lset = zypp_ptr()->getRequestedLocales();
 
 	// remove the previous locale
 	if (preferred_locale != zypp::Locale::noCode)
@@ -180,7 +180,7 @@ PkgFunctions::GetPackageLocale ()
 YCPValue
 PkgFunctions::SetAdditionalLocales (const YCPList &langycplist)
 {
-    zypp::ZYpp::LocaleSet lset;
+    zypp::LocaleSet lset;
 
     int i = 0;
     while (i < langycplist->size())
@@ -228,9 +228,9 @@ PkgFunctions::GetAdditionalLocales ()
 
     try
     {
-	zypp::ZYpp::LocaleSet lset = zypp_ptr()->getRequestedLocales();
+	zypp::LocaleSet lset = zypp_ptr()->getRequestedLocales();
 
-	for (zypp::ZYpp::LocaleSet::const_iterator it = lset.begin();
+	for (zypp::LocaleSet::const_iterator it = lset.begin();
 	     it != lset.end(); ++it)
 	{
 	  // ignore the main locale

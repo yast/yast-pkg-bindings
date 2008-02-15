@@ -44,7 +44,7 @@
 #include <zypp/target/rpm/RpmDb.h>
 #include <zypp/target/TargetException.h>
 #include <zypp/ZYppCommit.h>
-#include <zypp/ResPoolManager.h>
+//#include <zypp/ResPoolManager.h>
 
 #include <fstream>
 #include <sstream>
@@ -392,7 +392,7 @@ PkgFunctions::PkgMediaCount()
 
 struct CaIMatch
 {
-    zypp::PoolItem_Ref item;
+    zypp::PoolItem item;
 
     bool operator() (const zypp::CapAndItem & cai )
     {
@@ -603,7 +603,7 @@ PkgFunctions::PkgAvailable(const YCPString& package)
 
 struct ProvideProcess
 {
-    zypp::PoolItem_Ref item;
+    zypp::PoolItem item;
     zypp::Arch _architecture;
     zypp::ResStatus::TransactByValue whoWantsIt;
     std::string version;
@@ -858,9 +858,9 @@ PkgFunctions::DoRemove (const YCPList& tags)
 
 struct ItemMatch
 {
-    zypp::PoolItem_Ref item;
+    zypp::PoolItem item;
 
-    bool operator() (const zypp::PoolItem_Ref i )
+    bool operator() (const zypp::PoolItem i )
     {
 	item = i;
 	return false;
@@ -868,7 +868,7 @@ struct ItemMatch
 };
 
 static zypp::Package::constPtr
-find_package( const string & name, zypp::PoolItem_Ref & item, zypp::ResPool pool )
+find_package( const string & name, zypp::PoolItem & item, zypp::ResPool pool )
 {
     if (name.empty())
 	return NULL;
@@ -882,7 +882,7 @@ find_package( const string & name, zypp::PoolItem_Ref & item, zypp::ResPool pool
 		  pool.byNameEnd( name ),
 		  zypp::functor::chain( zypp::resfilter::ByUninstalled(),
 				  zypp::resfilter::ByKind( zypp::ResTraits<zypp::Package>::kind ) ),
-		  zypp::functor::functorRef<bool,zypp::PoolItem_Ref>( match ) );
+		  zypp::functor::functorRef<bool,zypp::PoolItem>( match ) );
 
     // if no match yet, try again with installed package
     //  (but those only provide an english summary)
@@ -892,7 +892,7 @@ find_package( const string & name, zypp::PoolItem_Ref & item, zypp::ResPool pool
 		      pool.byNameEnd( name ),
 		      zypp::functor::chain( zypp::resfilter::ByInstalled(),
 				      zypp::resfilter::ByKind( zypp::ResTraits<zypp::Package>::kind ) ),
-		      zypp::functor::functorRef<bool,zypp::PoolItem_Ref>( match ) );
+		      zypp::functor::functorRef<bool,zypp::PoolItem>( match ) );
     }
 
     if (!match.item)
@@ -920,7 +920,7 @@ PkgFunctions::PkgSummary (const YCPString& p)
 {
     try
     {
-	zypp::PoolItem_Ref item;
+	zypp::PoolItem item;
 	zypp::Package::constPtr pkg = find_package( p->value(), item, zypp_ptr()->pool() );
 
 	if (pkg == NULL)
@@ -955,7 +955,7 @@ PkgFunctions::PkgVersion (const YCPString& p)
 {
     try
     {
-	zypp::PoolItem_Ref item;
+	zypp::PoolItem item;
 	zypp::Package::constPtr pkg = find_package( p->value(), item, zypp_ptr()->pool() );
 
 	if (pkg == NULL)
@@ -989,7 +989,7 @@ PkgFunctions::PkgSize (const YCPString& p)
 {
     try
     {
-	zypp::PoolItem_Ref item;
+	zypp::PoolItem item;
 	zypp::Package::constPtr pkg = find_package( p->value(), item, zypp_ptr()->pool() );
 
 	if (pkg == NULL)
@@ -1023,7 +1023,7 @@ PkgFunctions::PkgGroup (const YCPString& p)
 {
     try
     {
-	zypp::PoolItem_Ref item;
+	zypp::PoolItem item;
 	zypp::Package::constPtr pkg = find_package( p->value(), item, zypp_ptr()->pool() );
 
 	if (pkg == NULL)
@@ -1042,7 +1042,7 @@ PkgFunctions::PkgGroup (const YCPString& p)
 
 
 YCPValue
-PkgFunctions::PkgProp( zypp::PoolItem_Ref item )
+PkgFunctions::PkgProp( zypp::PoolItem item )
 {
     YCPMap data;
     zypp::Package::constPtr pkg = zypp::asKind<zypp::Package>( item.resolvable() );
@@ -1107,7 +1107,7 @@ PkgFunctions::PkgProperties (const YCPString& p)
     try
     {
 	YCPMap data;
-	zypp::PoolItem_Ref item;
+	zypp::PoolItem item;
 	zypp::Package::constPtr pkg = find_package( p->value(), item, zypp_ptr()->pool() );
 
 	if (item)
@@ -1152,7 +1152,7 @@ PkgFunctions::PkgPropertiesAll (const YCPString& p)
 YCPValue
 PkgFunctions::GetPkgLocation (const YCPString& p, bool full_path)
 {
-    zypp::PoolItem_Ref item;
+    zypp::PoolItem item;
 
     try
     {
@@ -2107,47 +2107,7 @@ PkgFunctions::PkgSolve (const YCPBoolean& filter)
 YCPBoolean
 PkgFunctions::PkgEstablish ()
 {
-    bool result = false;
-
-    try
-    {
-	result = zypp_ptr()->resolver()->establishPool();
-    }
-    catch (const zypp::Exception& excpt)
-    {
-	y2error("An error occurred during Pkg::PkgEstablish.");
-	_last_error.setLastError(excpt.asUserString(), "See /var/log/YaST2/badlist for more information.");
-    }
-
-    // save information about failed dependencies to file
-    if (!result)
-    {
-	try
-	{
-	    zypp::ResolverProblemList problems = zypp_ptr()->resolver()->problems();
-	    int problem_size = problems.size();
-
-	    if (problem_size > 0)
-	    {
-		y2error ("PkgSolve: %d packages failed (see /var/log/YaST2/badlist)", problem_size);
-
-		std::ofstream out ("/var/log/YaST2/badlist");
-
-		out << problem_size << " packages failed" << std::endl;
-		for(zypp::ResolverProblemList::const_iterator p = problems.begin();
-		     p != problems.end(); ++p )
-		{
-		    out << (*p)->description() << std::endl;
-		}
-	    }
-	}
-	catch (...)
-	{
-	    return YCPBoolean(false);
-	}
-    }
-
-    return YCPBoolean(result);
+    return YCPBoolean(false);
 }
 
 
@@ -2167,47 +2127,7 @@ PkgFunctions::PkgEstablish ()
 YCPBoolean
 PkgFunctions::PkgFreshen()
 {
-    bool result = false;
-
-    try
-    {
-	result = zypp_ptr()->resolver()->freshenPool();
-    }
-    catch (const zypp::Exception& excpt)
-    {
-	y2error("An error occurred during Pkg::PkgFreshen.");
-	_last_error.setLastError(excpt.asUserString(), "See /var/log/YaST2/badlist for more information.");
-    }
-
-    // save information about failed dependencies to file
-    if (!result)
-    {
-	try
-	{
-	    zypp::ResolverProblemList problems = zypp_ptr()->resolver()->problems();
-	    int problem_size = problems.size();
-
-	    if (problem_size > 0)
-	    {
-		y2error ("PkgSolve: %d packages failed (see /var/log/YaST2/badlist)", problem_size);
-
-		std::ofstream out ("/var/log/YaST2/badlist");
-
-		out << problem_size << " packages failed" << std::endl;
-		for(zypp::ResolverProblemList::const_iterator p = problems.begin();
-		     p != problems.end(); ++p )
-		{
-		    out << (*p)->description() << std::endl;
-		}
-	    }
-	}
-	catch (...)
-	{
-	    return YCPBoolean(false);
-	}
-    }
-
-    return YCPBoolean(result);
+    return YCPBoolean(true);
 }
 
 
@@ -2225,30 +2145,21 @@ PkgFunctions::PkgFreshen()
 YCPBoolean
 PkgFunctions::PkgSolveCheckTargetOnly()
 {
-    // create pool just with objects from target
-    zypp::ResStore store;
-
     try
     {
-	store = zypp_ptr()->target()->resolvables();
+	zypp_ptr()->target()->load();
     }
     catch (...)
     {
 	return YCPBoolean(false);
     }
 
-    zypp::ResPoolManager pool;
-    pool.insert(store.begin(), store.end(), true);
-
-    // create resolver
-    zypp::Resolver solver(pool.accessor());
-
     bool result = false;
 
     try
     {
 	// verify consistency of system
-	result = solver.verifySystem();
+	result = zypp_ptr()->resolver()->verifySystem();
     }
     catch (const zypp::Exception& excpt)
     {
@@ -2357,8 +2268,6 @@ PkgFunctions::PkgCommit (const YCPInteger& media)
 	    resolvable->add (YCPString ("kind"), YCPSymbol ("product"));
 	else if (zypp::isKind<zypp::Pattern>(it->resolvable()))
 	    resolvable->add (YCPString ("kind"), YCPSymbol ("pattern"));
-	else if (zypp::isKind<zypp::Selection>(it->resolvable()))
-	    resolvable->add (YCPString ("kind"), YCPSymbol ("selection"));
 	else if (zypp::isKind<zypp::Script>(it->resolvable()))
 	    resolvable->add (YCPString ("kind"), YCPSymbol ("script"));
 	else if (zypp::isKind<zypp::Message>(it->resolvable()))
@@ -2586,7 +2495,7 @@ PkgFunctions::PkgDU(const YCPString& package)
     // get partitioning
     zypp::DiskUsageCounter::MountPointSet mps = zypp_ptr()->getPartitions();
 
-    zypp::PoolItem_Ref item;
+    zypp::PoolItem item;
     zypp::Package::constPtr pkg = find_package(package->value(), item, zypp_ptr()->pool() );
 
     // the package was not found

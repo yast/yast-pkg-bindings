@@ -113,7 +113,7 @@ class PkgFunctions
       std::string UniqueAlias(const std::string &alias);
 
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);
-      YCPValue PkgProp( zypp::PoolItem_Ref item );
+      YCPValue PkgProp( zypp::PoolItem item );
       YCPValue PkgMediaSizesOrCount (bool sizes);
     
       bool aliasExists(const std::string &alias) const;

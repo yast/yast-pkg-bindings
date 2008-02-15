@@ -71,7 +71,7 @@ PkgFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unused_and
     {
 	zypp_ptr()->initializeTarget(r);
 	pkgprogress.NextStage();
-        zypp_ptr()->addResolvables( zypp_ptr()->target()->resolvables(), true );
+        zypp_ptr()->target()->load();
 	_target_loaded = true;
     }
     catch (zypp::Exception & excpt)
@@ -140,7 +140,7 @@ PkgFunctions::TargetLoad ()
 
     try
     {
-        zypp_ptr()->addResolvables( zypp_ptr()->target()->resolvables(), true );
+        zypp_ptr()->target()->load();
 	_target_loaded = true;
     }
     catch (zypp::Exception & excpt)

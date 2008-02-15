@@ -31,6 +31,8 @@
 #include <PkgFunctions.h>
 #include "log.h"
 
+#include <zypp/sat/Pool.h>
+
 /*
   Textdomain "pkg-bindings"
 */
@@ -41,17 +43,7 @@
 void PkgFunctions::RemoveResolvablesFrom(const std::string &alias)
 {
     // remove the resolvables if they have been loaded
-    for (zypp::ResPool::repository_iterator it = zypp_ptr()->pool().knownRepositoriesBegin()
-	; it != zypp_ptr()->pool().knownRepositoriesEnd()
-	; ++it)
-    {
-	if (it->info().alias() == alias)
-	{
-	    y2internal("Removing resolvables from '%s'", alias.c_str());
-	    zypp_ptr()->removeResolvables(it->resolvables());
-	    return;
-	}
-    }
+    zypp::sat::Pool::instance().reposErase(alias);
 }
 
 /*
@@ -106,13 +98,8 @@ bool PkgFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zyp
 	    repomanager.buildCache(repoinfo, zypp::RepoManager::BuildIfNeeded, load_subprogress);
 	}
 
-	zypp::Repository repository = repomanager.createFromCache(repoinfo);
-	const zypp::ResStore &store = repository.resolvables();
-
-	// load resolvables
-	zypp_ptr()->addResolvables(store);
-
-	y2milestone("Loaded %zd resolvables", store.size());
+	repomanager.loadFromCache(repoinfo);
+	//y2milestone("Loaded %zd resolvables", store.size());
     }
     catch(const zypp::repo::RepoNotCachedException &excpt )
     {

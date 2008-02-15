@@ -31,11 +31,12 @@
 #include "Callbacks.YCP.h" // PkgFunctions::CallbackHandler::YCPCallbacks
 #include "GPGMap.h"
 
-#include <zypp/ZYppCallbacks.h>
-#include <zypp/Package.h>
-#include <zypp/KeyRing.h>
-#include <zypp/PublicKey.h>
-#include <zypp/Digest.h>
+#include "zypp/ZYppCallbacks.h"
+#include "zypp/Package.h"
+#include "zypp/Patch.h"
+#include "zypp/KeyRing.h"
+#include "zypp/PublicKey.h"
+#include "zypp/Digest.h"
 
 // FIXME: do this nicer, source create use this to avoid user feedback
 // on probing of source type

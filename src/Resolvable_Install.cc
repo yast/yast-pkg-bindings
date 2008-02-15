@@ -65,9 +65,6 @@ PkgFunctions::ResolvableInstallArchVersion( const YCPString& name_r, const YCPSy
     else if ( req_kind == "package" ) {
 	kind = zypp::ResTraits<zypp::Package>::kind;
     }
-    else if ( req_kind == "selection" ) {
-	kind = zypp::ResTraits<zypp::Selection>::kind;
-    }
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResTraits<zypp::Pattern>::kind;
     }
@@ -124,9 +121,6 @@ PkgFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol& kind_
     else if ( req_kind == "package" ) {
 	kind = zypp::ResTraits<zypp::Package>::kind;
     }
-    else if ( req_kind == "selection" ) {
-	kind = zypp::ResTraits<zypp::Selection>::kind;
-    }
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResTraits<zypp::Pattern>::kind;
     }
@@ -169,9 +163,6 @@ PkgFunctions::ResolvableNeutral ( const YCPString& name_r, const YCPSymbol& kind
     }
     else if ( req_kind == "package" ) {
 	kind = zypp::ResTraits<zypp::Package>::kind;
-    }
-    else if ( req_kind == "selection" ) {
-	kind = zypp::ResTraits<zypp::Selection>::kind;
     }
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResTraits<zypp::Pattern>::kind;
@@ -238,9 +229,6 @@ PkgFunctions::ResolvableSetSoftLock ( const YCPString& name_r, const YCPSymbol& 
     }
     else if ( req_kind == "package" ) {
 	kind = zypp::ResTraits<zypp::Package>::kind;
-    }
-    else if ( req_kind == "selection" ) {
-	kind = zypp::ResTraits<zypp::Selection>::kind;
     }
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResTraits<zypp::Pattern>::kind;
