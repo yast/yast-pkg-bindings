@@ -123,9 +123,7 @@ PkgFunctions::GetPatterns(const YCPSymbol& stat, const YCPString& cat)
 	    else if (status == "available")
 	    {
 		// ignore installed patterns
-		zypp::Repository src = (*it)->repository();
-
-		if (src != zypp::Repository::noRepository)
+		if( !it->status().wasInstalled() )
 		    pattern = it->resolvable()->name();
 	    }
 	    else if (status == "selected")
@@ -207,13 +205,9 @@ PkgFunctions::PatternData (const YCPString& pat)
 
     try
     {
-	zypp::ResPool::byName_iterator it = std::find_if (
-	    zypp_ptr()->pool().byNameBegin(name)
-	    , zypp_ptr()->pool().byNameEnd(name)
-	    , zypp::resfilter::ByKind(zypp::ResTraits<zypp::Pattern>::kind)
-	);
+	zypp::ResPool::byIdent_iterator it = zypp_ptr()->pool().byIdentBegin<zypp::Pattern>(name);
 
-	if ( it != zypp_ptr()->pool().byNameEnd(name) )
+	if ( it != zypp_ptr()->pool().byIdentEnd<zypp::Pattern>(name) )
 	{
 	    zypp::Pattern::constPtr pattern = 
 		zypp::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable ());
@@ -229,7 +223,7 @@ PkgFunctions::PatternData (const YCPString& pat)
 	    data->add (YCPString ("script"), YCPString (pattern->script().asString()));
 	    data->add (YCPString ("version"), YCPString((*it)->edition().asString()));
 	    data->add (YCPString ("arch"), YCPString((*it)->arch().asString()));
-	    data->add (YCPString ("srcid"), YCPInteger(logFindAlias((*it)->repository().info().alias())));
+	    data->add (YCPString ("srcid"), YCPInteger(logFindAlias((*it)->repoInfo().alias())));
 	}
 	else
 	{

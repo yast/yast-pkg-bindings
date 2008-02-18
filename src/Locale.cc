@@ -29,6 +29,9 @@
 #include <ycp/YCPVoid.h>
 
 #include <zypp/Locale.h>
+#include <zypp/ZConfig.h>
+#include <zypp/sat/Pool.h>
+
 
 /**
  * @builtin SetTextLocale
@@ -45,7 +48,7 @@ PkgFunctions::SetTextLocale (const YCPString &locale)
     try
     {
 	zypp::Locale loc = zypp::Locale(locale->value());
-	zypp_ptr()->setTextLocale(loc);
+	zypp::ZConfig::instance().setTextLocale(loc);
     }
     catch (const std::exception& excpt)
     {
@@ -75,7 +78,7 @@ PkgFunctions::SetPackageLocale (const YCPString &locale)
 	zypp::Locale loc = zypp::Locale(locale->value());
 
 	// add packages for the preferred locale, preserve additional locales
-	zypp::LocaleSet lset = zypp_ptr()->getRequestedLocales();
+	zypp::LocaleSet lset = zypp::sat::Pool::instance().getRequestedLocales();
 
 	// remove the previous locale
 	if (preferred_locale != zypp::Locale::noCode)
@@ -85,7 +88,7 @@ PkgFunctions::SetPackageLocale (const YCPString &locale)
 
 	// add the new locale
 	lset.insert(loc);
-	zypp_ptr()->setRequestedLocales(lset);
+	zypp::sat::Pool::instance().setRequestedLocales(lset);
 
 	// remember the main locale
 	preferred_locale = loc;
@@ -127,7 +130,7 @@ PkgFunctions::GetTextLocale ()
 {
     try
     {
-	return YCPString(zypp_ptr()->getTextLocale().code());
+	return YCPString(zypp::ZConfig::instance().textLocale().code());
     }
     catch (...)
     {
@@ -204,7 +207,7 @@ PkgFunctions::SetAdditionalLocales (const YCPList &langycplist)
 
     try
     {
-	zypp_ptr()->setRequestedLocales(lset);
+	zypp::sat::Pool::instance().setRequestedLocales(lset);
     }
     catch(...)
     {
@@ -228,7 +231,7 @@ PkgFunctions::GetAdditionalLocales ()
 
     try
     {
-	zypp::LocaleSet lset = zypp_ptr()->getRequestedLocales();
+	zypp::LocaleSet lset = zypp::sat::Pool::instance().getRequestedLocales();
 
 	for (zypp::LocaleSet::const_iterator it = lset.begin();
 	     it != lset.end(); ++it)

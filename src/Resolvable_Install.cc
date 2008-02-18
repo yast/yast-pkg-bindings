@@ -33,6 +33,8 @@
 #include <ycp/YCPSymbol.h>
 #include <ycp/YCPString.h>
 
+#include <zypp/ZConfig.h>
+
 /**
    @builtin ResolvableInstallArchVersion
    @short Install all resolvables with selected name, architecture and kind. Use it only in a special case, ResolvableInstall() should be prefrerred.
@@ -94,7 +96,7 @@ PkgFunctions::ResolvableInstallArchVersion( const YCPString& name_r, const YCPSy
 YCPValue
 PkgFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r )
 {
-    return ResolvableInstallArchVersion(name_r, kind_r, YCPString(zypp_ptr()->architecture().asString()), YCPString(""));
+    return ResolvableInstallArchVersion(name_r, kind_r, YCPString(zypp::ZConfig::instance().systemArchitecture().asString()), YCPString(""));
 }
 
 // ------------------------

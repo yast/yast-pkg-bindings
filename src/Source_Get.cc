@@ -211,7 +211,7 @@ PkgFunctions::SourceMediaData (const YCPInteger& id)
 	; it != zypp_ptr()->pool().end()
 	; ++it)
     {
-	if (it->resolvable()->repository().info().alias() == alias)
+	if (it->resolvable()->repoInfo().alias() == alias)
 	{
 	    int medium = it->resolvable()->mediaNr();
 
@@ -283,7 +283,7 @@ PkgFunctions::SourceProductData (const YCPInteger& src_id)
 	{
 	    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
 
-	    if( logFindAlias(product->repository().info().alias()) == static_cast<size_t>(src_id->value()))
+	    if( logFindAlias(product->repoInfo().alias()) == static_cast<size_t>(src_id->value()))
 	    {
 		ret->add( YCPString("label"),		YCPString( product->summary() ) );
 		ret->add( YCPString("vendor"),		YCPString( product->vendor() ) );

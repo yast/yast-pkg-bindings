@@ -519,7 +519,7 @@ namespace ZyppRecipients {
 	    size = pkg->downloadSize();
 
 	    // convert the repo ID
-	    long long source_id = _pkg_ref.logFindAlias(pkg->repository().info().alias());
+	    long long source_id = _pkg_ref.logFindAlias(pkg->repoInfo().alias());
 	    int media_nr = pkg->mediaNr();
 
 	    if( source_id != last_source_id || media_nr != last_source_media )

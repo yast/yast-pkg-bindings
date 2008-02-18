@@ -44,7 +44,7 @@
 #include <zypp/target/rpm/RpmDb.h>
 #include <zypp/target/TargetException.h>
 #include <zypp/ZYppCommit.h>
-//#include <zypp/ResPoolManager.h>
+#include <zypp/ZConfig.h>
 
 #include <fstream>
 #include <sstream>
@@ -319,7 +319,7 @@ PkgFunctions::PkgMediaSizesOrCount (bool sizes)
 		zypp::ByteCount size = sizes ? pkg->size() : zypp::ByteCount(1); //count only
 
 		// refence to the found media array
-		std::vector<zypp::ByteCount> &ref = result[source_map[pkg->repository().info().alias()]];
+		std::vector<zypp::ByteCount> &ref = result[source_map[pkg->repoInfo().alias()]];
 		int add_count = (medium - 1) - ref.size() + 1;
 
 		// resize media array - the found index is out of array
@@ -528,25 +528,27 @@ YCPValue
 PkgFunctions::searchPackage(const YCPString &package, bool installed)
 {
     bool found = false;
-    std::string pkgname = package->value();
 
+    std::string pkgname = package->value();
+ 
     if (pkgname.empty())
     {
 	y2warning("Pkg::%s: Package name is empty", installed ? "PkgInstalled" : "PkgAvailable");
 	return YCPBoolean(false);
     }
 
+
     try
     {
-	for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(pkgname);
-	    it != zypp_ptr()->pool().byNameEnd(pkgname);
+	for (zypp::ResPool::byIdent_iterator it = zypp_ptr()->pool().byIdentBegin<zypp::Package>(pkgname);
+	    it != zypp_ptr()->pool().byIdentEnd<zypp::Package>(pkgname);
 	    ++it)
 	{
 	    zypp::Package::constPtr pkg = zypp::asKind<zypp::Package>( it->resolvable() );
 
 	    if (pkg != NULL)
 	    {
-		long long sid = logFindAlias(pkg->repository().info().alias());
+		long long sid = logFindAlias(pkg->repoInfo().alias());
 		y2debug("Package '%s' repo: %lld", pkgname.c_str(), sid);
 		if ((installed && sid < 0LL) || (!installed && sid >= 0LL))
 		{
@@ -671,9 +673,8 @@ PkgFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvable::Kin
 	ProvideProcess info( architecture, version, onlyNeeded);
 	info.whoWantsIt = whoWantsIt;
 
-	invokeOnEach( zypp_ptr()->pool().byNameBegin( name ),
-		      zypp_ptr()->pool().byNameEnd( name ),
-		      zypp::resfilter::ByKind( kind ),
+	invokeOnEach( zypp_ptr()->pool().byIdentBegin( kind, name ),
+		      zypp_ptr()->pool().byIdentEnd( kind, name ),
 		      zypp::functor::functorRef<bool,zypp::PoolItem> (info)
 	);
 
@@ -802,7 +803,7 @@ PkgFunctions::DoProvide (const YCPList& tags)
         {
             if (tags->value(i)->isString())
             {
-                DoProvideNameKind (tags->value(i)->asString()->value(), zypp::ResTraits<zypp::Package>::kind, zypp_ptr()->architecture(), "");
+                DoProvideNameKind (tags->value(i)->asString()->value(), zypp::ResTraits<zypp::Package>::kind, zypp::ZConfig::instance().systemArchitecture(), "");
             }
             else
             {
@@ -868,7 +869,7 @@ struct ItemMatch
 };
 
 static zypp::Package::constPtr
-find_package( const string & name, zypp::PoolItem & item, zypp::ResPool pool )
+find_package( const string & name, zypp::PoolItem & item, const zypp::ResPool &pool )
 {
     if (name.empty())
 	return NULL;
@@ -878,20 +879,18 @@ find_package( const string & name, zypp::PoolItem & item, zypp::ResPool pool )
     // look for uninstalled packages first, because they probably have
     // translated summary
 
-    invokeOnEach( pool.byNameBegin( name ),
-		  pool.byNameEnd( name ),
-		  zypp::functor::chain( zypp::resfilter::ByUninstalled(),
-				  zypp::resfilter::ByKind( zypp::ResTraits<zypp::Package>::kind ) ),
+    invokeOnEach( pool.byIdentBegin<zypp::Package>( name ),
+		  pool.byIdentEnd<zypp::Package>( name ),
+		  zypp::resfilter::ByUninstalled(),
 		  zypp::functor::functorRef<bool,zypp::PoolItem>( match ) );
 
     // if no match yet, try again with installed package
     //  (but those only provide an english summary)
 
     if (!match.item) {
-	invokeOnEach( pool.byNameBegin( name ),
-		      pool.byNameEnd( name ),
-		      zypp::functor::chain( zypp::resfilter::ByInstalled(),
-				      zypp::resfilter::ByKind( zypp::ResTraits<zypp::Package>::kind ) ),
+	invokeOnEach( pool.byIdentBegin<zypp::Package>(name),
+		      pool.byIdentEnd<zypp::Package>(name),
+		      zypp::resfilter::ByInstalled(),
 		      zypp::functor::functorRef<bool,zypp::PoolItem>( match ) );
     }
 
@@ -1054,7 +1053,7 @@ PkgFunctions::PkgProp( zypp::PoolItem item )
     data->add( YCPString("arch"), YCPString( pkg->arch().asString() ) );
     data->add( YCPString("medianr"), YCPInteger( pkg->mediaNr() ) );
 
-    long long sid = logFindAlias(pkg->repository().info().alias());
+    long long sid = logFindAlias(pkg->repoInfo().alias());
     y2debug("srcId: %lld", sid );
     data->add( YCPString("srcid"), YCPInteger( sid ) );
 
@@ -1130,14 +1129,10 @@ PkgFunctions::PkgPropertiesAll (const YCPString& p)
     {
 	try
 	{
-	    for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(pkgname);
-		it != zypp_ptr()->pool().byNameEnd(pkgname); ++it)
+	    for (zypp::ResPool::byIdent_iterator it = zypp_ptr()->pool().byIdentBegin<zypp::Package>(pkgname);
+		it != zypp_ptr()->pool().byIdentEnd<zypp::Package>(pkgname); ++it)
 	    {
-		// is it a package?
-		if (zypp::isKind<zypp::Package>(it->resolvable()))
-		{
-		    data->add( PkgProp( *it ) );
-		}
+		data->add( PkgProp( *it ) );
 	    }
 	}
 	catch (...)
@@ -1241,31 +1236,27 @@ YCPList PkgFunctions::PkgGetFilelist( const YCPString & package, const YCPSymbol
     {
 	try
 	{
-	    for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(pkgname);
-		it != zypp_ptr()->pool().byNameEnd(pkgname); ++it)
+	    for (zypp::ResPool::byIdent_iterator it = zypp_ptr()->pool().byIdentBegin<zypp::Package>(pkgname);
+		it != zypp_ptr()->pool().byIdentEnd<zypp::Package>(pkgname); ++it)
 	    {
-		// is it a package?
-		if (zypp::isKind<zypp::Package>(it->resolvable()))
+		if (type == "any" ||
+		    (type == "installed" && it->status().isInstalled()) ||
+		    (type == "candidate" && it->status().isToBeInstalled())
+		)
 		{
-		    if (type == "any" ||
-			(type == "installed" && it->status().isInstalled()) ||
-			(type == "candidate" && it->status().isToBeInstalled())
-		    )
-		    {
-			// cast to Package object
-			zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
-			std::list<std::string> files = package->filenames();
+		    // cast to Package object
+		    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
+		    std::list<std::string> files = package->filenames();
 
-			// insert the file names
-			for (std::list<string>::iterator it = files.begin(); it != files.end(); ++it)
-			{
-			    ret->add(YCPString(*it));
-			}
+		    // insert the file names
+		    for (std::list<string>::iterator it = files.begin(); it != files.end(); ++it)
+		    {
+			ret->add(YCPString(*it));
+		    }
 
 #warning PkgGetFilelist has different semantics for `any optinon - the result depends on item order in the pool, first found is returned
-			// finish the loop, we have found required package
-			break;
-		    }
+		    // finish the loop, we have found required package
+		    break;
 		}
 	    }
 	}
@@ -1797,7 +1788,7 @@ PkgFunctions::PkgInstall (const YCPString& p)
 
     // ensure installation of the 'best' architecture
 
-    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::Package>::kind, zypp_ptr()->architecture(), "") );
+    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::Package>::kind, zypp::ZConfig::instance().systemArchitecture(), "") );
 }
 
 /**
@@ -1817,7 +1808,7 @@ PkgFunctions::PkgSrcInstall (const YCPString& p)
 
     // ensure installation of the 'best' architecture
 
-    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::SrcPackage>::kind, zypp_ptr()->architecture(), "" ) );
+    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::SrcPackage>::kind, zypp::ZConfig::instance().systemArchitecture(), "" ) );
 }
 
 
@@ -1843,11 +1834,11 @@ PkgFunctions::PkgDelete (const YCPString& p)
     {
 	bool found = false;
 
-	for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(name);
-	    it != zypp_ptr()->pool().byNameEnd(name); ++it)
+	for (zypp::ResPool::byIdent_iterator it = zypp_ptr()->pool().byIdentBegin<zypp::Package>(name);
+	    it != zypp_ptr()->pool().byIdentEnd<zypp::Package>(name); ++it)
 	{
 	    // is it an installed package?
-	    if (zypp::isKind<zypp::Package>(it->resolvable()) && it->status().isInstalled())
+	    if (it->status().isInstalled())
 	    {
 		found = true;
 		ret = it->status().setToBeUninstalled(whoWantsIt) && ret;
@@ -1889,12 +1880,11 @@ PkgFunctions::PkgTaboo (const YCPString& p)
     {
 	bool found = false;
 
-	for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(name);
-	    it != zypp_ptr()->pool().byNameEnd(name); ++it)
+	for (zypp::ResPool::byIdent_iterator it = zypp_ptr()->pool().byIdentBegin<zypp::Package>(name);
+	    it != zypp_ptr()->pool().byIdentEnd<zypp::Package>(name); ++it)
 	{
-	    // is it a package?
 	    // installed package cannot be set to taboo
-	    if (zypp::isKind<zypp::Package>(it->resolvable()) && !it->status().isInstalled())
+	    if (!it->status().isInstalled())
 	    {
 		found = true;
 
@@ -1942,15 +1932,11 @@ PkgFunctions::PkgNeutral (const YCPString& p)
     {
 	bool found = false;
 
-	for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(name);
-	    it != zypp_ptr()->pool().byNameEnd(name); ++it)
+	for (zypp::ResPool::byIdent_iterator it = zypp_ptr()->pool().byIdentBegin<zypp::Package>(name);
+	    it != zypp_ptr()->pool().byIdentEnd<zypp::Package>(name); ++it)
 	{
-	    // is it a package?
-	    if (zypp::isKind<zypp::Package>(it->resolvable()))
-	    {
-		found = true;
-		ret = it->status().resetTransact(whoWantsIt) && ret;
-	    }
+	    found = true;
+	    ret = it->status().resetTransact(whoWantsIt) && ret;
 	}
 
 	if (!found)
@@ -2376,8 +2362,8 @@ YCPString PkgFunctions::PkgGetLicenseToConfirm( const YCPString & package )
     {
 	try
 	{
-	    for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(pkgname);
-		it != zypp_ptr()->pool().byNameEnd(pkgname);
+	    for (zypp::ResPool::byIdent_iterator it = zypp_ptr()->pool().byIdentBegin<zypp::Package>(pkgname);
+		it != zypp_ptr()->pool().byIdentEnd<zypp::Package>(pkgname);
 		++it)
 	    {
 		// is it a package?
@@ -2444,12 +2430,12 @@ YCPBoolean PkgFunctions::PkgMarkLicenseConfirmed (const YCPString & package)
     {
 	try
 	{
-	    for (zypp::ResPool::byName_iterator it = zypp_ptr()->pool().byNameBegin(pkgname);
-		it != zypp_ptr()->pool().byNameEnd(pkgname);
+	    for (zypp::ResPool::byIdent_iterator it = zypp_ptr()->pool().byIdentBegin<zypp::Package>(pkgname);
+		it != zypp_ptr()->pool().byIdentEnd<zypp::Package>(pkgname);
 		++it)
 	    {
 		// is it a package?
-		zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
+		zypp::Package::constPtr package = zypp::asKind<zypp::Package>( it->resolvable() );
 
 		// a package scheduled for installation, with unconfirmed license, not installed yet
 		if (package && it->status().isToBeInstalled() && !it->status().isLicenceConfirmed()

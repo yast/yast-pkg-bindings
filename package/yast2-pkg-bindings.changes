@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Feb 18 13:45:41 CET 2008 - lslezak@suse.cz
+
+- don't use deprecated libzypp API (use byIdent iterators,
+  sat pool, ZConfig)
+
+-------------------------------------------------------------------
 Fri Feb 15 11:48:14 CET 2008 - coolo@suse.de
 
 - port to new libzypp (based on satsolver)

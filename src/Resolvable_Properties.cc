@@ -149,8 +149,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		info->add(YCPString("locked"), YCPBoolean(it->status().isLocked()));
 
 		// source
-		zypp::Repository repo = (*it)->repository();
-		info->add(YCPString("source"), YCPInteger(logFindAlias(repo.info().alias())));
+		info->add(YCPString("source"), YCPInteger(logFindAlias((*it)->repoInfo().alias())));
 
 		// add license info if it is defined
 		std::string license = (*it)->licenseToConfirm();
