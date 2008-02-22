@@ -24,6 +24,7 @@ libpy2Pkg_la_SOURCES =				\
 	PkgModule.cc PkgModule.h		\
 	PkgModuleFunctions.h			\
 	PkgModuleFunctions.cc			\
+	ProvideProcess.cc ProvideProcess.h	\
 	Package.cc				\
 	Patch.cc				\
 	Resolvable.cc				\

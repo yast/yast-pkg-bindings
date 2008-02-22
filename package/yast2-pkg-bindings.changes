@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Feb 22 15:38:40 CET 2008 - lslezak@suse.cz
+
+- Pkg::ResolvablePreselectPatches(): Properly select patches for
+  installation - check only the latest version of a patch (#355509)
+- 2.13.122
+
+-------------------------------------------------------------------
 Fri Nov 23 12:28:09 CET 2007 - lslezak@suse.cz
 
 - allow to change name (alias) of a source (FATE #300645)
