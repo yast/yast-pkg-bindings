@@ -22,6 +22,7 @@
 /-*/
 
 #include "PkgFunctions.h"
+#include "ProvideProcess.h"
 #include "log.h"
 
 #include <ycp/YCPVoid.h>
@@ -602,63 +603,6 @@ PkgFunctions::PkgAvailable(const YCPString& package)
 {
     return searchPackage(package, false);
 }
-
-struct ProvideProcess
-{
-    zypp::PoolItem item;
-    zypp::Arch _architecture;
-    zypp::ResStatus::TransactByValue whoWantsIt;
-    std::string version;
-    bool onlyNeeded;
-
-    ProvideProcess( zypp::Arch arch, const std::string &vers, const bool oNeeded)
-	: _architecture( arch ), whoWantsIt(zypp::ResStatus::APPL_HIGH), version(vers), onlyNeeded(oNeeded)
-    { }
-
-    bool operator()( zypp::PoolItem provider )
-    {
-        // 1. compatible arch
-        // 2. best arch
-        // 3. best edition
-        //  see QueueItemRequire in zypp/solver/detail, RequireProcess
-
-	// check the version if it's specified
-	if (!version.empty() && version != provider->edition().asString())
-	{
-	    y2milestone("Skipping version %s (requested: %s)", provider->edition().asString().c_str(), version.c_str());
-	    return true;
-	}
-
-	if (!provider.status().isInstalled()
-	    && (!onlyNeeded || provider.status().isNeeded()) ) // take only needed items (e.G. needed patches)
-	{
-	    // deselect the item if it's already selected,
-	    // only one item should be selected
-	    if (provider.status().isToBeInstalled())
-	    {
-		provider.status().resetTransact(whoWantsIt);
-	    }
-
-	    // regarding items which are installable only
-	    if (!provider->arch().compatibleWith( _architecture )) {
-		y2milestone ("provider %s has incompatible arch '%s'", provider->name().c_str(), provider->arch().asString().c_str());
-	    }
-	    else if (!item) {						// no provider yet
-		item = provider;
-	    }
-	    else if (item->arch().compare( provider->arch() ) < 0) {	// provider has better arch
-		item = provider;
-	    }
-	    else if (item->edition().compare( provider->edition() ) < 0) {
-		item = provider;						// provider has better edition
-	    }
-	}
-
-	return true;
-    }
-
-};
-
 
 /**
  * helper function, install a resolvable with a specific name and kind

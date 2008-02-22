@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Feb 22 15:38:40 CET 2008 - lslezak@suse.cz
+
+- Pkg::ResolvablePreselectPatches(): Properly select patches for
+  installation - check only the latest version of a patch (#355509)
+- 2.16.14
+
+-------------------------------------------------------------------
 Mon Feb 18 13:45:41 CET 2008 - lslezak@suse.cz
 
 - don't use deprecated libzypp API (use byIdent iterators,

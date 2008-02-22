@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------------
- * Copyright (c) 2007 Novell, Inc. All Rights Reserved.
+ * Copyright (c) 2008 Novell, Inc. All Rights Reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -21,16 +21,32 @@
 /*
    File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
-   Summary:     Class representing an error message
+   Summary:     Search the best available resolvable
    Namespace:   Pkg
 */
 
-#include "PkgError.h"
+#ifndef ProvideProcess_h
+#define ProvideProcess_h
 
-// helper function
-void PkgError::setLastError(const std::string &error, const std::string &details)
+#include <zypp/ResPool.h>
+#include <zypp/ResStatus.h>
+#include <zypp/Arch.h>
+
+#include <string>
+
+struct ProvideProcess
 {
-    _last_error = error;
-    _last_error_details = details;
-}
+    zypp::PoolItem item;
+    zypp::Arch _architecture;
+    zypp::ResStatus::TransactByValue whoWantsIt;
+    std::string version;
+    bool onlyNeeded;
+
+    ProvideProcess(const zypp::Arch &arch, const std::string &vers, const bool oNeeded);
+//	: _architecture(arch), whoWantsIt(zypp::ResStatus::APPL_HIGH), version(vers), onlyNeeded(oNeeded);
+
+    bool operator()( zypp::PoolItem provider );
+};
+
+#endif
 
