@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Feb 27 09:04:14 CET 2008 - lslezak@suse.cz
+
+- update - 'keep_intalled_patches' and 'delete_unmaintained' options
+  were removed from the libzypp API
+- 2.16.15
+
+-------------------------------------------------------------------
 Fri Feb 22 15:38:40 CET 2008 - lslezak@suse.cz
 
 - Pkg::ResolvablePreselectPatches(): Properly select patches for

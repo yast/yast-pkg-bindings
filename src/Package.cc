@@ -1631,15 +1631,7 @@ PkgFunctions::PkgUpdateAll (const YCPMap& options)
     YCPValue delete_unmaintained = options->value(YCPString("delete_unmaintained"));
     if(!delete_unmaintained.isNull())
     {
-	if (delete_unmaintained->isBoolean())
-	{
-	    stats.delete_unmaintained = delete_unmaintained->asBoolean()->value();
-	}
-	else
-	{
-	    y2error("unexpected type of 'delete_unmaintained' key: %s, must be a boolean!",
-		Type::vt2type(delete_unmaintained->valuetype())->toString().c_str());
-	}
+	y2error("'delete_unmaintained' flag is obsoleted and should not be used, check the code!");
     }
 
     YCPValue silent_downgrades = options->value(YCPString("silent_downgrades"));
@@ -1659,15 +1651,7 @@ PkgFunctions::PkgUpdateAll (const YCPMap& options)
     YCPValue keep_installed_patches = options->value(YCPString("keep_installed_patches"));
     if(!keep_installed_patches.isNull())
     {
-	if (keep_installed_patches->isBoolean())
-	{
-	    stats.keep_installed_patches = keep_installed_patches->asBoolean()->value();
-	}
-	else
-	{
-	    y2error("unexpected type of 'keep_installed_patches' key: %s, must be a boolean!",
-		Type::vt2type(keep_installed_patches->valuetype())->toString().c_str());
-	}
+	y2error("'keep_installed_patches' flag is obsoleted and should not be used, check the code!");
     }
 
 
@@ -1707,7 +1691,6 @@ PkgFunctions::PkgUpdateAll (const YCPMap& options)
     // option set for doUpdate, dropped packages count as ToDelete
     // or ToKeep.
     data->add( YCPSymbol("SumDropped"),   YCPInteger( stats.chk_dropped ) );
-    data->add( YCPSymbol("DeleteUnmaintained"),YCPInteger( stats.delete_unmaintained ) );
 
     // Total mumber of installed packages processed
     data->add( YCPSymbol("SumProcessed"), YCPInteger( stats.chk_installed_total ) );
