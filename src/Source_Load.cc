@@ -125,6 +125,37 @@ PkgFunctions::SourceLoad()
     return ret;
 }
 
+void PkgFunctions::CallRefreshStarted()
+{
+    // get the YCP callback handler for destroy event
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_StartSourceRefresh);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+}
+
+void PkgFunctions::CallRefreshDone()
+{
+    // get the YCP callback handler for destroy event
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_DoneSourceRefresh);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+}
+
+YCPValue PkgFunctions::SkipRefresh()
+{
+    autorefresh_skipped = true;
+    return YCPVoid();
+}
 
 /****************************************************************************************
  * @builtin SourceLoad
@@ -140,16 +171,22 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
     bool success = true;
 
     int repos_to_load = 0;
+    int repos_to_refresh = 0;
     for (RepoCont::iterator it = repos.begin();
        it != repos.end(); ++it)
     {
 	if ((*it)->repoInfo().enabled() && !(*it)->isDeleted())
 	{
 	    repos_to_load++;
+
+	    if ((*it)->repoInfo().autorefresh())
+	    {
+		repos_to_refresh++;
+	    }
 	}
     }
 
-    y2debug("repos_to_load: %d", repos_to_load);
+    y2debug("repos_to_load: %d, repos_to_refresh: %d", repos_to_load, repos_to_refresh);
 
     // set max. value (3 steps per repository - refresh, rebuild, load)
     zypp::ProgressData prog_total(repos_to_load * 3 * 100);
@@ -158,46 +195,71 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 
     zypp::RepoManager repomanager = CreateRepoManager();
 
-    // refresh metadata
-    for (RepoCont::iterator it = repos.begin();
-       it != repos.end(); ++it)
-    {
-	// load resolvables only from enabled repos which are not deleted
-	if ((*it)->repoInfo().enabled() && !(*it)->isDeleted())
-	{
-	    // sub tasks
-	    zypp::CombinedProgressData refresh_subprogress(prog_total, 100);
-	    zypp::ProgressData prog(100);
-	    prog.sendTo(refresh_subprogress);
-	    y2debug("Progress status: %lld", prog_total.val());
+    autorefresh_skipped = false;
+    CallRefreshStarted();
 
-	    if (AnyResolvableFrom((*it)->repoInfo().alias()))
+    if (repos_to_refresh > 0)
+    {
+	// refresh metadata
+	for (RepoCont::iterator it = repos.begin();
+	   it != repos.end(); ++it)
+	{
+	    // load resolvables only from enabled repos which are not deleted
+	    if ((*it)->repoInfo().enabled() && !(*it)->isDeleted())
 	    {
-		y2milestone("Resolvables from '%s' are already present, not loading", (*it)->repoInfo().alias().c_str());
-	    }
-	    else
-	    {
-		// autorefresh the source
-		if ((*it)->repoInfo().autorefresh())
+		// sub tasks
+		zypp::CombinedProgressData refresh_subprogress(prog_total, 100);
+		zypp::ProgressData prog(100);
+		prog.sendTo(refresh_subprogress);
+		y2debug("Progress status: %lld", prog_total.val());
+
+		if (AnyResolvableFrom((*it)->repoInfo().alias()))
 		{
-		    try
+		    y2milestone("Resolvables from '%s' are already present, not loading", (*it)->repoInfo().alias().c_str());
+		}
+		else
+		{
+		    zypp::RepoStatus raw_metadata_status = repomanager.metadataStatus((*it)->repoInfo());
+
+		    // autorefresh the source
+		    if ((*it)->repoInfo().autorefresh() || raw_metadata_status.empty())
 		    {
-			y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
-			// refresh the repository
-			RefreshWithCallbacks((*it)->repoInfo(), prog.receiver());
-		    }
-		    // NOTE: subtask progresses are reported as done in the descructor
-		    // no need to handle them in the exception code
-		    catch (const zypp::Exception& excpt)
-		    {
-			y2error ("Error in SourceLoad: %s", excpt.asString().c_str());
-			_last_error.setLastError(ExceptionAsString(excpt));
-			success = false;
+			try
+			{
+			    y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
+			    // refresh the repository
+			    RefreshWithCallbacks((*it)->repoInfo(), prog.receiver());
+			}
+			// NOTE: subtask progresses are reported as done in the destructor
+			// no need to handle them in the exception code
+			catch (const zypp::Exception& excpt)
+			{
+			    if (autorefresh_skipped)
+			    {
+				y2internal("autorefresh_skipped, ignoring the exception");
+			    }
+			    else
+			    {
+				y2error ("Error in SourceLoad: %s", excpt.asString().c_str());
+				_last_error.setLastError(ExceptionAsString(excpt));
+				success = false;
+			    }
+			}
+
+			if (autorefresh_skipped)
+			{
+			    y2internal("Skipping autorefresh for the rest of repositories");
+			    break;
+			}
+			else
+			{
+			    y2internal("Continuing with autorefresh");
+			}
 		    }
 		}
+		prog.toMax();
+		y2debug("Progress status: %lld", prog_total.val());
 	    }
-	    prog.toMax();
-	    y2debug("Progress status: %lld", prog_total.val());
 	}
     }
 
@@ -218,13 +280,25 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 	    y2debug("Progress status: %lld", prog_total.val());
 	    if (AnyResolvableFrom((*it)->repoInfo().alias()))
 	    {
-		y2milestone("Resolvables from '%s' are already present, not loading", (*it)->repoInfo().alias().c_str());
+		y2milestone("Resolvables from '%s' are already present, not rebuilding the cache", (*it)->repoInfo().alias().c_str());
 	    }
 	    else
 	    {
 		// autorefresh the source
 		if ((*it)->repoInfo().autorefresh())
 		{
+		    if (autorefresh_skipped)
+		    {
+			zypp::RepoStatus raw_metadata_status = repomanager.metadataStatus((*it)->repoInfo());
+
+			// autorefresh the source
+			if (raw_metadata_status.empty() )
+			{
+			    y2internal("Missinga metadata, not rebuilding the cache");
+			    continue;
+			}
+		    }
+
 		    try
 		    {
 			// rebuild cache (the default policy is "if needed")
@@ -237,9 +311,26 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 		    // no need to handle them in the exception code
 		    catch (const zypp::Exception& excpt)
 		    {
-			y2error ("Error in SourceLoad: %s", excpt.asString().c_str());
-			_last_error.setLastError(ExceptionAsString(excpt));
-			success = false;
+			if (autorefresh_skipped)
+			{
+			    y2internal("autorefresh_skipped, ignoring the exception");
+			}
+			else
+			{
+			    y2error ("Error in SourceLoad: %s", excpt.asString().c_str());
+			    _last_error.setLastError(ExceptionAsString(excpt));
+			    success = false;
+			}
+		    }
+
+		    if (autorefresh_skipped)
+		    {
+			y2internal("Skipping autorefresh for the rest of repositories");
+			break;
+		    }
+		    else
+		    {
+			y2internal("Continuing with autorefresh");
 		    }
 		}
 	    }
@@ -247,6 +338,8 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 	    y2debug("Progress status: %lld", prog_total.val());
 	}
     }
+
+    CallRefreshDone();
 
     progress.NextStage();
 
@@ -277,6 +370,7 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
     // report 100%
     prog_total.toMax();
 
+    autorefresh_skipped = false;
     return YCPBoolean(success);
 }
 

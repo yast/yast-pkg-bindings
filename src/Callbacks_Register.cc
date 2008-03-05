@@ -715,4 +715,29 @@ YCPValue PkgFunctions::CallbackProcessProgress( const YCPString& func )
     return SET_YCP_CB( CB_ProcessProgress, func);
 }
 
+
+/**
+ * @builtin CallbackStartRefresh
+ * @short Register a callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void()</code>.
+ * The callback function is evaluated when repository refresh is started
+ * @return void
+ */
+YCPValue PkgFunctions::CallbackStartRefresh( const YCPString& func )
+{
+    return SET_YCP_CB( CB_StartSourceRefresh, func);
+}
+
+/**
+ * @builtin CallbackDoneRefresh
+ * @short Register a callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>void()</code>.
+ * The callback function is evaluated when repository refresh is finished
+ * @return void
+ */
+YCPValue PkgFunctions::CallbackDoneRefresh( const YCPString& func )
+{
+    return SET_YCP_CB( CB_DoneSourceRefresh, func);
+}
+
 #undef SET_YCP_CB

@@ -95,6 +95,9 @@ class PkgFunctions
 
       // table for converting libzypp source type to Yast type (for backward compatibility)
       std::map<std::string, std::string> type_conversion_table;
+    
+      // flag for skipping autorefresh
+      volatile bool autorefresh_skipped;
 
       // conversion methods for type string between Yast and libzypp (for backward compatibility)
       std::string zypp2yastType(const std::string &type);
@@ -134,6 +137,8 @@ class PkgFunctions
 	const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc());
       zypp::repo::RepoType ProbeWithCallbacks(const zypp::Url &url);
       void ScanProductsWithCallBacks(const zypp::Url &url);
+      void CallRefreshStarted();
+      void CallRefreshDone();
 
       YCPValue SourceLoadImpl(PkgProgress &progress);
       YCPValue SourceStartManagerImpl(const YCPBoolean& enable, PkgProgress &progress);
@@ -304,6 +309,11 @@ class PkgFunctions
 	YCPValue CallbackProgressReportProgress(const YCPString& func);
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackProgressReportEnd(const YCPString& func);
+
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackStartRefresh( const YCPString& func );
+	/* TYPEINFO: void(string) */
+	YCPValue CallbackDoneRefresh( const YCPString& func );
 
 	// Script (patch installation) callbacks
 	/* TYPEINFO: void(string) */
@@ -478,6 +488,8 @@ class PkgFunctions
 	YCPValue RepositoryScan(const YCPString& url);
 	/* TYPEINFO: integer(map<string,any>)*/
 	YCPValue RepositoryAdd(const YCPMap &params);
+	/* TYPEINFO: void()*/
+	YCPValue SkipRefresh();
 
 	// target related
 	/* TYPEINFO: boolean(string,boolean)*/

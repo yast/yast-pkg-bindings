@@ -85,13 +85,18 @@ bool PkgFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zyp
 	zypp::RepoManager repomanager = CreateRepoManager();
 
 	// build cache if needed
-	if (!repomanager.isCached(repoinfo))
+	if (!repomanager.isCached(repoinfo) && !autorefresh_skipped)
 	{
 	    zypp::RepoStatus raw_metadata_status = repomanager.metadataStatus(repoinfo);
 	    if (raw_metadata_status.empty())
 	    {
 		y2milestone("Missing metadata for source '%s', downloading...", repoinfo.alias().c_str());
+
+		CallRefreshStarted();
+
 		RefreshWithCallbacks(repoinfo);
+
+		CallRefreshDone();
 	    }
 
 	    y2milestone("Caching source '%s'...", repoinfo.alias().c_str());
@@ -103,10 +108,17 @@ bool PkgFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zyp
     }
     catch(const zypp::repo::RepoNotCachedException &excpt )
     {
-	std::string alias = repoinfo.alias();
-	y2error ("Resolvables from '%s' havn't been loaded: %s", alias.c_str(), excpt.asString().c_str());
-	_last_error.setLastError("'" + alias + "': " + ExceptionAsString(excpt));
-	success = false;
+	if (!autorefresh_skipped)
+	{
+	    std::string alias = repoinfo.alias();
+	    y2error ("Resolvables from '%s' havn't been loaded: %s", alias.c_str(), excpt.asString().c_str());
+	    _last_error.setLastError("'" + alias + "': " + ExceptionAsString(excpt));
+	    success = false;
+	}
+	else
+	{
+	    y2internal("Autorefresh disabled, the cache is missing -> cannot load resolvables");
+	}
 
 	// FIXME ??
 	/*
