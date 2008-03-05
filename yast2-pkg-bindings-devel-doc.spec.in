@@ -1,12 +1,16 @@
 @HEADER-COMMENT@
 
-# IMPORTANT!! Name is defined in HEADER macro, the first defined is used!
 Name: yast2-pkg-bindings-devel-doc
 
-@HEADER@
+Version:        @VERSION@
+Release:        0
+License:        GPL
+Group:          System/YaST
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+Source0:        yast2-pkg-bindings-@VERSION@.tar.bz2
 
 # same as in the main package (because we use the same configure.in.in)
-BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer rpm-devel sgml-skel yast2-core-devel yast2-devtools boost boost-devel dbus-1-devel hal-devel libzypp-devel libzypp
+BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer rpm-devel sgml-skel yast2-core-devel yast2-devtools boost-devel hal-devel libzypp-devel 
 
 Buildarch: noarch
 Requires:  yast2-pkg-bindings = %{version}
