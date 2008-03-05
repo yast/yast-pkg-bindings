@@ -4,6 +4,9 @@ Wed Mar  5 12:22:37 CET 2008 - lslezak@suse.cz
 - added Pkg::CallbackStartRefresh() and Pkg::CallbackDoneRefresh()
   callbacks, added Pkg::SkipRefresh() call to abort and skip
   running source refresh (FATE #30962, bnc #231745)
+- use zypp::sat::WhatProvides instead of obsoleted byCapability
+  iterators
+- 2.16.16
 
 -------------------------------------------------------------------
 Wed Feb 27 09:04:14 CET 2008 - lslezak@suse.cz

@@ -47,6 +47,8 @@
 #include <zypp/ZYppCommit.h>
 #include <zypp/ZConfig.h>
 
+#include <zypp/sat/WhatProvides.h>
+
 #include <fstream>
 #include <sstream>
 
@@ -96,60 +98,64 @@ PkgFunctions::PkgQueryProvides( const YCPString& tag )
     YCPList ret;
     std::string name = tag->value();
 
-    // 'it' is 'const struct std::pair<const std::string, std::pair<zypp::Capability, zypp::PoolItem> >'
-    for (zypp::ResPool::byCapabilityIndex_iterator it = zypp_ptr()->pool().byCapabilityIndexBegin(name, zypp::Dep::PROVIDES);
-	it != zypp_ptr()->pool().byCapabilityIndexEnd(name, zypp::Dep::PROVIDES);
-	++it)
+    zypp::Capability cap(name, zypp::ResKind::package);
+    zypp::sat::WhatProvides possibleProviders(cap);
+
+    for_(iter, possibleProviders.begin(), possibleProviders.end())
     {
-	// is it a package?
-	if (zypp::isKind<zypp::Package>(it->item.resolvable()))
+	zypp::PoolItem provider = zypp::ResPool::instance().find(*iter);
+
+	// cast to Package object
+	zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(provider.resolvable());
+
+	if (!package)
 	{
+	    y2internal("Casting to Package failed!");
+	    continue;
+	}
 
-	    // cast to Package object
-	    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(it->item.resolvable());
-	    std::string pkgname = package->name();
+	std::string pkgname = package->name();
 
-	    // get instance status
-	    bool installed = it->item.status().staysInstalled();
-	    std::string instance;
+	// get instance status
+	bool installed = provider.status().staysInstalled();
+	std::string instance;
 
 # warning Status `NONE and `INST is not supported
-	    // TODO FIXME the other values??
-	    if (installed)
-	    {
-		instance = "BOTH";
-	    }
-	    else
-	    {
-		instance = "CAND";
-	    }
-
-	    // get status on the system
-	    bool uninstalled = it->item.status().staysUninstalled() || it->item.status().isToBeUninstalled();
-	    std::string onSystem;
-
-	    if (uninstalled)
-	    {
-		onSystem = "NONE";
-	    }
-	    else if (installed)
-	    {
-		onSystem = "INST";
-	    }
-	    else
-	    {
-		onSystem = "CAND";
-	    }
-
-	    // create list item
-	    YCPList item;
-	    item->add(YCPString(pkgname));
-	    item->add(YCPSymbol(instance));
-	    item->add(YCPSymbol(onSystem));
-
-	    // add the item to the result
-	    ret->add(item);
+	// TODO FIXME the other values??
+	if (installed)
+	{
+	    instance = "BOTH";
 	}
+	else
+	{
+	    instance = "CAND";
+	}
+
+	// get status on the system
+	bool uninstalled = provider.status().staysUninstalled() || provider.status().isToBeUninstalled();
+	std::string onSystem;
+
+	if (uninstalled)
+	{
+	    onSystem = "NONE";
+	}
+	else if (installed)
+	{
+	    onSystem = "INST";
+	}
+	else
+	{
+	    onSystem = "CAND";
+	}
+
+	// create list item
+	YCPList item;
+	item->add(YCPString(pkgname));
+	item->add(YCPSymbol(instance));
+	item->add(YCPSymbol(onSystem));
+
+	// add the item to the result
+	ret->add(item);
     }
 
     return ret;
@@ -421,26 +427,25 @@ PkgFunctions::IsProvided (const YCPString& tag)
     if (name.empty())
 	return YCPBoolean (false);
 
-    y2milestone("IsProvided called");
+    // look for packages
+    zypp::Capability cap(name, zypp::ResKind::package);
+    zypp::sat::WhatProvides possibleProviders(cap);
 
-    zypp::Dep dep( zypp::Dep::PROVIDES );
-    CaIMatch match;
-
-    // look for installed packages
-
-    try
+    for_(iter, possibleProviders.begin(), possibleProviders.end())
     {
-	invokeOnEach( zypp_ptr()->pool().byCapabilityIndexBegin( name, dep ),
-		      zypp_ptr()->pool().byCapabilityIndexEnd( name, dep ),
-		      zypp::functor::chain( zypp::resfilter::ByCaIInstalled (),
-				      zypp::resfilter::ByCaIKind( zypp::ResTraits<zypp::Package>::kind ) ),
-		      zypp::functor::functorRef<bool,zypp::CapAndItem>( match ) );
-    }
-    catch (...)
-    {
+	zypp::PoolItem provider = zypp::ResPool::instance().find(*iter);
+
+	// is it installed?
+	if (provider.status().isInstalled())
+	{
+	    y2milestone("Tag %s is provided by %s", name.c_str(), provider->name().c_str());
+	    return YCPBoolean(true);
+	}
     }
 
-    return YCPBoolean( match.item );
+    y2milestone("Tag %s is not provided", name.c_str());
+
+    return YCPBoolean(false);
 }
 
 
@@ -463,24 +468,25 @@ PkgFunctions::IsSelected (const YCPString& tag)
     if (name.empty())
 	return YCPBoolean (false);
 
-    zypp::Dep dep( zypp::Dep::PROVIDES );
-    CaIMatch match;
+    // look for packages
+    zypp::Capability cap(name, zypp::ResKind::package);
+    zypp::sat::WhatProvides possibleProviders(cap);
 
-    try
+    for_(iter, possibleProviders.begin(), possibleProviders.end())
     {
-	// look for to-be-installed packages
-	invokeOnEach( zypp_ptr()->pool().byCapabilityIndexBegin( name, dep ),
-		      zypp_ptr()->pool().byCapabilityIndexEnd( name, dep ),
-		      zypp::functor::chain( zypp::resfilter::ByCaIUninstalled(),
-			  zypp::functor::chain( zypp::resfilter::ByCaITransact(),
-					  zypp::resfilter::ByCaIKind( zypp::ResTraits<zypp::Package>::kind ) ) ),
-		      zypp::functor::functorRef<bool,zypp::CapAndItem>( match ) );
-    }
-    catch (...)
-    {
+	zypp::PoolItem provider = zypp::ResPool::instance().find(*iter);
+
+	// is it installed?
+	if (provider.status().isToBeInstalled())
+	{
+	    y2milestone("Tag %s provided by %s is selected to install", name.c_str(), provider->name().c_str());
+	    return YCPBoolean(true);
+	}
     }
 
-    return YCPBoolean( match.item );
+    y2milestone("Tag %s is not selected to install", name.c_str());
+
+    return YCPBoolean(false);
 }
 
 // ------------------------
@@ -501,28 +507,29 @@ PkgFunctions::IsSelected (const YCPString& tag)
 YCPValue
 PkgFunctions::IsAvailable (const YCPString& tag)
 {
-    y2milestone("IsAvailable called");
     std::string name = tag->value ();
     if (name.empty())
 	return YCPBoolean (false);
 
-    zypp::Dep dep( zypp::Dep::PROVIDES );
-    CaIMatch match;
+    // look for packages
+    zypp::Capability cap(name, zypp::ResKind::package);
+    zypp::sat::WhatProvides possibleProviders(cap);
 
-    try
+    for_(iter, possibleProviders.begin(), possibleProviders.end())
     {
-	// look for uninstalled packages
-	invokeOnEach( zypp_ptr()->pool().byCapabilityIndexBegin( name, dep ),
-		      zypp_ptr()->pool().byCapabilityIndexEnd( name, dep ),
-		      zypp::functor::chain( zypp::resfilter::ByCaIUninstalled(),
-				      zypp::resfilter::ByCaIKind( zypp::ResTraits<zypp::Package>::kind ) ),
-		      zypp::functor::functorRef<bool,zypp::CapAndItem>( match ) );
-    }
-    catch (...)
-    {
+	zypp::PoolItem provider = zypp::ResPool::instance().find(*iter);
+
+	// is it installed?
+	if (!provider.status().isInstalled())
+	{
+	    y2milestone("Tag %s provided by %s is available to install", name.c_str(), provider->name().c_str());
+	    return YCPBoolean(true);
+	}
     }
 
-    return YCPBoolean( match.item );
+    y2milestone("Tag %s is not available to install", name.c_str());
+
+    return YCPBoolean(false);
 }
 
 YCPValue
@@ -692,30 +699,27 @@ PkgFunctions::DoRemoveAllKind(zypp::Resolvable::Kind kind)
 bool
 PkgFunctions::DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind)
 {
-    zypp::Dep dep( zypp::Dep::PROVIDES );
-    CaIMatch match;
+    zypp::Capability cap(name, kind);
+    zypp::sat::WhatProvides possibleProviders(cap);
 
-    try
+    bool ret = false;
+
+    for_(iter, possibleProviders.begin(), possibleProviders.end())
     {
-	// look for installed packages
-	invokeOnEach( zypp_ptr()->pool().byCapabilityIndexBegin( name, dep ),
-		      zypp_ptr()->pool().byCapabilityIndexEnd( name, dep ),
-		      zypp::functor::chain( zypp::resfilter::ByCaIInstalled(),
-				      zypp::resfilter::ByCaIKind( kind ) ),
-		      zypp::functor::functorRef<bool,zypp::CapAndItem>( match ) );
+	zypp::PoolItem provider = zypp::ResPool::instance().find(*iter);
+
+	// get instance status
+	bool installed = provider.status().isInstalled();
+
+	if (installed)
+	{
+	    bool result = provider.status().setToBeUninstalled(whoWantsIt);
+	    y2milestone("DoRemoveNameKind %s -> %s\n", name.c_str(), (result ? "Ok" : "Bad"));
+	    ret = true;
+	}
     }
-    catch (...)
-    {
-	return false;
-    }
 
-    if 	(!match.item)
-	return false;
-
-    bool result = match.item.status().setToBeUninstalled( whoWantsIt );
-    y2milestone ("DoRemoveNameKind %s -> %s\n", name.c_str(), (result ? "Ok" : "Bad"));
-
-    return true;
+    return ret;
 }
 
 // ------------------------
