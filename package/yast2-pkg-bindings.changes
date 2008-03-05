@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Mar  5 22:13:30 CET 2008 - coolo@suse.de
+
+- reduce build requires
+
+-------------------------------------------------------------------
 Wed Mar  5 12:22:37 CET 2008 - lslezak@suse.cz
 
 - added Pkg::CallbackStartRefresh() and Pkg::CallbackDoneRefresh()

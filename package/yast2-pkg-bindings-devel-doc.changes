@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Mar  5 22:13:55 CET 2008 - coolo@suse.de
+
+- fixing spec file syntax
+
+-------------------------------------------------------------------
 Tue Dec 18 19:32:50 CET 2007 - lslezak@suse.cz
 
 - updated generating of the documentation to the new source file
