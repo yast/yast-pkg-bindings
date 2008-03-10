@@ -1023,7 +1023,7 @@ createManagedSource( const zypp::Url & url_r,
   zypp::Url new_url;
   string alias = removeAlias (url_r, new_url);
 
-  y2milestone("Alias from URL: '%s'", alias.c_str());
+  y2milestone("Using alias (from URL): '%s'", alias.c_str());
 
   zypp::Source_Ref newsrc = 
   (type.empty()) ?
@@ -1031,10 +1031,40 @@ createManagedSource( const zypp::Url & url_r,
     zypp::SourceFactory().createFrom(new_url, path_r, alias, zypp::filesystem::Pathname(), base_source) :
     // use required source type, autorefresh = true
     zypp::SourceFactory().createFrom(type, new_url, path_r, alias, zypp::filesystem::Pathname(), base_source, true);
+ 
+  y2milestone("Alias of the new source: %s", newsrc.alias().c_str());
+
+  bool alias_found = false;
+  std::list<zypp::SourceManager::SourceId> ids = zypp::SourceManager::sourceManager()->allSources();
+
+  for( std::list<zypp::SourceManager::SourceId>::iterator it = ids.begin(); it != ids.end(); ++it)
+  {
+    try
+    {
+	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(*it);
+
+	if (src.alias() == newsrc.alias())
+	{
+	    alias_found = true;
+	    break;
+	}
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	// this should never happen
+	y2internal("Source ID %lu not found: %s", *it, excpt.msg().c_str());
+    }
+  }
+
+  if (alias_found)
+  {
+    y2milestone("Alias is already in use");
+  }
   
   // if the source has empty alias use a time stamp
-  if (newsrc.alias().empty())
+  if (newsrc.alias().empty() || alias_found)
   {
+
     // use product name+edition as the alias
     // (URL is not enough for different sources in the same DVD drive)
     // alias must be unique, add timestamp
@@ -1047,6 +1077,12 @@ createManagedSource( const zypp::Url & url_r,
       zypp::ResObject::Ptr p = *b;
       alias = p->name () + '-' + p->edition ().asString () + '-';
     }
+
+    if (alias.empty())
+    {
+	alias = newsrc.alias() + '-';
+    }
+
     alias += timestamp ();
   
     newsrc.setAlias( alias );

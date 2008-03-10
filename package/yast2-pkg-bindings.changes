@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Mar 10 14:45:08 CET 2008 - lslezak@suse.cz
+
+- check whether the alias of a new source is already in use, if yes
+  then add a time stamp at the end (#363956)
+- 2.13.123
+
+-------------------------------------------------------------------
 Fri Feb 22 15:38:40 CET 2008 - lslezak@suse.cz
 
 - Pkg::ResolvablePreselectPatches(): Properly select patches for
