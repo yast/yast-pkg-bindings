@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Mar 11 13:20:55 CET 2008 - lslezak@suse.cz
+
+- updated ProgressDownload callback - pass the current and the
+  average download rate (#168935)
+- 2.16.17
+
+-------------------------------------------------------------------
 Wed Mar  5 22:13:30 CET 2008 - coolo@suse.de
 
 - reduce build requires

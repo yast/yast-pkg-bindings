@@ -781,7 +781,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-        virtual bool progress(int value, const zypp::Url &file)
+        virtual bool progress(int value, const zypp::Url &file, double bps_avg, double bps_current)
         {
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDownload ) );
 	    // call the callback function only if the difference since the last call is at least 5%
@@ -791,11 +791,12 @@ namespace ZyppRecipients {
 		last_reported = value;
 		// report changed values
 		callback.addInt( value );
-		callback.addInt( 100  );
+		callback.addInt( (long long) bps_avg  );
+		callback.addInt( (long long) bps_current  );
 		return callback.evaluateBool( true ); // default == continue
 	    }
 
-	    return zypp::media::DownloadProgressReport::progress(value, file);
+	    return zypp::media::DownloadProgressReport::progress(value, file, bps_avg, bps_current);
 	}
 
         virtual Action problem( const zypp::Url &file, zypp::media::DownloadProgressReport::Error error, const std::string &description)

@@ -588,6 +588,12 @@ YCPValue PkgFunctions::CallbackSourceReportEnd( const YCPString& func)
 YCPValue PkgFunctions::CallbackStartDownload( const YCPString& args ) {
     return SET_YCP_CB( CB_StartDownload, args );
 }
+/**
+ * @builtin CallbackProgressDownload
+ * @short Register callback function
+ * @param string func Name of the callback handler function. Required callback prototype is <code>boolean(integer percent, integer average_bps, integer current_bps)</code>. The callback function is evaluated when at least 5% has been downloaded. If the callback function returns false the download is aborted.
+ * @return void
+ */
 YCPValue PkgFunctions::CallbackProgressDownload( const YCPString& args ) {
     return SET_YCP_CB( CB_ProgressDownload, args );
 }
