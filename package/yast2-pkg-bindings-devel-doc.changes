@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Mar 11 07:31:42 CET 2008 - coolo@suse.de
+
+- devtools requires redudant prefix definition
+
+-------------------------------------------------------------------
 Wed Mar  5 22:13:55 CET 2008 - coolo@suse.de
 
 - fixing spec file syntax
