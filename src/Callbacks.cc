@@ -1000,7 +1000,13 @@ namespace ZyppRecipients {
     {
 	MediaChangeReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual Action requestMedia(zypp::Url &url, unsigned int mediumNr, zypp::media::MediaChangeReport::Error error, const std::string &description)
+	virtual Action requestMedia(zypp::Url &url,
+                                    unsigned int mediumNr,
+                                    const std::string & label,
+                                    zypp::media::MediaChangeReport::Error error,
+                                    const std::string &description,
+                                    const std::vector<std::string> & devices,
+                                    unsigned int dev_current)
 	{
 	    if ( _silent_probing == MEDIA_CHANGE_DISABLE )
 		return zypp::media::MediaChangeReport::ABORT;
@@ -1104,7 +1110,7 @@ namespace ZyppRecipients {
 	    }
 
 	    // return default value from the parent class
-	    return zypp::media::MediaChangeReport::requestMedia(url, mediumNr, error, description);
+	    return zypp::media::MediaChangeReport::requestMedia(url, mediumNr, label, error, description, devices, dev_current);
 	}
     };
 

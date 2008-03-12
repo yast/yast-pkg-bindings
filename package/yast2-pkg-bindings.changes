@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Mar 12 20:25:38 CET 2008 - jkupec@suse.cz
+
+- updated MediaChange callback (fate #120298)
+- 2.16.18
+
+-------------------------------------------------------------------
 Tue Mar 11 13:20:55 CET 2008 - lslezak@suse.cz
 
 - updated ProgressDownload callback - pass the current and the
