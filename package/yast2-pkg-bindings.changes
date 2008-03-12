@@ -8,7 +8,7 @@ Wed Mar 12 20:25:38 CET 2008 - jkupec@suse.cz
 Tue Mar 11 13:20:55 CET 2008 - lslezak@suse.cz
 
 - updated ProgressDownload callback - pass the current and the
-  average download rate (#168935)
+  average download rate (bnc#168935)
 - 2.16.17
 
 -------------------------------------------------------------------
