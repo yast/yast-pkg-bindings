@@ -167,6 +167,12 @@ YCPValue PkgFunctions::CallbackTrustedKeyRemoved( const YCPString& args ) {
   return SET_YCP_CB( CB_TrustedKeyRemoved, args );
 }
 
+/**
+ * @builtin CallbackMediaChange
+ * @short Register callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>string( string error, string url, string product, integer current, string current_label, integer wanted, string wanted_label, boolean double_sided, list<string> devices, integer current_device )</code>. The callback function should ask user to change the medium or to change the URL of the repository. Result of the callback must be "" (retry), "I" (ignore), "C" (cancel), "S" (skip), "E" (eject), "E+number" (eject device at number) or a new URL of the repository.
+ * @return void
+ */
 YCPValue PkgFunctions::CallbackMediaChange( const YCPString& args ) {
   // FIXME: Allow omission of 'src' argument in 'src, name'. Since we can
   // handle one callback function at most, passing a src argument

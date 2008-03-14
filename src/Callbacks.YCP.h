@@ -216,6 +216,7 @@ class PkgFunctions::CallbackHandler::YCPCallbacks
 	  CB & addBool( bool arg ) { if (_func != NULL) _func->appendParameter( YCPBoolean( arg ) ); return *this; }
 
 	  CB & addMap( YCPMap arg ) { if (_func != NULL) _func->appendParameter( arg ); return *this; }
+	  CB & addList( YCPList arg ) { if (_func != NULL) _func->appendParameter( arg ); return *this; }
 
 	  bool isStr() const { return _result->isString(); }
 	  bool isInt() const { return _result->isInteger(); }

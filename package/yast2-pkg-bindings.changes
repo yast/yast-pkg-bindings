@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Mar 14 09:27:40 CET 2008 - lslezak@suse.cz
+
+- support for ejecting specified CD/DVD device, handle multiple
+  devices (fate#120298)
+- 2.6.19
+
+-------------------------------------------------------------------
 Wed Mar 12 20:25:38 CET 2008 - jkupec@suse.cz
 
 - updated MediaChange callback (fate #120298)

@@ -37,6 +37,7 @@
 #include "zypp/KeyRing.h"
 #include "zypp/PublicKey.h"
 #include "zypp/Digest.h"
+#include "zypp/base/String.h"
 
 // FIXME: do this nicer, source create use this to avoid user feedback
 // on probing of source type
@@ -1006,7 +1007,7 @@ namespace ZyppRecipients {
                                     zypp::media::MediaChangeReport::Error error,
                                     const std::string &description,
                                     const std::vector<std::string> & devices,
-                                    unsigned int dev_current)
+                                    unsigned int &dev_current)
 	{
 	    if ( _silent_probing == MEDIA_CHANGE_DISABLE )
 		return zypp::media::MediaChangeReport::ABORT;
@@ -1070,6 +1071,17 @@ namespace ZyppRecipients {
 #warning Double sided media are not supported in MediaChangeCallback
 		callback.addBool( false );
 
+		// add device names
+		YCPList device_names;
+	        for_(iter, devices.begin(), devices.end())
+		{
+		    device_names->add(YCPString(*iter));
+		}
+		callback.addList(device_names);
+
+		// add current device index
+		callback.addInt(dev_current);
+
 		std::string ret = callback.evaluateStr();
 
 		// "" =  retry
@@ -1083,6 +1095,15 @@ namespace ZyppRecipients {
 
 		// "E" = eject media
 		if (ret == "E") return zypp::media::MediaChangeReport::EJECT;
+
+		// "E" + numbure = eject the required device
+		if (ret.size() > 1 && ret[0] == 'E')
+		{
+		    // change the device
+		    dev_current = zypp::str::strtonum<unsigned int>(ret.c_str() + 1);
+		    y2milestone("Ejecting device %d", dev_current);
+		    return zypp::media::MediaChangeReport::EJECT;
+		}
 
 		// "S" = skip (ignore) this media
 		if (ret == "S") return zypp::media::MediaChangeReport::IGNORE;
