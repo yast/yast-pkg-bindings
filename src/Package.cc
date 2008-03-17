@@ -37,7 +37,6 @@
 
 #include <zypp/base/Algorithm.h>
 #include <zypp/ResFilters.h>
-#include <zypp/CapFilters.h>
 #include <zypp/ResStatus.h>
 
 #include <zypp/ResPool.h>
@@ -396,18 +395,6 @@ PkgFunctions::PkgMediaCount()
 }
 
 // ------------------------
-
-struct CaIMatch
-{
-    zypp::PoolItem item;
-
-    bool operator() (const zypp::CapAndItem & cai )
-    {
-	item = cai.item;
-	return false;
-    }
-};
-
 /**
  *  @builtin IsProvided
  *
