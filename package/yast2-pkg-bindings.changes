@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Mar 17 16:15:18 CET 2008 - ma@suse.de
+
+- Remove outdated/obsolete references to zypp
+
+-------------------------------------------------------------------
 Fri Mar 14 09:27:40 CET 2008 - lslezak@suse.cz
 
 - support for ejecting specified CD/DVD device, handle multiple
