@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Mar 21 17:50:16 CET 2008 - lslezak@suse.cz
+
+- media change callback - added error code parameter (bnc#328822)
+- 2.16.20
+
+-------------------------------------------------------------------
 Mon Mar 17 16:15:18 CET 2008 - ma@suse.de
 
 - Remove outdated/obsolete references to zypp

@@ -1001,6 +1001,25 @@ namespace ZyppRecipients {
     {
 	MediaChangeReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
+	std::string MediaChangeErrorAsString(zypp::media::MediaChangeReport::Error error)
+	{
+	    // convert enum to a string
+	    std::string error_str;
+
+	    switch(error)
+	    {
+		// no error
+		case zypp::media::MediaChangeReport::NO_ERROR	: error_str = "NO_ERROR"; break;
+		case zypp::media::MediaChangeReport::NOT_FOUND	: error_str = "NOT_FOUND"; break;
+		case zypp::media::MediaChangeReport::IO		: error_str = "IO"; break;
+		case zypp::media::MediaChangeReport::INVALID	: error_str = "INVALID"; break;
+		case zypp::media::MediaChangeReport::WRONG	: error_str = "WRONG"; break;
+		case zypp::media::MediaChangeReport::IO_SOFT	: error_str = "IO_SOFT"; break;
+	    }
+
+	    return error_str;
+	}
+
 	virtual Action requestMedia(zypp::Url &url,
                                     unsigned int mediumNr,
                                     const std::string & label,
@@ -1019,6 +1038,9 @@ namespace ZyppRecipients {
 	    CB callback( ycpcb( YCPCallbacks::CB_MediaChange ) );
 	    if ( callback._set )
 	    {
+		// error code
+		callback.addStr( MediaChangeErrorAsString(error) );
+
 		// error message
 		callback.addStr( description );
 
