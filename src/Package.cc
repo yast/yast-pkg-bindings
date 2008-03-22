@@ -2292,7 +2292,7 @@ YCPString PkgFunctions::PkgGetLicenseToConfirm( const YCPString & package )
 		    && !it->status().isInstalled())
 		{
 		    // get the license
-		    zypp::License license = package->licenseToConfirm();
+		    string license = package->licenseToConfirm();
 		    return YCPString(license);
 		}
 	    }
