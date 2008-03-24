@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Mar 24 20:10:25 CET 2008 - coolo@suse.de
+
+- adapt to libzypp 4.6
+
+-------------------------------------------------------------------
 Fri Mar 21 17:50:16 CET 2008 - lslezak@suse.cz
 
 - media change callback - added error code parameter (bnc#328822)
