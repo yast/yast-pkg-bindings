@@ -32,6 +32,7 @@
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPSymbol.h>
 #include <ycp/YCPString.h>
+#include <ycp/YCPInteger.h>
 
 #include <zypp/ZConfig.h>
 
@@ -82,6 +83,47 @@ PkgFunctions::ResolvableInstallArchVersion( const YCPString& name_r, const YCPSy
 	(name_r->value().empty())
 	    ? DoProvideAllKind(kind)
 	    : DoProvideNameKind (name_r->value(), kind, architecture, version_str)
+    );
+}
+
+/**
+   @builtin ResolvableInstallRepo
+   @short Install all resolvables with selected name, from the specified repository
+   @param name_r name of the resolvable, if empty ("") install all resolvables of the kind 
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @param repo_r ID of the repository
+   @return boolean false if failed
+*/
+YCPValue
+PkgFunctions::ResolvableInstallRepo( const YCPString& name_r, const YCPSymbol& kind_r, const YCPInteger& repo_r )
+{
+    zypp::Resolvable::Kind kind;
+    
+    std::string req_kind = kind_r->symbol ();
+
+    if( req_kind == "product" ) {
+	kind = zypp::ResTraits<zypp::Product>::kind;
+    }
+    else if ( req_kind == "patch" ) {
+    	kind = zypp::ResTraits<zypp::Patch>::kind;
+    }
+    else if ( req_kind == "package" ) {
+	kind = zypp::ResTraits<zypp::Package>::kind;
+    }
+    else if ( req_kind == "pattern" ) {
+	kind = zypp::ResTraits<zypp::Pattern>::kind;
+    }
+    else
+    {
+	y2error("Pkg::ResolvableInstallRepo: unknown symbol: %s", req_kind.c_str());
+	return YCPBoolean(false);
+    }
+
+
+    return YCPBoolean(
+	(name_r->value().empty())
+	    ? DoProvideAllKind(kind)
+	    : DoProvideNameKind (name_r->value(), kind, zypp::ZConfig::instance().systemArchitecture(), std::string(), false, repo_r->value())
     );
 }
 

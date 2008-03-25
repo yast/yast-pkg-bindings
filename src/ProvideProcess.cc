@@ -29,8 +29,8 @@
 #include "ProvideProcess.h"
 #include "log.h"
 
-ProvideProcess::ProvideProcess(const zypp::Arch &arch, const std::string &vers, const bool oNeeded)
-    : _architecture(arch), whoWantsIt(zypp::ResStatus::APPL_HIGH), version(vers), onlyNeeded(oNeeded)
+ProvideProcess::ProvideProcess(const zypp::Arch &arch, const std::string &vers, const bool oNeeded, const std::string &from_repo)
+    : _architecture(arch), whoWantsIt(zypp::ResStatus::APPL_HIGH), version(vers), onlyNeeded(oNeeded), repo_alias(from_repo)
 { }
 
 bool ProvideProcess::operator()( zypp::PoolItem provider )
@@ -44,6 +44,12 @@ bool ProvideProcess::operator()( zypp::PoolItem provider )
     if (!version.empty() && version != provider->edition().asString())
     {
 	y2milestone("Skipping version %s (requested: %s)", provider->edition().asString().c_str(), version.c_str());
+	return true;
+    }
+
+    // a specific repository is requested
+    if (!repo_alias.empty() && provider.resolvable()->repoInfo().alias() != repo_alias)
+    {
 	return true;
     }
 

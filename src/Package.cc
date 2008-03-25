@@ -604,11 +604,26 @@ PkgFunctions::PkgAvailable(const YCPString& package)
 
 bool
 PkgFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
-				       const std::string & version ,const bool onlyNeeded)
+				       const std::string & version ,const bool onlyNeeded, int repo_id)
 {
     try
     {
-	ProvideProcess info( architecture, version, onlyNeeded);
+	std::string repo_alias;
+	
+	if (repo_id >= 0)
+	{
+	    YRepo_Ptr repo = logFindRepository(repo_id);
+	    if (!repo)
+	    {
+		y2warning("Repository %d not found", repo_id);
+		return false;
+	    }
+
+	    repo_alias = repo->repoInfo().alias();
+	    y2milestone("Installing only from repository '%s'", repo_alias.c_str());
+	}
+
+	ProvideProcess info( architecture, version, onlyNeeded, repo_alias);
 	info.whoWantsIt = whoWantsIt;
 
 	invokeOnEach( zypp_ptr()->pool().byIdentBegin( kind, name ),

@@ -41,8 +41,9 @@ struct ProvideProcess
     zypp::ResStatus::TransactByValue whoWantsIt;
     std::string version;
     bool onlyNeeded;
+    std::string repo_alias;
 
-    ProvideProcess(const zypp::Arch &arch, const std::string &vers, const bool oNeeded);
+    ProvideProcess(const zypp::Arch &arch, const std::string &vers, const bool oNeeded, const std::string &from_repo = "" );
 //	: _architecture(arch), whoWantsIt(zypp::ResStatus::APPL_HIGH), version(vers), onlyNeeded(oNeeded);
 
     bool operator()( zypp::PoolItem provider );

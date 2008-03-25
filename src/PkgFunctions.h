@@ -104,7 +104,7 @@ class PkgFunctions
       std::string yast2zyppType(const std::string &type);
 
       bool DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
-			      const std::string& version, const bool onlyNeeded = false);
+			      const std::string& version, const bool onlyNeeded = false, int repo_id = -1);
       bool DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind);
       bool DoProvideAllKind(zypp::Resolvable::Kind kind);
       bool DoRemoveAllKind(zypp::Resolvable::Kind kind);
@@ -682,6 +682,8 @@ class PkgFunctions
         YCPValue ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: boolean(string,symbol,string,string)*/
 	YCPValue ResolvableInstallArchVersion( const YCPString& name_r, const YCPSymbol& kind_r, const YCPString& arch, const YCPString& vers );
+	/* TYPEINFO: boolean(string,symbol,integer)*/
+	YCPValue ResolvableInstallRepo( const YCPString& name_r, const YCPSymbol& kind_r, const YCPInteger& repo_r );
 	/* TYPEINFO: boolean(string,symbol)*/
         YCPValue ResolvableRemove( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: boolean(string,symbol,boolean)*/
