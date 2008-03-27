@@ -201,7 +201,21 @@ PkgFunctions::SourceEditSet (const YCPList& states)
 	repo->repoInfo().setName(descr->value(YCPString("name"))->asString()->value());
     }
 
-#warning SourceEditSet ordering not implemented yet
+    if( !descr->value(YCPString("priority")).isNull() && descr->value(YCPString("priority"))->isInteger())
+    {
+	unsigned int priority = descr->value(YCPString("priority"))->asInteger()->value();
+
+	if (priority > 99)
+	{
+	    y2error("Wrong priority '%d', valid range is 0-99", priority);
+	}
+	else
+	{
+	    // set the priority
+	    repo->repoInfo().setPriority(priority);
+	    y2debug("set priority: %d", priority);
+	}
+    }
   }
 
   PkgFreshen();
@@ -272,24 +286,28 @@ PkgFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 YCPValue
 PkgFunctions::SourceRaisePriority (const YCPInteger& id)
 {
-#warning SourceRaisePriority is not implemented
-    y2warning("SourceRaisePriority is NOT implemented");
-/*    zypp::Source_Ref src;
+    YRepo_Ptr repo = logFindRepository(id->value());
+    if (!repo)
+	return YCPBoolean(false);
 
-    try {
-	src = logFindRepository(id->value());
-    }
-    catch (const zypp::Exception& excpt)
+    // check the current priority
+    unsigned int prio = repo->repoInfo().priority();
+
+    // maximum priority already reached - priority is 1 (max.) to 99 (min.)
+    if (prio <= 1)
     {
 	return YCPBoolean(false);
     }
+    else
+    {
+	// increase the priority
+	prio--;
 
-    // raise priority by one
-    src.setPriority(src.priority() + 1);
-*/
+	// set the new priority
+	repo->repoInfo().setPriority(prio);
+    }
 
-    return YCPBoolean( true );
-
+    return YCPBoolean(true);
 }
 
 /****************************************************************************************
@@ -304,23 +322,28 @@ PkgFunctions::SourceRaisePriority (const YCPInteger& id)
 YCPValue
 PkgFunctions::SourceLowerPriority (const YCPInteger& id)
 {
-#warning SourceLowerPriority is not implemented
-    y2warning("SourceLowerPriority is NOT implemented");
-/*
-    zypp::Source_Ref src;
+    YRepo_Ptr repo = logFindRepository(id->value());
+    if (!repo)
+	return YCPBoolean(false);
 
-    try {
-	src = logFindRepository(id->value());
-    }
-    catch (const zypp::Exception& excpt)
+    // check the current priority
+    unsigned int prio = repo->repoInfo().priority();
+
+    // manimum priority already reached - priority is 1 (max.) to 99 (min.)
+    if (prio >= 99)
     {
 	return YCPBoolean(false);
     }
+    else
+    {
+	// decrease the priority
+	prio++;
 
-    // lower priority by one
-    src.setPriority(src.priority() - 1);
-*/
-    return YCPBoolean( true );
+	// set the new priority
+	repo->repoInfo().setPriority(prio);
+    }
+
+    return YCPBoolean(true);
 }
 
 /****************************************************************************************

@@ -149,6 +149,8 @@ PkgFunctions::SourceGeneralData (const YCPInteger& id)
 
     data->add( YCPString("mirror_list"),	YCPString(repo->repoInfo().mirrorListUrl().asString()));
 
+    data->add( YCPString("priority"),	YCPInteger(repo->repoInfo().priority()));
+
     return data;
 }
 
@@ -362,6 +364,7 @@ PkgFunctions::SourceEditGet ()
 	    // Note: autorefresh() is tribool
 	    src_map->add(YCPString("autorefresh"), YCPBoolean((*it)->repoInfo().autorefresh()));
 	    src_map->add(YCPString("name"), YCPString((*it)->repoInfo().name()));
+	    src_map->add(YCPString("priority"), YCPInteger((*it)->repoInfo().priority()));
 
 	    ret->add(src_map);
 	}
