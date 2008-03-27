@@ -5,6 +5,7 @@ Thu Mar 27 11:30:03 CET 2008 - lslezak@suse.cz
   Pkg::SourceRaisePriority(), added "priority" key in
   Pkg::SourceEditSet(), Pkg::SourceEditGet() and
   Pkg::SourceGeneralData() (bnc#369827)
+- 2.16.22
 
 -------------------------------------------------------------------
 Tue Mar 25 10:33:48 CET 2008 - lslezak@suse.cz
