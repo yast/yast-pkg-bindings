@@ -57,6 +57,8 @@
    status is `installed, `removed, `selected or `available, source is source ID or -1 if the resolvable is installed in the target
    if status is `available and locked is true then the object is set to taboo,
    if status is `installed and locked is true then the object locked
+   if status is `selected or `removed there is extra key "transact_by" : symbol, where symbol is `user (the highest level), 
+       `app_high (selected by Yast), `app_low and `solver (the lowest level)
 */
 
 YCPValue
@@ -76,6 +78,21 @@ YCPValue
 PkgFunctions::ResolvableDependencies(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version)
 {
     return ResolvablePropertiesEx (name, kind_r, version, true);
+}
+
+std::string TransactToString(zypp::ResStatus::TransactByValue trans)
+{
+    std::string ret;
+
+    switch(trans)
+    {
+	case zypp::ResStatus::USER : ret = "user"; break;
+	case zypp::ResStatus::APPL_HIGH : ret = "app_high"; break;
+	case zypp::ResStatus::APPL_LOW : ret = "app_low"; break;
+	case zypp::ResStatus::SOLVER : ret = "solver"; break;
+    }
+
+    return ret;    
 }
 
 YCPValue
@@ -99,6 +116,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResTraits<zypp::Pattern>::kind;
     }
+# warning add language support
     else
     {
 	y2error("Pkg::ResolvableProperties: unknown symbol: %s", req_kind.c_str());
@@ -132,11 +150,20 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 
 		if (it->status().isInstalled())
 		{
-		    stat = (it->status().isToBeUninstalled()) ? "removed" : "installed";
+		    if (it->status().isToBeUninstalled())
+		    {
+			stat = "removed";
+			info->add(YCPString("transact_by"), YCPSymbol(TransactToString(it->status().getTransactByValue())));
+		    }
+		    else
+		    {
+			stat = "installed";
+		    }
 		}
 		else if (it->status().isToBeInstalled())
 		{
 		    stat = "selected";
+		    info->add(YCPString("transact_by"), YCPSymbol(TransactToString(it->status().getTransactByValue())));
 		}
 		else
 		{
@@ -344,6 +371,7 @@ PkgFunctions::IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status)
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResTraits<zypp::Pattern>::kind;
     }
+# warning add language support
     else if ( req_kind == "any" ) {
 	try
 	{ 

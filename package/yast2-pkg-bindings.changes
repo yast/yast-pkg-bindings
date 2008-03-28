@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Mar 28 14:09:18 CET 2008 - lslezak@suse.cz
+
+- Pkg:ResolvableProperties() - added "transact_by" key for selected
+  packages
+
+-------------------------------------------------------------------
 Thu Mar 27 11:30:03 CET 2008 - lslezak@suse.cz
 
 - added priority support - implemented Pkg::SourceLowerPriority(),
