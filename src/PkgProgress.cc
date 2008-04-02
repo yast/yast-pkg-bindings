@@ -104,7 +104,16 @@ bool PkgProgress::_receiver(const zypp::ProgressData &progress)
 	{
 	    ycp_handler->appendParameter(YCPInteger(progress.reportValue()));
 	    // evaluate the callback function
-	    ycp_handler->evaluateCall();
+	    YCPValue ret = ycp_handler->evaluateCall();
+
+	    if (!ret.isNull() && ret->isBoolean())
+	    {
+		return ret->asBoolean()->value();
+	    }
+	    else
+	    {
+		y2error("Callback evaluated to a non-boolean value: %s", ret->toString().c_str());
+	    }
 	}
     }
 

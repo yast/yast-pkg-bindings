@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Apr  2 13:27:35 CEST 2008 - lslezak@suse.cz
+
+- changed callback registration - use references to functions
+  instead of strings, this enables compile time type checking
+  (fate#302296)
+
+-------------------------------------------------------------------
 Fri Mar 28 14:09:18 CET 2008 - lslezak@suse.cz
 
 - Pkg:ResolvableProperties() - added "transact_by" key for selected

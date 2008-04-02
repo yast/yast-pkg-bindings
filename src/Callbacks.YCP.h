@@ -117,17 +117,7 @@ class PkgFunctions::CallbackHandler::YCPCallbacks
     static string cbName( CBid id_r );
   private:
 
-    struct CBdata
-    {
-       CBdata (string module, string symbol, Y2Namespace* component)
-           : module (module), symbol (symbol), component (component)
-           { }
-
-       const string module, symbol;
-       Y2Namespace* component;
-    };
-
-    typedef map <CBid, stack <CBdata> > _cbdata_t;
+    typedef map <CBid, stack<YCPReference> > _cbdata_t;
     _cbdata_t _cbdata;
 
   public:
@@ -142,20 +132,15 @@ class PkgFunctions::CallbackHandler::YCPCallbacks
     void popCallback( CBid id_r );
 
     /**
-     * Set a YCPCallbacks data from string "module::symbol"
+     * Set a YCPCallback data
      **/
-    void setCallback( CBid id_r, const string & name_r );
-
-    /**
-     * Set a YCPCallbacks data according to args_r.
-     **/
-    bool setCallback( CBid id_r, const YCPString & args );
+    void setCallback( CBid id_r, const YCPReference &func_r );
 
     /**
      * Set the YCPCallback according to args_r.
      * @return YCPVoid on success, otherwise YCPError.
      **/
-    YCPValue setYCPCallback( CBid id_r, const YCPString & args_r );
+    YCPValue setYCPCallback( CBid id_r, const YCPReference &func);
 
     /**
      * @return Whether the YCPCallback is set. If not, there's
@@ -217,6 +202,8 @@ class PkgFunctions::CallbackHandler::YCPCallbacks
 
 	  CB & addMap( YCPMap arg ) { if (_func != NULL) _func->appendParameter( arg ); return *this; }
 	  CB & addList( YCPList arg ) { if (_func != NULL) _func->appendParameter( arg ); return *this; }
+
+	  CB & addSymbol( const string &arg ) { if (_func != NULL) _func->appendParameter( YCPSymbol(arg) ); return *this; }
 
 	  bool isStr() const { return _result->isString(); }
 	  bool isInt() const { return _result->isInteger(); }

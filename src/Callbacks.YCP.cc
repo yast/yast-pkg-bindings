@@ -141,56 +141,19 @@
     /**
      * Set a YCPCallbacks data from string "module::symbol"
      **/
-    void PkgFunctions::CallbackHandler::YCPCallbacks::setCallback( CBid id_r, const string & name_r ) {
-      y2debug ("Registering callback %s", name_r.c_str ());
-      string::size_type colonpos = name_r.find("::");
-      if ( colonpos != string::npos ) {
+    void PkgFunctions::CallbackHandler::YCPCallbacks::setCallback( CBid id_r, const YCPReference &func_r ) {
+//      y2debug ("Registering callback %s", name_r.c_str ());
 
-        string module = name_r.substr ( 0, colonpos );
-	string symbol = name_r.substr ( colonpos + 2 );
-
-        Y2Component *c = Y2ComponentBroker::getNamespaceComponent (module.c_str());
-        if (c == NULL)
-        {
-          y2error ("No component can provide namespace %s for a callback of %s (callback id %d)",
-                 module.c_str (), symbol.c_str (), id_r);
-          return;
-        }
-
-        Y2Namespace *ns = c->import (module.c_str ());
-        if (ns == NULL)
-        {
-          y2error ("Component %p could not provide namespace %s for a callback of %s",
-                 c, module.c_str (), symbol.c_str ());
-	  return;
-        }
-
-	// ensure it is an initialized namespace
-	ns->initialize ();
-
-        _cbdata[id_r].push (CBdata (module, symbol, ns));
-      } else {
-	y2error ("Callback must be a part of a namespace");
-      }
-    }
-    /**
-     * Set a YCPCallbacks data according to args_r.
-     **/
-    bool PkgFunctions::CallbackHandler::YCPCallbacks::setCallback( CBid id_r, const YCPString & args ) {
-      string name = args->value();
-      setCallback( id_r, name );
-      return true;
+        _cbdata[id_r].push(func_r);
     }
     /**
      * Set the YCPCallback according to args_r.
      * @return YCPVoid on success, otherwise YCPError.
      **/
-    YCPValue PkgFunctions::CallbackHandler::YCPCallbacks::setYCPCallback( CBid id_r, const YCPString & args_r ) {
-       if (!args_r->value().empty ())
+    YCPValue PkgFunctions::CallbackHandler::YCPCallbacks::setYCPCallback( CBid id_r, const YCPReference &func ) {
+       if (!func->isVoid())
        {
-    	   if ( ! setCallback( id_r, args_r ) ) {
-		return YCPError( string("Bad args to Pkg::Callback") + cbName( id_r ) );
-	    }
+    	   setCallback(id_r, func);
        }
        else
        {
@@ -212,28 +175,37 @@
      * @return The YCPCallback term, ready to append any arguments.
      **/
     Y2Function* PkgFunctions::CallbackHandler::YCPCallbacks::createCallback( CBid id_r ) const {
-       const _cbdata_t::const_iterator tmp1 = _cbdata.find(id_r);
-       if (tmp1 == _cbdata.end() || tmp1->second.empty())
-           return NULL;
-       const CBdata& tmp2 = tmp1->second.top();
+	const _cbdata_t::const_iterator tmp1 = _cbdata.find(id_r);
 
-      string module = tmp2.module;
-      string name = tmp2.symbol;
-      Y2Namespace *ns = tmp2.component;
-      if (ns == NULL)
-      {
-          y2error ("No namespace %s for a callback of %s", module.c_str (), name.c_str ());
-	  return NULL;
-      }
+	if (tmp1 == _cbdata.end())
+	    return NULL;
 
-      Y2Function* func = ns->createFunctionCall (name, Type::Unspec); // FIXME: here we can setup the type check
-      if (func == NULL)
-      {
-          y2error ("Cannot find function %s in module %s as a callback", name.c_str (), module.c_str());
-	  return NULL;
-      }
+	const YCPReference func(tmp1->second.top());
 
-      return func;
+	if (func.isNull() || ! func->isReference())
+	{
+	    // TODO
+//	    ycp2error ("Unexpected function pointer: %s"
+//		, ptr.isNull () ? "NULL" : ptr->toString ().c_str ());
+	    return NULL;
+	}
+
+	SymbolEntryPtr ptr_sentry = func->entry();
+
+	Y2Namespace* ns = const_cast<Y2Namespace*> (ptr_sentry->nameSpace ());
+
+	Y2Function* functioncall = ns->createFunctionCall (
+	    ptr_sentry->name (),
+	    ptr_sentry->type ()
+	);
+
+	if (!functioncall)
+	{
+//	    TODO: y2internal ("Cannot get function call object for %s", m_sentry->toString().c_str());
+	    return NULL;
+	}
+
+	return functioncall;
     }
 
 

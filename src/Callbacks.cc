@@ -115,11 +115,7 @@ namespace ZyppRecipients {
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressConvertDb ) );
 	    if (callback._set) {
 		callback.addInt( value );
-		// TODO adapt callback typeinfo to zypp
-		callback.addInt( 100 );
-		callback.addInt( 0 /*failed*/ );
-		callback.addInt( 0 /* ignored */ );
-		callback.addInt( 1 /*alreadyInV4*/ );
+		callback.addStr(pth.asString());
 		callback.evaluate();
 	    }
 
@@ -133,7 +129,7 @@ namespace ZyppRecipients {
 	    if (callback._set) {
 		callback.addInt( error );
 		callback.addStr( reason );
-		callback.evaluateStr(); // return value ignored by RpmDb
+		callback.evaluate();
 	    }
 	}
     };
@@ -182,7 +178,7 @@ namespace ZyppRecipients {
 	    if (callback._set) {
 		callback.addInt( error );
 		callback.addStr( reason );
-		callback.evaluateStr(); // return value ignored by RpmDb
+		callback.evaluate();
 	    }
 	}
     };
@@ -287,7 +283,7 @@ namespace ZyppRecipients {
 	    callback.addStr(res->summary());
 	    callback.addInt(res->size());
 	    callback.addBool(false);	// is_delete = false (package installation)
-	    callback.evaluateBool();
+	    callback.evaluate();
 	  }
 
 	  _last = resolvable;
@@ -1240,7 +1236,7 @@ namespace ZyppRecipients {
 	    if ( callback._set )
 	    {
 		callback.addStr(url);
-		callback.addStr(CreateSrcErrorAsString(error));
+		callback.addSymbol(CreateSrcErrorAsString(error));
 		callback.addStr(description);
 
 		std::string result = callback.evaluateSymbol();
@@ -1265,7 +1261,7 @@ namespace ZyppRecipients {
 	    if (callback._set)
 	    {
 		callback.addStr(url);
-		callback.addStr(CreateSrcErrorAsString(error));
+		callback.addSymbol(CreateSrcErrorAsString(error));
 		callback.addStr(reason);
 
 		callback.evaluate();
@@ -1351,7 +1347,7 @@ namespace ZyppRecipients {
 	    if (callback._set)
 	    {
 		callback.addStr(url);
-		callback.addStr(ProbeSrcErrorAsString(error));
+		callback.addSymbol(ProbeSrcErrorAsString(error));
 		callback.addStr(reason);
 
 		callback.evaluate();
@@ -1381,7 +1377,7 @@ namespace ZyppRecipients {
 	    if ( callback._set )
 	    {
 		callback.addStr(url);
-		callback.addStr(ProbeSrcErrorAsString(error));
+		callback.addSymbol(ProbeSrcErrorAsString(error));
 		callback.addStr(description);
 
 		std::string result = callback.evaluateSymbol();
@@ -1507,7 +1503,7 @@ namespace ZyppRecipients {
 		}
 
 		callback.addStr(url);
-		callback.addStr(SrcReportErrorAsString(error));
+		callback.addSymbol(SrcReportErrorAsString(error));
 		callback.addStr(description);
 
 		std::string result = callback.evaluateSymbol();
@@ -1544,7 +1540,7 @@ namespace ZyppRecipients {
 		callback.addStr(url);
 
 		callback.addStr(task);
-		callback.addStr(SrcReportErrorAsString(error));
+		callback.addSymbol(SrcReportErrorAsString(error));
 		callback.addStr(reason);
 
 		callback.evaluate();

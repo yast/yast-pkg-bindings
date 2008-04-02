@@ -31,6 +31,7 @@
 #include <ycp/YCPString.h>
 #include <ycp/YCPInteger.h>
 #include <ycp/YCPVoid.h>
+#include <ycp/YCPCode.h>
 
 #include <ycp/y2log.h>
 
