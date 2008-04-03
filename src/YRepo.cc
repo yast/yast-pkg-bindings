@@ -53,7 +53,7 @@ zypp::MediaSetAccess_Ptr & YRepo::mediaAccess()
     {
         y2milestone("Creating new MediaSetAccess for url %s",
             (*_repo.baseUrlsBegin()).asString().c_str());
-        _maccess = new zypp::MediaSetAccess(repo.name(), *_repo.baseUrlsBegin()); // FIXME handle multiple baseUrls
+        _maccess = new zypp::MediaSetAccess(_repo.name(), *_repo.baseUrlsBegin()); // FIXME handle multiple baseUrls
     }
 
     return _maccess;
