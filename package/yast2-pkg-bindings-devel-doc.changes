@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Apr  3 13:41:41 CEST 2008 - ma@suse.de
+
+- use repo name as mediaset label.
+
+-------------------------------------------------------------------
 Tue Mar 11 07:31:42 CET 2008 - coolo@suse.de
 
 - devtools requires redudant prefix definition
