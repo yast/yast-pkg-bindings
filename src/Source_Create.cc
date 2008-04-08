@@ -714,6 +714,7 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
 	y2error("SourceCreate for '%s' product '%s' has failed"
 	    , url.asString().c_str(), pn.asString().c_str());
 	_last_error.setLastError(ExceptionAsString(excpt));
+	return YCPInteger(-1LL);
     }
   }
 

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Apr  8 15:51:24 CEST 2008 - lslezak@suse.cz
+
+- return -1 when Pkg::SourceCreate() with non-empty product
+  directory fails (bnc#377962)
+
+-------------------------------------------------------------------
 Wed Apr  2 13:27:35 CEST 2008 - lslezak@suse.cz
 
 - changed callback registration - use references to functions
