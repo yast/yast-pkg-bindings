@@ -5,6 +5,7 @@ Tue Apr  8 15:51:24 CEST 2008 - lslezak@suse.cz
   directory fails (bnc#377962)
 - fixed handling of 'nil' value in callback registration functions
   (unregistration now works correctly)
+- 2.16.24
 
 -------------------------------------------------------------------
 Wed Apr  2 13:27:35 CEST 2008 - lslezak@suse.cz
