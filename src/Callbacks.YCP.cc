@@ -135,25 +135,36 @@
     void PkgFunctions::CallbackHandler::YCPCallbacks::popCallback( CBid id_r ) {
        _cbdata_t::iterator tmp1 = _cbdata.find(id_r);
        if (tmp1 != _cbdata.end() && !tmp1->second.empty())
+       {
+	   y2debug("Unregistering callback, restoring the previous one");
            tmp1->second.pop();
+       }
     }
 
     /**
      * Set a YCPCallbacks data from string "module::symbol"
      **/
     void PkgFunctions::CallbackHandler::YCPCallbacks::setCallback( CBid id_r, const YCPReference &func_r ) {
-//      y2debug ("Registering callback %s", name_r.c_str ());
+	y2debug ("Registering callback %s", cbName(id_r).c_str());
 
         _cbdata[id_r].push(func_r);
     }
+
     /**
      * Set the YCPCallback according to args_r.
      * @return YCPVoid on success, otherwise YCPError.
      **/
-    YCPValue PkgFunctions::CallbackHandler::YCPCallbacks::setYCPCallback( CBid id_r, const YCPReference &func ) {
+    YCPValue PkgFunctions::CallbackHandler::YCPCallbacks::setYCPCallback( CBid id_r, const YCPValue &func ) {
        if (!func->isVoid())
        {
-    	   setCallback(id_r, func);
+	    if (func->isReference())
+	    {
+		setCallback(id_r, func->asReference());
+	    }
+	    else
+	    {
+		y2internal("Parameter 'func' is not a reference!");
+	    }
        }
        else
        {

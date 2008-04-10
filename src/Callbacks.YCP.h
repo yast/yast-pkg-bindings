@@ -140,7 +140,7 @@ class PkgFunctions::CallbackHandler::YCPCallbacks
      * Set the YCPCallback according to args_r.
      * @return YCPVoid on success, otherwise YCPError.
      **/
-    YCPValue setYCPCallback( CBid id_r, const YCPReference &func);
+    YCPValue setYCPCallback( CBid id_r, const YCPValue &func);
 
     /**
      * @return Whether the YCPCallback is set. If not, there's

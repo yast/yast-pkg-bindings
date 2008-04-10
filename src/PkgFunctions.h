@@ -217,205 +217,205 @@ class PkgFunctions
 
 	// callbacks
 	/* TYPEINFO: void(void(string,integer,boolean)) */
-	YCPValue CallbackStartProvide (const YCPReference& args);
+	YCPValue CallbackStartProvide (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(integer)) */
-	YCPValue CallbackProgressProvide (const YCPReference& args);
+	YCPValue CallbackProgressProvide (const YCPValue& /*nil*/ args);
 	// FIXME: create ErrorProvide
 	/* TYPEINFO: void(string(integer,string,string)) */
-	YCPValue CallbackDoneProvide (const YCPReference& args);
+	YCPValue CallbackDoneProvide (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(string,string,integer,boolean)) */
-	YCPValue CallbackStartPackage (const YCPReference& args);
+	YCPValue CallbackStartPackage (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(integer)) */
-	YCPValue CallbackProgressPackage (const YCPReference& args);
+	YCPValue CallbackProgressPackage (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(string(integer,string)) */
-	YCPValue CallbackDonePackage (const YCPReference& args);
+	YCPValue CallbackDonePackage (const YCPValue& /*nil*/ args);
 
 	/* TYPEINFO: void(void(string,integer)) */
-	YCPValue CallbackStartDeltaDownload( const YCPReference& args);
+	YCPValue CallbackStartDeltaDownload( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(integer)) */
-	YCPValue CallbackProgressDeltaDownload( const YCPReference& args);
+	YCPValue CallbackProgressDeltaDownload( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(string)) */
-	YCPValue CallbackProblemDeltaDownload( const YCPReference& args);
+	YCPValue CallbackProblemDeltaDownload( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(string)) */
-	YCPValue CallbackStartDeltaApply( const YCPReference& args);
+	YCPValue CallbackStartDeltaApply( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(integer)) */
-	YCPValue CallbackProgressDeltaApply( const YCPReference& args);
+	YCPValue CallbackProgressDeltaApply( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(string)) */
-	YCPValue CallbackProblemDeltaApply( const YCPReference& args);
+	YCPValue CallbackProblemDeltaApply( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(string,integer)) */
-	YCPValue CallbackStartPatchDownload( const YCPReference& args);
+	YCPValue CallbackStartPatchDownload( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(integer)) */
-	YCPValue CallbackProgressPatchDownload( const YCPReference& args);
+	YCPValue CallbackProgressPatchDownload( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(string)) */
-	YCPValue CallbackProblemPatchDownload( const YCPReference& args);
+	YCPValue CallbackProblemPatchDownload( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackFinishDeltaDownload( const YCPReference& args);
+	YCPValue CallbackFinishDeltaDownload( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackFinishDeltaApply( const YCPReference& args);
+	YCPValue CallbackFinishDeltaApply( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackFinishPatchDownload( const YCPReference& args);
+	YCPValue CallbackFinishPatchDownload( const YCPValue& /*nil*/ args);
 
 	/* TYPEINFO: void(void(string,string)) */
-	YCPValue CallbackStartDownload (const YCPReference& args);
+	YCPValue CallbackStartDownload (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(integer,integer,integer)) */
-	YCPValue CallbackProgressDownload (const YCPReference& args);
+	YCPValue CallbackProgressDownload (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(integer,string)) */
-	YCPValue CallbackDoneDownload (const YCPReference& args);
+	YCPValue CallbackDoneDownload (const YCPValue& /*nil*/ args);
 
 	/* TYPEINFO: void(void(string)) */
-	YCPValue CallbackInitDownload( const YCPReference& args );
+	YCPValue CallbackInitDownload( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackDestDownload( const YCPReference& args );
+	YCPValue CallbackDestDownload( const YCPValue& /*nil*/ args );
 
 	/* TYPEINFO: void(void(string)) */
-	YCPValue CallbackSourceCreateStart( const YCPReference& args);
+	YCPValue CallbackSourceCreateStart( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(integer)) */
-	YCPValue CallbackSourceCreateProgress( const YCPReference& args);
+	YCPValue CallbackSourceCreateProgress( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(symbol(string,symbol,string)) */
-	YCPValue CallbackSourceCreateError( const YCPReference& args);
+	YCPValue CallbackSourceCreateError( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(string,symbol,string)) */
-	YCPValue CallbackSourceCreateEnd( const YCPReference& args);
+	YCPValue CallbackSourceCreateEnd( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackSourceCreateInit( const YCPReference& args);
+	YCPValue CallbackSourceCreateInit( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackSourceCreateDestroy( const YCPReference& args);
+	YCPValue CallbackSourceCreateDestroy( const YCPValue& /*nil*/ args);
 
 	/* TYPEINFO: void(void(string)) */
-	YCPValue CallbackSourceProbeStart( const YCPReference& args);
+	YCPValue CallbackSourceProbeStart( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(string,string)) */
-	YCPValue CallbackSourceProbeFailed( const YCPReference& args);
+	YCPValue CallbackSourceProbeFailed( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(string,string)) */
-	YCPValue CallbackSourceProbeSucceeded( const YCPReference& args);
+	YCPValue CallbackSourceProbeSucceeded( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(string,symbol,string)) */
-	YCPValue CallbackSourceProbeEnd( const YCPReference& args);
+	YCPValue CallbackSourceProbeEnd( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(string,integer)) */
-	YCPValue CallbackSourceProbeProgress( const YCPReference& args);
+	YCPValue CallbackSourceProbeProgress( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(symbol(string,symbol,string)) */
-	YCPValue CallbackSourceProbeError( const YCPReference& args);
+	YCPValue CallbackSourceProbeError( const YCPValue& /*nil*/ args);
 
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackSourceReportInit( const YCPReference& args);
+	YCPValue CallbackSourceReportInit( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackSourceReportDestroy( const YCPReference& args);
+	YCPValue CallbackSourceReportDestroy( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(integer,string,string)) */
-	YCPValue CallbackSourceReportStart( const YCPReference& args);
+	YCPValue CallbackSourceReportStart( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(integer)) */
-	YCPValue CallbackSourceReportProgress( const YCPReference& args);
+	YCPValue CallbackSourceReportProgress( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(symbol(integer,string,symbol,string)) */
-	YCPValue CallbackSourceReportError( const YCPReference& args);
+	YCPValue CallbackSourceReportError( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(integer,string,string,symbol,string)) */
-	YCPValue CallbackSourceReportEnd( const YCPReference& args);
+	YCPValue CallbackSourceReportEnd( const YCPValue& /*nil*/ args);
 
 	/* TYPEINFO: void(void(integer,string,boolean,boolean,integer,integer,integer,integer)) */
-	YCPValue CallbackProgressReportStart(const YCPReference& args);
+	YCPValue CallbackProgressReportStart(const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(integer,integer,integer)) */
-	YCPValue CallbackProgressReportProgress(const YCPReference& args);
+	YCPValue CallbackProgressReportProgress(const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(integer)) */
-	YCPValue CallbackProgressReportEnd(const YCPReference& args);
+	YCPValue CallbackProgressReportEnd(const YCPValue& /*nil*/ args);
 
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackStartRefresh( const YCPReference& args );
+	YCPValue CallbackStartRefresh( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackDoneRefresh( const YCPReference& args );
+	YCPValue CallbackDoneRefresh( const YCPValue& /*nil*/ args );
 
 	// Script (patch installation) callbacks
 	/* TYPEINFO: void(void(string,string,string,string,boolean)) */
-	YCPValue CallbackScriptStart( const YCPReference& args );
+	YCPValue CallbackScriptStart( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(boolean(boolean,string)) */
-	YCPValue CallbackScriptProgress( const YCPReference& args );
+	YCPValue CallbackScriptProgress( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(void(string)) */
-	YCPValue CallbackScriptProblem( const YCPReference& args );
+	YCPValue CallbackScriptProblem( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackScriptFinish( const YCPReference& args );
+	YCPValue CallbackScriptFinish( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(void(string,string,string,string)) */
-	YCPValue CallbackMessage( const YCPReference& args );
+	YCPValue CallbackMessage( const YCPValue& /*nil*/ args );
 
 	/* TYPEINFO: void(map<string,any>(string,string,string,string)) */
-	YCPValue CallbackAuthentication( const YCPReference& args );
+	YCPValue CallbackAuthentication( const YCPValue& /*nil*/ args );
 
 	/* TYPEINFO: void(string(string,string,string,string,integer,string,integer,string,boolean,list<string>,integer)) */
-	YCPValue CallbackMediaChange (const YCPReference& args);
+	YCPValue CallbackMediaChange (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(integer,integer)) */
-	YCPValue CallbackSourceChange (const YCPReference& args);
+	YCPValue CallbackSourceChange (const YCPValue& /*nil*/ args);
 
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackYouProgress (const YCPReference& args);
+	YCPValue CallbackYouProgress (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackYouPatchProgress (const YCPReference& args);
+	YCPValue CallbackYouPatchProgress (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackYouError (const YCPReference& args);
+	YCPValue CallbackYouError (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackYouMessage (const YCPReference& args);
+	YCPValue CallbackYouMessage (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackYouLog (const YCPReference& args);
+	YCPValue CallbackYouLog (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
-        YCPValue CallbackYouExecuteYcpScript (const YCPReference& args);
+        YCPValue CallbackYouExecuteYcpScript (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
-        YCPValue CallbackYouScriptProgress (const YCPReference& args);
+        YCPValue CallbackYouScriptProgress (const YCPValue& /*nil*/ args);
 
 	/* TYPEINFO: void(void()) */
-        YCPValue CallbackStartRebuildDb (const YCPReference& args);
+        YCPValue CallbackStartRebuildDb (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(integer)) */
-        YCPValue CallbackProgressRebuildDb (const YCPReference& args);
+        YCPValue CallbackProgressRebuildDb (const YCPValue& /*nil*/ args);
 	// FIXME: not used
 	/* TYPEINFO: void(void()) */
-        YCPValue CallbackNotifyRebuildDb (const YCPReference& args);
+        YCPValue CallbackNotifyRebuildDb (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(integer,string)) */
-        YCPValue CallbackStopRebuildDb (const YCPReference& args);
+        YCPValue CallbackStopRebuildDb (const YCPValue& /*nil*/ args);
 
 	/* TYPEINFO: void(void(string)) */
-        YCPValue CallbackStartConvertDb (const YCPReference& args);
+        YCPValue CallbackStartConvertDb (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(integer,string)) */
-        YCPValue CallbackProgressConvertDb (const YCPReference& args);
+        YCPValue CallbackProgressConvertDb (const YCPValue& /*nil*/ args);
 	// FIXME: not used
 	/* TYPEINFO: void(void()) */
-        YCPValue CallbackNotifyConvertDb (const YCPReference& args);
+        YCPValue CallbackNotifyConvertDb (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(integer,string)) */
-        YCPValue CallbackStopConvertDb (const YCPReference& args);
+        YCPValue CallbackStopConvertDb (const YCPValue& /*nil*/ args);
 
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackStartScanDb( const YCPReference& args );
+	YCPValue CallbackStartScanDb( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(boolean(integer)) */
-	YCPValue CallbackProgressScanDb( const YCPReference& args );
+	YCPValue CallbackProgressScanDb( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(string(integer,string)) */
-	YCPValue CallbackErrorScanDb( const YCPReference& args );
+	YCPValue CallbackErrorScanDb( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(void(integer,string)) */
-	YCPValue CallbackDoneScanDb( const YCPReference& args );
+	YCPValue CallbackDoneScanDb( const YCPValue& /*nil*/ args );
 
 
 	/* TYPEINFO: void(void(string,string,string)) */
-	YCPValue CallbackResolvableReport( const YCPReference& args );
+	YCPValue CallbackResolvableReport( const YCPValue& /*nil*/ args );
 
 	/* TYPEINFO: void(boolean(map<string,any>)) */
-	YCPValue CallbackImportGpgKey( const YCPReference& args );	
+	YCPValue CallbackImportGpgKey( const YCPValue& /*nil*/ args );	
 	/* TYPEINFO: void(boolean(map<string,any>)) */
-	YCPValue CallbackAcceptNonTrustedGpgKey( const YCPReference& args );
+	YCPValue CallbackAcceptNonTrustedGpgKey( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(boolean(string,string)) */
-	YCPValue CallbackAcceptUnknownGpgKey( const YCPReference& args );	
+	YCPValue CallbackAcceptUnknownGpgKey( const YCPValue& /*nil*/ args );	
 	/* TYPEINFO: void(boolean(string)) */
-	YCPValue CallbackAcceptUnsignedFile( const YCPReference& args );	
+	YCPValue CallbackAcceptUnsignedFile( const YCPValue& /*nil*/ args );	
 	/* TYPEINFO: void(boolean(string,map<string,any>)) */
-	YCPValue CallbackAcceptVerificationFailed( const YCPReference& args );	
+	YCPValue CallbackAcceptVerificationFailed( const YCPValue& /*nil*/ args );	
 	/* TYPEINFO: void(boolean(string,string,string)) */
-        YCPValue CallbackAcceptWrongDigest( const YCPReference& args);
+        YCPValue CallbackAcceptWrongDigest( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(string,string)) */
-        YCPValue CallbackAcceptUnknownDigest( const YCPReference& args);
+        YCPValue CallbackAcceptUnknownDigest( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(map<string,any>)) */
-	YCPValue CallbackTrustedKeyAdded( const YCPReference& args );	
+	YCPValue CallbackTrustedKeyAdded( const YCPValue& /*nil*/ args );	
 	/* TYPEINFO: void(void(map<string,any>)) */
-	YCPValue CallbackTrustedKeyRemoved( const YCPReference& args );	
+	YCPValue CallbackTrustedKeyRemoved( const YCPValue& /*nil*/ args );	
 	/* TYPEINFO: void(boolean(string)) */
-	YCPValue CallbackAcceptFileWithoutChecksum( const YCPReference& args );	
+	YCPValue CallbackAcceptFileWithoutChecksum( const YCPValue& /*nil*/ args );	
 
 
 	/* TYPEINFO: void(void(string,list<string>,string)) */
-	YCPValue CallbackProcessStart( const YCPReference& args );	
+	YCPValue CallbackProcessStart( const YCPValue& /*nil*/ args );	
 	/* TYPEINFO: void(boolean(integer)) */
-	YCPValue CallbackProcessProgress( const YCPReference& args );	
+	YCPValue CallbackProcessProgress( const YCPValue& /*nil*/ args );	
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackProcessNextStage( const YCPReference& args );	
+	YCPValue CallbackProcessNextStage( const YCPValue& /*nil*/ args );	
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackProcessDone( const YCPReference& args );	
+	YCPValue CallbackProcessDone( const YCPValue& /*nil*/ args );	
 
 
 	// source related

@@ -41,27 +41,27 @@
 
 #define SET_YCP_CB(E,A) _callbackHandler._ycpCallbacks.setYCPCallback( CallbackHandler::YCPCallbacks::E, A );
 
-YCPValue PkgFunctions::CallbackStartProvide( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackStartProvide( const YCPValue& args ) {
   return SET_YCP_CB( CB_StartProvide, args );
 }
-YCPValue PkgFunctions::CallbackProgressProvide( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackProgressProvide( const YCPValue& args ) {
   return SET_YCP_CB( CB_ProgressProvide, args );
 }
-YCPValue PkgFunctions::CallbackDoneProvide( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackDoneProvide( const YCPValue& args ) {
   return SET_YCP_CB( CB_DoneProvide, args );
 }
 
-YCPValue PkgFunctions::CallbackStartPackage( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackStartPackage( const YCPValue& args ) {
   return SET_YCP_CB( CB_StartPackage, args );
 }
-YCPValue PkgFunctions::CallbackProgressPackage( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackProgressPackage( const YCPValue& args ) {
   return SET_YCP_CB( CB_ProgressPackage, args );
 }
-YCPValue PkgFunctions::CallbackDonePackage( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackDonePackage( const YCPValue& args ) {
   return SET_YCP_CB( CB_DonePackage, args );
 }
 
-YCPValue PkgFunctions::CallbackResolvableReport( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackResolvableReport( const YCPValue& args ) {
   return SET_YCP_CB( CB_ResolvableReport, args );
 }
 
@@ -71,7 +71,7 @@ YCPValue PkgFunctions::CallbackResolvableReport( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(map<string,any> key)</code>. The callback function should ask user whether the key is trusted, returned true value means the key is trusted.
  * @return void
  */
-YCPValue PkgFunctions::CallbackImportGpgKey( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackImportGpgKey( const YCPValue& args ) {
   return SET_YCP_CB( CB_ImportGpgKey, args );
 }
 
@@ -81,7 +81,7 @@ YCPValue PkgFunctions::CallbackImportGpgKey( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, string keyid)</code>. The callback function should ask user whether the unknown key can be accepted, returned true value means to accept the key. 
  * @return void
  */
-YCPValue PkgFunctions::CallbackAcceptUnknownGpgKey( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackAcceptUnknownGpgKey( const YCPValue& args ) {
   return SET_YCP_CB( CB_AcceptUnknownGpgKey, args );
 }
 
@@ -91,7 +91,7 @@ YCPValue PkgFunctions::CallbackAcceptUnknownGpgKey( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, map<string,any> key)</code>. The callback function should ask user whether the unknown key can be accepted, returned true value means to accept the file.
  * @return void
  */
-YCPValue PkgFunctions::CallbackAcceptNonTrustedGpgKey( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackAcceptNonTrustedGpgKey( const YCPValue& args ) {
   return SET_YCP_CB( CB_AcceptNonTrustedGpgKey, args );
 }
 
@@ -101,7 +101,7 @@ YCPValue PkgFunctions::CallbackAcceptNonTrustedGpgKey( const YCPReference& args 
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename)</code>. The callback function should ask user whether the unsigned file can be accepted, returned true value means to accept the file.
  * @return void
  */
-YCPValue PkgFunctions::CallbackAcceptUnsignedFile( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackAcceptUnsignedFile( const YCPValue& args ) {
   return SET_YCP_CB( CB_AcceptUnsignedFile, args );
 }
 
@@ -111,7 +111,7 @@ YCPValue PkgFunctions::CallbackAcceptUnsignedFile( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename)</code>. The callback function should ask user whether the unsigned file can be accepted, returned true value means to accept the file.
  * @return void
  */
-YCPValue PkgFunctions::CallbackAcceptFileWithoutChecksum( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackAcceptFileWithoutChecksum( const YCPValue& args ) {
   return SET_YCP_CB( CB_AcceptFileWithoutChecksum, args );
 }
 
@@ -121,7 +121,7 @@ YCPValue PkgFunctions::CallbackAcceptFileWithoutChecksum( const YCPReference& ar
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, map<string,any> key)</code>. The callback function should ask user whether the unsigned file can be accepted, returned true value means to accept the file.
  * @return void
  */
-YCPValue PkgFunctions::CallbackAcceptVerificationFailed( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackAcceptVerificationFailed( const YCPValue& args ) {
   return SET_YCP_CB( CB_AcceptVerificationFailed, args );
 }
 
@@ -131,7 +131,7 @@ YCPValue PkgFunctions::CallbackAcceptVerificationFailed( const YCPReference& arg
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, string requested_digest, string found_digest)</code>. The callback function should ask user whether the wrong digest can be accepted, returned true value means to accept the file.
  * @return void
  */
-YCPValue PkgFunctions::CallbackAcceptWrongDigest( const YCPReference& args)
+YCPValue PkgFunctions::CallbackAcceptWrongDigest( const YCPValue& args)
 {
   return SET_YCP_CB( CB_AcceptWrongDigest, args);
 }
@@ -142,7 +142,7 @@ YCPValue PkgFunctions::CallbackAcceptWrongDigest( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, string name)</code>. The callback function should ask user whether the uknown digest can be accepted, returned true value means to accept the digest.
  * @return void
  */
-YCPValue PkgFunctions::CallbackAcceptUnknownDigest( const YCPReference& args)
+YCPValue PkgFunctions::CallbackAcceptUnknownDigest( const YCPValue& args)
 {
   return SET_YCP_CB( CB_AcceptUnknownDigest, args);
 }
@@ -153,7 +153,7 @@ YCPValue PkgFunctions::CallbackAcceptUnknownDigest( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string keyid, string keyname)</code>. The callback function should inform user that a trusted key has been added.
  * @return void
  */
-YCPValue PkgFunctions::CallbackTrustedKeyAdded( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackTrustedKeyAdded( const YCPValue& args ) {
   return SET_YCP_CB( CB_TrustedKeyAdded, args );
 }
 
@@ -163,7 +163,7 @@ YCPValue PkgFunctions::CallbackTrustedKeyAdded( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string keyid, string keyname)</code>. The callback function should inform user that a trusted key has been removed.
  * @return void
  */
-YCPValue PkgFunctions::CallbackTrustedKeyRemoved( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackTrustedKeyRemoved( const YCPValue& args ) {
   return SET_YCP_CB( CB_TrustedKeyRemoved, args );
 }
 
@@ -173,62 +173,62 @@ YCPValue PkgFunctions::CallbackTrustedKeyRemoved( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>string( string error_code, string error, string url, string product, integer current, string current_label, integer wanted, string wanted_label, boolean double_sided, list<string> devices, integer current_device )</code>. The callback function should ask user to change the medium or to change the URL of the repository. Error code can be "NO_ERROR" (no error occured), "NOT_FOUND" (the file was not found), "IO" (I/O error), "IO_SOFT" (timeout when acceessing the network), "INVALID" (broken medium), "WRONG" (unexpected medium, wrong ID). Result of the callback must be "" (retry), "I" (ignore), "C" (cancel), "S" (skip), "E" (eject), "E+number" (eject device at number) or a new URL of the repository.
  * @return void
  */
-YCPValue PkgFunctions::CallbackMediaChange( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackMediaChange( const YCPValue& args ) {
   // FIXME: Allow omission of 'src' argument in 'src, name'. Since we can
   // handle one callback function at most, passing a src argument
   // implies a per-source callback which isn't implemented anyway.
   return SET_YCP_CB( CB_MediaChange, args );
 }
 
-YCPValue PkgFunctions::CallbackSourceChange( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackSourceChange( const YCPValue& args ) {
   return SET_YCP_CB( CB_SourceChange, args );
 }
 
 
-YCPValue PkgFunctions::CallbackYouProgress( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackYouProgress( const YCPValue& args ) {
   y2warning("Pkg::CallbackYouProgress is obsoleted, do not use it (empty implementation)!");
   return YCPVoid();
 }
 
-YCPValue PkgFunctions::CallbackYouPatchProgress( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackYouPatchProgress( const YCPValue& args ) {
   y2warning("Pkg::CallbackYouPatchProgress is obsoleted, do not use it (empty implementation)!");
   return YCPVoid();
 }
 
-YCPValue PkgFunctions::CallbackYouError( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackYouError( const YCPValue& args ) {
   y2warning("Pkg::CallbackYouError is obsoleted, do not use it (empty implementation)!");
   return YCPVoid();
 }
 
-YCPValue PkgFunctions::CallbackYouMessage( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackYouMessage( const YCPValue& args ) {
   y2warning("Pkg::CallbackYouMessage is obsoleted, do not use it (empty implementation)!");
   return YCPVoid();
 }
 
-YCPValue PkgFunctions::CallbackYouLog( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackYouLog( const YCPValue& args ) {
   y2warning("Pkg::CallbackYouLog is obsoleted, do not use it (empty implementation)!");
   return YCPVoid();
 }
 
-YCPValue PkgFunctions::CallbackYouExecuteYcpScript( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackYouExecuteYcpScript( const YCPValue& args ) {
   y2warning("Pkg::CallbackYouExecuteYcpScript is obsoleted, do not use it (empty implementation)!");
   return YCPVoid();
 }
-YCPValue PkgFunctions::CallbackYouScriptProgress( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackYouScriptProgress( const YCPValue& args ) {
   y2warning("Pkg::CallbackYouScriptProgress is obsoleted, do not use it (empty implementation)!");
   return YCPVoid();
 }
 
-YCPValue PkgFunctions::CallbackStartRebuildDb( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackStartRebuildDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_StartRebuildDb, args );
 }
-YCPValue PkgFunctions::CallbackProgressRebuildDb( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackProgressRebuildDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_ProgressRebuildDb, args );
 }
-YCPValue PkgFunctions::CallbackNotifyRebuildDb( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackNotifyRebuildDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_NotifyRebuildDb, args );
 }
-YCPValue PkgFunctions::CallbackStopRebuildDb( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackStopRebuildDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_StopRebuildDb, args );
 }
 
@@ -240,7 +240,7 @@ YCPValue PkgFunctions::CallbackStopRebuildDb( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>void()</code>. The callback function is evaluated when the RPM DB reading has been started.
  * @return void
  */
-YCPValue PkgFunctions::CallbackStartScanDb( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackStartScanDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_StartScanDb, args );
 }
 /**
@@ -249,7 +249,7 @@ YCPValue PkgFunctions::CallbackStartScanDb( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(integer percent)</code>. The callback function is evaluated during RPM DB reading.
  * @return void
  */
-YCPValue PkgFunctions::CallbackProgressScanDb( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackProgressScanDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_ProgressScanDb, args );
 }
 /**
@@ -258,7 +258,7 @@ YCPValue PkgFunctions::CallbackProgressScanDb( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(integer error_code, string description)</code>. The callback function is evaluated when an error occurrs during RPM DB reading. error_code 0 means no error.
  * @return void
  */
-YCPValue PkgFunctions::CallbackErrorScanDb( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackErrorScanDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_ErrorScanDb, args );
 }
 /**
@@ -267,21 +267,21 @@ YCPValue PkgFunctions::CallbackErrorScanDb( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(integer error_code, string description)</code>. The callback function is evaluated when RPM DB reading is finished. error_code 0 means no error.
  * @return void
  */
-YCPValue PkgFunctions::CallbackDoneScanDb( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackDoneScanDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_DoneScanDb, args );
 }
 
 
-YCPValue PkgFunctions::CallbackStartConvertDb( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackStartConvertDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_StartConvertDb, args );
 }
-YCPValue PkgFunctions::CallbackProgressConvertDb( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackProgressConvertDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_ProgressConvertDb, args );
 }
-YCPValue PkgFunctions::CallbackNotifyConvertDb( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackNotifyConvertDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_NotifyConvertDb, args );
 }
-YCPValue PkgFunctions::CallbackStopConvertDb( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackStopConvertDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_StopConvertDb, args );
 }
 
@@ -292,7 +292,7 @@ YCPValue PkgFunctions::CallbackStopConvertDb( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string filename, integer download_size)</code>. If the download size is unknown download_size is 0. The callback function is evaluated when a delta RPM download has been started.
  * @return void
  */
-YCPValue PkgFunctions::CallbackStartDeltaDownload( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackStartDeltaDownload( const YCPValue& args ) {
   return SET_YCP_CB( CB_StartDeltaDownload, args);
 }
 
@@ -302,7 +302,7 @@ YCPValue PkgFunctions::CallbackStartDeltaDownload( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean (integer value)</code>. The callback function is evaluated when more than 5% of the size has been downloaded since the last evaluation. If the handler returns false the download is aborted.
  * @return void
  */
-YCPValue PkgFunctions::CallbackProgressDeltaDownload( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackProgressDeltaDownload( const YCPValue& args ) {
   return SET_YCP_CB( CB_ProgressDeltaDownload, args);
 }
 
@@ -312,7 +312,7 @@ YCPValue PkgFunctions::CallbackProgressDeltaDownload( const YCPReference& args )
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string description)</code>. The callback function should inform user that a problem has occurred during delta file download. This is not fatal, it still may be possible to download the full RPM instead.
  * @return void
  */
-YCPValue PkgFunctions::CallbackProblemDeltaDownload( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackProblemDeltaDownload( const YCPValue& args ) {
   return SET_YCP_CB( CB_ProblemDeltaDownload, args);
 }
 
@@ -322,7 +322,7 @@ YCPValue PkgFunctions::CallbackProblemDeltaDownload( const YCPReference& args ) 
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string filename)</code>. The callback function should inform user that a delta application has been started.
  * @return void
  */
-YCPValue PkgFunctions::CallbackStartDeltaApply( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackStartDeltaApply( const YCPValue& args ) {
   return SET_YCP_CB( CB_StartDeltaApply, args);
 }
 
@@ -332,7 +332,7 @@ YCPValue PkgFunctions::CallbackStartDeltaApply( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(integer value)</code>. The callback function is evaluated when more than 5% of the delta size has been applied since the last evaluation.
  * @return void
  */
-YCPValue PkgFunctions::CallbackProgressDeltaApply( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackProgressDeltaApply( const YCPValue& args ) {
   return SET_YCP_CB( CB_ProgressDeltaApply, args);
 }
 
@@ -342,7 +342,7 @@ YCPValue PkgFunctions::CallbackProgressDeltaApply( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string description)</code>. The callback function should inform user that a problem has occurred during delta file application. This is not fatal, it still may be possible to use the full RPM instead.
  * @return void
  */
-YCPValue PkgFunctions::CallbackProblemDeltaApply( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackProblemDeltaApply( const YCPValue& args ) {
   return SET_YCP_CB( CB_ProblemDeltaApply, args);
 }
 
@@ -352,7 +352,7 @@ YCPValue PkgFunctions::CallbackProblemDeltaApply( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string filename, integer download_size)</code>. If the download size is unknown download_size is 0. The callback function is evaluated when a patch download has been started.
  * @return void
  */
-YCPValue PkgFunctions::CallbackStartPatchDownload( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackStartPatchDownload( const YCPValue& args ) {
   return SET_YCP_CB( CB_StartPatchDownload, args);
 }
 
@@ -362,7 +362,7 @@ YCPValue PkgFunctions::CallbackStartPatchDownload( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(integer value)</code>. The callback function is evaluated when more than 5% of the patch size has been downloaded since the last evaluation. If the handler returns false the download is aborted.
  * @return void
  */
-YCPValue PkgFunctions::CallbackProgressPatchDownload( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackProgressPatchDownload( const YCPValue& args ) {
   return SET_YCP_CB( CB_ProgressPatchDownload, args);
 }
 
@@ -372,7 +372,7 @@ YCPValue PkgFunctions::CallbackProgressPatchDownload( const YCPReference& args )
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string description)</code>. The callback function should inform user that a problem has occurred during download of the patch.
  * @return void
  */
-YCPValue PkgFunctions::CallbackProblemPatchDownload( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackProblemPatchDownload( const YCPValue& args ) {
   return SET_YCP_CB( CB_ProblemPatchDownload, args);
 }
 
@@ -383,7 +383,7 @@ YCPValue PkgFunctions::CallbackProblemPatchDownload( const YCPReference& args ) 
  * @param string args Name of the callback handler function. Required callback prototype is <code>void()</code>. The callback function is evaluated when the delta download has been finished.
  * @return void
  */
-YCPValue PkgFunctions::CallbackFinishDeltaDownload( const YCPReference& args)
+YCPValue PkgFunctions::CallbackFinishDeltaDownload( const YCPValue& args)
 {
     return SET_YCP_CB( CB_FinishDeltaDownload, args);
 }
@@ -394,7 +394,7 @@ YCPValue PkgFunctions::CallbackFinishDeltaDownload( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>void()</code>. The callback function is evaluated when the delta download has been applied.
  * @return void
  */
-YCPValue PkgFunctions::CallbackFinishDeltaApply( const YCPReference& args)
+YCPValue PkgFunctions::CallbackFinishDeltaApply( const YCPValue& args)
 {
     return SET_YCP_CB( CB_FinishDeltaApply, args);
 }
@@ -405,7 +405,7 @@ YCPValue PkgFunctions::CallbackFinishDeltaApply( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>void()</code>. The callback function is evaluated when the patch download has been finished.
  * @return void
  */
-YCPValue PkgFunctions::CallbackFinishPatchDownload( const YCPReference& args)
+YCPValue PkgFunctions::CallbackFinishPatchDownload( const YCPValue& args)
 {
     return SET_YCP_CB( CB_FinishPatchDownload, args);
 }
@@ -417,7 +417,7 @@ YCPValue PkgFunctions::CallbackFinishPatchDownload( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string url)</code>. The callback is evaluated when a source creation has been started.
  * @return void
  */
-YCPValue PkgFunctions::CallbackSourceCreateStart( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceCreateStart( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceCreateStart, args);
 }
@@ -429,7 +429,7 @@ YCPValue PkgFunctions::CallbackSourceCreateStart( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(integer value)</code>. The callback function is evaluated when more than 5% of the data has been processed since the last evaluation. If the handler returns false the download is aborted.
  * @return void
  */
-YCPValue PkgFunctions::CallbackSourceCreateProgress( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceCreateProgress( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceCreateProgress, args);
 }
@@ -440,7 +440,7 @@ YCPValue PkgFunctions::CallbackSourceCreateProgress( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>string(string url, string err_code, string description)</code>. err_code is "NO_ERROR", "NOT_FOUND" (the URL was not found), "IO" (I/O error) or "INVALID" (the source is not valid). The callback function must return "ABORT" or "RETRY". The callback function is evaluated when an error occurrs during creation of the source.
  * @return void
  */
-YCPValue PkgFunctions::CallbackSourceCreateError( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceCreateError( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceCreateError, args);
 }
@@ -451,7 +451,7 @@ YCPValue PkgFunctions::CallbackSourceCreateError( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string url, string err_code, string description)</code>. err_code is "NO_ERROR", "NOT_FOUND" (the URL was not found), "IO" (I/O error) or "INVALID" (the source is not valid). The callback function is evaluated when creation of the source has been finished.
  * @return void
  */
-YCPValue PkgFunctions::CallbackSourceCreateEnd( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceCreateEnd( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceCreateEnd, args);
 }
@@ -465,7 +465,7 @@ YCPValue PkgFunctions::CallbackSourceCreateEnd( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string url)</code>. The callback function is evaluated when source probing has been started.
  * @return void
  */
-YCPValue PkgFunctions::CallbackSourceProbeStart( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceProbeStart( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceProbeStart, args);
 }
@@ -476,7 +476,7 @@ YCPValue PkgFunctions::CallbackSourceProbeStart( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string url, string type)</code>. The callback function is evaluated when the probed source has different type.
  * @return void
  */
-YCPValue PkgFunctions::CallbackSourceProbeFailed( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceProbeFailed( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceProbeFailed, args);
 }
@@ -487,7 +487,7 @@ YCPValue PkgFunctions::CallbackSourceProbeFailed( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string url, string type)</code>. The callback function is evaluated when the probed source has type <code>type</code>.
  * @return void
  */
-YCPValue PkgFunctions::CallbackSourceProbeSucceeded( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceProbeSucceeded( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceProbeSucceeded, args);
 }
@@ -498,7 +498,7 @@ YCPValue PkgFunctions::CallbackSourceProbeSucceeded( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string url, string error, string reason)</code>. The callback function is evaluated when source probing has been finished.
  * @return void
  */
-YCPValue PkgFunctions::CallbackSourceProbeEnd( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceProbeEnd( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceProbeEnd, args);
 }
@@ -509,7 +509,7 @@ YCPValue PkgFunctions::CallbackSourceProbeEnd( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(integer value)</code>. If the handler returns false the refresh is aborted.
  * @return void
  */
-YCPValue PkgFunctions::CallbackSourceProbeProgress( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceProbeProgress( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceProbeProgress, args);
 }
@@ -520,28 +520,28 @@ YCPValue PkgFunctions::CallbackSourceProbeProgress( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>string(string url, string error, string reason)</code>. The callback function is evaluated when an error occurrs. The callback function must return string "ABORT" or "RETRY".
  * @return void
  */
-YCPValue PkgFunctions::CallbackSourceProbeError( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceProbeError( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceProbeError, args);
 }
 
 
-YCPValue PkgFunctions::CallbackSourceReportInit( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceReportInit( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceReportInit, args);
 }
 
-YCPValue PkgFunctions::CallbackSourceReportDestroy( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceReportDestroy( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceReportDestroy, args);
 }
 
-YCPValue PkgFunctions::CallbackSourceCreateInit( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceCreateInit( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceCreateInit, args);
 }
 
-YCPValue PkgFunctions::CallbackSourceCreateDestroy( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceCreateDestroy( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceCreateDestroy, args);
 }
@@ -552,7 +552,7 @@ YCPValue PkgFunctions::CallbackSourceCreateDestroy( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(integer source_id, string url, string task)</code>.
  * @return void
  */
-YCPValue PkgFunctions::CallbackSourceReportStart( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceReportStart( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceReportStart, args);
 }
@@ -563,7 +563,7 @@ YCPValue PkgFunctions::CallbackSourceReportStart( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(integer value)</code>. If the handler returns false the task is aborted.
  * @return void
  */
-YCPValue PkgFunctions::CallbackSourceReportProgress( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceReportProgress( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceReportProgress, args);
 }
@@ -574,7 +574,7 @@ YCPValue PkgFunctions::CallbackSourceReportProgress( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>string(integer numeric_id, string url, string error, string reason)</code>. Parameter error is "NO_ERROR", "NOT_FOUND", "IO" or "INVALID". The callback function is evaluated when an error occurrs. The callback function must return string "ABORT", "IGNORE" or "RETRY".
  * @return void
  */
-YCPValue PkgFunctions::CallbackSourceReportError( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceReportError( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceReportError, args);
 }
@@ -585,13 +585,13 @@ YCPValue PkgFunctions::CallbackSourceReportError( const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(integer numeric_id, string url, string task, string error, string reason)</code>. Parameter error is "NO_ERROR", "NOT_FOUND", "IO" or "INVALID". The callback function is evaluated when an error occurrs. The callback function must return string "ABORT", "IGNORE" or "RETRY".
  * @return void
  */
-YCPValue PkgFunctions::CallbackSourceReportEnd( const YCPReference& args)
+YCPValue PkgFunctions::CallbackSourceReportEnd( const YCPValue& args)
 {
     return SET_YCP_CB( CB_SourceReportEnd, args);
 }
 
 
-YCPValue PkgFunctions::CallbackStartDownload( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackStartDownload( const YCPValue& args ) {
     return SET_YCP_CB( CB_StartDownload, args );
 }
 /**
@@ -600,10 +600,10 @@ YCPValue PkgFunctions::CallbackStartDownload( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(integer percent, integer average_bps, integer current_bps)</code>. The callback function is evaluated when at least 5% has been downloaded. If the callback function returns false the download is aborted.
  * @return void
  */
-YCPValue PkgFunctions::CallbackProgressDownload( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackProgressDownload( const YCPValue& args ) {
     return SET_YCP_CB( CB_ProgressDownload, args );
 }
-YCPValue PkgFunctions::CallbackDoneDownload( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackDoneDownload( const YCPValue& args ) {
     return SET_YCP_CB( CB_DoneDownload, args );
 }
 
@@ -614,7 +614,7 @@ YCPValue PkgFunctions::CallbackDoneDownload( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string patch_name, string patch_version, string patch_arch, string script_path, boolean installation)</code>. Parameter 'installation' is true when the script is called during installation of a patch, false means patch removal. The callback function is evaluated when a script (which is part of a patch) has been started.
  * @return void
  */
-YCPValue PkgFunctions::CallbackScriptStart( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackScriptStart( const YCPValue& args ) {
     return SET_YCP_CB( CB_ScriptStart, args );
 }
 /**
@@ -623,7 +623,7 @@ YCPValue PkgFunctions::CallbackScriptStart( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(boolean ping, string output)</code>. If parameter 'ping' is true than there is no output available, but the script is still running (This functionality enables aborting the script). If it is false, 'output' contains (part of) the script output. The callback function is evaluated when a script is running.
  * @return void
  */
-YCPValue PkgFunctions::CallbackScriptProgress( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackScriptProgress( const YCPValue& args ) {
     return SET_YCP_CB( CB_ScriptProgress, args );
 }
 /**
@@ -632,7 +632,7 @@ YCPValue PkgFunctions::CallbackScriptProgress( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string description)</code>. The callback function is evaluated when an error occurrs.
  * @return void
  */
-YCPValue PkgFunctions::CallbackScriptProblem( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackScriptProblem( const YCPValue& args ) {
     return SET_YCP_CB( CB_ScriptProblem, args );
 }
 /**
@@ -641,7 +641,7 @@ YCPValue PkgFunctions::CallbackScriptProblem( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>void()</code>. The callback function is evaluated when the script has been finished.
  * @return void
  */
-YCPValue PkgFunctions::CallbackScriptFinish( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackScriptFinish( const YCPValue& args ) {
     return SET_YCP_CB( CB_ScriptFinish, args );
 }
 /**
@@ -650,7 +650,7 @@ YCPValue PkgFunctions::CallbackScriptFinish( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string patch_name, string patch_version, string patch_arch, string message)</code>. The callback function is evaluated when a message which is part of a patch should be displayed.
  * @return void
  */
-YCPValue PkgFunctions::CallbackMessage( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackMessage( const YCPValue& args ) {
     return SET_YCP_CB( CB_Message, args );
 }
 
@@ -660,7 +660,7 @@ YCPValue PkgFunctions::CallbackMessage( const YCPReference& args ) {
  * @param string args Name of the callback handler function. Required callback prototype is <code>map(string url, string message, string username, string password)</code>. The returned map must contain these items: $[ "username" : string, "password" : string, "continue" : boolean ]. If <code>"continue"</code> value is false or is missing the authentification (and the download process) is canceled. The callback function is evaluated when user authentication is required to download the requested file.
  * @return void
  */
-YCPValue PkgFunctions::CallbackAuthentication( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackAuthentication( const YCPValue& args ) {
     return SET_YCP_CB( CB_Authentication, args);
 }
 
@@ -671,7 +671,7 @@ YCPValue PkgFunctions::CallbackAuthentication( const YCPReference& args ) {
  * The callback function is evaluated when an progress event starts
  * @return void
  */
-YCPValue PkgFunctions::CallbackProgressReportStart(const YCPReference& args)
+YCPValue PkgFunctions::CallbackProgressReportStart(const YCPValue& args)
 {
     return SET_YCP_CB( CB_ProgressStart, args);
 }
@@ -682,7 +682,7 @@ YCPValue PkgFunctions::CallbackProgressReportStart(const YCPReference& args)
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(integer id, integer val_raw, integer val_percent)</code>. Parameter id identifies the callback, val_raw is raw status, val_percent is in percent or if the total progress is not known it's -1 (the callback is a 'tick' in this case). If the handler returns false the task is aborted.
  * @return void
  */
-YCPValue PkgFunctions::CallbackProgressReportProgress(const YCPReference& args)
+YCPValue PkgFunctions::CallbackProgressReportProgress(const YCPValue& args)
 {
     return SET_YCP_CB( CB_ProgressProgress, args);
 }
@@ -694,35 +694,35 @@ YCPValue PkgFunctions::CallbackProgressReportProgress(const YCPReference& args)
  * The callback function is evaluated when an progress event finishes
  * @return void
  */
-YCPValue PkgFunctions::CallbackProgressReportEnd(const YCPReference& args)
+YCPValue PkgFunctions::CallbackProgressReportEnd(const YCPValue& args)
 {
     return SET_YCP_CB( CB_ProgressDone, args);
 }
 
-YCPValue PkgFunctions::CallbackInitDownload( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackInitDownload( const YCPValue& args ) {
     return SET_YCP_CB( CB_InitDownload, args );
 }
 
-YCPValue PkgFunctions::CallbackDestDownload( const YCPReference& args ) {
+YCPValue PkgFunctions::CallbackDestDownload( const YCPValue& args ) {
     return SET_YCP_CB( CB_DestDownload, args );
 }
 
-YCPValue PkgFunctions::CallbackProcessStart( const YCPReference& args )
+YCPValue PkgFunctions::CallbackProcessStart( const YCPValue& args )
 {
     return SET_YCP_CB( CB_ProcessStart, args);
 }
 
-YCPValue PkgFunctions::CallbackProcessNextStage( const YCPReference& args )
+YCPValue PkgFunctions::CallbackProcessNextStage( const YCPValue& args )
 {
     return SET_YCP_CB( CB_ProcessNextStage, args);
 }
 
-YCPValue PkgFunctions::CallbackProcessDone( const YCPReference& args )
+YCPValue PkgFunctions::CallbackProcessDone( const YCPValue& args )
 {
     return SET_YCP_CB( CB_ProcessFinished, args);
 }
 
-YCPValue PkgFunctions::CallbackProcessProgress( const YCPReference& args )
+YCPValue PkgFunctions::CallbackProcessProgress( const YCPValue& args )
 {
     return SET_YCP_CB( CB_ProcessProgress, args);
 }
@@ -735,7 +735,7 @@ YCPValue PkgFunctions::CallbackProcessProgress( const YCPReference& args )
  * The callback function is evaluated when repository refresh is started
  * @return void
  */
-YCPValue PkgFunctions::CallbackStartRefresh( const YCPReference& args )
+YCPValue PkgFunctions::CallbackStartRefresh( const YCPValue& args )
 {
     return SET_YCP_CB( CB_StartSourceRefresh, args);
 }
@@ -747,7 +747,7 @@ YCPValue PkgFunctions::CallbackStartRefresh( const YCPReference& args )
  * The callback function is evaluated when repository refresh is finished
  * @return void
  */
-YCPValue PkgFunctions::CallbackDoneRefresh( const YCPReference& args )
+YCPValue PkgFunctions::CallbackDoneRefresh( const YCPValue& args )
 {
     return SET_YCP_CB( CB_DoneSourceRefresh, args);
 }
