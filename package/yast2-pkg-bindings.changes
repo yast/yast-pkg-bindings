@@ -8,6 +8,11 @@ Tue Apr  8 15:51:24 CEST 2008 - lslezak@suse.cz
 - 2.16.24
 
 -------------------------------------------------------------------
+Thu Apr  3 21:10:43 CEST 2008 - coolo@suse.de
+
+- adapt to libzypp 4.7
+
+-------------------------------------------------------------------
 Wed Apr  2 13:27:35 CEST 2008 - lslezak@suse.cz
 
 - changed callback registration - use references to functions
