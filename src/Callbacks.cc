@@ -534,12 +534,14 @@ namespace ZyppRecipients {
 
 	  CB callback( ycpcb( YCPCallbacks::CB_StartProvide ) );
 	  if (callback._set) {
-	    bool remote = url.getScheme() != "cd" && url.getScheme() != "dvd"
-		&& url.getScheme() != "nfs";
+	    std::string scheme = zypp::str::toLower(url.getScheme());
+
+	    bool remote = scheme != "cd" && scheme != "dvd" && scheme != "nfs" && scheme != "dir" && scheme != "file";
+
 	    callback.addStr(resolvable_ptr->name());
 	    callback.addInt( size );
 	    callback.addBool(remote);
-	    callback.evaluateBool();
+	    callback.evaluate();
 	  }
 	}
 

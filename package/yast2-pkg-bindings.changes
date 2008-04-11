@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Apr 11 15:06:34 CEST 2008 - lslezak@suse.cz
+
+- fixed evaluation of StartProvide callback
+- fixed logging
+- improved remote source detection
+- 2.16.25
+
+-------------------------------------------------------------------
 Tue Apr  8 15:51:24 CEST 2008 - lslezak@suse.cz
 
 - return -1 when Pkg::SourceCreate() with non-empty product

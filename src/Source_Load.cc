@@ -236,7 +236,7 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 			{
 			    if (autorefresh_skipped)
 			    {
-				y2internal("autorefresh_skipped, ignoring the exception");
+				y2warning("autorefresh_skipped, ignoring the exception");
 			    }
 			    else
 			    {
@@ -248,12 +248,12 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 
 			if (autorefresh_skipped)
 			{
-			    y2internal("Skipping autorefresh for the rest of repositories");
+			    y2warning("Skipping autorefresh for the rest of repositories");
 			    break;
 			}
 			else
 			{
-			    y2internal("Continuing with autorefresh");
+			    y2debug("Continuing with autorefresh");
 			}
 		    }
 		}
@@ -294,7 +294,7 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 			// autorefresh the source
 			if (raw_metadata_status.empty() )
 			{
-			    y2internal("Missinga metadata, not rebuilding the cache");
+			    y2error("Missinga metadata, not rebuilding the cache");
 			    continue;
 			}
 		    }
@@ -313,7 +313,7 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 		    {
 			if (autorefresh_skipped)
 			{
-			    y2internal("autorefresh_skipped, ignoring the exception");
+			    y2warning("autorefresh_skipped, ignoring the exception");
 			}
 			else
 			{
@@ -325,12 +325,12 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 
 		    if (autorefresh_skipped)
 		    {
-			y2internal("Skipping autorefresh for the rest of repositories");
+			y2warning("Skipping autorefresh for the rest of repositories");
 			break;
 		    }
 		    else
 		    {
-			y2internal("Continuing with autorefresh");
+			y2debug("Continuing with autorefresh");
 		    }
 		}
 	    }
