@@ -3,7 +3,7 @@ Fri Apr 11 15:13:53 CEST 2008 - ma@suse.de
 
 - Fix TargetProducts to return the satisfies products. Is satisfied 
   status is computed and updated on each solver run. So it does not 
-  reflect any changes made since the last solver run. (#368104)
+  reflect any changes made since the last solver run. (bnc#368104)
 - 2.16.26
 
 -------------------------------------------------------------------
