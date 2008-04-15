@@ -57,6 +57,7 @@ PkgFunctions::PkgFunctions () :
     , _target_loaded(false)
     , zypp_pointer(NULL)
     ,_callbackHandler( *new CallbackHandler(*this) )
+    ,target_log_set(false)
 {
     const char *domain = "pkg-bindings";
     bindtextdomain( domain, LOCALEDIR );

@@ -147,7 +147,9 @@ PkgFunctions::TargetLogfile (const YCPString& name)
 {
     try
     {
-	return YCPBoolean (zypp_ptr()->target()->setInstallationLogfile (name->value()));
+	bool ret = zypp_ptr()->target()->setInstallationLogfile (name->value());
+	target_log_set = true;
+	return YCPBoolean(ret);
     }
     catch (zypp::Exception & excpt)
     {

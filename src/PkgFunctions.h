@@ -169,6 +169,8 @@ class PkgFunctions
 
       PkgError _last_error;
 
+      bool target_log_set;
+
       /**
        * Logging helper:
        * search for a repository and in case of exception, log error

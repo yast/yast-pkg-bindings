@@ -2,6 +2,9 @@
 Tue Apr 15 15:15:08 CEST 2008 - lslezak@suse.cz
 
 - added support for `languages in ResolvableProperties()
+- set the default RPM log file name in Pkg::PkgCommit() if it
+  hasn't been set (bnc#372863)
+- 2.16.27
 
 -------------------------------------------------------------------
 Fri Apr 11 15:13:53 CEST 2008 - ma@suse.de
