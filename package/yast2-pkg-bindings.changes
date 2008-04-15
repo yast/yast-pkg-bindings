@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Apr 15 15:15:08 CEST 2008 - lslezak@suse.cz
+
+- added support for `languages in ResolvableProperties()
+
+-------------------------------------------------------------------
 Fri Apr 11 15:13:53 CEST 2008 - ma@suse.de
 
 - Fix TargetProducts to return the satisfies products. Is satisfied 

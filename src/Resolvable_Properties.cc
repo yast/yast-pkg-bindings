@@ -34,6 +34,7 @@
 #include <ycp/YCPString.h>
 #include <ycp/YCPList.h>
 #include <ycp/YCPMap.h>
+#include <ycp/YCPVoid.h>
 
 #include <zypp/Product.h>
 #include <zypp/Patch.h>
@@ -41,6 +42,7 @@
 #include <zypp/Package.h>
 
 #include <zypp/Dep.h>
+#include <zypp/sat/LocaleSupport.h>
 
 /**
    @builtin ResolvableProperties
@@ -105,7 +107,15 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
     YCPList ret;
 
     if( req_kind == "product" ) {
-	kind = zypp::ResTraits<zypp::Product>::kind;
+    	kind = zypp::ResTraits<zypp::Product>::kind;
+/*
+	zypp::ResPool pool( zypp::ResPool::instance() );
+
+	for_( it, pool.satisfiedProductsBegin(), pool.satisfiedProductsEnd() )
+	{
+	    zypp::Product_constPtr p( asKind<Product>(*it) );
+	}
+*/
     }
     else if ( req_kind == "patch" ) {
     	kind = zypp::ResTraits<zypp::Patch>::kind;
@@ -116,7 +126,35 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResTraits<zypp::Pattern>::kind;
     }
-# warning add language support
+    else if ( req_kind == "language" )
+    {
+	try
+	{
+	    const zypp::LocaleSet &avlocales( zypp::ResPool::instance().getAvailableLocales() );
+	    
+	    for_( it, avlocales.begin(), avlocales.end() )
+	    {
+		zypp::sat::LocaleSupport myLocale( *it );
+
+		YCPMap lang_map;
+
+		lang_map->add(YCPString("name"), YCPString(myLocale.locale().name()));
+		lang_map->add(YCPString("code"), YCPString(myLocale.locale().code()));
+		lang_map->add(YCPString("packages"), YCPBoolean(myLocale.isAvailable()));
+		lang_map->add(YCPString("requested"), YCPBoolean(myLocale.isRequested()));
+
+		ret->add(lang_map);
+	    }
+	}
+	catch(const zypp::Exception &expt)
+	{
+	    y2error("Caught exception: %s", expt.asString().c_str());
+	    _last_error.setLastError(ExceptionAsString(expt));
+	    return YCPVoid();
+	}
+
+	return ret;
+    }
     else
     {
 	y2error("Pkg::ResolvableProperties: unknown symbol: %s", req_kind.c_str());
@@ -347,7 +385,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 /**
    @builtin IsAnyResolvable
    @short Is there any resolvable in the requried state?
-   @param symbol kind_r kind of resolvable, can be `product, `patch, `package, `pattern, `language or `any for any kind of resolvable
+   @param symbol kind_r kind of resolvable, can be `product, `patch, `package, `pattern or `any for any kind of resolvable
    @param symbol status status of resolvable, can be `to_install or `to_remove
    @return boolean true if a resolvable with the requested status was found
 */
@@ -371,7 +409,6 @@ PkgFunctions::IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status)
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResTraits<zypp::Pattern>::kind;
     }
-# warning add language support
     else if ( req_kind == "any" ) {
 	try
 	{ 
