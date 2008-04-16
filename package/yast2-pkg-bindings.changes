@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Apr 16 19:59:04 CEST 2008 - coolo@suse.de
+
+- do not y2error on std:string
+
+-------------------------------------------------------------------
 Wed Apr 16 18:21:09 CEST 2008 - coolo@suse.de
 
 - catching errors - programming defensive (bnc#380283)
