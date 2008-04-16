@@ -543,9 +543,7 @@ PkgFunctions::searchPackage(const YCPString &package, bool installed)
 
 	    if (pkg != NULL)
 	    {
-		long long sid = logFindAlias(pkg->repoInfo().alias());
-		y2debug("Package '%s' repo: %lld", pkgname.c_str(), sid);
-		if ((installed && sid < 0LL) || (!installed && sid >= 0LL))
+		if (installed == pkg->isSystem())
 		{
 		    found = true;
 		    break;

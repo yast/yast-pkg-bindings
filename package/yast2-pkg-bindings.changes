@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Apr 16 15:07:02 CEST 2008 - lslezak@suse.cz
+
+- searchPackage - use isSystem() property instead of searching
+  in repositories (bnc#380141, comment 5)
+
+-------------------------------------------------------------------
 Tue Apr 15 15:15:08 CEST 2008 - lslezak@suse.cz
 
 - added support for `languages in ResolvableProperties()
