@@ -250,7 +250,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
                         }
                     } else
                     {
-                        y2error("package %s is not a package", (*it)->name() );
+                        y2error("package %s is not a package", (*it)->name().c_str() );
                     }
 		}
 		// product specific info
@@ -258,7 +258,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(it->resolvable());
                     if ( !product )
                     {
-                        y2error("product %s is not a product", (*it)->name() );
+                        y2error("product %s is not a product", (*it)->name().c_str() );
                         continue;
                     }
 #warning "Product::category is deprecated, remove from YCP code and this map"
