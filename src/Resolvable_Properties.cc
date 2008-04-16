@@ -50,7 +50,7 @@
    @short Return properties of resolvable
    @description
    return list of resolvables of selected kind with required name
- 
+
    @param name name of the resolvable, if empty returns all resolvables of the kind
    @param kind_r kind of resolvable, can be `product, `patch, `package, `pattern or `language
    @param version version of the resolvable, if empty all versions are returned
@@ -59,7 +59,7 @@
    status is `installed, `removed, `selected or `available, source is source ID or -1 if the resolvable is installed in the target
    if status is `available and locked is true then the object is set to taboo,
    if status is `installed and locked is true then the object locked
-   if status is `selected or `removed there is extra key "transact_by" : symbol, where symbol is `user (the highest level), 
+   if status is `selected or `removed there is extra key "transact_by" : symbol, where symbol is `user (the highest level),
        `app_high (selected by Yast), `app_low and `solver (the lowest level)
 */
 
@@ -94,7 +94,7 @@ std::string TransactToString(zypp::ResStatus::TransactByValue trans)
 	case zypp::ResStatus::SOLVER : ret = "solver"; break;
     }
 
-    return ret;    
+    return ret;
 }
 
 YCPValue
@@ -131,7 +131,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 	try
 	{
 	    const zypp::LocaleSet &avlocales( zypp::ResPool::instance().getAvailableLocales() );
-	    
+
 	    for_( it, avlocales.begin(), avlocales.end() )
 	    {
 		zypp::sat::LocaleSupport myLocale( *it );
@@ -162,7 +162,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
     }
 
    try
-   { 
+   {
 	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(kind);
 	    it != zypp_ptr()->pool().byKindEnd(kind);
 	    ++it)
@@ -230,27 +230,37 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		info->add(YCPString("medium_nr"), YCPInteger((*it)->mediaNr()));
 		info->add(YCPString("vendor"), YCPString((*it)->vendor()));
 
-		
+
 		// package specific info
 		if( req_kind == "package" )
 		{
 		    zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
-
-		    std::string tmp = pkg->location().filename().asString();
-		    if (!tmp.empty())
+                    if ( pkg )
 		    {
-			info->add(YCPString("path"), YCPString(tmp));
-		    }
+                        std::string tmp = pkg->location().filename().asString();
+                        if (!tmp.empty())
+                        {
+                            info->add(YCPString("path"), YCPString(tmp));
+                        }
 
-		    tmp = pkg->location().filename().basename();
-		    if (!tmp.empty())
-		    {
-			info->add(YCPString("location"), YCPString(tmp));
-		    }
+                        tmp = pkg->location().filename().basename();
+                        if (!tmp.empty())
+                        {
+                            info->add(YCPString("location"), YCPString(tmp));
+                        }
+                    } else
+                    {
+                        y2error("package %s is not a package", (*it)->name() );
+                    }
 		}
 		// product specific info
 		else if( req_kind == "product" ) {
 		    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(it->resolvable());
+                    if ( !product )
+                    {
+                        y2error("product %s is not a product", (*it)->name() );
+                        continue;
+                    }
 #warning "Product::category is deprecated, remove from YCP code and this map"
                     info->add(YCPString("category"), YCPString(product->type()));
                     info->add(YCPString("type"), YCPString(product->type()));
@@ -327,7 +337,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		else if ( req_kind == "patch" )
 		{
 		    zypp::Patch::constPtr patch_ptr = boost::dynamic_pointer_cast<const zypp::Patch>(it->resolvable());
-		    
+
 		    info->add(YCPString("interactive"), YCPBoolean(patch_ptr->interactive()));
 		    info->add(YCPString("reboot_needed"), YCPBoolean(patch_ptr->reboot_needed()));
 		    info->add(YCPString("affects_pkg_manager"), YCPBoolean(patch_ptr->affects_pkg_manager()));
@@ -363,7 +373,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 				ycpdep->add (YCPString ("dep_kind"), YCPString (*kind_it));
 				ycpdeps->add (ycpdep);
 			    }
-	
+
 			}
 			catch (...)
 			{}
@@ -411,7 +421,7 @@ PkgFunctions::IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status)
     }
     else if ( req_kind == "any" ) {
 	try
-	{ 
+	{
 	    for (zypp::ResPool::const_iterator it = zypp_ptr()->pool().begin();
 		it != zypp_ptr()->pool().end();
 		++it)
@@ -432,7 +442,7 @@ PkgFunctions::IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status)
 	    return YCPNull();
 	}
 
-	return YCPBoolean(false); 
+	return YCPBoolean(false);
     }
     else
     {
@@ -442,7 +452,7 @@ PkgFunctions::IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status)
 
 
     try
-    { 
+    {
 	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(kind);
 	    it != zypp_ptr()->pool().byKindEnd(kind);
 	    ++it)
@@ -463,6 +473,6 @@ PkgFunctions::IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status)
 	return YCPNull();
     }
 
-    return YCPBoolean(false); 
+    return YCPBoolean(false);
 }
 

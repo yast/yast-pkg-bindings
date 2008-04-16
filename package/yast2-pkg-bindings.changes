@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Apr 16 18:21:09 CEST 2008 - coolo@suse.de
+
+- catching errors - programming defensive (bnc#380283)
+- 2.16.28
+
+-------------------------------------------------------------------
 Wed Apr 16 15:07:02 CEST 2008 - lslezak@suse.cz
 
 - searchPackage - use isSystem() property instead of searching
