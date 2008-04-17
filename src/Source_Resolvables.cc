@@ -51,17 +51,11 @@ void PkgFunctions::RemoveResolvablesFrom(const std::string &alias)
  */
 bool PkgFunctions::AnyResolvableFrom(const std::string &alias)
 {
-    // check whether there is a known repository with the requested alias
-    for (zypp::ResPool::repository_iterator it = zypp_ptr()->pool().knownRepositoriesBegin()
-	; it != zypp_ptr()->pool().knownRepositoriesEnd()
-	; ++it)
+    zypp::Repository r = zypp::sat::Pool::instance().reposFind(alias);
+    if ( r != zypp::Repository::noRepository )
     {
-	if (it->info().alias() == alias)
-	{
-	    return true;
-	}
+        return ( r.solvablesSize() > 0 );
     }
-
     return false;
 }
 
