@@ -5,44 +5,6 @@ Thu Apr 17 13:04:03 CEST 2008 - schubi@suse.de
   bnc #380656
 
 -------------------------------------------------------------------
-Thu Apr 17 13:03:49 CEST 2008 - schubi@suse.de
-
--------------------------------------------------------------------
-Thu Apr  3 13:41:41 CEST 2008 - ma@suse.de
-
-- use repo name as mediaset label.
-
--------------------------------------------------------------------
-Tue Mar 11 07:31:42 CET 2008 - coolo@suse.de
-
-- devtools requires redudant prefix definition
-
--------------------------------------------------------------------
-Wed Mar  5 22:13:55 CET 2008 - coolo@suse.de
-
-- fixing spec file syntax
-
--------------------------------------------------------------------
-Tue Dec 18 19:32:50 CET 2007 - lslezak@suse.cz
-
-- updated generating of the documentation to the new source file
-  layout
-- 2.16.7
-
--------------------------------------------------------------------
-Wed Oct  3 10:06:31 CEST 2007 - mvidner@suse.cz
-
-- Do not try to package COPYRIGHT.english, it is gone from
-  devtools (#299144).
-- 2.16.0
-
--------------------------------------------------------------------
-Thu Jul 26 15:55:21 CEST 2007 - lslezak@suse.cz
-
-- Initial version
-
-
--------------------------------------------------------------------
 Wed Apr 16 19:59:04 CEST 2008 - coolo@suse.de
 
 - do not y2error on std:string
