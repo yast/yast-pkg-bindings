@@ -6,6 +6,7 @@ Fri Apr 18 13:27:33 CEST 2008 - lslezak@suse.cz
 - added Pkg::TargetRebuildInit(string root) function which rebuilds
   the RPM DB ('rpm --rebuilddb') before initializing the target
   (bnc#308352)
+- 2.16.29
 
 -------------------------------------------------------------------
 Thu Apr 17 13:04:03 CEST 2008 - schubi@suse.de
