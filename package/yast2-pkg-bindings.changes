@@ -1,6 +1,8 @@
 -------------------------------------------------------------------
-Fri Apr 18 11:52:11 CEST 2008 - lslezak@suse.cz
+Fri Apr 18 13:27:33 CEST 2008 - lslezak@suse.cz
 
+- added Pkg::PkgMediaPackageSizes() to speed up computing
+  the download size of the selected packages
 - added Pkg::TargetRebuildInit(string root) function which rebuilds
   the RPM DB ('rpm --rebuilddb') before initializing the target
   (bnc#308352)

@@ -118,7 +118,7 @@ class PkgFunctions
 
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);
       YCPValue PkgProp( zypp::PoolItem item );
-      YCPValue PkgMediaSizesOrCount (bool sizes);
+      YCPValue PkgMediaSizesOrCount (bool sizes, bool download_size = false);
       YCPValue TargetInitInternal(const YCPString& root, bool rebuild_rpmdb);
     
       bool aliasExists(const std::string &alias) const;
@@ -657,6 +657,8 @@ class PkgFunctions
 	YCPValue PkgPrepareOrder (YCPList args);
 	/* TYPEINFO: list<list<integer>>()*/
 	YCPValue PkgMediaSizes ();
+	/* TYPEINFO: list<list<integer>>()*/
+	YCPValue PkgMediaPackageSizes();
 	/* TYPEINFO: list<list<integer>>()*/
 	YCPValue PkgMediaCount();
 	/* TYPEINFO: list<list<any>>()*/

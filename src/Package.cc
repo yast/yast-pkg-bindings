@@ -253,23 +253,9 @@ PkgFunctions::PkgMediaNames ()
 
 
 
-// ------------------------
-/**
- *  @builtin PkgMediaSizes
- *  @short Return size of packages to be installed
- *  @description
- *  return cumulated sizes (in bytes !) to be installed from different sources and media
- *
- *  Returns the install size, not the archivesize !!
- *
- *  @return list<list<integer>>
- *  @usage Pkg::PkgMediaSizes () -> [ [src1_media_1_size, src1_media_2_size, ...], ..]
- */
 YCPValue
-PkgFunctions::PkgMediaSizesOrCount (bool sizes)
+PkgFunctions::PkgMediaSizesOrCount (bool sizes, bool download_size)
 {
-# warning No installation order
-
     // all enabled sources
     std::list<RepoId> source_ids;
 
@@ -322,7 +308,7 @@ PkgFunctions::PkgMediaSizesOrCount (bool sizes)
 
 	    if (medium > 0)
 	    {
-		zypp::ByteCount size = sizes ? pkg->size() : zypp::ByteCount(1); //count only
+		zypp::ByteCount size = sizes ? (download_size ? pkg->downloadSize() : pkg->size()) : zypp::ByteCount(1); //count only
 
 		// refence to the found media array
 		std::vector<zypp::ByteCount> &ref = result[source_map[pkg->repoInfo().alias()]];
@@ -355,7 +341,7 @@ PkgFunctions::PkgMediaSizesOrCount (bool sizes)
 	res->add( source );
     }
 
-    y2milestone( "Pkg::%s result: %s", sizes?"PkgMediaSizes": "PkgMediaCount", res->toString().c_str());
+    y2milestone( "Pkg::%s result: %s", sizes ? (download_size ? "PkgMediaPackageSizes" : "PkgMediaSizes" ): "PkgMediaCount", res->toString().c_str());
 
     return res;
 }
@@ -376,6 +362,24 @@ YCPValue
 PkgFunctions::PkgMediaSizes()
 {
     return PkgMediaSizesOrCount (true);
+}
+
+// ------------------------
+/**
+ *  @builtin PkgMediaPackageSizes
+ *  @short Return size of packages to be installed
+ *  @description
+ *  return cumulated sizes (in bytes !) to be installed from different sources and media
+ *
+ *  Returns the archive sizes!
+ *
+ *  @return list<list<integer>>
+ *  @usage Pkg::PkgMediaPackageSizes () -> [ [src1_media_1_size, src1_media_2_size, ...], ..]
+ */
+YCPValue
+PkgFunctions::PkgMediaPackageSizes()
+{
+    return PkgMediaSizesOrCount (true, true);
 }
 
 // ------------------------
