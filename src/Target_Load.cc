@@ -38,17 +38,8 @@
   Textdomain "pkg-bindings"
 */
 
-/** ------------------------
- *
- * @builtin TargetInit
- * @deprecated
- * @short Initialize Target and load resolvables
- * @param string root Root Directory
- * @param boolean unused Dummy option, only for backward compatibility
- * @return boolean
- */
 YCPValue
-PkgFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unused_and_broken*/)
+PkgFunctions::TargetInitInternal(const YCPString& root, bool rebuild_rpmdb)
 {
     const std::string r(root->value());
 
@@ -69,7 +60,12 @@ PkgFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unused_and
 
     try
     {
-	zypp_ptr()->initializeTarget(r);
+	if (rebuild_rpmdb)
+	{
+	    y2milestone("Initializing the target with rebuild");
+	}
+
+	zypp_ptr()->initializeTarget(r, rebuild_rpmdb);
 	pkgprogress.NextStage();
         zypp_ptr()->target()->load();
 	_target_loaded = true;
@@ -86,6 +82,34 @@ PkgFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unused_and
     pkgprogress.Done();
     
     return YCPBoolean(true);
+}
+
+/** ------------------------
+ *
+ * @builtin TargetInit
+ * @short Initialize Target and load resolvables
+ * @param string root Root Directory
+ * @param boolean unused Dummy option, only for backward compatibility
+ * @return boolean
+ */
+YCPValue
+PkgFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unused_and_broken*/)
+{
+    return TargetInitInternal(root, false);
+}
+
+/** ------------------------
+ *
+ * @builtin TargetRebuildInit
+ * @short Similar to TargetInit, but the RPM DB is rebuilt ('rpm --rebuilddb') before reading it
+ * @param string root Root Directory
+ * @param boolean unused Dummy option, only for backward compatibility
+ * @return boolean
+ */
+YCPValue
+PkgFunctions::TargetRebuildInit(const YCPString& root)
+{
+    return TargetInitInternal(root, true);
 }
 
 /** ------------------------
