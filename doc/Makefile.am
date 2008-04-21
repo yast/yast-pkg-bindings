@@ -1,6 +1,8 @@
 #
-# Makefile.am for core/libycp/doc
+# Makefile.am for pkg-bindings/doc
 #
+
+SUBDIRS = autodocs
 
 htmldir = $(docdir)/html
 
