@@ -365,15 +365,17 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 			try {
 			    zypp::Dep depkind(*kind_it);
 			    zypp::Capabilities deps = it->resolvable()->dep(depkind);
-			    for (zypp::Capabilities::const_iterator d = deps.begin(); d != deps.end(); ++d)
+
+			    zypp::sat::WhatProvides prv(deps);
+
+			    for (zypp::sat::WhatProvides::const_iterator d = prv.begin(); d != prv.end(); ++d)
 			    {
 				YCPMap ycpdep;
-				//FIXME ycpdep->add (YCPString ("res_kind"), YCPString (d.kind().asString()));
-				ycpdep->add (YCPString ("name"), YCPString (d->asString()));
+				ycpdep->add (YCPString ("res_kind"), YCPString (d->kind().asString()));
+				ycpdep->add (YCPString ("name"), YCPString (d->name()));
 				ycpdep->add (YCPString ("dep_kind"), YCPString (*kind_it));
 				ycpdeps->add (ycpdep);
 			    }
-
 			}
 			catch (...)
 			{}

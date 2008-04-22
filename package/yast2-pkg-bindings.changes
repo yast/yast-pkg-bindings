@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Apr 22 08:53:11 CEST 2008 - lslezak@suse.cz
+
+- return dependency kind in Pkg::ResolvableDependencies()
+  (bnc#381340)
+
+-------------------------------------------------------------------
 Fri Apr 18 13:27:33 CEST 2008 - lslezak@suse.cz
 
 - added Pkg::PkgMediaPackageSizes() to speed up computing
