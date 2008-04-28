@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Apr 28 14:46:06 CEST 2008 - lslezak@suse.cz
+
+- RepositoryAdd() - added "priority" key (bnc#381360)
+- ResolvableProperties() - return "order" property of pattern
+  (bnc#255726)
+- 2.16.31
+
+-------------------------------------------------------------------
 Tue Apr 22 08:53:11 CEST 2008 - lslezak@suse.cz
 
 - return dependency kind in Pkg::ResolvableDependencies()

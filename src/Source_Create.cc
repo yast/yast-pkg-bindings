@@ -364,7 +364,7 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
  * automatically when loading the repository content (Pkg::SourceLoad())
  *
  * @param map map with repository parameters: $[ "enabled" : boolean, "autorefresh" : boolean, "name" : string,
- *   "alias" : string, "base_urls" : list<string>, "prod_dir" : string, "type" : string ] 
+ *   "alias" : string, "base_urls" : list<string>, "priority" : integer, "prod_dir" : string, "type" : string ] 
  * @return integer Repository ID or nil on error
  **/
 YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
@@ -501,6 +501,11 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
     if (!params->value( YCPString("prod_dir") ).isNull() && params->value(YCPString("prod_dir"))->isString())
     {
 	repo.setPath(params->value(YCPString("prod_dir"))->asString()->value());
+    }
+
+    if (!params->value( YCPString("priority") ).isNull() && params->value(YCPString("priority"))->isInteger())
+    {
+	repo.setPriority(params->value(YCPString("priority"))->asInteger()->value());
     }
 
     // set metadata path (#293428)

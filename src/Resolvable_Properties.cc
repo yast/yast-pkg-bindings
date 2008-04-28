@@ -332,6 +332,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		    info->add(YCPString("default"), YCPBoolean(pattern->isDefault()));
 		    info->add(YCPString("icon"), YCPString(pattern->icon().asString()));
 		    info->add(YCPString("script"), YCPString(pattern->script().asString()));
+		    info->add(YCPString("order"), YCPString(pattern->order()));
 		}
 		// patch specific info
 		else if ( req_kind == "patch" )
