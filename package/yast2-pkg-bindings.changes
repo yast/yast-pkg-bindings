@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri May  2 10:59:16 CEST 2008 - lslezak@suse.cz
+
+- pass requested product in the media change callback (bnc#330094,
+  comment #10)
+- 2.16.32
+
+-------------------------------------------------------------------
 Mon Apr 28 14:46:06 CEST 2008 - lslezak@suse.cz
 
 - RepositoryAdd() - added "priority" key (bnc#381360)

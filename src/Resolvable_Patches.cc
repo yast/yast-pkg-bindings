@@ -99,6 +99,12 @@ PkgFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselect)
 	    zypp::Patch::constPtr pch = zypp::asKind<zypp::Patch>(i->resolvable());
 	    std::string name(pch->name());
 
+	    y2debug("Procesing patch %s: interactive: %s, affects_pkg_manager: %s, reboot_needed: %s", name.c_str(),
+		pch->interactive() ? "true" : "false",
+		pch->affects_pkg_manager() ? "true" : "false",
+		pch->reboot_needed() ? "true" : "false"
+	    );
+
 	    // the best patch for the current arch, no preferred version, only needed patches
 	    ProvideProcess info(zypp::ZConfig::instance().systemArchitecture(), "", true);
 

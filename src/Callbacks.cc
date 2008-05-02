@@ -1073,8 +1073,8 @@ namespace ZyppRecipients {
 		// current URL
 		callback.addStr( report_url.asString() );
 
-		// current product name (use the alias, see #214886)
-		callback.addStr( std::string() /*FIXME*/ );
+		// repo alias (see bnc#330094)
+		callback.addStr( label );
 
 		// current medium, -1 means enable [Ignore]
 		callback.addInt( 0 );
