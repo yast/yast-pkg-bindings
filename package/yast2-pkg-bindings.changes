@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon May  5 13:58:48 CEST 2008 - lslezak@suse.cz
+
+- fixed a typo (missing trailing tag) in the help text (bnc#386076)
+
+-------------------------------------------------------------------
 Fri May  2 10:59:16 CEST 2008 - lslezak@suse.cz
 
 - pass requested product in the media change callback (bnc#330094,
