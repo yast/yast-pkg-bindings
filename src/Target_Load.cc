@@ -34,6 +34,9 @@
 #include "PkgProgress.h"
 #include <HelpTexts.h>
 
+#include <zypp/Locks.h>
+#include <zypp/ZConfig.h>
+
 /*
   Textdomain "pkg-bindings"
 */
@@ -78,6 +81,19 @@ PkgFunctions::TargetInitInternal(const YCPString& root, bool rebuild_rpmdb)
     }
     
     _target_root = zypp::Pathname(r);
+
+    // locks are optional, might not be present on the target
+    zypp::Pathname lock_file(_target_root + zypp::ZConfig::instance().locksFile());
+    try
+    {
+	// read and apply the persistent locks
+	y2milestone("Reading locks from %s", lock_file.asString().c_str());
+	zypp::Locks::instance().readAndApply(lock_file);
+    }
+    catch (zypp::Exception & excpt)
+    {
+	y2warning("Error reading persistent locks from %s", lock_file.asString().c_str());
+    }
 
     pkgprogress.Done();
     
@@ -192,6 +208,9 @@ PkgFunctions::TargetFinish ()
     try
     {
 	zypp_ptr()->finishTarget();
+    
+	zypp::Pathname lock_file(_target_root + zypp::ZConfig::instance().locksFile());
+	zypp::Locks::instance().save(lock_file);
     }
     catch (zypp::Exception & excpt)
     {

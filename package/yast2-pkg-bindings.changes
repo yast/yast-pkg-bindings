@@ -1,4 +1,16 @@
 -------------------------------------------------------------------
+Mon May 12 17:21:19 CEST 2008 - lslezak@suse.cz
+
+- added Pkg::AddLock(), Pkg::GetLocks() and Pkg::RemoveLock()
+  for manipulating libzypp locks, required to lock 64-bit packages
+  on PPC32 during installation (bnc#336678)
+
+  Note: locks are loaded in Pkg::TargetInit(), explicitly saved in
+  Pkg::TargetFinish() (implicit loading is in Pkg::PkgSolve(),
+  implicit saving in Pkg::PkgCommit())
+- 2.16.33
+
+-------------------------------------------------------------------
 Fri May  2 10:59:16 CEST 2008 - lslezak@suse.cz
 
 - pass requested product in the media change callback (bnc#330094,

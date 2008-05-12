@@ -53,6 +53,11 @@ class YCPReference;
 #include "PkgError.h"
 class PkgProgress;
 
+namespace zypp
+{
+    class PoolQuery;
+}
+
 /**
  * A simple class for package management access
  */
@@ -152,6 +157,8 @@ class PkgFunctions
 
       // convert MountPointSet to YCP Map
       YCPMap MPS2YCPMap(const zypp::DiskUsageCounter::MountPointSet &mps);
+
+      YCPMap PoolQuery2YCPMap(const zypp::PoolQuery &pool_query);
 
       zypp::Url shortenUrl(const zypp::Url &url);
 
@@ -652,6 +659,13 @@ class PkgFunctions
 	YCPValue PkgSolveErrors ();
 	/* TYPEINFO: list<any>(integer)*/
 	YCPValue PkgCommit (const YCPInteger& medianr);
+
+	/* TYPEINFO: boolean(map<string,any>)*/
+	YCPValue AddLock(const YCPMap &lock);
+	/* TYPEINFO: list<map<string,any>>()*/
+	YCPValue GetLocks();
+	/* TYPEINFO: boolean(map)*/
+	YCPValue RemoveLock(const YCPMap &lock);
 
 	/* FIXME: is this needed? */
 	YCPValue PkgPrepareOrder (YCPList args);
