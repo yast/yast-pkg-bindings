@@ -664,7 +664,7 @@ class PkgFunctions
 	YCPValue AddLock(const YCPMap &lock);
 	/* TYPEINFO: list<map<string,any>>()*/
 	YCPValue GetLocks();
-	/* TYPEINFO: boolean(map)*/
+	/* TYPEINFO: boolean(map<string,any>)*/
 	YCPValue RemoveLock(const YCPMap &lock);
 
 	/* FIXME: is this needed? */

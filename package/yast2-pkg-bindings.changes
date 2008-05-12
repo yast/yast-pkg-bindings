@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon May 12 17:43:12 CEST 2008 - lslezak@suse.cz
+
+- fixed type info (Pkg::RemoveLock())
+- 2.16.34
+
+-------------------------------------------------------------------
 Mon May 12 17:21:19 CEST 2008 - lslezak@suse.cz
 
 - added Pkg::AddLock(), Pkg::GetLocks() and Pkg::RemoveLock()
