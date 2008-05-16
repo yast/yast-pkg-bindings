@@ -387,7 +387,7 @@ namespace ZyppRecipients {
 	    callback.addStr(std::string());
 	    callback.addInt(-1);
 	    callback.addBool(true);	// is_delete = true
-	    callback.evaluateBool();
+	    callback.evaluate();
 	  }
 	}
 

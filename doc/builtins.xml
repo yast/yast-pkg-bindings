@@ -8,6 +8,7 @@
 <!ENTITY PkgModuleFunctionsCallbacks_Register	SYSTEM "Callbacks_Register.xml">
 <!ENTITY PkgModuleFunctionsKeyring	SYSTEM "Keyring.xml">
 <!ENTITY PkgModuleFunctionsLocale	SYSTEM "Locale.xml">
+<!ENTITY PkgModuleFunctionsLocks	SYSTEM "Locks.xml">
 <!ENTITY PkgModuleFunctionsPackage	SYSTEM "Package.xml">
 <!ENTITY PkgModuleFunctionsPatch	SYSTEM "Patch.xml">
 <!ENTITY PkgModuleFunctionsResolvable_Install	SYSTEM "Resolvable_Install.xml">
@@ -60,6 +61,7 @@
     &PkgModuleFunctionsCallbacks_Register;
     &PkgModuleFunctionsKeyring;
     &PkgModuleFunctionsLocale;
+    &PkgModuleFunctionsLocks;
     &PkgModuleFunctionsPackage;
     &PkgModuleFunctionsPatch;
     &PkgModuleFunctionsResolvable_Install;

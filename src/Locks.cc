@@ -40,6 +40,9 @@
 
 #include <zypp/Locks.h>
 
+// UINT_MAX
+#include <climits>
+
 // SEARCH_* constants (SEARCH_STRING, SEARCH_SUBSTRING,...)
 extern "C"
 {
@@ -49,13 +52,15 @@ extern "C"
 
 /**
  * @builtin AddLock
- * @short Addd a lock to the package manager
+ * @short Add a lock to the package manager
  * @description
- * Set the given locale as the output locale -- all messages from the package manager (errors, warnings,...)
- * will be returned in the selected language. This built-in does not change package selection in any way.
+ * Add a new lock to the package manager. Input parameter is a map $[ "kind" : list<string>,
+ * "install_status":string, "repo_id":list<integer>, "case_sensitive" : boolean, "global_string":list<string>
+ * "string_type" : string, "solvable:.*" : list<string> ]
+ * 
  * see http://en.opensuse.org/Libzypp/Locksfile for more information
- * @param string lock Definition of the lock
- * @return void
+ * @param map lock Definition of the lock
+ * @return boolean true on success
  */
 YCPValue
 PkgFunctions::AddLock(const YCPMap &lock)
@@ -244,8 +249,6 @@ PkgFunctions::AddLock(const YCPMap &lock)
 		    {
 			std::string str_type = val->asString()->value();
 
-			INT << "string_type: " << str_type << std::endl;
-
 			if (str_type == "exact")
 			    query.setMatchExact();
 			else if (str_type == "substring")
@@ -275,8 +278,6 @@ PkgFunctions::AddLock(const YCPMap &lock)
 
 			int index = 0;
 			int list_size = items.size();
-
-			y2internal("list_size %d", list_size);
 
 			while(index < list_size)
 			{
@@ -317,9 +318,8 @@ PkgFunctions::AddLock(const YCPMap &lock)
 
 	locks.addLock(query);
 
-//      TODO FIXME: huh, the config must be saved? (otherwise it doesn't work)
-	zypp::Pathname lock_file(_target_root + zypp::ZConfig::instance().locksFile());
-	locks.save(lock_file);
+	// merge the lock to the current locks (to be returned by GetLocks())
+	locks.merge();
     }
     catch (zypp::Exception & excpt)
     {
@@ -431,6 +431,15 @@ YCPMap PkgFunctions::PoolQuery2YCPMap(const zypp::PoolQuery &pool_query)
     return lock;
 }
 
+/**
+ * @builtin GetLocks
+ * @short Get list of current locks
+ * @description
+ * Returns list of of current locks, see AddLock() for details about returned lock map.
+ * 
+ * see http://en.opensuse.org/Libzypp/Locksfile for more information
+ * @return list list of locks (YCP maps)
+ */
 YCPValue PkgFunctions::GetLocks()
 {
     YCPList ret;
@@ -446,20 +455,61 @@ YCPValue PkgFunctions::GetLocks()
 }
 
 
-YCPValue PkgFunctions::RemoveLock(const YCPMap &lock)
+/**
+ * @builtin RemoveLock
+ * @short Remove a lock
+ * @description
+ * Removes a lock from the package manager
+ *
+ * @param integer lock_idx index of the lock to remove, use GetLocks() function for obtaining the index
+ * @return boolean true on success
+ */
+YCPValue PkgFunctions::RemoveLock(const YCPInteger &lock_idx)
 {
-    zypp::Locks &locks = zypp::Locks::instance();
-
-    for_(it, locks.begin(), locks.end())
+    if (lock_idx.isNull())
     {
-	YCPMap it_map = PoolQuery2YCPMap(*it);
+	y2error("Invaid lock index: nil");
+	return YCPBoolean(false);
+    }
 
-	// is it the same lock?
-	if (it_map.compare(lock) == YO_EQUAL)
+    long long idxl = lock_idx->value();
+
+    // libzypp uses unsigned int, but YCP has 64 bit integers, check limits
+    if (idxl < 0 || idxl > UINT_MAX)
+    {
+	y2error("Invalid lock index: %lld", idxl);
+	return YCPBoolean(false);
+    }
+
+    // convert to unsigned (it's safe due to the above check)
+    unsigned int idx = idxl;
+
+    try
+    {
+	zypp::Locks &locks = zypp::Locks::instance();
+
+	if (locks.size() < idx + 1)
 	{
-	    locks.removeLock(*it);
-	    return YCPBoolean(true);
+	    y2error("Invalid lock index %d, %zd locks defined", idx, locks.size());
+	    return YCPBoolean(false);
 	}
+
+	zypp::Locks::const_iterator it = locks.begin();
+	zypp::Locks::const_iterator it_end = locks.end();
+	
+	unsigned int i = 0;
+	while(i < idx)
+	{
+	    it++;
+	    i++;
+	}
+
+	locks.removeLock(*it);
+	return YCPBoolean(true);
+    }
+    catch (zypp::Exception &excpt)
+    {
+	y2warning("Error while removing lock %d: %s", idx, excpt.asString().c_str());
     }
 
     return YCPBoolean(false);

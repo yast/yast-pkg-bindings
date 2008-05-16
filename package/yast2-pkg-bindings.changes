@@ -1,4 +1,15 @@
 -------------------------------------------------------------------
+Wed May 14 18:23:26 CEST 2008 - lslezak@suse.cz
+
+- fixed evaluation of RemovePkgReceive::start() callback
+- changed signature Pkg::RemoveLock(map<string,any>) to
+  Pkg::RemoveLock(integer) - that is more error proof
+- Pkg::AddLock() - do not save the current config, just merge
+  the added lock to the read locks
+- documented lock API
+- 2.16.35
+
+-------------------------------------------------------------------
 Mon May 12 17:43:12 CEST 2008 - lslezak@suse.cz
 
 - fixed type info (Pkg::RemoveLock())
