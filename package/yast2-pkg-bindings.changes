@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed May 21 17:09:12 CEST 2008 - lslezak@suse.cz
+
+- fixed name of a key in patch property map to the previous used
+  value ("is_broken" back to "is_needed") (bnc#392999)
+- 2.16.36
+
+-------------------------------------------------------------------
 Wed May 14 18:23:26 CEST 2008 - lslezak@suse.cz
 
 - fixed evaluation of RemovePkgReceive::start() callback
