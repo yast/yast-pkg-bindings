@@ -309,6 +309,8 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
     repo.setName(name);
     repo.setType(repotype);
     repo.addBaseUrl(url);
+    // do not keep dowloaded packages by default
+    repo.setKeepPackages(false);
     repo.setPath(path_r);
     repo.setEnabled(true);
     repo.setAutorefresh(autorefresh);
@@ -375,6 +377,9 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
     repo.setEnabled(true);
     // enable autorefresh by default
     repo.setAutorefresh(true);
+
+    // do not keep dowloaded packages by default
+    repo.setKeepPackages(false);
 
     if (!params->value( YCPString("enabled") ).isNull() && params->value(YCPString("enabled"))->isBoolean())
     {

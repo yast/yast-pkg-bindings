@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri May 23 12:42:04 CEST 2008 - lslezak@suse.cz
+
+- do not keep downloaded packages by default (bnc#393709)
+- 2.16.37
+
+-------------------------------------------------------------------
 Wed May 21 17:09:12 CEST 2008 - lslezak@suse.cz
 
 - fixed name of a key in patch property map to the previous used
