@@ -53,8 +53,10 @@ bool ProvideProcess::operator()( zypp::PoolItem provider )
 	return true;
     }
 
-    if (!provider.status().isInstalled()
-        && (!onlyNeeded || provider.isBroken()) ) // take only needed items (e.G. needed patches)
+    
+    if (( (!provider.isSatisfied()) && provider.isRelevant() )
+        )
+        //&& (!onlyNeeded) ) // take only needed items (e.G. needed patches)
     {
 	// deselect the item if it's already selected,
 	// only one item should be selected

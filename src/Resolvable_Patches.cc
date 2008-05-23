@@ -99,10 +99,10 @@ PkgFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselect)
 	    zypp::Patch::constPtr pch = zypp::asKind<zypp::Patch>(i->resolvable());
 	    std::string name(pch->name());
 
-	    y2debug("Procesing patch %s: interactive: %s, affects_pkg_manager: %s, reboot_needed: %s", name.c_str(),
+	    y2debug("Procesing patch %s: interactive: %s, affects_pkg_manager: %s, reboot_neeeded: %s", name.c_str(),
 		pch->interactive() ? "true" : "false",
-		pch->affects_pkg_manager() ? "true" : "false",
-		pch->reboot_needed() ? "true" : "false"
+		pch->restartSuggested() ? "true" : "false",
+		pch->rebootSuggested() ? "true" : "false"
 	    );
 
 	    // the best patch for the current arch, no preferred version, only needed patches
@@ -141,8 +141,8 @@ PkgFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselect)
 	    {
 		if (kind == "all"
 		    || (kind == "interactive" && patch->interactive())
-		    || (kind == "affects_pkg_manager" && patch->affects_pkg_manager())
-		    || (kind == "reboot_needed" && patch->reboot_needed())
+		    || (kind == "affects_pkg_manager" && patch->restartSuggested())
+		    || (kind == "reboot_needed" && patch->rebootSuggested())
 		)
 		{
 		    // remember the patch
@@ -150,12 +150,12 @@ PkgFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselect)
 		}
 		else
 		{
-		    y2milestone("Patch (id) %s has not required flag", patch->id().c_str());
+		    y2milestone("Patch %s has not required flag", patch->ident().c_str());
 		}
 	    }
 	    else
 	    {
-		y2milestone("Ignoring optional patch (id): %s", patch->id().c_str());
+		y2milestone("Ignoring optional patch : %s", patch->ident().c_str());
 	    }
 	}
     }
