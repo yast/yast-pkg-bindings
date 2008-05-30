@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu May 29 13:57:53 CEST 2008 - lslezak@suse.cz
+
+- set the prefix for package cache (do not download packages to
+  the current directory) (bnc#394728)
+- 2.16.39
+
+-------------------------------------------------------------------
 Fri May 23 16:25:48 CEST 2008 - dmacvicar@suse.de
 
 - fix patch pre-selection

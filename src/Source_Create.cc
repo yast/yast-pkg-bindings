@@ -326,6 +326,8 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
     // set metadata path (#293428)
     zypp::Pathname metadatapath = repomanager.metadataPath(repo);
     repo.setMetadataPath(metadatapath);
+    // set packages path
+    repo.setPackagesPath(repomanager.packagesPath(repo));
 
     y2milestone("Adding source '%s' (%s, dir: %s)", repo.alias().c_str(), url.asString().c_str(), path_r.asString().c_str());
     // note: exceptions should be caught by the calling code
@@ -517,6 +519,8 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
     zypp::RepoManager repomanager = CreateRepoManager();
     zypp::Pathname metadatapath = repomanager.metadataPath(repo);
     repo.setMetadataPath(metadatapath);
+
+    repo.setPackagesPath(repomanager.packagesPath(repo));
 
     repos.push_back(new YRepo(repo));
 
