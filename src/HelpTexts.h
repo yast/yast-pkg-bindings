@@ -39,7 +39,7 @@ namespace HelpTexts
 
 
 	// help text
-	static const char *load_target = _("<P><BIG><B>Loading Installed Packages</B><BIG></P>"
+	static const char *load_target = _("<P><BIG><B>Loading Installed Packages</B></BIG></P>"
 "<P>The package manager is reading installed packages...</P>");
 
 
