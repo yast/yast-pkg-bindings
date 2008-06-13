@@ -120,16 +120,6 @@ PkgFunctions::~PkgFunctions ()
 
     if (zypp_pointer != NULL)
     {
-	try
-	{
-	    y2milestone("Finishing the target");
-	    zypp_pointer->finishTarget();
-	}
-	catch(...)
-	{
-	    y2error("finishTarget() has failed");
-	}
-
 	y2milestone("Releasing the zypp pointer...");
 	zypp_pointer = NULL;
 	y2milestone("Zypp pointer released");

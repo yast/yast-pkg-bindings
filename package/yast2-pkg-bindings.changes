@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jun 13 14:06:21 CEST 2008 - lslezak@suse.cz
+
+- removed targetFinish() call in the destructor, it's not needed
+  anymore (bnc#381917)
+
+-------------------------------------------------------------------
 Thu Jun 12 12:25:49 CEST 2008 - lslezak@suse.cz
 
 - Fixed tag in the help text (bnc#386076)
