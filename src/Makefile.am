@@ -17,6 +17,7 @@ AM_LDFLAGS = -L${libdir}
 plugin_LTLIBRARIES = libpy2Pkg.la
 
 libpy2Pkg_la_SOURCES =				\
+	Arch.cc					\
 	PkgError.cc PkgError.h			\
 	Y2PkgComponent.cc Y2PkgComponent.h	\
 	Y2CCPkg.cc Y2CCPkg.h			\

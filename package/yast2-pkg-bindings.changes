@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Jun 16 17:36:44 CEST 2008 - lslezak@suse.cz
+
+- added architecture related functions, needed for fate#301883
+  (Pkg::GetArchitecture(), Pkg::SetArchitecture() and
+  Pkg::SystemArchitecture())
+
+-------------------------------------------------------------------
 Fri Jun 13 14:06:21 CEST 2008 - lslezak@suse.cz
 
 - removed targetFinish() call in the destructor, it's not needed

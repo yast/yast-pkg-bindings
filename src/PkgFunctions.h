@@ -688,6 +688,14 @@ class PkgFunctions
 	/* TYPEINFO: boolean(string)*/
 	YCPBoolean RpmChecksig( const YCPString & filename );
 
+	// architecture related
+	/* TYPEINFO: string()*/
+	YCPValue GetArchitecture();
+	/* TYPEINFO: boolean(string)*/
+	YCPValue SetArchitecture(const YCPString &architecture);
+	/* TYPEINFO: string()*/
+	YCPValue SystemArchitecture();
+
 	// you patch related
 	/* TYPEINFO: map<any,any>()*/
         YCPValue YouStatus ();
