@@ -223,43 +223,29 @@ PkgFunctions::SourceSaveAll ()
 /****************************************************************************************
  * @builtin SourceFinishAll
  *
- * @short Save and then disable all InstSrces.
+ * @short Release all instalation sources
  * @description
- * If there are no enabled sources, do nothing
- * (idempotence hack, broken design: #155459, #176013, use SourceSaveAll).
- * @return boolean
+ * Release all known installation repositories. Releasing is done automaticaly in Pkg::
+ * destructor, but can be done explicitly to force reloading of registered repositories.
+ * Use SourceSaveAll() to not loose the new registered sources before calling SourceFinishAll()!
+ * @return boolean true on success
  **/
 YCPValue
 PkgFunctions::SourceFinishAll ()
 {
     try
     {
-	bool found_enabled = false;
+	y2milestone( "Unregistering all sources...") ;
+
+    	// remove all resolvables
 	for (RepoCont::iterator it = repos.begin();
 	    it != repos.end(); ++it)
 	{
-	    if ((*it)->repoInfo().enabled() && !(*it)->isDeleted())
-	    {
-		found_enabled = true;
-		break;
-	    }
+	    RemoveResolvablesFrom((*it)->repoInfo().alias());
 	}
 
-	if (!found_enabled)
-	{
-	    y2milestone( "No enabled sources, skipping SourceFinishAll()" );
-	    return YCPBoolean( true );
-	}
-
-	SourceSaveAll();
-
-	y2milestone( "Disabling all sources...") ;
-	for (RepoCont::iterator it = repos.begin();
-	    it != repos.end(); ++it)
-	{
-            (*it)->repoInfo().setEnabled(false);
-	}
-	// TODO FIXME remove all resolvables??
+	// release all repositories
+	repos.clear();
     }
     catch (zypp::Exception & excpt)
     {
@@ -268,7 +254,7 @@ PkgFunctions::SourceFinishAll ()
 	return YCPBoolean(false);
     }
 
-    y2milestone("All sources have been saved and disabled");
+    y2milestone("All sources have been unregistered");
 
     return YCPBoolean(true);
 }
@@ -276,13 +262,14 @@ PkgFunctions::SourceFinishAll ()
 
 /****************************************************************************************
  * @builtin SourceFinish
- * @short Disable an Installation Source
+ * @short Disable an Installation Source - obsoleted
  * @param integer SrcId Specifies the InstSrc.
  * @return boolean
  **/
 YCPValue
 PkgFunctions::SourceFinish (const YCPInteger& id)
 {
+    y2warning("Pkg::SourceFinish() is obsoleted, use Pkg::SourceSetEnabled(id, false) instead");
     return SourceSetEnabled(id, false);
 }
 

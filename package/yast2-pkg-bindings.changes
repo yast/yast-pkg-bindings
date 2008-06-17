@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Jun 17 14:24:15 CEST 2008 - lslezak@suse.cz
+
+- do not save sources in Pkg::SourceFinishAll() (use
+  Pkg::SourceSaveAll() for that), just clean the known repositories
+  and allow new source initialization (bnc#395738)
+- 2.17.0
+
+-------------------------------------------------------------------
 Mon Jun 16 17:36:44 CEST 2008 - lslezak@suse.cz
 
 - added architecture related functions, needed for fate#301883

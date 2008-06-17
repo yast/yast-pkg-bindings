@@ -42,6 +42,7 @@
  */
 void PkgFunctions::RemoveResolvablesFrom(const std::string &alias)
 {
+    y2milestone("Removing resolvables from '%s'", alias.c_str());
     // remove the resolvables if they have been loaded
     zypp::sat::Pool::instance().reposErase(alias);
 }
