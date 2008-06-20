@@ -849,31 +849,31 @@ namespace ZyppRecipients {
     ///////////////////////////////////////////////////////////////////
     // ScriptExecCallbacks
     ///////////////////////////////////////////////////////////////////
-    struct ScriptExecReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::ScriptResolvableReport>
+    struct ScriptExecReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::PatchScriptReport>
     {
 	ScriptExecReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual void start( const zypp::Resolvable::constPtr &script_r, const zypp::Pathname &path_r, zypp::target::ScriptResolvableReport::Task task)
+	virtual void start( const zypp::Package::constPtr &pkg, const zypp::Pathname &path_r)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ScriptStart) );
 	    if ( callback._set )
 	    {
-		callback.addStr(script_r->name());
-		callback.addStr(script_r->edition().asString());
-		callback.addStr(script_r->arch().asString());
+		callback.addStr(pkg->name());
+		callback.addStr(pkg->edition().asString());
+		callback.addStr(pkg->arch().asString());
 		callback.addStr(path_r);
-		callback.addBool(task == zypp::target::ScriptResolvableReport::DO);
+		callback.addBool(true);
 		callback.evaluate();
 	    }
 	}
        
-	virtual bool progress( zypp::target::ScriptResolvableReport::Notify ping, const std::string &out = std::string() )
+	virtual bool progress( zypp::target::PatchScriptReport::Notify ping, const std::string &out = std::string() )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ScriptProgress) );
 
 	    if ( callback._set )
 	    {
-		callback.addBool(ping == zypp::target::ScriptResolvableReport::PING);
+		callback.addBool(ping == zypp::target::PatchScriptReport::PING);
 		callback.addStr(out);
 
 		// false = abort the script
@@ -882,11 +882,11 @@ namespace ZyppRecipients {
 	    else
 	    {
 		// return the default implementation
-		return zypp::target::ScriptResolvableReport::progress(ping, out);
+		return zypp::target::PatchScriptReport::progress(ping, out);
 	    }
 	}
 
-	virtual void problem( const std::string &description )
+	virtual zypp::target::PatchScriptReport::Action problem( const std::string &description )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ScriptProblem) );
 
@@ -894,7 +894,12 @@ namespace ZyppRecipients {
 	    {
 		callback.addStr(description);
 		callback.evaluate();
+
+		// return Abort by default
+		return zypp::target::PatchScriptReport::ABORT;
 	    }
+
+	    return zypp::target::PatchScriptReport::problem(description);
 	}
 
 	virtual void finish()
@@ -908,25 +913,26 @@ namespace ZyppRecipients {
 	}
     };
 
-    struct MessageReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::MessageResolvableReport>
+    struct MessageReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::PatchMessageReport>
     {
 	MessageReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-        virtual void show(zypp::Message::constPtr message)
+        virtual bool show(zypp::Patch::constPtr &p)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_Message) );
 
 	    if ( callback._set )
 	    {
-		zypp::Patch::constPtr p = message->patch();
-
 		callback.addStr(p->name());
 		callback.addStr(p->edition().asString());
 		callback.addStr(p->arch().asString());
-		callback.addStr(message->text().asString());
+		callback.addStr(p->message(zypp::ZConfig::instance().textLocale()));
 
 		callback.evaluate();
 	    }
+
+	    // return the default
+	    return zypp::target::PatchMessageReport::show(p);
 	}
     };
 

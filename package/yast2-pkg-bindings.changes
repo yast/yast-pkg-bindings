@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jun 20 14:42:07 CEST 2008 - lslezak@suse.cz
+
+- support for patch messages and patch scripts (bnc#401220)
+- 2.16.40
+
+-------------------------------------------------------------------
 Thu May 29 13:57:53 CEST 2008 - lslezak@suse.cz
 
 - set the prefix for package cache (do not download packages to
