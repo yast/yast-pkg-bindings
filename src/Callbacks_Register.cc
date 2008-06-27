@@ -620,7 +620,7 @@ YCPValue PkgFunctions::CallbackScriptStart( const YCPValue& args ) {
 /**
  * @builtin CallbackScriptProgress
  * @short Register callback function
- * @param string args Name of the callback handler function. Required callback prototype is <code>void(boolean ping, string output)</code>. If parameter 'ping' is true than there is no output available, but the script is still running (This functionality enables aborting the script). If it is false, 'output' contains (part of) the script output. The callback function is evaluated when a script is running.
+ * @param string args Name of the callback handler function. Required callback prototype is <code>true(boolean ping, string output)</code>. If parameter 'ping' is true than there is no output available, but the script is still running (This functionality enables aborting the script). If it is false, 'output' contains (part of) the script output. The callback function is evaluated when a script is running. Returned 'false' means abort the script.
  * @return void
  */
 YCPValue PkgFunctions::CallbackScriptProgress( const YCPValue& args ) {
@@ -629,7 +629,7 @@ YCPValue PkgFunctions::CallbackScriptProgress( const YCPValue& args ) {
 /**
  * @builtin CallbackScriptProblem
  * @short Register callback function
- * @param string args Name of the callback handler function. Required callback prototype is <code>void(string description)</code>. The callback function is evaluated when an error occurrs.
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string description)</code>. The callback function is evaluated when an error occurrs. Return value 'false' means abort the script.
  * @return void
  */
 YCPValue PkgFunctions::CallbackScriptProblem( const YCPValue& args ) {
@@ -647,7 +647,7 @@ YCPValue PkgFunctions::CallbackScriptFinish( const YCPValue& args ) {
 /**
  * @builtin CallbackMessage
  * @short Register callback function
- * @param string args Name of the callback handler function. Required callback prototype is <code>void(string patch_name, string patch_version, string patch_arch, string message)</code>. The callback function is evaluated when a message which is part of a patch should be displayed.
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string patch_name, string patch_version, string patch_arch, string message)</code>. The callback function is evaluated when a message which is part of a patch should be displayed. Result 'true' means continue, 'false' means abort.
  * @return void
  */
 YCPValue PkgFunctions::CallbackMessage( const YCPValue& args ) {

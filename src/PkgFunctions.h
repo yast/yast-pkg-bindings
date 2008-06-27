@@ -329,15 +329,15 @@ class PkgFunctions
 	YCPValue CallbackDoneRefresh( const YCPValue& /*nil*/ args );
 
 	// Script (patch installation) callbacks
-	/* TYPEINFO: void(void(string,string,string,string,boolean)) */
+	/* TYPEINFO: void(void(string,string,string,string)) */
 	YCPValue CallbackScriptStart( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(boolean(boolean,string)) */
 	YCPValue CallbackScriptProgress( const YCPValue& /*nil*/ args );
-	/* TYPEINFO: void(void(string)) */
+	/* TYPEINFO: void(string(string)) */
 	YCPValue CallbackScriptProblem( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(void()) */
 	YCPValue CallbackScriptFinish( const YCPValue& /*nil*/ args );
-	/* TYPEINFO: void(void(string,string,string,string)) */
+	/* TYPEINFO: void(boolean(string,string,string,string)) */
 	YCPValue CallbackMessage( const YCPValue& /*nil*/ args );
 
 	/* TYPEINFO: void(map<string,any>(string,string,string,string)) */
