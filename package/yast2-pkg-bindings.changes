@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Jun 27 16:54:00 CEST 2008 - lslezak@suse.cz
+
+- Fixed Pkg::GetPackages(`available) to ignore installed packages
+
+-------------------------------------------------------------------
 Fri Jun 27 10:46:36 CEST 2008 - lslezak@suse.cz
 
 - support for patch messages and patch scripts (bnc#401220)

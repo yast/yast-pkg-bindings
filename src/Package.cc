@@ -1544,7 +1544,10 @@ PkgFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_on
 	    }
 	    else if (which == "available")
 	    {
-		pkg2list(packages, it, names_only);
+		if (!it->status().isInstalled())
+		{
+		    pkg2list(packages, it, names_only);
+		}
 	    }
 	    else if (which == "locked")
 	    {
