@@ -281,7 +281,7 @@ namespace ZyppRecipients {
 	  if (callback._set) {
 	    callback.addStr(res->location().filename());
 	    callback.addStr(res->summary());
-	    callback.addInt(res->size());
+	    callback.addInt(res->installSize());
 	    callback.addBool(false);	// is_delete = false (package installation)
 	    callback.evaluate();
 	  }
@@ -422,7 +422,7 @@ namespace ZyppRecipients {
 	}
     };
 
-    
+
     struct ProgressReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::ProgressReport>
     {
 	ProgressReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
@@ -646,7 +646,7 @@ namespace ZyppRecipients {
 		callback.evaluate();
 	    }
 	}
-	
+
 
 	// Apply delta rpm:
 	// - local path of downloaded delta
@@ -697,7 +697,7 @@ namespace ZyppRecipients {
 		callback.evaluate();
 	    }
 	}
-	
+
 
 	// Download patch rpm:
 	// - path below url reported on start()
@@ -824,7 +824,7 @@ namespace ZyppRecipients {
 	    return zypp::media::DownloadProgressReport::problem(file, error, description);
 	}
 
-        virtual void finish( const zypp::Url &file, zypp::media::DownloadProgressReport::Error error, const std::string &reason) 
+        virtual void finish( const zypp::Url &file, zypp::media::DownloadProgressReport::Error error, const std::string &reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneDownload ) );
 
@@ -866,7 +866,7 @@ namespace ZyppRecipients {
 		callback.evaluate();
 	    }
 	}
-       
+
 	virtual bool progress( zypp::target::PatchScriptReport::Notify ping, const std::string &out = std::string() )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ScriptProgress) );
@@ -899,7 +899,7 @@ namespace ZyppRecipients {
 		// "A" =  abort
 		if (ret == "A") return zypp::target::PatchScriptReport::ABORT;
 
-		// "I" = ignore 
+		// "I" = ignore
 		if (ret == "I") return zypp::target::PatchScriptReport::IGNORE;
 
 		// "R" = retry
@@ -1083,7 +1083,7 @@ namespace ZyppRecipients {
 		if (!found)
 		{
 		    // the source has not been redirected
-		    // use URL of the source 
+		    // use URL of the source
 		    report_url = url;
 		}
 
@@ -1151,7 +1151,7 @@ namespace ZyppRecipients {
 		    // set the new URL
 		    url = zypp::Url(ret);
 
-		    // remember the redirection		    
+		    // remember the redirection
 		    MediaMap source_redir = redirect_map[url];
 		    source_redir[mediumNr] = url;
 		    redirect_map[url] = source_redir;
@@ -1298,7 +1298,7 @@ namespace ZyppRecipients {
 	virtual void start(const zypp::Url &url)
 	{
 	    _silent_probing = MEDIA_CHANGE_DISABLE;
-	    
+
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceProbeStart ) );
 
 	    if (callback._set)
@@ -1502,8 +1502,8 @@ namespace ZyppRecipients {
 	    zypp::repo::RepoReport::Error error, const std::string &description)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportError ) );
-   
-	    // the file is optional, ignore the error 
+
+	    // the file is optional, ignore the error
 	    if (_silent_probing == ZyppRecipients::MEDIA_CHANGE_OPTIONALFILE)
 	    {
 		y2milestone("The file is optional, ignoring the error");
@@ -1567,31 +1567,6 @@ namespace ZyppRecipients {
 	}
     };
 
-
-    struct ResolvableReport : public Recipient, public zypp::callback::ReceiveReport<zypp::target::MessageResolvableReport>
-    {
-	ResolvableReport( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
-
-	virtual void show(zypp::Message::constPtr message)
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_ResolvableReport) );
-
-	    if (callback._set)
-	    {
-		zypp::Patch::constPtr patch = message->patch();
-
-		// patch name
-		callback.addStr(patch ? patch->name() : message->name());
-		// patch summary
-		callback.addStr(patch ? patch->summary() : message->summary());
-		// message itself
-		callback.addStr(message->text().asString());
-
-		callback.evaluate();
-	    }
-	}
-    };
-
     ///////////////////////////////////////////////////////////////////
     // DigestReport handler
     ///////////////////////////////////////////////////////////////////
@@ -1643,7 +1618,7 @@ namespace ZyppRecipients {
 
 	    return zypp::DigestReport::askUserToAcceptWrongDigest(file, requested, found);
 	}
-		
+
     };
 
 
@@ -1730,7 +1705,7 @@ namespace ZyppRecipients {
 	    return zypp::KeyRingReport::askUserToAcceptUnknownKey(file,id);
 	}
 
-	virtual bool askUserToAcceptVerificationFailed(const std::string &file, const zypp::PublicKey &key) 
+	virtual bool askUserToAcceptVerificationFailed(const std::string &file, const zypp::PublicKey &key)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptVerificationFailed) );
 
@@ -1823,9 +1798,6 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 
     ZyppRecipients::ProgressReceive _progressReceive;
 
-    // resolvable report
-    ZyppRecipients::ResolvableReport _resolvableReport;
-
     // digest callback
     ZyppRecipients::DigestReceive _digestReceive;
 
@@ -1837,7 +1809,7 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 
     // authentication callback
     ZyppRecipients::AuthReceive _authReceive;
-    
+
   public:
 
     ZyppReceive( const YCPCallbacks & ycpcb_r, const PkgFunctions &pkg)
@@ -1856,7 +1828,6 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
       , _sourceReport( *this, pkg)
       , _probeSourceReceive( *this )
       , _progressReceive( *this )
-      , _resolvableReport( *this )
       , _digestReceive( *this )
       , _keyRingReceive( *this )
       , _keyRingSignal( *this )
@@ -1877,7 +1848,6 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 	_sourceReport.connect();
 	_probeSourceReceive.connect();
 	_progressReceive.connect();
-	_resolvableReport.connect();
  	_digestReceive.connect();
 	_keyRingReceive.connect();
 	_keyRingSignal.connect();
@@ -1901,7 +1871,6 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 	_sourceReport.disconnect();
 	_probeSourceReceive.disconnect();
 	_progressReceive.disconnect();
-	_resolvableReport.disconnect();
 	_digestReceive.disconnect();
 	_keyRingReceive.disconnect();
 	_keyRingSignal.disconnect();

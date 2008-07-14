@@ -265,7 +265,7 @@ PkgFunctions::PkgMediaSizesOrCount (bool sizes, bool download_size)
 	// ignore disabled or delted sources
 	if (!(*it)->repoInfo().enabled() || (*it)->isDeleted())
 	    continue;
-	
+
 	source_ids.push_back(index);
     }
 
@@ -308,7 +308,7 @@ PkgFunctions::PkgMediaSizesOrCount (bool sizes, bool download_size)
 
 	    if (medium > 0)
 	    {
-		zypp::ByteCount size = sizes ? (download_size ? pkg->downloadSize() : pkg->size()) : zypp::ByteCount(1); //count only
+		zypp::ByteCount size = sizes ? (download_size ? pkg->downloadSize() : pkg->installSize()) : zypp::ByteCount(1); //count only
 
 		// refence to the found media array
 		std::vector<zypp::ByteCount> &ref = result[source_map[pkg->repoInfo().alias()]];
@@ -529,7 +529,7 @@ PkgFunctions::searchPackage(const YCPString &package, bool installed)
     bool found = false;
 
     std::string pkgname = package->value();
- 
+
     if (pkgname.empty())
     {
 	y2warning("Pkg::%s: Package name is empty", installed ? "PkgInstalled" : "PkgAvailable");
@@ -611,7 +611,7 @@ PkgFunctions::DoProvideNameKind( const std::string & name, zypp::Resolvable::Kin
     try
     {
 	std::string repo_alias;
-	
+
 	if (repo_id >= 0)
 	{
 	    YRepo_Ptr repo = logFindRepository(repo_id);
@@ -948,7 +948,7 @@ PkgFunctions::PkgSize (const YCPString& p)
 	    return YCPVoid();
 	}
 
-	return YCPInteger( pkg->size() );
+	return YCPInteger( pkg->installSize() );
     }
     catch (...)
     {
@@ -1631,7 +1631,7 @@ PkgFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_on
  * on the delete_unmaintained arg, they are either tagged as to delete or
  * remain unchanged.
  *
- * @return map<symbol,integer> summary of the update 
+ * @return map<symbol,integer> summary of the update
  */
 
 YCPValue
@@ -2154,7 +2154,7 @@ PkgFunctions::PkgCommit (const YCPInteger& media)
 	// if the target log is not set use the default to not loose the information
 	if (!target_log_set)
 	{
-	    std::string default_path(_target_root.asString() + "/var/log/YaST2/y2logRPM"); 
+	    std::string default_path(_target_root.asString() + "/var/log/YaST2/y2logRPM");
 	    y2warning("Pkg::TargetLogFile() has not been called, using %s for logging", default_path.c_str());
 	    zypp_ptr()->target()->setInstallationLogfile(default_path);
 	}
@@ -2177,7 +2177,7 @@ PkgFunctions::PkgCommit (const YCPInteger& media)
 	return YCPVoid();
     }
 
-    SourceReleaseAll();	
+    SourceReleaseAll();
 
     YCPList ret;
 
@@ -2200,10 +2200,6 @@ PkgFunctions::PkgCommit (const YCPInteger& media)
 	    resolvable->add (YCPString ("kind"), YCPSymbol ("product"));
 	else if (zypp::isKind<zypp::Pattern>(it->resolvable()))
 	    resolvable->add (YCPString ("kind"), YCPSymbol ("pattern"));
-	else if (zypp::isKind<zypp::Script>(it->resolvable()))
-	    resolvable->add (YCPString ("kind"), YCPSymbol ("script"));
-	else if (zypp::isKind<zypp::Message>(it->resolvable()))
-	    resolvable->add (YCPString ("kind"), YCPSymbol ("message"));
 	else if (zypp::isKind<zypp::Patch>(it->resolvable()))
 	    resolvable->add (YCPString ("kind"), YCPSymbol ("patch"));
 	else
