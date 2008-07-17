@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Jul 17 11:42:54 CEST 2008 - ma@suse.de
+
+- Remove obsolete references to Script/Message/Atom
+
+-------------------------------------------------------------------
 Fri Jun 27 16:54:00 CEST 2008 - lslezak@suse.cz
 
 - Fixed Pkg::GetPackages(`available) to ignore installed packages
@@ -156,8 +161,8 @@ Tue Apr 15 15:15:08 CEST 2008 - lslezak@suse.cz
 -------------------------------------------------------------------
 Fri Apr 11 15:13:53 CEST 2008 - ma@suse.de
 
-- Fix TargetProducts to return the satisfies products. Is satisfied 
-  status is computed and updated on each solver run. So it does not 
+- Fix TargetProducts to return the satisfies products. Is satisfied
+  status is computed and updated on each solver run. So it does not
   reflect any changes made since the last solver run. (bnc#368104)
 - 2.16.26
 
@@ -349,7 +354,7 @@ Fri Jan  4 11:35:08 CET 2008 - lslezak@suse.cz
 Tue Dec 18 11:03:33 CET 2007 - lslezak@suse.cz
 
 - use ResPool::repository_iterator for searching resolvables from
-  a repository (much faster than iterating over all resolvables) 
+  a repository (much faster than iterating over all resolvables)
 - added RepoCont and RepoId typedefs to hide implementation
   details and to make the code more understandable
 - 2.16.7
@@ -364,7 +369,7 @@ Wed Dec 12 09:21:54 CET 2007 - lslezak@suse.cz
 - PkgProgress - don't evaluate the callbacks when the progress
   is not enabled (started)
 - added total progress to Pkg::SourceCreate()
-- merged Pkg::SourceCreate() and Pkg::SourceScan() code 
+- merged Pkg::SourceCreate() and Pkg::SourceScan() code
 - added help texts to total progresses
 - added POTFILES (to read texts from src/HelpTexts.h)
 - 2.16.6
@@ -736,7 +741,7 @@ Thu May 17 15:35:54 CEST 2007 - lslezak@suse.cz
 
 - Evaluate start/finish callbacks in Pkg::SourceRestore() and
   Pkg::SourceLoad() only when needed (removed the flashing popup
-  effect during installation) 
+  effect during installation)
 - Log not applicable patches to y2log
 - 2.15.19
 
@@ -1083,7 +1088,7 @@ Tue Aug  8 12:40:00 CEST 2006 - jsrain@suse.cz
 Mon Aug  7 18:09:34 CEST 2006 - dmacvicar@suse.de
 
 - use the new initializeTarget method for TargetInitialize
-- require zypp version 2.0.0 
+- require zypp version 2.0.0
 
 -------------------------------------------------------------------
 Mon Aug  7 17:01:56 CEST 2006 - lslezak@suse.cz
@@ -1096,7 +1101,7 @@ Mon Aug  7 16:11:25 CEST 2006 - dmacvicar@suse.de
 
 - add TargetInitialize, TargetLoad, deprecate TargetInit.
 - port TargetProduct to new zypp api
-- 2.13.91 
+- 2.13.91
 
 -------------------------------------------------------------------
 Thu Aug  3 09:13:50 CEST 2006 - mvidner@suse.cz
@@ -1252,9 +1257,9 @@ Wed May 10 12:49:36 CEST 2006 - lslezak@suse.cz
 -------------------------------------------------------------------
 Tue May  9 18:23:51 CEST 2006 - visnov@suse.cz
 
-- Do not try to evaluate the same callback twice, the parameters 
+- Do not try to evaluate the same callback twice, the parameters
   are discarded after the first call (#173291)
-- 2.13.70 
+- 2.13.70
 
 -------------------------------------------------------------------
 Tue May  9 18:06:39 CEST 2006 - mvidner@suse.cz
@@ -1325,7 +1330,7 @@ Wed Apr 19 10:33:33 CEST 2006 - visnov@suse.cz
 -------------------------------------------------------------------
 Fri Apr 14 16:07:19 CEST 2006 - visnov@suse.cz
 
-- Adapt for new digest callbacks in ZYPP 
+- Adapt for new digest callbacks in ZYPP
 - 2.13.59
 
 -------------------------------------------------------------------
@@ -1354,7 +1359,7 @@ Mon Apr 10 16:47:36 CEST 2006 - visnov@suse.cz
 
 - Modified PkgMediaNames to return also the installation source
   ID (#161298)
-- 2.13.56 
+- 2.13.56
 
 -------------------------------------------------------------------
 Mon Apr 10 11:07:57 CEST 2006 - mvidner@suse.cz
@@ -1377,7 +1382,7 @@ Fri Apr  7 23:56:06 CEST 2006 - jsrain@suse.de
 Thu Apr  6 22:38:39 CEST 2006 - visnov@suse.cz
 
 - fix build
-- 2.13.52 
+- 2.13.52
 
 -------------------------------------------------------------------
 Thu Apr  6 20:26:26 CEST 2006 - visnov@suse.cz
@@ -1410,7 +1415,7 @@ Thu Apr  6 15:50:05 CEST 2006 - lslezak@suse.cz
 -------------------------------------------------------------------
 Thu Apr  6 15:11:38 CEST 2006 - visnov@suse.cz
 
-- implemented SourceCleanupBroken (#157100) 
+- implemented SourceCleanupBroken (#157100)
 
 -------------------------------------------------------------------
 Wed Apr  5 18:41:03 CEST 2006 - jsrain@suse.de
@@ -1455,7 +1460,7 @@ Wed Mar 29 18:25:12 CEST 2006 - visnov@suse.cz
 -------------------------------------------------------------------
 Wed Mar 29 16:40:14 CEST 2006 - visnov@suse.cz
 
-- return correct type in SourceCreate and SourceScan if URL wrong 
+- return correct type in SourceCreate and SourceScan if URL wrong
 
 -------------------------------------------------------------------
 Wed Mar 29 15:47:19 CEST 2006 - mvidner@suse.cz
@@ -1478,7 +1483,7 @@ Tue Mar 28 09:59:19 CEST 2006 - visnov@suse.cz
 - fix compile
 - catch media exception if source cannot be reattached
   to get source product information
-- 2.13.42 
+- 2.13.42
 
 -------------------------------------------------------------------
 Mon Mar 27 16:14:51 CEST 2006 - lslezak@suse.cz
@@ -1507,7 +1512,7 @@ Sat Mar 25 22:36:37 CET 2006 - jsrain@suse.de
 Fri Mar 24 15:35:45 CET 2006 - visnov@suse.cz
 
 - mark only patches in ResolvablePreselectPatches (#160573)
-- 2.13.38 
+- 2.13.38
 
 -------------------------------------------------------------------
 Thu Mar 23 13:11:45 CET 2006 - lslezak@suse.cz
@@ -1518,7 +1523,7 @@ Thu Mar 23 13:11:45 CET 2006 - lslezak@suse.cz
 -------------------------------------------------------------------
 Wed Mar 22 19:29:45 CET 2006 - visnov@suse.cz
 
-- 2.13.36 
+- 2.13.36
 
 -------------------------------------------------------------------
 Wed Mar 22 17:04:56 CET 2006 - lslezak@suse.cz
@@ -1536,13 +1541,13 @@ Wed Mar 22 14:29:13 CET 2006 - lslezak@suse.cz
 Tue Mar 21 10:14:16 CET 2006 - visnov@suse.cz
 
 - fix build
-- 2.13.35 
+- 2.13.35
 
 -------------------------------------------------------------------
 Tue Mar 21 08:58:48 CET 2006 - visnov@suse.cz
 
 - allow more choices how the media change callback behave (#159116)
-- 2.13.34 
+- 2.13.34
 
 -------------------------------------------------------------------
 Mon Mar 20 18:28:03 CET 2006 - lslezak@suse.cz
@@ -1554,7 +1559,7 @@ Mon Mar 20 18:28:03 CET 2006 - lslezak@suse.cz
 Mon Mar 20 09:09:16 CET 2006 - visnov@suse.cz
 
 - adapt for latest libzypp
-- 2.13.32 
+- 2.13.32
 
 -------------------------------------------------------------------
 Sat Mar 18 02:18:40 CET 2006 - kkaempf@suse.de
@@ -1589,7 +1594,7 @@ Wed Mar 15 22:47:35 CET 2006 - kkaempf@suse.de
 Wed Mar 15 09:02:40 CET 2006 - visnov@suse.cz
 
 - set alias when creating a source
-- 2.13.28 
+- 2.13.28
 
 -------------------------------------------------------------------
 Tue Mar 14 19:12:11 CET 2006 - mvidner@suse.cz
@@ -1611,7 +1616,7 @@ Tue Mar 14 10:43:52 CET 2006 - visnov@suse.cz
 
 - added TargetDisableSources to disable configured sources
   at the target system (#154850)
-- if no products found by libzypp, try also the base URL 
+- if no products found by libzypp, try also the base URL
   in SourceScan and SourceCreate (#157442)
 
 -------------------------------------------------------------------
@@ -1673,7 +1678,7 @@ Fri Mar  3 16:52:55 CET 2006 - lslezak@suse.cz
 -------------------------------------------------------------------
 Fri Mar  3 10:34:15 CET 2006 - visnov@suse.cz
 
-- new builtin Pkg::Init() 
+- new builtin Pkg::Init()
 - catch Url exceptions in source creation
 - SourceRefreshNow()
 
@@ -1693,7 +1698,7 @@ Thu Mar  2 16:32:19 CET 2006 - visnov@suse.cz
 -------------------------------------------------------------------
 Thu Mar  2 15:19:17 CET 2006 - visnov@suse.cz
 
-- report user-abort from ProgressPackage callback (#150379) 
+- report user-abort from ProgressPackage callback (#150379)
 
 -------------------------------------------------------------------
 Thu Mar  2 12:03:27 CET 2006 - kkaempf@suse.de
@@ -1732,7 +1737,7 @@ Mon Feb 27 10:40:33 CET 2006 - lslezak@suse.cz
 -------------------------------------------------------------------
 Mon Feb 27 10:28:05 CET 2006 - visnov@suse.cz
 
-- implement missing download progress callback 
+- implement missing download progress callback
 
 -------------------------------------------------------------------
 Fri Feb 24 18:47:57 CET 2006 - lslezak@suse.cz
@@ -1782,14 +1787,14 @@ Wed Feb 22 10:01:46 CET 2006 - kkaempf@suse.de
 -------------------------------------------------------------------
 Wed Feb 22 08:56:01 CET 2006 - visnov@suse.cz
 
-- Don't generate doxygen documentation, this is not a C++ library 
+- Don't generate doxygen documentation, this is not a C++ library
 
 -------------------------------------------------------------------
 Tue Feb 21 18:28:20 CET 2006 - visnov@suse.cz
 
 - start of PkgTargetDU (#151430)
 - survive if no products found on a media (#152521)
-- 2.13.13 
+- 2.13.13
 
 -------------------------------------------------------------------
 Mon Feb 20 17:49:31 CET 2006 - lslezak@suse.cz
@@ -1808,12 +1813,12 @@ Sun Feb 19 20:44:14 CET 2006 - kkaempf@suse.de
 -------------------------------------------------------------------
 Fri Feb 17 17:05:13 CET 2006 - visnov@suse.cz
 
-- 2.13.10 
+- 2.13.10
 
 -------------------------------------------------------------------
 Fri Feb 17 14:05:58 CET 2006 - visnov@suse.cz
 
-- adapt for new pool iterators 
+- adapt for new pool iterators
 
 -------------------------------------------------------------------
 Thu Feb 16 14:19:35 CET 2006 - lslezak@suse.cz
@@ -1827,22 +1832,22 @@ Thu Feb 16 09:53:41 CET 2006 - visnov@suse.cz
 
 - Don't report a package installation twice if it needs to
   use different rpm parameters
-- Callback cleanup 
+- Callback cleanup
 
 -------------------------------------------------------------------
 Wed Feb 15 09:32:02 CET 2006 - visnov@suse.cz
 
 - PkgMediaCount, PkgMediaSizes, PkgMediaNames
 - Callback size fixes
-- this makes the download progress behave nicely 
+- this makes the download progress behave nicely
 - 2.13.8
 
 -------------------------------------------------------------------
 Tue Feb 14 20:04:04 CET 2006 - visnov@suse.cz
 
 - compile fixes
-- SetLocale, GetLocale, SetAdditionalLocales, GetAdditionalLocales, 
-  updated SelectionContent, SelectionData 
+- SetLocale, GetLocale, SetAdditionalLocales, GetAdditionalLocales,
+  updated SelectionContent, SelectionData
 - 2.13.7
 
 -------------------------------------------------------------------
@@ -1854,9 +1859,9 @@ Tue Feb 14 09:55:06 CET 2006 - visnov@suse.cz
 Tue Feb 14 08:18:52 CET 2006 - visnov@suse.cz
 
 - use ZYpp linewriter to log into y2log (#149001)
-- Pkg::SourceProductData enhanced to return product name and 
+- Pkg::SourceProductData enhanced to return product name and
   version (#150209)
-- 2.13.6 
+- 2.13.6
 
 -------------------------------------------------------------------
 Mon Feb 13 17:15:45 CET 2006 - visnov@suse.cz
@@ -1868,13 +1873,13 @@ Mon Feb 13 17:15:45 CET 2006 - visnov@suse.cz
 -------------------------------------------------------------------
 Mon Feb 13 11:32:26 CET 2006 - visnov@suse.cz
 
-- connect also for source data parser and avoid media callback 
+- connect also for source data parser and avoid media callback
 - 2.13.4
 
 -------------------------------------------------------------------
 Sun Feb 12 19:00:02 CET 2006 - visnov@suse.cz
 
-- adapt for new libzypp 
+- adapt for new libzypp
 - 2.13.3
 
 -------------------------------------------------------------------
@@ -1908,7 +1913,7 @@ Wed Feb  8 17:39:08 CET 2006 - kkaempf@suse.de
 Tue Feb  7 19:38:43 CET 2006 - visnov@suse.cz
 
 - All callback handlers implemented
-- 2.13.1.7 
+- 2.13.1.7
 
 -------------------------------------------------------------------
 Tue Feb  7 08:55:46 CET 2006 - visnov@suse.cz
@@ -1920,7 +1925,7 @@ Tue Feb  7 08:55:46 CET 2006 - visnov@suse.cz
 -------------------------------------------------------------------
 Mon Feb  6 14:33:59 CET 2006 - visnov@suse.cz
 
-- Renamed files 
+- Renamed files
 - MediaChange callback fixes
 - RPM install problem callback
 - PkgQueryProvides
@@ -1930,7 +1935,7 @@ Mon Feb  6 14:33:59 CET 2006 - visnov@suse.cz
 -------------------------------------------------------------------
 Mon Feb  6 10:00:44 CET 2006 - visnov@suse.cz
 
-- Adapt for new libzypp 
+- Adapt for new libzypp
 - 2.13.1.5
 
 -------------------------------------------------------------------
@@ -1938,7 +1943,7 @@ Fri Feb  3 10:38:13 CET 2006 - visnov@suse.cz
 
 - Fix build for YaST modules using Pkg
 - Adapt for new libzypp
-- 2.13.1.4 
+- 2.13.1.4
 
 -------------------------------------------------------------------
 Thu Feb  2 18:42:08 CET 2006 - lslezak@suse.cz
@@ -1960,7 +1965,7 @@ Thu Feb  2 15:56:06 CET 2006 - lslezak@suse.cz
 Thu Feb  2 14:04:53 CET 2006 - visnov@suse.cz
 
 - first drop for ZYPP
-- 2.13.1.1 
+- 2.13.1.1
 
 -------------------------------------------------------------------
 Fri Dec  2 11:59:47 CET 2005 - ma@suse.de
