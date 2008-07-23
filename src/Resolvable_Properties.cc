@@ -356,7 +356,6 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		    _kinds.insert("obsoletes");
 		    _kinds.insert("recommends");
 		    _kinds.insert("suggests");
-		    _kinds.insert("freshens");
 		    _kinds.insert("enhances");
 		    _kinds.insert("supplements");
 		    YCPList ycpdeps;

@@ -2047,7 +2047,7 @@ PkgFunctions::PkgEstablish ()
    If it has, dependencies will be solved and the returned result might be false.
 
 */
-
+#warning Freshens is obsolete
 YCPBoolean
 PkgFunctions::PkgFreshen()
 {
