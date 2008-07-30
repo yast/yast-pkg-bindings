@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Jul 30 10:41:19 CEST 2008 - lslezak@suse.cz
+
+- allow priority >99 in Pkg::SourceSet() (bnc#402135)
+
+-------------------------------------------------------------------
 Wed Jul 23 16:12:56 CEST 2008  ma@suse.de
 
 - Remove references to obsolete freshens dependencies.

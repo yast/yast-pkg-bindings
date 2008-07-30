@@ -205,16 +205,9 @@ PkgFunctions::SourceEditSet (const YCPList& states)
     {
 	unsigned int priority = descr->value(YCPString("priority"))->asInteger()->value();
 
-	if (priority > 99)
-	{
-	    y2error("Wrong priority '%d', valid range is 0-99", priority);
-	}
-	else
-	{
-	    // set the priority
-	    repo->repoInfo().setPriority(priority);
-	    y2debug("set priority: %d", priority);
-	}
+	// set the priority
+	repo->repoInfo().setPriority(priority);
+	y2debug("set priority: %d", priority);
     }
   }
 
