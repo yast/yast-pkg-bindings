@@ -157,14 +157,6 @@ YCPValue PkgFunctions::SkipRefresh()
     return YCPVoid();
 }
 
-/****************************************************************************************
- * @builtin SourceLoad
- *
- * @short Load resolvables from the installation sources
- * @description
- * Refresh the pool - Add/remove resolvables from the enabled/disabled sources.
- * @return boolean True on success
- **/
 YCPValue
 PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 {

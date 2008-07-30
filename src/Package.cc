@@ -1892,7 +1892,7 @@ PkgFunctions::PkgNeutral (const YCPString& p)
 
 
 /**
- * @builtin Reset
+ * @builtin PkgReset
  *
  * @short Reset most internal stuff on the package manager.
    @return boolean
@@ -1922,7 +1922,7 @@ PkgFunctions::PkgReset ()
 
 
 /**
- * @builtin Reset
+ * @builtin PkgApplReset
  *
  * @short Reset most internal stuff on the package manager.
    Reset only packages set by the application, not by the user

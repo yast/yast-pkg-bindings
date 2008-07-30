@@ -547,7 +547,7 @@ YCPValue PkgFunctions::CallbackSourceCreateDestroy( const YCPValue& args)
 }
 
 /**
- * @builtin CallbackSourceProbeStart
+ * @builtin CallbackSourceReportStart
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(integer source_id, string url, string task)</code>.
  * @return void
