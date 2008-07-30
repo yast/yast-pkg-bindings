@@ -92,8 +92,13 @@ zypp::ZYpp::Ptr PkgFunctions::zypp_ptr()
 	    zypp_pointer = zypp::getZYpp();
 	    return zypp_pointer;
 	}
-	catch (...)
+	catch (const zypp::Exception &excpt)
 	{
+	    // is it the last attempt?
+	    if (max_count == 1)
+	    {
+		ZYPP_RETHROW(excpt);
+	    }
 	}
 
 	max_count--;
@@ -104,8 +109,12 @@ zypp::ZYpp::Ptr PkgFunctions::zypp_ptr()
 	}
     }
 
-    // still not initialized, throw an exception
-    ZYPP_THROW (zypp::Exception(std::string("Cannot connect to the package manager")));
+    if (zypp_pointer == NULL)
+    {
+	// still not initialized, throw an exception
+	// translators: this is an error message
+	ZYPP_THROW (zypp::Exception(std::string(_("Cannot connect to the package manager"))));
+    }
 
     return zypp_pointer;
 }
@@ -143,8 +152,15 @@ PkgFunctions::Connect()
     {
 	return YCPBoolean(zypp_ptr() != NULL);
     }
-    catch(...)
+    catch(const zypp::ZYppFactoryException &excpt)
     {
+	y2error("Error in Connect: FactoryException: %s", excpt.asString().c_str());
+	_last_error.setLastError(excpt.asString());
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	y2error("Error in Connect: Exception: %s", excpt.asString().c_str());
+	_last_error.setLastError(ExceptionAsString(excpt));
     }
 
     return YCPBoolean(false);
