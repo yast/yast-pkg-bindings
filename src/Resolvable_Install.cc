@@ -60,16 +60,16 @@ PkgFunctions::ResolvableInstallArchVersion( const YCPString& name_r, const YCPSy
     zypp::Arch architecture(arch_str);
 
     if( req_kind == "product" ) {
-	kind = zypp::ResTraits<zypp::Product>::kind;
+	kind = zypp::ResKind::product;
     }
     else if ( req_kind == "patch" ) {
-    	kind = zypp::ResTraits<zypp::Patch>::kind;
+    	kind = zypp::ResKind::patch;
     }
     else if ( req_kind == "package" ) {
-	kind = zypp::ResTraits<zypp::Package>::kind;
+	kind = zypp::ResKind::package;
     }
     else if ( req_kind == "pattern" ) {
-	kind = zypp::ResTraits<zypp::Pattern>::kind;
+	kind = zypp::ResKind::pattern;
     }
     else
     {
@@ -102,16 +102,16 @@ PkgFunctions::ResolvableInstallRepo( const YCPString& name_r, const YCPSymbol& k
     std::string req_kind = kind_r->symbol ();
 
     if( req_kind == "product" ) {
-	kind = zypp::ResTraits<zypp::Product>::kind;
+	kind = zypp::ResKind::product;
     }
     else if ( req_kind == "patch" ) {
-    	kind = zypp::ResTraits<zypp::Patch>::kind;
+    	kind = zypp::ResKind::patch;
     }
     else if ( req_kind == "package" ) {
-	kind = zypp::ResTraits<zypp::Package>::kind;
+	kind = zypp::ResKind::package;
     }
     else if ( req_kind == "pattern" ) {
-	kind = zypp::ResTraits<zypp::Pattern>::kind;
+	kind = zypp::ResKind::pattern;
     }
     else
     {
@@ -157,16 +157,16 @@ PkgFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol& kind_
     std::string req_kind = kind_r->symbol ();
 
     if( req_kind == "product" ) {
-	kind = zypp::ResTraits<zypp::Product>::kind;
+	kind = zypp::ResKind::product;
     }
     else if ( req_kind == "patch" ) {
-    	kind = zypp::ResTraits<zypp::Patch>::kind;
+    	kind = zypp::ResKind::patch;
     }
     else if ( req_kind == "package" ) {
-	kind = zypp::ResTraits<zypp::Package>::kind;
+	kind = zypp::ResKind::package;
     }
     else if ( req_kind == "pattern" ) {
-	kind = zypp::ResTraits<zypp::Pattern>::kind;
+	kind = zypp::ResKind::pattern;
     }
     else
     {
@@ -200,16 +200,16 @@ PkgFunctions::ResolvableNeutral ( const YCPString& name_r, const YCPSymbol& kind
     bool force = force_r->value();
 
     if( req_kind == "product" ) {
-	kind = zypp::ResTraits<zypp::Product>::kind;
+	kind = zypp::ResKind::product;
     }
     else if ( req_kind == "patch" ) {
-    	kind = zypp::ResTraits<zypp::Patch>::kind;
+    	kind = zypp::ResKind::patch;
     }
     else if ( req_kind == "package" ) {
-	kind = zypp::ResTraits<zypp::Package>::kind;
+	kind = zypp::ResKind::package;
     }
     else if ( req_kind == "pattern" ) {
-	kind = zypp::ResTraits<zypp::Pattern>::kind;
+	kind = zypp::ResKind::pattern;
     }
     else
     {
@@ -266,16 +266,16 @@ PkgFunctions::ResolvableSetSoftLock ( const YCPString& name_r, const YCPSymbol& 
     std::string name = name_r->value();
 
     if( req_kind == "product" ) {
-	kind = zypp::ResTraits<zypp::Product>::kind;
+	kind = zypp::ResKind::product;
     }
     else if ( req_kind == "patch" ) {
-    	kind = zypp::ResTraits<zypp::Patch>::kind;
+    	kind = zypp::ResKind::patch;
     }
     else if ( req_kind == "package" ) {
-	kind = zypp::ResTraits<zypp::Package>::kind;
+	kind = zypp::ResKind::package;
     }
     else if ( req_kind == "pattern" ) {
-	kind = zypp::ResTraits<zypp::Pattern>::kind;
+	kind = zypp::ResKind::pattern;
     }
     else
     {

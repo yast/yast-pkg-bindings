@@ -35,7 +35,6 @@
 #include <ycp/YCPMap.h>
 
 #include <zypp/ResPool.h>
-#include <zypp/ResTraits.h>
 #include <zypp/Pattern.h>
 
 using std::string;
@@ -110,9 +109,9 @@ PkgFunctions::GetPatterns(const YCPSymbol& stat, const YCPString& cat)
 
     try
     {
-	for (zypp::ResPool::byKind_iterator it 
-	    = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Pattern>::kind);
-	    it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Pattern>::kind) ; ++it )
+	for (zypp::ResPool::byKind_iterator it
+	    = zypp_ptr()->pool().byKindBegin(zypp::ResKind::pattern);
+	    it != zypp_ptr()->pool().byKindEnd(zypp::ResKind::pattern) ; ++it )
 	{
 	    std::string pattern;
 
@@ -209,7 +208,7 @@ PkgFunctions::PatternData (const YCPString& pat)
 
 	if ( it != zypp_ptr()->pool().byIdentEnd<zypp::Pattern>(name) )
 	{
-	    zypp::Pattern::constPtr pattern = 
+	    zypp::Pattern::constPtr pattern =
 		zypp::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable ());
 
 	    // pattern found
@@ -347,7 +346,7 @@ PkgFunctions::ClearSelection (const YCPString& selection)
    @short Activate all selected selections - obsoleted, use PkgSolve() instead
 
    @return boolean true
-   
+
    @deprecated Use Pkg::PkgSolve instead, selections are solvable now
 */
 YCPBoolean

@@ -755,7 +755,7 @@ PkgFunctions::DoProvide (const YCPList& tags)
         {
             if (tags->value(i)->isString())
             {
-                DoProvideNameKind (tags->value(i)->asString()->value(), zypp::ResTraits<zypp::Package>::kind, zypp::ZConfig::instance().systemArchitecture(), "");
+                DoProvideNameKind (tags->value(i)->asString()->value(), zypp::ResKind::package, zypp::ZConfig::instance().systemArchitecture(), "");
             }
             else
             {
@@ -796,7 +796,7 @@ PkgFunctions::DoRemove (const YCPList& tags)
 	{
 	    if (tags->value(i)->isString())
 	    {
-		DoRemoveNameKind( tags->value(i)->asString()->value(), zypp::ResTraits<zypp::Package>::kind);
+		DoRemoveNameKind( tags->value(i)->asString()->value(), zypp::ResKind::package);
 	    }
 	    else
 	    {
@@ -1323,8 +1323,8 @@ PkgFunctions::IsManualSelection ()
 {
     try
     {
-	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
-	    it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Package>::kind);
+	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResKind::package);
+	    it != zypp_ptr()->pool().byKindEnd(zypp::ResKind::package);
 	    ++it)
 	{
 	    // return true if there is a package installed/removed by user
@@ -1360,8 +1360,8 @@ PkgFunctions::PkgAnyToDelete ()
 
     try
     {
-	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
-	    it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Package>::kind);
+	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResKind::package);
+	    it != zypp_ptr()->pool().byKindEnd(zypp::ResKind::package);
 	    ++it)
 	{
 	    if (it->status().isToBeUninstalled())
@@ -1397,8 +1397,8 @@ PkgFunctions::PkgAnyToInstall ()
 
     try
     {
-	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
-	    it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Package>::kind);
+	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResKind::package);
+	    it != zypp_ptr()->pool().byKindEnd(zypp::ResKind::package);
 	    ++it)
 	{
 	    if (it->status().isToBeInstalled())
@@ -1466,8 +1466,8 @@ PkgFunctions::FilterPackages(const YCPBoolean& y_byAuto, const YCPBoolean& y_byA
 
     try
     {
-	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
-	    it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Package>::kind);
+	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResKind::package);
+	    it != zypp_ptr()->pool().byKindEnd(zypp::ResKind::package);
 	    ++it)
 	{
 	    // check status and causer
@@ -1517,8 +1517,8 @@ PkgFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_on
 
     try
     {
-	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Package>::kind);
-	    it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Package>::kind);
+	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResKind::package);
+	    it != zypp_ptr()->pool().byKindEnd(zypp::ResKind::package);
 	    ++it)
 	{
 	    if (which == "installed")
@@ -1726,7 +1726,7 @@ PkgFunctions::PkgInstall (const YCPString& p)
 
     // ensure installation of the 'best' architecture
 
-    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::Package>::kind, zypp::ZConfig::instance().systemArchitecture(), "") );
+    return YCPBoolean( DoProvideNameKind( name, zypp::ResKind::package, zypp::ZConfig::instance().systemArchitecture(), "") );
 }
 
 /**
@@ -1746,7 +1746,7 @@ PkgFunctions::PkgSrcInstall (const YCPString& p)
 
     // ensure installation of the 'best' architecture
 
-    return YCPBoolean( DoProvideNameKind( name, zypp::ResTraits<zypp::SrcPackage>::kind, zypp::ZConfig::instance().systemArchitecture(), "" ) );
+    return YCPBoolean( DoProvideNameKind( name, zypp::ResKind::srcpackage, zypp::ZConfig::instance().systemArchitecture(), "" ) );
 }
 
 

@@ -279,9 +279,9 @@ PkgFunctions::SourceProductData (const YCPInteger& src_id)
     try
     {
 	// find a product for the given source
-	zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResTraits<zypp::Product>::kind);
+	zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResKind::product);
 
-	for( ; it != zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind) ; ++it) 
+	for( ; it != zypp_ptr()->pool().byKindEnd(zypp::ResKind::product) ; ++it) 
 	{
 	    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
 
@@ -304,7 +304,7 @@ PkgFunctions::SourceProductData (const YCPInteger& src_id)
 	    }
 	}
 
-	if( it == zypp_ptr()->pool().byKindEnd(zypp::ResTraits<zypp::Product>::kind) )
+	if( it == zypp_ptr()->pool().byKindEnd(zypp::ResKind::product) )
 	{
 	    y2error ("Product for source '%lld' not found", src_id->value());
 	}

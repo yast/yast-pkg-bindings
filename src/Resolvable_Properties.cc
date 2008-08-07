@@ -107,24 +107,16 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
     YCPList ret;
 
     if( req_kind == "product" ) {
-    	kind = zypp::ResTraits<zypp::Product>::kind;
-/*
-	zypp::ResPool pool( zypp::ResPool::instance() );
-
-	for_( it, pool.satisfiedProductsBegin(), pool.satisfiedProductsEnd() )
-	{
-	    zypp::Product_constPtr p( asKind<Product>(*it) );
-	}
-*/
+    	kind = zypp::ResKind::product;
     }
     else if ( req_kind == "patch" ) {
-    	kind = zypp::ResTraits<zypp::Patch>::kind;
+    	kind = zypp::ResKind::patch;
     }
     else if ( req_kind == "package" ) {
-	kind = zypp::ResTraits<zypp::Package>::kind;
+	kind = zypp::ResKind::package;
     }
     else if ( req_kind == "pattern" ) {
-	kind = zypp::ResTraits<zypp::Pattern>::kind;
+	kind = zypp::ResKind::pattern;
     }
     else if ( req_kind == "language" )
     {
@@ -410,16 +402,16 @@ PkgFunctions::IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status)
     std::string stat_str = status->symbol();
 
     if( req_kind == "product" ) {
-	kind = zypp::ResTraits<zypp::Product>::kind;
+	kind = zypp::ResKind::product;
     }
     else if ( req_kind == "patch" ) {
-    	kind = zypp::ResTraits<zypp::Patch>::kind;
+    	kind = zypp::ResKind::patch;
     }
     else if ( req_kind == "package" ) {
-	kind = zypp::ResTraits<zypp::Package>::kind;
+	kind = zypp::ResKind::package;
     }
     else if ( req_kind == "pattern" ) {
-	kind = zypp::ResTraits<zypp::Pattern>::kind;
+	kind = zypp::ResKind::pattern;
     }
     else if ( req_kind == "any" ) {
 	try

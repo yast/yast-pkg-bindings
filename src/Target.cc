@@ -184,8 +184,10 @@ PkgFunctions::TargetProducts ()
     {
         zypp::ResPool pool( zypp::ResPool::instance() ); // ResPool is a global singleton
 
-        for_( it, pool.satisfiedProductsBegin(), pool.satisfiedProductsEnd() )
+        for_( it, pool.byKindBegin<zypp::Product>(), pool.byKindEnd<zypp::Product>() )
         {
+          if ( ! it->status().isInstalled() )
+            continue;
           zypp::Product::constPtr product = asKind<zypp::Product>( it->resolvable() );
 
           #warning TargetProducts does not return all keys

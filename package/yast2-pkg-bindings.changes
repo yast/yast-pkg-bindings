@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Aug  7 17:13:38 CEST 2008 - ma@suse.de
+
+- Adapt to new product handling. 
+- 2.17.5
+
+-------------------------------------------------------------------
 Tue Aug  5 14:55:43 CEST 2008 - lslezak@suse.cz
 
 - fixed searching for the candidate package - prefer better
@@ -16,7 +22,7 @@ Wed Jul 30 10:41:19 CEST 2008 - lslezak@suse.cz
 - allow priority >99 in Pkg::SourceSet() (bnc#402135)
 
 -------------------------------------------------------------------
-Wed Jul 23 16:12:56 CEST 2008  ma@suse.de
+Wed Jul 23 16:12:56 CEST 2008 - ma@suse.de
 
 - Remove references to obsolete freshens dependencies.
 - 2.17.3
