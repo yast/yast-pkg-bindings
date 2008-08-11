@@ -105,6 +105,8 @@ class PkgFunctions
       // flag for skipping autorefresh
       volatile bool autorefresh_skipped;
 
+      YCPValue SourceRefreshHelper(const YCPInteger &id, bool forced = false);
+
       // conversion methods for type string between Yast and libzypp (for backward compatibility)
       std::string zypp2yastType(const std::string &type);
       std::string yast2zyppType(const std::string &type);
@@ -141,7 +143,8 @@ class PkgFunctions
       void CallInitDownload(const std::string &task);
       void CallDestDownload();
       void RefreshWithCallbacks(const zypp::RepoInfo &repo,
-	const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc());
+	const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc(),
+	zypp::RepoManager::RawMetadataRefreshPolicy refresh = zypp::RepoManager::RefreshIfNeeded);
       zypp::repo::RepoType ProbeWithCallbacks(const zypp::Url &url);
       void ScanProductsWithCallBacks(const zypp::Url &url);
       void CallRefreshStarted();
@@ -484,6 +487,8 @@ class PkgFunctions
         YCPValue SourceSetAutorefresh (const YCPInteger&, const YCPBoolean&);
 	/* TYPEINFO: boolean(integer)*/
         YCPValue SourceRefreshNow (const YCPInteger&);
+	/* TYPEINFO: boolean(integer)*/
+        YCPValue SourceForceRefreshNow (const YCPInteger&);
 	/* TYPEINFO: boolean(integer)*/
         YCPValue SourceDelete (const YCPInteger&);
 	/* TYPEINFO: void(integer)*/

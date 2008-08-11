@@ -124,14 +124,14 @@ void PkgFunctions::CallDestDownload()
 }
 
 // this method should be used instead of RepoManager::refreshMetadata()
-void PkgFunctions::RefreshWithCallbacks(const zypp::RepoInfo &repo, const zypp::ProgressData::ReceiverFnc &progressrcv)
+void PkgFunctions::RefreshWithCallbacks(const zypp::RepoInfo &repo, const zypp::ProgressData::ReceiverFnc &progressrcv, zypp::RepoManager::RawMetadataRefreshPolicy refresh)
 {
     CallInitDownload(std::string(_("Refreshing repository ") + repo.alias()));
 
     try
     {
 	zypp::RepoManager repomanager = CreateRepoManager();
-	repomanager.refreshMetadata(repo, zypp::RepoManager::RefreshIfNeeded, progressrcv);
+	repomanager.refreshMetadata(repo, refresh, progressrcv);
     }
     catch(...)
     {

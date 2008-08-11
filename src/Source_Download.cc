@@ -218,20 +218,12 @@ PkgFunctions::SourceProvideDirectory(const YCPInteger& id, const YCPInteger& mid
 }
 
 
-/****************************************************************************************
- * @builtin SourceRefreshNow
- * @short Attempt to immediately refresh a Source
- * @description
- * The InsrSrc will be encouraged to check and refresh all metadata
- * cached on disk.
- *
- * @param integer SrcId Specifies the InstSrc.
- *
- * @return boolean
- **/
+
 YCPValue
-PkgFunctions::SourceRefreshNow (const YCPInteger& id)
+PkgFunctions::SourceRefreshHelper (const YCPInteger& id, bool forced)
 {
+    y2milestone("Forced refresh : %s", forced ? "true" : "false");
+
     YRepo_Ptr repo = logFindRepository(id->value());
     if (!repo)
 	return YCPBoolean(false);
@@ -254,14 +246,14 @@ PkgFunctions::SourceRefreshNow (const YCPInteger& id)
     {
 	zypp::RepoManager repomanager = CreateRepoManager();
 	y2milestone("Refreshing metadata '%s'", repo->repoInfo().alias().c_str());
-	RefreshWithCallbacks(repo->repoInfo());
+	RefreshWithCallbacks(repo->repoInfo(), zypp::ProgressData::ReceiverFnc(), forced ? zypp::RepoManager::RefreshForced : zypp::RepoManager::RefreshIfNeeded);
 
 	// next stage, increase progress
 	prog_total.incr();
 	pkgprogress.NextStage();
 
 	y2milestone("Caching source '%s'...", repo->repoInfo().alias().c_str());
-	repomanager.buildCache(repo->repoInfo());
+	repomanager.buildCache(repo->repoInfo(), forced ? zypp::RepoManager::BuildForced : zypp::RepoManager::BuildIfNeeded);
     }
     catch ( const zypp::Exception & expt )
     {
@@ -275,3 +267,37 @@ PkgFunctions::SourceRefreshNow (const YCPInteger& id)
     return YCPBoolean( true );
 }
 
+/****************************************************************************************
+ * @builtin SourceRefreshNow
+ * @short Attempt to immediately refresh a Source
+ * @description
+ * The InsrSrc will be encouraged to check and refresh all metadata
+ * cached on disk.
+ *
+ * @param integer SrcId Specifies the InstSrc.
+ *
+ * @return boolean
+ **/
+YCPValue
+PkgFunctions::SourceRefreshNow (const YCPInteger& id)
+{
+    // refresh if needed
+    return SourceRefreshHelper(id);
+}
+
+/****************************************************************************************
+ * @builtin SourceForceRefreshNow
+ * @short Unconditionally refresh a Source
+ * @description
+ * Downloads repository metadata and rebuilds the cache
+ *
+ * @param integer SrcId Specifies the InstSrc.
+ *
+ * @return boolean
+ **/
+YCPValue
+PkgFunctions::SourceForceRefreshNow (const YCPInteger& id)
+{
+    // force refresh
+    return SourceRefreshHelper(id, true);
+}
