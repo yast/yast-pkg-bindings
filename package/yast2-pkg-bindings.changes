@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Aug 12 15:48:05 CEST 2008 - lslezak@suse.cz
+
+- fixed searching for the candidate package - prefer better
+  architecture to better version (bnc#413150)
+
+-------------------------------------------------------------------
 Fri Jun 20 14:42:07 CEST 2008 - lslezak@suse.cz
 
 - support for patch messages and patch scripts (bnc#401220)

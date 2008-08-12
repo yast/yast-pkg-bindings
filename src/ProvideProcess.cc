@@ -65,18 +65,24 @@ bool ProvideProcess::operator()( zypp::PoolItem provider )
 	    provider.status().resetTransact(whoWantsIt);
 	}
 
+	// get the provider arch
+	zypp::Arch provider_arch(provider->arch());
+
 	// regarding items which are installable only
-	if (!provider->arch().compatibleWith( _architecture )) {
-	    y2milestone ("provider %s has incompatible arch '%s'", provider->name().c_str(), provider->arch().asString().c_str());
+	if (!provider_arch.compatibleWith( _architecture )) {
+	    y2milestone ("provider %s has incompatible arch '%s'", provider->name().c_str(), provider_arch.asString().c_str());
 	}
 	else if (!item) {						// no provider yet
 	    item = provider;
 	}
-	else if (item->arch().compare( provider->arch() ) < 0) {	// provider has better arch
+	else if (item->arch().compare( provider_arch ) < 0) {	// provider has better arch
 	    item = provider;
 	}
-	else if (item->edition().compare( provider->edition() ) < 0) {
-	    item = provider;						// provider has better edition
+	// provider has better edition, but doesn't have worse architecture (item has better or same)
+	else if (item->edition().compare( provider->edition() ) < 0
+	    && item->arch().compare( provider_arch ) <= 0)
+	{
+	    item = provider;
 	}
     }
 
