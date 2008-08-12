@@ -178,7 +178,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		// status
 		std::string stat;
 
-		if (it->status().isInstalled())
+		if (it->status().isInstalled() || it->status().isSatisfied())
 		{
 		    if (it->status().isToBeUninstalled())
 		    {

@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Aug 12 15:52:02 CEST 2008 - lslezak@suse.cz
+
+- Fixed pattern status returned by Pkg::ResolvableProperties()
+  (pattern was never in state `installed)
+- 2.17.7
+
+-------------------------------------------------------------------
 Mon Aug 11 10:22:30 CEST 2008 - lslezak@suse.cz
 
 - added Pkg::SourceForceRefreshNow() - unconditional refresh of
