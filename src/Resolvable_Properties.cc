@@ -375,6 +375,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 
 		    info->add(YCPString("interactive"), YCPBoolean(patch_ptr->interactive()));
 		    info->add(YCPString("reboot_needed"), YCPBoolean(patch_ptr->rebootSuggested()));
+		    info->add(YCPString("relogin_needed"), YCPBoolean(patch_ptr->reloginSuggested()));
 		    info->add(YCPString("affects_pkg_manager"), YCPBoolean(patch_ptr->restartSuggested()));
                     info->add(YCPString("is_needed"), YCPBoolean((*it)->theObj().isBroken()));
 		}

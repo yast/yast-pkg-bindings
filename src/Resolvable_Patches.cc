@@ -43,7 +43,7 @@
    @short Count patches which will be selected by ResolvablePreselectPatches() function
    @description
    Only non-optional patches are selected (even when `all parameter is passed!)
-   @param kind_r kind of preselected patches, can be `all, `interactive, `reboot_needed or `affects_pkg_manager
+   @param kind_r kind of preselected patches, can be `all, `interactive, `reboot_needed, `relogin_needed or `affects_pkg_manager
    @return integer number of preselected patches
 */
 YCPValue
@@ -58,7 +58,7 @@ PkgFunctions::ResolvableCountPatches (const YCPSymbol& kind_r)
    @short Preselect patches for auto online update during the installation
    @description
    Only non-optional patches are selected (even when `all parameter is passed!)
-   @param kind_r kind of preselected patches, can be `all, `interactive, `reboot_needed or `affects_pkg_manager
+   @param kind_r kind of preselected patches, can be `all, `interactive, `reboot_needed, `relogin_needed or `affects_pkg_manager
    @return integer number of preselected patches
 */
 YCPValue
@@ -75,9 +75,9 @@ PkgFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselect)
     std::string kind = kind_r->symbol();
 
     if (kind != "all" && kind != "interactive" && kind != "reboot_needed"
-	 && kind != "affects_pkg_manager")
+	 && kind != "affects_pkg_manager" && kind != "relogin_needed")
     {
-	return YCPError("Pkg::ResolvablePreselectPatches: Wrong parameter '" + kind + "', use: `all, `interactive, `reboot_needed or `affects_pkg_manager", YCPInteger(0LL));
+	return YCPError("Pkg::ResolvablePreselectPatches: Wrong parameter '" + kind + "', use: `all, `interactive, `reboot_needed, `relogin_needed or `affects_pkg_manager", YCPInteger(0LL));
     }
 
     y2milestone("Required kind of patches: %s", kind.c_str());
@@ -107,6 +107,7 @@ PkgFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselect)
 			|| (kind == "interactive" && patch->interactive())
 			|| (kind == "affects_pkg_manager" && patch->restartSuggested())
 			|| (kind == "reboot_needed" && patch->rebootSuggested())
+			|| (kind == "relogin_needed" && patch->reloginSuggested())
 		    )
 		    {
 			if (preselect)

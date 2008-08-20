@@ -1,6 +1,11 @@
 -------------------------------------------------------------------
 Wed Aug 20 11:49:48 CEST 2008 - lslezak@suse.cz
 
+- added support for zypp::Patch::reloginSuggested() flag
+  (Pkg::ResolvableProperties() returns "relogin_need" value for
+  patches, Pkg::ResolvableCountPatches() and
+  Pkg::ResolvablePreselectPatches() accept `relogin_needed flag)
+  (fate#304889)
 - use zypp::ui::Selectable object instead of direct access to the
   resolvable pool (bnc#413150)
 - return replaced products - "replaces" key in Product properties
