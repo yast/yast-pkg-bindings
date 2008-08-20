@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Aug 20 11:49:48 CEST 2008 - lslezak@suse.cz
+
+- use zypp::ui::Selectable object instead of direct access to the
+  resolvable pool (bnc#413150)
+- return replaced products - "replaces" key in Product properties
+  (Pkg::ResolvableProperties()) (fate#301997)
+
+-------------------------------------------------------------------
 Tue Aug 12 15:52:02 CEST 2008 - lslezak@suse.cz
 
 - Fixed pattern status returned by Pkg::ResolvableProperties()

@@ -277,8 +277,6 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 			info->add(YCPString("short_name"), YCPString(product_summary));
 		    }
 
-		    info->add(YCPString("type"), YCPString(product->type()));
-
 		    YCPList updateUrls;
 		    std::list<zypp::Url> pupdateUrls = product->updateUrls();
 		    for (std::list<zypp::Url>::const_iterator it = pupdateUrls.begin(); it != pupdateUrls.end(); ++it)
@@ -316,6 +314,48 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 			    optionalUrls->add(YCPString(it->asString()));
 			}
 			info->add(YCPString("optional_urls"), optionalUrls);
+		    }
+
+		    // get the installed Products it would replace.
+		    zypp::Product::ReplacedProducts replaced(product->replacedProducts());
+
+		    if (!replaced.empty())
+		    {
+			YCPList rep_prods;
+
+			// add the products to the list
+			for_( it, replaced.begin(), replaced.end() )
+			{
+			    // The current replaced Product.
+			    zypp::Product::constPtr replacedProduct(*it);
+
+			    if (!replacedProduct) continue;
+
+			    YCPMap rprod;
+			    rprod->add(YCPString("name"), YCPString(replacedProduct->name()));
+			    rprod->add(YCPString("version"), YCPString(replacedProduct->edition().asString()));
+			    rprod->add(YCPString("arch"), YCPString(replacedProduct->arch().asString()));
+			    rprod->add(YCPString("description"), YCPString(replacedProduct->description()));
+
+			    std::string product_summary = replacedProduct->summary();
+			    if (product_summary.size() > 0)
+			    {
+				rprod->add(YCPString("display_name"), YCPString(product_summary));
+			    }
+
+			    std::string product_shortname = replacedProduct->shortName();
+			    if (product_shortname.size() > 0)
+			    {
+				rprod->add(YCPString("short_name"), YCPString(product_shortname));
+			    }
+			    // use summary for the short name if it's defined
+			    else if (product_summary.size() > 0)
+			    {
+				rprod->add(YCPString("short_name"), YCPString(product_summary));
+			    }
+			}
+
+			info->add(YCPString("replaces"), rep_prods);
 		    }
 		}
 		// pattern specific info
