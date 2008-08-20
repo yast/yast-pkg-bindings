@@ -40,6 +40,7 @@
 #include <zypp/Patch.h>
 #include <zypp/Pattern.h>
 #include <zypp/Package.h>
+#include <zypp/ui/Status.h>
 
 #include <zypp/Dep.h>
 #include <zypp/sat/LocaleSupport.h>
@@ -155,78 +156,79 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 
    try
    {
-	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(kind);
-	    it != zypp_ptr()->pool().byKindEnd(kind);
+	for (zypp::ResPoolProxy::const_iterator it = zypp_ptr()->poolProxy().byKindBegin(kind);
+	    it != zypp_ptr()->poolProxy().byKindEnd(kind);
 	    ++it)
 	{
-	    if ((nm.empty() || nm == (*it)->name())
-		&& (vers.empty() || vers == (*it)->edition().asString()))
+	    if ((nm.empty() || nm == (*it)->theObj()->name())
+		&& (vers.empty() || vers == (*it)->theObj()->edition().asString()))
 	    {
 		YCPMap info;
 
-		info->add(YCPString("name"), YCPString((*it)->name()));
-		info->add(YCPString("version"), YCPString((*it)->edition().asString()));
-		info->add(YCPString("arch"), YCPString((*it)->arch().asString()));
-		info->add(YCPString("description"), YCPString((*it)->description()));
+		info->add(YCPString("name"), YCPString((*it)->theObj()->name()));
+		info->add(YCPString("version"), YCPString((*it)->theObj()->edition().asString()));
+		info->add(YCPString("arch"), YCPString((*it)->theObj()->arch().asString()));
+		info->add(YCPString("description"), YCPString((*it)->theObj()->description()));
 
-		std::string resolvable_summary = (*it)->summary();
+		std::string resolvable_summary = (*it)->theObj()->summary();
 		if (resolvable_summary.size() > 0)
 		{
-		    info->add(YCPString("summary"), YCPString((*it)->summary()));
+		    info->add(YCPString("summary"), YCPString(resolvable_summary));
 		}
 
 		// status
 		std::string stat;
 
-		if (it->status().isInstalled() || it->status().isSatisfied())
-		{
-		    if (it->status().isToBeUninstalled())
-		    {
-			stat = "removed";
-			info->add(YCPString("transact_by"), YCPSymbol(TransactToString(it->status().getTransactByValue())));
-		    }
-		    else
-		    {
-			stat = "installed";
-		    }
-		}
-		else if (it->status().isToBeInstalled())
-		{
-		    stat = "selected";
-		    info->add(YCPString("transact_by"), YCPSymbol(TransactToString(it->status().getTransactByValue())));
-		}
-		else
-		{
-		    stat = "available";
-		}
+		// selectable status
+		zypp::ui::Status status = (*it)->status();
 
+		switch((*it)->fate())
+		{
+		    case zypp::ui::Selectable::TO_INSTALL:
+			stat = "selected";
+			// add the transaction data
+			info->add(YCPString("transact_by"), YCPSymbol(TransactToString((*it)->theObj().status().getTransactByValue())));
+			break;
+		    case zypp::ui::Selectable::TO_DELETE:
+			stat = "removed";
+			// add the transaction data
+			info->add(YCPString("transact_by"), YCPSymbol(TransactToString((*it)->theObj().status().getTransactByValue())));
+			break;
+		    case zypp::ui::Selectable::UNMODIFIED:
+			stat = (status == zypp::ui::S_KeepInstalled
+			     || status == zypp::ui::S_Protected) ? "installed" : "available";
+			break;
+		}
+			
 		info->add(YCPString("status"), YCPSymbol(stat));
+		info->add(YCPString("status_detail"), YCPSymbol(zypp::ui::asString(status)));
 
 		// is the resolvable locked? (Locked or Taboo in the UI)
-		info->add(YCPString("locked"), YCPBoolean(it->status().isLocked()));
+		info->add(YCPString("locked"), YCPBoolean(status == zypp::ui::S_Protected
+		    || status == zypp::ui::S_Taboo));
 
 		// source
-		info->add(YCPString("source"), YCPInteger(logFindAlias((*it)->repoInfo().alias())));
+		info->add(YCPString("source"), YCPInteger(logFindAlias((*it)->theObj()->repoInfo().alias())));
 
 		// add license info if it is defined
-		std::string license = (*it)->licenseToConfirm();
+		std::string license = (*it)->theObj()->licenseToConfirm();
 		if (!license.empty())
 		{
-		    info->add(YCPString("license_confirmed"), YCPBoolean(it->status().isLicenceConfirmed()));
+		    info->add(YCPString("license_confirmed"), YCPBoolean((*it)->theObj().status().isLicenceConfirmed()));
 		    info->add(YCPString("license"), YCPString(license));
 		}
 
-		info->add(YCPString("download_size"), YCPInteger((*it)->downloadSize()));
-		info->add(YCPString("inst_size"), YCPInteger((*it)->installSize()));
+		info->add(YCPString("download_size"), YCPInteger((*it)->theObj()->downloadSize()));
+		info->add(YCPString("inst_size"), YCPInteger((*it)->theObj()->installSize()));
 
-		info->add(YCPString("medium_nr"), YCPInteger((*it)->mediaNr()));
-		info->add(YCPString("vendor"), YCPString((*it)->vendor()));
+		info->add(YCPString("medium_nr"), YCPInteger((*it)->theObj()->mediaNr()));
+		info->add(YCPString("vendor"), YCPString((*it)->theObj()->vendor()));
 
 
 		// package specific info
 		if( req_kind == "package" )
 		{
-		    zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(it->resolvable());
+		    zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>((*it)->theObj().resolvable());
                     if ( pkg )
 		    {
                         std::string tmp = pkg->location().filename().asString();
@@ -247,7 +249,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		}
 		// product specific info
 		else if( req_kind == "product" ) {
-		    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(it->resolvable());
+		    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>((*it)->theObj().resolvable());
                     if ( !product )
                     {
                         y2error("product %s is not a product", (*it)->name().c_str() );
@@ -318,7 +320,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		}
 		// pattern specific info
 		else if ( req_kind == "pattern" ) {
-		    zypp::Pattern::constPtr pattern = boost::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable());
+		    zypp::Pattern::constPtr pattern = boost::dynamic_pointer_cast<const zypp::Pattern>((*it)->theObj().resolvable());
 		    info->add(YCPString("category"), YCPString(pattern->category()));
 		    info->add(YCPString("user_visible"), YCPBoolean(pattern->userVisible()));
 		    info->add(YCPString("default"), YCPBoolean(pattern->isDefault()));
@@ -329,12 +331,12 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		// patch specific info
 		else if ( req_kind == "patch" )
 		{
-		    zypp::Patch::constPtr patch_ptr = boost::dynamic_pointer_cast<const zypp::Patch>(it->resolvable());
+		    zypp::Patch::constPtr patch_ptr = boost::dynamic_pointer_cast<const zypp::Patch>((*it)->theObj().resolvable());
 
 		    info->add(YCPString("interactive"), YCPBoolean(patch_ptr->interactive()));
 		    info->add(YCPString("reboot_needed"), YCPBoolean(patch_ptr->rebootSuggested()));
 		    info->add(YCPString("affects_pkg_manager"), YCPBoolean(patch_ptr->restartSuggested()));
-                    info->add(YCPString("is_needed"), YCPBoolean(it->isBroken()));
+                    info->add(YCPString("is_needed"), YCPBoolean((*it)->theObj().isBroken()));
 		}
 
 		// dependency info
@@ -356,7 +358,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		    {
 			try {
 			    zypp::Dep depkind(*kind_it);
-			    zypp::Capabilities deps = it->resolvable()->dep(depkind);
+			    zypp::Capabilities deps = (*it)->theObj().resolvable()->dep(depkind);
 
 			    zypp::sat::WhatProvides prv(deps);
 
@@ -385,6 +387,26 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
     return ret;
 }
 
+bool AnyResolvableHelper(zypp::Resolvable::Kind kind, bool to_install)
+{
+    for (zypp::ResPoolProxy::const_iterator it = zypp::ResPool::instance().proxy().byKindBegin(kind);
+	it != zypp::ResPool::instance().proxy().byKindEnd(kind);
+	++it)
+    {
+	zypp::ui::Selectable::Fate fate = (*it)->fate();
+
+	if (to_install && fate == zypp::ui::Selectable::TO_INSTALL)
+	{
+	    return true;
+	}
+	else if (!to_install && fate == zypp::ui::Selectable::TO_DELETE)
+	{
+	    return true;
+	}
+    }
+
+    return false;
+}
 
 /**
    @builtin IsAnyResolvable
@@ -398,8 +420,22 @@ PkgFunctions::IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status)
 {
     zypp::Resolvable::Kind kind;
 
+    if (kind_r.isNull() || status.isNull())
+    {
+	y2error("Invalid nil parameter!");
+	return YCPVoid();
+    }
+
     std::string req_kind = kind_r->symbol ();
     std::string stat_str = status->symbol();
+
+    if (stat_str != "to_install" && stat_str != "to_remove")
+    {
+	y2error("Invalid status parameter: %s", stat_str.c_str());
+	return YCPVoid();
+    }
+
+    bool to_install = stat_str == "to_install";
 
     if( req_kind == "product" ) {
 	kind = zypp::ResKind::product;
@@ -416,57 +452,33 @@ PkgFunctions::IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status)
     else if ( req_kind == "any" ) {
 	try
 	{
-	    for (zypp::ResPool::const_iterator it = zypp_ptr()->pool().begin();
-		it != zypp_ptr()->pool().end();
-		++it)
-	    {
-		if (stat_str == "to_install" && it->status().isToBeInstalled())
-		{
-		    return YCPBoolean(true);
-		}
-		else if (stat_str == "to_remove" && it->status().isToBeUninstalled())
-		{
-		    return YCPBoolean(true);
-		}
-	    }
+	    return YCPBoolean(
+		AnyResolvableHelper(zypp::ResKind::package, to_install)
+		|| AnyResolvableHelper(zypp::ResKind::patch, to_install)
+		|| AnyResolvableHelper(zypp::ResKind::product, to_install)
+		|| AnyResolvableHelper(zypp::ResKind::pattern, to_install)
+	    );
 	}
 	catch (...)
 	{
 	    y2error("An error occurred during resolvable search.");
-	    return YCPNull();
+	    return YCPVoid();
 	}
-
-	return YCPBoolean(false);
     }
     else
     {
 	y2error("Pkg::IsAnyResolvable: unknown symbol: %s", req_kind.c_str());
-	return YCPNull();
+	return YCPVoid();
     }
-
 
     try
     {
-	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(kind);
-	    it != zypp_ptr()->pool().byKindEnd(kind);
-	    ++it)
-	{
-	    if (stat_str == "to_install" && it->status().isToBeInstalled())
-	    {
-		return YCPBoolean(true);
-	    }
-	    else if (stat_str == "to_remove" && it->status().isToBeUninstalled())
-	    {
-		return YCPBoolean(true);
-	    }
-	}
+	return YCPBoolean(AnyResolvableHelper(kind, to_install));
     }
     catch (...)
     {
 	y2error("An error occurred during resolvable search.");
-	return YCPNull();
+	return YCPVoid();
     }
-
-    return YCPBoolean(false);
 }
 

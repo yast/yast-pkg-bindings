@@ -34,20 +34,26 @@
 #include <ycp/YCPString.h>
 #include <ycp/YCPInteger.h>
 
-#include <zypp/ZConfig.h>
-
 /**
    @builtin ResolvableInstallArchVersion
    @short Install all resolvables with selected name, architecture and kind. Use it only in a special case, ResolvableInstall() should be prefrerred.
-   @param name_r name of the resolvable, if empty ("") install all resolvables of the kind 
-   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
-   @param arch architecture of the resolvable
-   @param vers Required version of the resolvable, empty string means any version
+   @param name_r name of the resolvable
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `srcpackage or `pattern
+   @param arch architecture of the resolvable, empty means the best architecture
+   @param vers Required version of the resolvable, empty string means the best version
    @return boolean false if failed
 */
 YCPValue
 PkgFunctions::ResolvableInstallArchVersion( const YCPString& name_r, const YCPSymbol& kind_r, const YCPString& arch, const YCPString& vers )
 {
+    std::string name(name_r.isNull() ? "" : name_r->value());
+
+    if (name.empty())
+    {
+	y2error("Empty name");
+	return YCPBoolean(false);
+    }
+
     zypp::Resolvable::Kind kind;
     
     std::string req_kind = kind_r->symbol ();
@@ -68,6 +74,9 @@ PkgFunctions::ResolvableInstallArchVersion( const YCPString& name_r, const YCPSy
     else if ( req_kind == "package" ) {
 	kind = zypp::ResKind::package;
     }
+    else if ( req_kind == "srcpackage" ) {
+	kind = zypp::ResKind::srcpackage;
+    }
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResKind::pattern;
     }
@@ -77,20 +86,75 @@ PkgFunctions::ResolvableInstallArchVersion( const YCPString& name_r, const YCPSy
 	return YCPBoolean(false);
     }
 
-   std::string version_str = vers->value();
+    std::string version_str = vers->value();
+    bool ret = false;
 
-    return YCPBoolean(
-	(name_r->value().empty())
-	    ? DoProvideAllKind(kind)
-	    : DoProvideNameKind (name_r->value(), kind, architecture, version_str)
-    );
+    zypp::ResPoolProxy selectablePool(zypp::ResPool::instance().proxy());
+    zypp::ui::Selectable::Ptr s = zypp::ui::Selectable::get(kind, name);
+
+    if (s)
+    {
+	// install the required version and arch
+	for_(avail_it, s->availableBegin(), s->availableEnd())
+	{
+	    // get the resolvable
+	    zypp::Resolvable::constPtr res = avail_it->resolvable();
+
+	    // check version and arch
+	    if (res->arch() == architecture && res->edition() == version_str)
+	    {
+		// install the preselected candidate
+		s->setCandidate(*avail_it);
+		ret = s->setToInstall(whoWantsIt);
+		break;
+	    }
+	}
+
+	if (!ret)
+	{
+	    y2error("Required version and arch of %s:%s was not found", req_kind.c_str(), name.c_str());
+	}
+    }
+    else
+    {
+	y2error("Required selectable %s:%s was not found", req_kind.c_str(), name.c_str());
+    }
+
+    return YCPBoolean(ret);
+}
+
+// helper function, returns true on success
+bool InstallSelectableFromRepo(zypp::ui::Selectable::Ptr s, const std::string &alias)
+{
+    bool ret = false;
+
+    if (s)
+    {
+	// install from the required repository
+	for_(avail_it, s->availableBegin(), s->availableEnd())
+	{
+	    // get the resolvable
+	    zypp::ResObject::constPtr res = *avail_it;
+
+	    // check repository
+	    if (res && res->repoInfo().alias() == alias)
+	    {
+		// install the preselected candidate
+		s->setCandidate(res);
+		ret = s->setToInstall(zypp::ResStatus::APPL_HIGH);
+		break;
+	    }
+	}
+    }
+
+    return ret;
 }
 
 /**
    @builtin ResolvableInstallRepo
    @short Install all resolvables with selected name, from the specified repository
    @param name_r name of the resolvable, if empty ("") install all resolvables of the kind 
-   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `srcpackage or `pattern
    @param repo_r ID of the repository
    @return boolean false if failed
 */
@@ -110,6 +174,9 @@ PkgFunctions::ResolvableInstallRepo( const YCPString& name_r, const YCPSymbol& k
     else if ( req_kind == "package" ) {
 	kind = zypp::ResKind::package;
     }
+    else if ( req_kind == "srcpackage" ) {
+	kind = zypp::ResKind::srcpackage;
+    }
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResKind::pattern;
     }
@@ -119,38 +186,57 @@ PkgFunctions::ResolvableInstallRepo( const YCPString& name_r, const YCPSymbol& k
 	return YCPBoolean(false);
     }
 
+    if (repo_r.isNull())
+    {
+	y2error("Required repository is 'nil'");
+	return YCPBoolean(false);
+    }
 
-    return YCPBoolean(
-	(name_r->value().empty())
-	    ? DoProvideAllKind(kind)
-	    : DoProvideNameKind (name_r->value(), kind, zypp::ZConfig::instance().systemArchitecture(), std::string(), false, repo_r->value())
-    );
+    long long repo_id = repo_r->value();
+    YRepo_Ptr repo = logFindRepository(repo_id);
+    if (!repo)
+	return YCPVoid();
+
+    std::string alias = repo->repoInfo().alias();
+
+    bool ret;
+
+    try
+    {
+	std::string name(name_r.isNull() ? "" : name_r->value());
+
+	if (name.empty())
+	{
+	    ret = true;
+	    for (zypp::ResPoolProxy::const_iterator it = zypp_ptr()->poolProxy().byKindBegin(kind);
+		it != zypp_ptr()->poolProxy().byKindEnd(kind);
+		++it)
+	    {
+		ret = InstallSelectableFromRepo(*it, alias) && ret;
+	    }
+	}
+	else
+	{
+	    zypp::ui::Selectable::Ptr s = zypp::ui::Selectable::get(kind, name);
+
+	    ret = InstallSelectableFromRepo(s, alias);
+
+	    if (!ret)
+	    {
+		y2error("Resolvable %s:%s from repository %lld (%s) was not found", req_kind.c_str(), name.c_str(),
+		    repo_id, alias.c_str());
+	    }
+	}
+    }
+    catch (...)
+    {
+	return YCPBoolean(false);
+    }
+
+    return YCPBoolean(ret);
 }
 
-// ------------------------
-/**
-   @builtin ResolvableInstall
-   @short Install all resolvables with selected name and kind
-   @param name_r name of the resolvable, if empty ("") install all resolvables of the kind 
-   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
-   @return boolean false if failed
-*/
-YCPValue
-PkgFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r )
-{
-    return ResolvableInstallArchVersion(name_r, kind_r, YCPString(zypp::ZConfig::instance().systemArchitecture().asString()), YCPString(""));
-}
-
-// ------------------------
-/**
-   @builtin ResolvableRemove
-   @short Removes all resolvables with selected name and kind
-   @param name_r name of the resolvable, if empty ("") remove all resolvables of the kind 
-   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
-   @return boolean false if failed
-*/
-YCPValue
-PkgFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol& kind_r )
+bool ResolvableInstallOrDelete(const YCPString& name_r, const YCPSymbol& kind_r, bool install)
 {
     zypp::Resolvable::Kind kind;
     
@@ -165,20 +251,70 @@ PkgFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol& kind_
     else if ( req_kind == "package" ) {
 	kind = zypp::ResKind::package;
     }
+    else if ( req_kind == "srcpackage" ) {
+	kind = zypp::ResKind::srcpackage;
+    }
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResKind::pattern;
     }
     else
     {
-	y2error("Pkg::ResolvableRemove: unknown symbol: %s", req_kind.c_str());
-	return YCPBoolean(false);
+	y2error("Unknown symbol: %s", req_kind.c_str());
+	return false;
     }
 
-    return YCPBoolean(
-	(name_r->value().empty())
-	    ? DoRemoveAllKind(kind)
-	    : DoRemoveNameKind (name_r->value(), kind)
-    );
+    std::string name(name_r.isNull() ? "" : name_r->value());
+
+    if (name.empty())
+    {
+	y2error("Empty resolvable name");
+	return false;
+    }
+
+    zypp::ui::Selectable::Ptr s = zypp::ui::Selectable::get(kind, name);
+
+    if (s)
+    {
+	y2milestone("%s: %s:%s ", install ? "Installing" : "Removing", req_kind.c_str(), name.c_str());
+	return install ? s->setToInstall(zypp::ResStatus::APPL_HIGH):
+	    s->setToDelete(zypp::ResStatus::APPL_HIGH);
+    }
+    else
+    {
+	y2error("Resolvable %s:%s was not found", req_kind.c_str(), name.c_str());
+    }
+
+    return false;
+}
+
+// ------------------------
+/**
+   @builtin ResolvableInstall
+   @short Install all resolvables with selected name and kind
+   @param name_r name of the resolvable 
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `srcpackage or `pattern
+   @return boolean false if failed
+*/
+YCPValue
+PkgFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r )
+{
+    // true = install
+    return YCPBoolean(ResolvableInstallOrDelete(name_r, kind_r, true));
+}
+
+// ------------------------
+/**
+   @builtin ResolvableRemove
+   @short Removes all resolvables with selected name and kind
+   @param name_r name of the resolvable
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `srcpackage or `pattern
+   @return boolean false if failed
+*/
+YCPValue
+PkgFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol& kind_r )
+{
+    // false = remove
+    return YCPBoolean(ResolvableInstallOrDelete(name_r, kind_r, false));
 }
 
 // ------------------------
@@ -186,7 +322,7 @@ PkgFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol& kind_
    @builtin ResolvableNeutral
    @short Remove all transactions from all resolvables with selected name and kind
    @param name_r name of the resolvable, if empty ("") use all resolvables of the kind 
-   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `srcpackage or `pattern
    @param force_r remove the transactions even on USER level - default is APPL_HIGH (use true value only if really needed!)
    @return boolean false if failed
 */
@@ -208,6 +344,9 @@ PkgFunctions::ResolvableNeutral ( const YCPString& name_r, const YCPSymbol& kind
     else if ( req_kind == "package" ) {
 	kind = zypp::ResKind::package;
     }
+    else if ( req_kind == "srcpackage" ) {
+	kind = zypp::ResKind::srcpackage;
+    }
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResKind::pattern;
     }
@@ -221,23 +360,19 @@ PkgFunctions::ResolvableNeutral ( const YCPString& name_r, const YCPSymbol& kind
 
     try
     {
-	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(kind);
-	    it != zypp_ptr()->pool().byKindEnd(kind);
-	    ++it)
+	if (name.empty())
 	{
-	    if (name.empty() || (*it)->name() == name)
+	    for (zypp::ResPoolProxy::const_iterator it = zypp_ptr()->poolProxy().byKindBegin(kind);
+		it != zypp_ptr()->poolProxy().byKindEnd(kind);
+		++it)
 	    {
-		if (!it->status().resetTransact(whoWantsIt))
-		{
-		    ret = false;
-		}
-
-		// force neutralization on the user level
-		if (force && !it->status().resetTransact(zypp::ResStatus::USER))
-		{
-		    ret = false;
-		}
+		ret = (*it)->unset(force ? zypp::ResStatus::USER : whoWantsIt) && ret;
 	    }
+	}
+	else
+	{
+	    zypp::ui::Selectable::Ptr s = zypp::ui::Selectable::get(kind, name);
+	    ret = s ? s->unset(force ? zypp::ResStatus::USER : whoWantsIt) : false;
 	}
     }
     catch (...)
@@ -254,7 +389,7 @@ PkgFunctions::ResolvableNeutral ( const YCPString& name_r, const YCPSymbol& kind
    @short Soft lock - it prevents the solver from re-selecting item
    if it's recommended (if it's required it will be selected).
    @param name_r name of the resolvable, if empty ("") use all resolvables of the kind 
-   @param kind_r kind of resolvable, can be `product, `patch, `package, `selection or `pattern
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `srcpackage or `pattern
    @return boolean false if failed
 */
 YCPValue
@@ -274,6 +409,9 @@ PkgFunctions::ResolvableSetSoftLock ( const YCPString& name_r, const YCPSymbol& 
     else if ( req_kind == "package" ) {
 	kind = zypp::ResKind::package;
     }
+    else if ( req_kind == "srcpackage" ) {
+	kind = zypp::ResKind::package;
+    }
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResKind::pattern;
     }
@@ -287,17 +425,19 @@ PkgFunctions::ResolvableSetSoftLock ( const YCPString& name_r, const YCPSymbol& 
 
     try
     {
-	for (zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(kind);
-	    it != zypp_ptr()->pool().byKindEnd(kind);
-	    ++it)
+	if (name.empty())
 	{
-	    if (name.empty() || (*it)->name() == name)
+	    for (zypp::ResPoolProxy::const_iterator it = zypp_ptr()->poolProxy().byKindBegin(kind);
+		it != zypp_ptr()->poolProxy().byKindEnd(kind);
+		++it)
 	    {
-		if (!it->status().setSoftLock(whoWantsIt))
-		{
-		    ret = false;
-		}
+		ret = (*it)->theObj().status().setSoftLock(whoWantsIt) && ret;
 	    }
+	}
+	else
+	{
+	    zypp::ui::Selectable::Ptr s = zypp::ui::Selectable::get(kind, name);
+	    ret = s ? s->theObj().status().setSoftLock(whoWantsIt) : false;
 	}
     }
     catch (...)

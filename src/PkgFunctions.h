@@ -42,6 +42,7 @@ class YCPVoid;
 class YCPReference;
 
 #include <zypp/ZYpp.h>
+#include <zypp/Package.h>
 
 #include <zypp/DiskUsageCounter.h>
 #include <zypp/RepoManager.h>
@@ -111,20 +112,13 @@ class PkgFunctions
       std::string zypp2yastType(const std::string &type);
       std::string yast2zyppType(const std::string &type);
 
-      bool DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
-			      const std::string& version, const bool onlyNeeded = false, int repo_id = -1);
-      bool DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind);
-      bool DoProvideAllKind(zypp::Resolvable::Kind kind);
-      bool DoRemoveAllKind(zypp::Resolvable::Kind kind);
-      bool DoAllKind(zypp::Resolvable::Kind kind, bool provide);
-
       void RemoveResolvablesFrom(const std::string &alias);
       bool AnyResolvableFrom(const std::string &alias);
       bool LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc());
       std::string UniqueAlias(const std::string &alias);
 
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);
-      YCPValue PkgProp( zypp::PoolItem item );
+      YCPValue PkgProp(const zypp::PoolItem &item);
       YCPValue PkgMediaSizesOrCount (bool sizes, bool download_size = false);
       YCPValue TargetInitInternal(const YCPString& root, bool rebuild_rpmdb);
     

@@ -26,7 +26,6 @@
 */
 
 #include "PkgFunctions.h"
-#include "ProvideProcess.h"
 #include "log.h"
 #include <y2util/Y2SLog.h>
 
@@ -83,79 +82,50 @@ PkgFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselect)
 
     y2milestone("Required kind of patches: %s", kind.c_str());
 
-    std::set<zypp::PoolItem> patches_toinst;
-
-    const zypp::ResPool & pool = zypp_ptr()->pool();
+    long long needed_patches = 0LL;
 
     try
     {
-	zypp::ResPool::byKind_iterator
-	    b = pool.byKindBegin<zypp::Patch>(),
-	    e = pool.byKindEnd<zypp::Patch>(),
-	    i = pool.byKindBegin<zypp::Patch>();
-
-	for (; i != e; ++i)
+	// access to the Pool of Selectables
+	zypp::ResPoolProxy selectablePool(zypp::ResPool::instance().proxy());
+	      
+	// Iterate it's Products...
+	for_(it, selectablePool.byKindBegin<zypp::Patch>(), selectablePool.byKindEnd<zypp::Patch>())
 	{
-	    zypp::Patch::constPtr pch = zypp::asKind<zypp::Patch>(i->resolvable());
-	    std::string name(pch->name());
+	    y2milestone("Procesing patch %s", (*it)->name().c_str());
+	    zypp::ui::Selectable::Ptr s = *it;
 
-	    y2debug("Procesing patch %s: interactive: %s, affects_pkg_manager: %s, reboot_neeeded: %s", name.c_str(),
-		pch->interactive() ? "true" : "false",
-		pch->restartSuggested() ? "true" : "false",
-		pch->rebootSuggested() ? "true" : "false"
-	    );
-
-	    // the best patch for the current arch, no preferred version, only needed patches
-	    ProvideProcess info(zypp::ZConfig::instance().systemArchitecture(), "", true);
-
-	    // search the best version of the patch to install
-	    try
+	    if (s && s->isNeeded())
 	    {
-		info.whoWantsIt = whoWantsIt;
+		zypp::Patch::constPtr patch = zypp::dynamic_pointer_cast<const zypp::Patch>
+		    (s->candidateObj().resolvable());
 
-		invokeOnEach( pool.byIdentBegin<zypp::Patch>(name),
-			      pool.byIdentEnd<zypp::Patch>(name),
-			      zypp::functor::functorRef<bool,zypp::PoolItem> (info)
-		);
-
-		if (!info.item)
+		// dont auto-install optional patches
+		if (patch->category() != "optional")
 		{
-		    y2milestone("Patch %s is not applicable", name.c_str());
-		    continue;
+		    if (kind == "all"
+			|| (kind == "interactive" && patch->interactive())
+			|| (kind == "affects_pkg_manager" && patch->restartSuggested())
+			|| (kind == "reboot_needed" && patch->rebootSuggested())
+		    )
+		    {
+			if (preselect)
+			{
+			    s->setToInstall(whoWantsIt);
+			}
+
+			// count the patch
+			needed_patches++;
+		    }
+		    else
+		    {
+			y2milestone("Patch %s has not required flag", s->name().c_str());
+		    }
 		}
 		else
 		{
-		    MIL << "Best version of patch " << i->resolvable() << ": " << info.item.resolvable() << std::endl;
+		    y2milestone("Ignoring optional patch : %s", s->name().c_str());
 		}
-	    }
-	    catch (...)
-	    {
-		y2error("Search for best patch '%s' failed", name.c_str());
-		continue;
-	    }
-
-	    zypp::Patch::constPtr patch = zypp::asKind<zypp::Patch>(info.item.resolvable());
-
-	    // dont auto-install optional patches
-	    if (patch->category () != "optional")
-	    {
-		if (kind == "all"
-		    || (kind == "interactive" && patch->interactive())
-		    || (kind == "affects_pkg_manager" && patch->restartSuggested())
-		    || (kind == "reboot_needed" && patch->rebootSuggested())
-		)
-		{
-		    // remember the patch
-		    patches_toinst.insert(info.item);
-		}
-		else
-		{
-		    y2milestone("Patch %s has not required flag", patch->ident().c_str());
-		}
-	    }
-	    else
-	    {
-		y2milestone("Ignoring optional patch : %s", patch->ident().c_str());
 	    }
 	}
     }
@@ -164,24 +134,6 @@ PkgFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselect)
 	y2error("An error occurred during patch selection.");
     }
 
-    MIL << "Found " << patches_toinst.size() << " patches" << std::endl;
-
-    if (preselect)
-    {
-	std::set<zypp::PoolItem>::iterator
-	    b(patches_toinst.begin()),
-	    e(patches_toinst.end()),
-	    i(patches_toinst.begin());
-
-	for (i = b; i != e; ++i)
-	{
-	    if (i->status().setToBeInstalled(whoWantsIt))
-	    {
-		MIL << "Selecting patch " << i->resolvable() << std::endl;
-	    }
-	}
-    }
-
-    return YCPInteger(patches_toinst.size());
+    return YCPInteger(needed_patches);
 }
 

@@ -209,19 +209,36 @@ PkgFunctions::SourceMediaData (const YCPInteger& id)
     bool found_resolvable = false;
     int max_medium = 1;
 
-    for (zypp::ResPool::const_iterator it = zypp_ptr()->pool().begin()
-	; it != zypp_ptr()->pool().end()
-	; ++it)
+    // search the maximum source number of a package in the repository
+    try
     {
-	if (it->resolvable()->repoInfo().alias() == alias)
+	for (zypp::ResPoolProxy::const_iterator it = zypp_ptr()->poolProxy().byKindBegin(zypp::ResKind::package);
+	    it != zypp_ptr()->poolProxy().byKindEnd(zypp::ResKind::package);
+	    ++it)
 	{
-	    int medium = it->resolvable()->mediaNr();
-
-	    if (medium > max_medium)
+	    // search in available products
+	    for (zypp::ui::Selectable::available_iterator aval_it = (*it)->availableBegin();
+		aval_it != (*it)->availableEnd();
+		++aval_it)
 	    {
-		max_medium = medium;
+		zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(aval_it->resolvable());
+
+		if (pkg && pkg->repoInfo().alias() == alias)
+		{
+		    found_resolvable = true;
+
+		    int medium = pkg->mediaNr();
+
+		    if (medium > max_medium)
+		    {
+			max_medium = medium;
+		    }
+		}
 	    }
 	}
+    }
+    catch (...)
+    {
     }
 
     if (found_resolvable)
@@ -276,16 +293,34 @@ PkgFunctions::SourceProductData (const YCPInteger& src_id)
 {
     YCPMap ret;
 
+    YRepo_Ptr repo = logFindRepository(src_id->value());
+    if (!repo)
+        return YCPVoid ();
+
+    std::string alias = repo->repoInfo().alias();
+
     try
     {
-	// find a product for the given source
-	zypp::ResPool::byKind_iterator it = zypp_ptr()->pool().byKindBegin(zypp::ResKind::product);
-
-	for( ; it != zypp_ptr()->pool().byKindEnd(zypp::ResKind::product) ; ++it) 
+	for (zypp::ResPoolProxy::const_iterator it = zypp_ptr()->poolProxy().byKindBegin(zypp::ResKind::product);
+	    it != zypp_ptr()->poolProxy().byKindEnd(zypp::ResKind::product);
+	    ++it)
 	{
-	    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>( it->resolvable() );
+	    zypp::Product::constPtr product = NULL;
+	    
+	    // search in available products
+	    for (zypp::ui::Selectable::available_iterator aval_it = (*it)->availableBegin();
+		aval_it != (*it)->availableEnd();
+		++aval_it)
+	    {
+		zypp::Product::constPtr prod = boost::dynamic_pointer_cast<const zypp::Product>(aval_it->resolvable());
+		if (product && product->repoInfo().alias() == alias)
+		{
+		    product = prod;
+		    break;
+		}
+	    }
 
-	    if( logFindAlias(product->repoInfo().alias()) == static_cast<size_t>(src_id->value()))
+	    if (product)
 	    {
 		ret->add( YCPString("label"),		YCPString( product->summary() ) );
 		ret->add( YCPString("vendor"),		YCPString( product->vendor() ) );
@@ -293,20 +328,13 @@ PkgFunctions::SourceProductData (const YCPInteger& src_id)
 		ret->add( YCPString("productversion"),	YCPString( product->edition().version() ) );
 		ret->add( YCPString("relnotesurl"), 	YCPString( product->releaseNotesUrl().asString()));
 
-		#warning SourceProductData not finished
-		/*
-		  data->add( YCPString("datadir"),		YCPString( descr->content_datadir().asString() ) );
-		TODO (?): "baseproductname", "baseproductversion", "defaultbase", "architectures",
-		"requires", "linguas", "labelmap", "language", "timezone", "descrdir", "datadir"
-		*/
-
 		break;
 	    }
 	}
 
-	if( it == zypp_ptr()->pool().byKindEnd(zypp::ResKind::product) )
+	if(ret->size() == 0)
 	{
-	    y2error ("Product for source '%lld' not found", src_id->value());
+	    y2warning("Product for source '%lld' not found", src_id->value());
 	}
     }
     catch (...)
@@ -326,9 +354,8 @@ PkgFunctions::SourceProductData (const YCPInteger& src_id)
 YCPValue
 PkgFunctions::SourceProduct (const YCPInteger& id)
 {
-    /* TODO FIXME */
   y2error("Pkg::SourceProduct() is obsoleted, use Pkg::SourceProductData() instead!");
-  return YCPMap();
+  return SourceProductData(id);
 }
 
 /****************************************************************************************

@@ -26,6 +26,8 @@
 
 #include <ycp/YCPVoid.h>
 
+#include "log.h"
+
 //-------------------------------------------------------------
 /**   
    @builtin YouStatus
@@ -35,6 +37,7 @@
 YCPValue
 PkgFunctions::YouStatus ()
 {
+    y2warning("Pkg::YouStatus is obsoleted, do not use");
     return YCPVoid();
 }
 
@@ -46,6 +49,7 @@ PkgFunctions::YouStatus ()
 YCPValue
 PkgFunctions::YouSetServer (const YCPMap& servers)
 {
+    y2warning("Pkg::YouSetServer is obsoleted, do not use");
     return YCPVoid();
 }
 
@@ -58,6 +62,7 @@ PkgFunctions::YouSetServer (const YCPMap& servers)
 YCPValue
 PkgFunctions::YouGetUserPassword ()
 {
+    y2warning("Pkg::YouGetUserPassword is obsoleted, do not use");
     return YCPVoid();
 }
 
@@ -69,6 +74,7 @@ PkgFunctions::YouGetUserPassword ()
 YCPValue
 PkgFunctions::YouSetUserPassword (const YCPString& user, const YCPString& passwd, const YCPBoolean& p)
 {
+    y2warning("Pkg::YouSetUserPassword is obsoleted, do not use");
     return YCPVoid();
 }
 
@@ -81,6 +87,7 @@ PkgFunctions::YouSetUserPassword (const YCPString& user, const YCPString& passwd
 YCPValue
 PkgFunctions::YouGetServers (const YCPList&)
 {
+    y2warning("Pkg::YouGetServers is obsoleted, do not use");
     return YCPVoid();
 }
 
@@ -95,6 +102,7 @@ PkgFunctions::YouGetServers (const YCPList&)
 YCPValue
 PkgFunctions::YouGetDirectory ()
 {
+    y2warning("Pkg::YouGetDirectory is obsoleted, do not use");
     return YCPVoid();
 }
 
@@ -106,6 +114,7 @@ PkgFunctions::YouGetDirectory ()
 YCPValue
 PkgFunctions::YouRetrievePatchInfo (const YCPBoolean& download, const YCPBoolean& sig)
 {
+    y2warning("Pkg::YouRetrievePatchInfo is obsoleted, do not use");
     return YCPVoid();
 }
 
@@ -117,6 +126,7 @@ PkgFunctions::YouRetrievePatchInfo (const YCPBoolean& download, const YCPBoolean
 YCPValue
 PkgFunctions::YouProcessPatches ()
 {
+    y2warning("Pkg::YouProcessPatches is obsoleted, do not use");
     return YCPVoid();
 }
 
@@ -128,6 +138,7 @@ PkgFunctions::YouProcessPatches ()
 YCPValue
 PkgFunctions::YouSelectPatches ()
 {
+    y2warning("Pkg::YouSelectPatches is obsoleted, do not use");
     return YCPVoid();
 }
 
@@ -139,5 +150,6 @@ PkgFunctions::YouSelectPatches ()
 YCPValue
 PkgFunctions::YouRemovePackages ()
 {
+    y2warning("Pkg::YouRemovePackages is obsoleted, do not use");
     return YCPVoid();
 }

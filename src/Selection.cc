@@ -69,6 +69,7 @@ YCPValue
 PkgFunctions::GetSelections (const YCPSymbol& stat, const YCPString& cat)
 {
     YCPList selections;
+    y2warning("Pkg::GetSelections is obsoleted, selections have been replaced by patterns");
     return selections;
 }
 
@@ -109,51 +110,27 @@ PkgFunctions::GetPatterns(const YCPSymbol& stat, const YCPString& cat)
 
     try
     {
-	for (zypp::ResPool::byKind_iterator it
-	    = zypp_ptr()->pool().byKindBegin(zypp::ResKind::pattern);
-	    it != zypp_ptr()->pool().byKindEnd(zypp::ResKind::pattern) ; ++it )
+	for (zypp::ResPoolProxy::const_iterator it = zypp_ptr()->poolProxy().byKindBegin(zypp::ResKind::pattern);
+	    it != zypp_ptr()->poolProxy().byKindEnd(zypp::ResKind::pattern);
+	    ++it)
 	{
-	    std::string pattern;
 
-	    if (status == "all")
+	    if (status == "all" || (status == "available" && (*it)->hasCandidateObj())
+		// TODO FIXME isSatified() should be here???
+		|| (status == "installed" && (*it)->hasInstalledObj())
+		|| (status == "selected" && (*it)->fate() == zypp::ui::Selectable::TO_INSTALL)
+		)
 	    {
-		pattern = it->resolvable()->name();
-	    }
-	    else if (status == "available")
-	    {
-		// ignore installed patterns
-		if( !it->status().wasInstalled() )
-		    pattern = it->resolvable()->name();
-	    }
-	    else if (status == "selected")
-	    {
-		if( it->status().isToBeInstalled() )
-		    pattern = it->resolvable()->name();
-	    }
-	    else if (status == "installed")
-	    {
-		if( it->status().wasInstalled() )
-		    pattern = it->resolvable()->name();
-	    }
-	    else
-	    {
-		y2warning("Unknown status in Pkg::GetPatterns(%s, ...)", status.c_str());
-		break;
-	    }
+		// check the required category
+		std::string pattern_cat = zypp::dynamic_pointer_cast<const zypp::Pattern>((*it)->theObj().resolvable())->category();
 
-	    if (pattern.empty())
-	    {
-		continue;
+		if (!category.empty() && pattern_cat != category)
+		{
+		    continue;	// asked for explicit category, but it doesn't match
+		}
+
+		patterns->add(YCPString((*it)->name()));
 	    }
-
-	    std::string pattern_cat = zypp::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable())->category();
-
-	    if (!category.empty() && pattern_cat != category)
-	    {
-		continue;	// asked for explicit category, but it doesn't match
-	    }
-
-	    patterns->add (YCPString (pattern));
 	}
     }
     catch (...)
@@ -199,41 +176,52 @@ PkgFunctions::GetPatterns(const YCPSymbol& stat, const YCPString& cat)
 YCPValue
 PkgFunctions::PatternData (const YCPString& pat)
 {
-    YCPMap data;
-    std::string name = pat->value();
+    y2warning("Pkg::PatternData() is obsoleted, use Pkg::ResolvableProperties(name, `pattern, \"\") instead and change keys \"visible\" to \"user_visible\" and \"srcid\" to \"source\".");
+
+    YCPMap ret;
 
     try
     {
-	zypp::ResPool::byIdent_iterator it = zypp_ptr()->pool().byIdentBegin<zypp::Pattern>(name);
+	YCPValue value = ResolvableProperties(pat, YCPSymbol("pattern"), YCPString(""));
+	YCPList lst;
 
-	if ( it != zypp_ptr()->pool().byIdentEnd<zypp::Pattern>(name) )
+	if (!value.isNull() && value->isList())
 	{
-	    zypp::Pattern::constPtr pattern =
-		zypp::dynamic_pointer_cast<const zypp::Pattern>(it->resolvable ());
+	    lst = value->asList();
+	}
 
-	    // pattern found
-	    data->add (YCPString ("summary"), YCPString (pattern->summary()));
-	    data->add (YCPString ("category"), YCPString (pattern->category()));
-	    data->add (YCPString ("visible"), YCPBoolean (pattern->userVisible()));
-	    data->add (YCPString ("order"), YCPString (pattern->order()));
-	    data->add (YCPString ("description"), YCPString (pattern->description()));
-	    data->add (YCPString ("default"), YCPBoolean (pattern->isDefault()));
-	    data->add (YCPString ("icon"), YCPString (pattern->icon().asString()));
-	    data->add (YCPString ("script"), YCPString (pattern->script().asString()));
-	    data->add (YCPString ("version"), YCPString((*it)->edition().asString()));
-	    data->add (YCPString ("arch"), YCPString((*it)->arch().asString()));
-	    data->add (YCPString ("srcid"), YCPInteger(logFindAlias((*it)->repoInfo().alias())));
+	if (lst->size() >= 1)
+	{
+	    YCPValue first = lst->value(0);
+
+	    if (!first.isNull() && first->isMap())
+	    {
+		ret = first->asMap();
+	    }
+
+	    if (!ret.isNull())
+	    {
+		YCPValue val = ret->value(YCPString("source"));
+		ret->add(YCPString("srcid"), val);
+
+		val = ret->value(YCPString("user_visible"));
+		ret->add(YCPString("visible"), val);
+	    }
+	    else
+	    {
+		return YCPError ("Pattern '" + pat->value() + "' not found", ret);
+	    }
 	}
 	else
 	{
-	    return YCPError ("Pattern '" + name + "' not found", data);
+	    return YCPError ("Pattern '" + pat->value() + "' not found", ret);
 	}
     }
     catch (...)
     {
     }
 
-    return data;
+    return ret;
 }
 
 
@@ -320,6 +308,7 @@ PkgFunctions::SelectionContent (const YCPString& sel, const YCPBoolean& to_delet
 YCPBoolean
 PkgFunctions::SetSelection (const YCPString& selection)
 {
+    y2warning("Pkg::SetSelection is obsoleted, selections have been replaced by patterns");
     return YCPBoolean(false);
 }
 
