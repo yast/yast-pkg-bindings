@@ -63,6 +63,7 @@ void PkgProgress::NextStage()
 	// is the callback registered?
 	if (ycp_handler != NULL)
 	{
+	    y2debug("Evaluating NextStage callback...");
 	    // evaluate the callback function
 	    ycp_handler->evaluateCall();
 	}
@@ -104,6 +105,7 @@ bool PkgProgress::_receiver(const zypp::ProgressData &progress)
 	{
 	    ycp_handler->appendParameter(YCPInteger(progress.reportValue()));
 	    // evaluate the callback function
+	    y2debug("Evaluating ProcessProgress callback...");
 	    YCPValue ret = ycp_handler->evaluateCall();
 
 	    if (!ret.isNull() && ret->isBoolean())
