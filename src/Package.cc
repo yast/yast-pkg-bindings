@@ -49,6 +49,10 @@
 #include <fstream>
 #include <sstream>
 
+/*
+  Textdomain "pkg-bindings"
+*/
+
 ///////////////////////////////////////////////////////////////////
 
 namespace zypp {
