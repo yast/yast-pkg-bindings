@@ -42,7 +42,8 @@ bool ServiceManager::LoadServices(const zypp::RepoManager &repomgr)
 	{
 	    for_ (it, repomgr.serviceBegin(), repomgr.serviceEnd())
 	    {
-		PkgService s(*it);
+		// set the original alias to the current one
+		PkgService s(*it, it->alias());
 		y2milestone("Loaded service %s (%s)", s.alias().c_str(), s.url().asString().c_str());
 		_known_services.insert(std::make_pair(s.alias(), s));
 	    }
@@ -72,7 +73,7 @@ bool ServiceManager::SaveServices(zypp::RepoManager &repomgr) const
 
 	try
 	{
-	    // save or delete
+	    // delete
 	    if (it->second.isDeleted())
 	    {
 		y2milestone("Removing service %s", alias.c_str());
@@ -153,11 +154,16 @@ bool ServiceManager::AddService(const std::string &alias, const std::string &url
 	}
 
 	PkgServices::iterator serv_it = _known_services.find(alias);
+	std::string orig_alias;
 
 	if (serv_it != _known_services.end())
 	{
 	    if (serv_it->second.isDeleted())
 	    {
+		// remember the original alias
+		// adding a removed service is the same as changing existing one
+		orig_alias = serv_it->second.alias();
+
 		// we are adding an already removed service,
 		// remove the existing service
 		_known_services.erase(serv_it);
@@ -169,9 +175,11 @@ bool ServiceManager::AddService(const std::string &alias, const std::string &url
 	    }
 	}
 
-        PkgService srv;
-	srv.setAlias(alias);
-	srv.setUrl(url);
+	zypp::ServiceInfo info;
+	info.setAlias(alias);
+	info.setUrl(url);
+
+        PkgService srv(info, orig_alias);
 
 	_known_services.insert(std::make_pair(alias, srv));
     }
@@ -273,7 +281,7 @@ bool ServiceManager::SetService(const std::string old_alias, const zypp::Service
 	    }
 	    else
 	    {
-		PkgService s(srv);
+		PkgService s(srv, old_alias);
 		_known_services[alias] = s;
 		return true;
 	    }
