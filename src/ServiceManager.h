@@ -59,11 +59,13 @@ class ServiceManager
 
     private:
 
-	// alias -> PkgService
+	// current alias -> PkgService for convenient search by alias
 	typedef std::map<std::string, PkgService> PkgServices;
 
+	// services has been loaded from system
 	bool _services_loaded;
 
+	// all known services (even deleted)
 	PkgServices _known_services;
 };
 

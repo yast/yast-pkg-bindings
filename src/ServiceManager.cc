@@ -44,7 +44,7 @@ bool ServiceManager::LoadServices(const zypp::RepoManager &repomgr)
 	    {
 		PkgService s(*it);
 		y2milestone("Loaded service %s (%s)", s.alias().c_str(), s.url().asString().c_str());
-		//_known_services.insert(std::pair<s.alias(), s>);
+		_known_services.insert(std::make_pair(s.alias(), s));
 	    }
 
 	    _services_loaded = true;
@@ -173,7 +173,7 @@ bool ServiceManager::AddService(const std::string &alias, const std::string &url
 	srv.setAlias(alias);
 	srv.setUrl(url);
 
-	// FIXME _known_services.insert(std::pair<alias, srv>);
+	_known_services.insert(std::make_pair(alias, srv));
     }
     catch(...)
     {
