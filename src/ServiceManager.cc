@@ -228,7 +228,9 @@ bool ServiceManager::RemoveService(const std::string &alias)
 void ServiceManager::Reset()
 {
     y2milestone("Resetting known services...");
+    // reset the internal structures
     _known_services.clear();
+    _services_loaded = false;
 }
 
 
@@ -263,32 +265,40 @@ zypp::ServiceInfo ServiceManager::GetService(const std::string &alias) const
     return zypp::ServiceInfo::noService;
 }
 
-// FIXME allow to change the alias
 bool ServiceManager::SetService(const std::string old_alias, const zypp::ServiceInfo &srv)
 {
     try
     {
-	std::string alias(srv.alias());
-
-	PkgServices::const_iterator serv_it = _known_services.find(alias);
+	PkgServices::const_iterator serv_it = _known_services.find(old_alias);
 
 	if (serv_it != _known_services.end())
 	{
 	    if (serv_it->second.isDeleted())
 	    {
-		y2warning("Service %s has been removed", alias.c_str());
+		y2warning("Service %s has been removed", old_alias.c_str());
 		return false;
 	    }
 	    else
 	    {
-		PkgService s(srv, old_alias);
-		_known_services[alias] = s;
+		// if the alias has been already changed then keep the original alias
+		if (old_alias == serv_it->second.alias() )
+		{
+		    PkgService s(srv, old_alias);
+		    _known_services[srv.alias()] = s;
+		}
+		else
+		{
+		    // keep the old alias
+		    PkgService s(srv, serv_it->second.origAlias());
+		    _known_services[srv.alias()] = s;
+		}
+
 		return true;
 	    }
 	}
 	else
 	{
-	    y2error("Service %s does not exist", alias.c_str());
+	    y2error("Service %s does not exist", old_alias.c_str());
 	    return false;
 	}
     }

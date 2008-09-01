@@ -51,6 +51,8 @@ libpy2Pkg_la_SOURCES =				\
 	Callbacks.cc Callbacks_Register.cc	\
 	Y2PkgFunction.cc Y2PkgFunction.h	\
 	YRepo.h YRepo.cc			\
+	PkgService.cc PkgService.h		\
+	ServiceManager.cc ServiceManager.h	\
 	HelpTexts.h i18n.h log.h
 
 
