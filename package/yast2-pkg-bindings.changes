@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Sep  4 09:04:23 CEST 2008 - lslezak@suse.cz
+
+- allow priority >99 in Pkg::SourceSet() (bnc#402135)
+- 2.16.41
+
+-------------------------------------------------------------------
 Tue Aug 12 15:52:02 CEST 2008 - lslezak@suse.cz
 
 - Fixed pattern status returned by Pkg::ResolvableProperties()
