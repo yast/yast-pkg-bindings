@@ -51,6 +51,8 @@ class YCPReference;
 #include <YRepo.h>
 #include <i18n.h>
 
+#include "ServiceManager.h"
+
 #include "PkgError.h"
 class PkgProgress;
 
@@ -175,6 +177,8 @@ class PkgFunctions
       PkgError _last_error;
 
       bool target_log_set;
+
+      ServiceManager service_manager;
 
       /**
        * Logging helper:
@@ -753,6 +757,27 @@ class PkgFunctions
 	YCPValue SourceReleaseAll ();
 	/* TYPEINFO: boolean(string)*/
 	YCPValue SourceMoveDownloadArea (const YCPString & path);
+
+	// services related functions
+	/* TYPEINFO: list<string>()*/
+	YCPValue ServiceAliases();
+	/* TYPEINFO: boolean(string,string)*/
+	YCPValue ServiceAdd(const YCPString&, const YCPString&);
+	/* TYPEINFO: boolean(string)*/
+	YCPValue ServiceDelete(const YCPString&);
+	/* TYPEINFO: map<string,any>(string)*/
+	YCPValue ServiceGet(const YCPString&);
+	/* TYPEINFO: boolean(string,map<string,any>)*/
+	YCPValue ServiceSet(const YCPString&, const YCPMap&);
+	/* TYPEINFO: boolean()*/
+	YCPValue ServicesSave();
+	/* TYPEINFO: boolean()*/
+	YCPValue ServicesLoad();
+	/* TYPEINFO: boolean(string)*/
+	YCPValue ServiceRefresh(const YCPString&);
+	/* TYPEINFO: void()*/
+	YCPValue ServicesReset();
+
 
         YCPValue ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies);
 	YCPValue ResolvableSetPatches(const YCPSymbol& kind_r, bool preselect);

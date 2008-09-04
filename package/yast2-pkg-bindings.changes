@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Thu Sep  4 12:53:53 CEST 2008 - lslezak@suse.cz
+
+- added support for services, new functions: Pkg::ServiceAliases(),
+  Pkg::ServiceAdd() Pkg::ServiceDelete(), Pkg::ServiceGet(),
+  Pkg::ServiceSet(), Pkg::ServicesSave(), Pkg::ServicesLoad(),
+  Pkg::ServiceRefresh(), Pkg::ServicesReset()
+- 2.17.9
+
+-------------------------------------------------------------------
 Thu Aug 21 14:02:01 CEST 2008 - lslezak@suse.cz
 
 - 2.17.8

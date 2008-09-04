@@ -53,6 +53,7 @@ libpy2Pkg_la_SOURCES =				\
 	YRepo.h YRepo.cc			\
 	PkgService.cc PkgService.h		\
 	ServiceManager.cc ServiceManager.h	\
+	Service.cc				\
 	HelpTexts.h i18n.h log.h
 
 

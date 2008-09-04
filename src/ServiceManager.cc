@@ -106,7 +106,7 @@ bool ServiceManager::SaveServices(zypp::RepoManager &repomgr) const
 	}
 	catch(...)
 	{
-	    y2error("Cannot service %s", alias.c_str());
+	    y2error("Cannot save service %s", alias.c_str());
 	    ret = false;
 	}
     }
