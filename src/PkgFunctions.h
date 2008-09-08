@@ -777,6 +777,8 @@ class PkgFunctions
 	YCPValue ServiceRefresh(const YCPString&);
 	/* TYPEINFO: void()*/
 	YCPValue ServicesReset();
+	/* TYPEINFO: string(string)*/
+	YCPValue ServiceURL(const YCPString &alias);
 
 
         YCPValue ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies);

@@ -134,6 +134,27 @@ YCPValue PkgFunctions::ServiceGet(const YCPString &alias)
     return ret;
 }
 
+/******************************************************************************
+ * @builtin SourceURL
+ *
+ * @short Get full service URL (including password!)
+ * @param alias alias of the service
+ * @return string URL or empty string on failure
+ **/
+YCPValue
+PkgFunctions::ServiceURL(const YCPString &alias)
+{
+    if (alias.isNull())
+    {
+	y2error("Error: nil service name");
+	return YCPString("");
+    }
+
+    zypp::ServiceInfo s(service_manager.GetService(alias->value()));
+
+    return YCPString(s.url().asCompleteString());
+}
+
 /**
    @builtin ServiceSet
    @short Set properties of a service

@@ -108,6 +108,7 @@ PkgFunctions::SourceGetCurrent (const YCPBoolean& enabled)
  * "url"	: YCPString (without password, but see SourceURL),
  * "alias"	: YCPString,
  * "name"	: YCPString,
+ * "service"	: YCPString, (service to which the repo belongs, empty if there is no service assigned)
  * ];
  *
  * </code>
@@ -150,6 +151,8 @@ PkgFunctions::SourceGeneralData (const YCPInteger& id)
     data->add( YCPString("mirror_list"),	YCPString(repo->repoInfo().mirrorListUrl().asString()));
 
     data->add( YCPString("priority"),	YCPInteger(repo->repoInfo().priority()));
+
+    data->add( YCPString("service"),	YCPString(repo->repoInfo().service()));
 
     return data;
 }
