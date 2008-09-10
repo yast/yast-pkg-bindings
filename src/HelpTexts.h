@@ -46,7 +46,7 @@ namespace HelpTexts
 	// help text
 	static const char *create_help = _("<P><BIG><B>Registering a New Repository</B></BIG></P>"
 "<P>A new repository is being registered. The package manager is reading "
-"list of available packages in the repository...</P>");
+"the list of available packages in the repository...</P>");
 
 
 	static const char *save_help = _("<P><BIG><B>Saving Repositories</B></BIG></P>"
