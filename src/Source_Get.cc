@@ -131,7 +131,7 @@ PkgFunctions::SourceGeneralData (const YCPInteger& id)
     data->add( YCPString("autorefresh"),	YCPBoolean(repo->repoInfo().autorefresh()));
     data->add( YCPString("type"),		YCPString(srctype));
     data->add( YCPString("product_dir"),	YCPString(repo->repoInfo().path().asString()));
-    
+
     // check if there is an URL
     if (repo->repoInfo().baseUrlsBegin() != repo->repoInfo().baseUrlsEnd())
     {
@@ -309,7 +309,7 @@ PkgFunctions::SourceProductData (const YCPInteger& src_id)
 	    ++it)
 	{
 	    zypp::Product::constPtr product = NULL;
-	    
+
 	    // search in available products
 	    for (zypp::ui::Selectable::available_iterator aval_it = (*it)->availableBegin();
 		aval_it != (*it)->availableEnd();
@@ -329,7 +329,7 @@ PkgFunctions::SourceProductData (const YCPInteger& src_id)
 		ret->add( YCPString("vendor"),		YCPString( product->vendor() ) );
 		ret->add( YCPString("productname"),	YCPString( product->name() ) );
 		ret->add( YCPString("productversion"),	YCPString( product->edition().version() ) );
-		ret->add( YCPString("relnotesurl"), 	YCPString( product->releaseNotesUrl().asString()));
+		ret->add( YCPString("relnotesurl"), 	YCPString( product->releaseNotesUrls().first().asString()));
 
 		break;
 	    }

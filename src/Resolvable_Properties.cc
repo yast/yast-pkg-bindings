@@ -45,6 +45,21 @@
 #include <zypp/Dep.h>
 #include <zypp/sat/LocaleSupport.h>
 
+namespace
+{
+  /** Trasform zypp::Product::UrlList into YCPList */
+  inline YCPList asYCPList( const zypp::Product::UrlList & urls_r )
+  {
+    YCPList ret;
+    for_( it, urls_r.begin(), urls_r.end() )
+    {
+      ret->add( YCPString(it->asString()) );
+    }
+    return ret;
+  }
+}
+
+
 /**
    @builtin ResolvableProperties
 
@@ -199,7 +214,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 			     || status == zypp::ui::S_Protected) ? "installed" : "available";
 			break;
 		}
-			
+
 		info->add(YCPString("status"), YCPSymbol(stat));
 		info->add(YCPString("status_detail"), YCPSymbol(zypp::ui::asString(status)));
 
@@ -258,7 +273,7 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 #warning "Product::category is deprecated, remove from YCP code and this map"
                     info->add(YCPString("category"), YCPString(product->type()));
                     info->add(YCPString("type"), YCPString(product->type()));
-		    info->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
+		    info->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrls().first().asString()));
 
 		    std::string product_summary = product->summary();
 		    if (product_summary.size() > 0)
@@ -278,8 +293,8 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		    }
 
 		    YCPList updateUrls;
-		    std::list<zypp::Url> pupdateUrls = product->updateUrls();
-		    for (std::list<zypp::Url>::const_iterator it = pupdateUrls.begin(); it != pupdateUrls.end(); ++it)
+		    zypp::Product::UrlList pupdateUrls = product->updateUrls();
+		    for_( it, pupdateUrls.begin(), pupdateUrls.end() )
 		    {
 			updateUrls->add(YCPString(it->asString()));
 		    }
@@ -287,34 +302,36 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 
 		    YCPList flags;
 		    std::list<std::string> pflags = product->flags();
-		    for (std::list<std::string>::const_iterator flag_it = pflags.begin();
+                    for (std::list<std::string>::const_iterator flag_it = pflags.begin();
 			flag_it != pflags.end(); ++flag_it)
 		    {
 			flags->add(YCPString(*flag_it));
 		    }
 		    info->add(YCPString("flags"), flags);
 
-		    std::list<zypp::Url> pextraUrls = product->extraUrls();
-		    if (pextraUrls.size() > 0)
-		    {
-			YCPList extraUrls;
-			for (std::list<zypp::Url>::const_iterator it = pextraUrls.begin(); it != pextraUrls.end(); ++it)
-			{
-			    extraUrls->add(YCPString(it->asString()));
-			}
-			info->add(YCPString("extra_urls"), extraUrls);
-		    }
+                    YCPList extraUrls( asYCPList(product->extraUrls()) );
+                    if ( extraUrls.size() )
+                    {
+                      info->add(YCPString("extra_urls"), extraUrls);
+                    }
 
-		    std::list<zypp::Url> poptionalUrls = product->optionalUrls();
-		    if (poptionalUrls.size() > 0)
-		    {
-			YCPList optionalUrls;
-			for (std::list<zypp::Url>::const_iterator it = poptionalUrls.begin(); it != poptionalUrls.end(); ++it)
-			{
-			    optionalUrls->add(YCPString(it->asString()));
-			}
-			info->add(YCPString("optional_urls"), optionalUrls);
-		    }
+                    YCPList optionalUrls( asYCPList(product->optionalUrls()) );
+                    if ( optionalUrls.size() )
+                    {
+                      info->add(YCPString("optional_urls"), optionalUrls);
+                    }
+
+                    YCPList registerUrls( asYCPList(product->registerUrls()) );
+                    if ( registerUrls.size() )
+                    {
+                      info->add(YCPString("register_urls"), registerUrls);
+                    }
+
+                    YCPList smoltUrls( asYCPList(product->smoltUrls()) );
+                    if ( smoltUrls.size() )
+                    {
+                      info->add(YCPString("smolt_urls"), smoltUrls);
+                    }
 
 		    // get the installed Products it would replace.
 		    zypp::Product::ReplacedProducts replaced(product->replacedProducts());

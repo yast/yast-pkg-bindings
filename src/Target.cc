@@ -200,7 +200,7 @@ PkgFunctions::TargetProducts ()
           prod->add(YCPString("type"), YCPString(product->type()));
           prod->add(YCPString("category"), YCPString(product->type()));
           prod->add(YCPString("vendor"), YCPString(product->vendor()));
-          prod->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
+          prod->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrls().first().asString()));
           std::string product_summary = product->summary();
           if (product_summary.size() > 0)
           {
@@ -224,8 +224,8 @@ PkgFunctions::TargetProducts ()
             prod->add(YCPString("summary"), YCPString((*it)->summary()));
           }
           YCPList updateUrls;
-          std::list<zypp::Url> pupdateUrls = product->updateUrls();
-          for (std::list<zypp::Url>::const_iterator it = pupdateUrls.begin(); it != pupdateUrls.end(); ++it)
+          zypp::Product::UrlList pupdateUrls = product->updateUrls();
+          for_( it, pupdateUrls.begin(), pupdateUrls.end() )
           {
             updateUrls->add(YCPString(it->asString()));
           }
