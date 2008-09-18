@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Sep 18 17:23:03 CEST 2008 - lslezak@suse.cz
+
+- improved callback evaluation - evaluate the callbacks even when
+  the change is smaller than 5% but at least 3 seconds have elapsed
+  since the last evaluation, makes better response on slow
+  connections (bnc#402593)
+
+-------------------------------------------------------------------
 Fri Sep 12 13:50:21 CEST 2008 - ma@suse.de
 
 - Provide product url lists for registration and smolt.

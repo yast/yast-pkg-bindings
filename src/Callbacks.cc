@@ -39,6 +39,8 @@
 #include "zypp/Digest.h"
 #include "zypp/base/String.h"
 
+#include <ctime>
+
 // FIXME: do this nicer, source create use this to avoid user feedback
 // on probing of source type
 
@@ -51,6 +53,10 @@ typedef std::map<unsigned, zypp::Url> MediaMap;
 typedef std::map<zypp::Url, MediaMap> RedirectMap;
 
 RedirectMap redirect_map;
+
+// default timeout for callbacks, evaluate the callbacks after 3 seconds
+// even if the progress percent has not been changed
+static const time_t callback_timeout = 3;
 
 ///////////////////////////////////////////////////////////////////
 namespace ZyppRecipients {
@@ -251,6 +257,7 @@ namespace ZyppRecipients {
     {
 	zypp::Resolvable::constPtr _last;
 	int last_reported;
+	time_t last_reported_time;
 
 	InstallPkgReceive(RecipientCtl & construct_r) : Recipient(construct_r)
 	{
@@ -268,6 +275,7 @@ namespace ZyppRecipients {
 	{
 	  // initialize the counter
 	  last_reported = 0;
+	  last_reported_time = time(NULL);
 
 #warning install non-package
 	  zypp::Package::constPtr res =
@@ -293,8 +301,9 @@ namespace ZyppRecipients {
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
 	    // call the callback function only if the difference since the last call is at least 5%
-	    // or if 100% is reached
-	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100))
+	    // or if 100% is reached or at least 3 seconds have elapsed
+	    time_t current_time = time(NULL);
+	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100 || current_time - last_reported_time >= callback_timeout))
 	    {
 		callback.addInt( value );
 		bool res = callback.evaluateBool();
@@ -303,6 +312,7 @@ namespace ZyppRecipients {
 		    y2milestone( "Package installation callback returned abort" );
 
 		last_reported = value;
+		last_reported_time = current_time;
 		return res;
 	    }
 
@@ -491,9 +501,16 @@ namespace ZyppRecipients {
 
 	DownloadResolvableReceive( RecipientCtl & construct_r, const PkgFunctions &pk ) : Recipient( construct_r ), _pkg_ref(pk) {}
 	int last_reported;
+	time_t last_reported_time;
+
 	int last_reported_delta_download;
+	time_t last_reported_delta_download_time;
+
 	int last_reported_delta_apply;
+	time_t last_reported_delta_apply_time;
+
 	int last_reported_patch_download;
+	time_t last_reported_patch_download_time;
 
 	virtual void reportbegin()
 	{
@@ -507,6 +524,7 @@ namespace ZyppRecipients {
 	{
 	  unsigned size = 0;
 	  last_reported = 0;
+	  last_reported_time = time(NULL);
 
 	  if ( zypp::isKind<zypp::Package> (resolvable_ptr) )
 	  {
@@ -559,9 +577,11 @@ namespace ZyppRecipients {
         virtual bool progress(int value, zypp::Resolvable::constPtr resolvable_ptr)
         {
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressProvide) );
-	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100))
+	    time_t current_time = time(NULL);
+	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100 || current_time - last_reported_time >= callback_timeout))
 	    {
 		last_reported = value;
+		last_reported_time = current_time;
 		callback.addInt( value );
 		return callback.evaluateBool(); // return value ignored by RpmDb
 	    }
@@ -603,6 +623,7 @@ namespace ZyppRecipients {
 	{
 	    // reset the counter
 	    last_reported_delta_download = 0;
+	    last_reported_delta_download_time = time(NULL);
 
 	    CB callback( ycpcb( YCPCallbacks::CB_StartDeltaDownload) );
 	    if (callback._set) {
@@ -616,9 +637,11 @@ namespace ZyppRecipients {
 	virtual bool progressDeltaDownload( int value )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDeltaDownload) );
-	    if (callback._set && (value - last_reported_delta_download >= 5 || last_reported_delta_download - value >= 5 || value == 100))
+	    time_t current_time = time(NULL);
+	    if (callback._set && (value - last_reported_delta_download >= 5 || last_reported_delta_download - value >= 5 || value == 100 || current_time - last_reported_delta_download_time >= callback_timeout))
 	    {
 		last_reported_delta_download = value;
+		last_reported_delta_download_time = current_time;
 		callback.addInt( value );
 
 		return callback.evaluateBool();
@@ -656,6 +679,7 @@ namespace ZyppRecipients {
 	{
 	    // reset the counter
 	    last_reported_delta_apply = 0;
+	    last_reported_delta_apply_time = time(NULL);
 
 	    CB callback( ycpcb( YCPCallbacks::CB_StartDeltaApply) );
 	    if (callback._set) {
@@ -668,9 +692,11 @@ namespace ZyppRecipients {
 	virtual void progressDeltaApply( int value )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDeltaApply ) );
-	    if (callback._set && (value - last_reported_delta_apply >= 5 || last_reported_delta_apply - value >= 5 || value == 100))
+	    time_t current_time = time(NULL);
+	    if (callback._set && (value - last_reported_delta_apply >= 5 || last_reported_delta_apply - value >= 5 || value == 100 || current_time - last_reported_delta_apply_time >= callback_timeout))
 	    {
 		last_reported_delta_apply = value;
+		last_reported_delta_apply_time = current_time;
 		callback.addInt( value );
 
 		callback.evaluate();
@@ -707,6 +733,7 @@ namespace ZyppRecipients {
 	{
 	    // reset the counter
 	    last_reported_patch_download = 0;
+	    last_reported_patch_download_time = time(NULL);
 
 	    CB callback( ycpcb( YCPCallbacks::CB_StartPatchDownload ) );
 	    if (callback._set) {
@@ -720,9 +747,11 @@ namespace ZyppRecipients {
 	virtual bool progressPatchDownload( int value )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPatchDownload) );
-	    if (callback._set && (value - last_reported_patch_download >= 5 || last_reported_patch_download - value >= 5 || value == 100))
+	    time_t current_time = time(NULL);
+	    if (callback._set && (value - last_reported_patch_download >= 5 || last_reported_patch_download - value >= 5 || value == 100 || current_time - last_reported_patch_download_time >= callback_timeout))
 	    {
 		last_reported_patch_download = value;
+		last_reported_patch_download_time = current_time;
 		callback.addInt( value );
 
 		return callback.evaluateBool();
@@ -764,12 +793,14 @@ namespace ZyppRecipients {
     struct DownloadProgressReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::media::DownloadProgressReport>
     {
 	int last_reported;
+	time_t last_reported_time;
 
 	DownloadProgressReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
         virtual void start( const zypp::Url &file, zypp::Pathname localfile )
 	{
 	    last_reported = 0;
+	    last_reported_time = time(NULL);
 	    CB callback( ycpcb( YCPCallbacks::CB_StartDownload ) );
 
 	    if ( callback._set )
@@ -784,10 +815,12 @@ namespace ZyppRecipients {
         {
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDownload ) );
 	    // call the callback function only if the difference since the last call is at least 5%
-	    // or if 100% is reached
-	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100))
+	    // or if 100% is reached or if at least 3 seconds have elapsed
+	    time_t current_time = time(NULL);
+	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100 || current_time - last_reported_time >= callback_timeout))
 	    {
 		last_reported = value;
+		last_reported_time = current_time;
 		// report changed values
 		callback.addInt( value );
 		callback.addInt( (long long) bps_avg  );
