@@ -4,8 +4,8 @@
 BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer sgml-skel yast2-core-devel yast2-devtools
 BuildRequires: libzypp-devel >= 5.10.0
 
-# created and expires dates in zypp::PublicKey
-Requires:	libzypp >= 5.10.0
+# Product::isTargetDistribution()
+Requires:	libzypp >= 5.11.0
 
 Summary:	-
 

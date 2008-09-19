@@ -196,9 +196,11 @@ PkgFunctions::TargetProducts ()
           // FIXME unify with code in Pkg::ResolvablePropertiesEx
           prod->add( YCPString("name"), YCPString( product->name() ) );
           prod->add( YCPString("version"), YCPString( product->edition().version() ) );
-          #warning "Product::category is deprecated, remove from map and ycp code"
-          prod->add(YCPString("type"), YCPString(product->type()));
-          prod->add(YCPString("category"), YCPString(product->type()));
+
+          std::string category(product->isTargetDistribution() ? "base" : "addon");
+          prod->add(YCPString("type"), YCPString(category));
+          prod->add(YCPString("category"), YCPString(category));
+
           prod->add(YCPString("vendor"), YCPString(product->vendor()));
           prod->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrls().first().asString()));
           std::string product_summary = product->summary();

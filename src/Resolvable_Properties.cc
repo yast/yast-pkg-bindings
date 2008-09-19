@@ -270,9 +270,11 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
                         y2error("product %s is not a product", (*it)->name().c_str() );
                         continue;
                     }
-#warning "Product::category is deprecated, remove from YCP code and this map"
-                    info->add(YCPString("category"), YCPString(product->type()));
-                    info->add(YCPString("type"), YCPString(product->type()));
+
+		    std::string category(product->isTargetDistribution() ? "base" : "addon");
+
+                    info->add(YCPString("category"), YCPString(category));
+                    info->add(YCPString("type"), YCPString(category));
 		    info->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrls().first().asString()));
 
 		    std::string product_summary = product->summary();
