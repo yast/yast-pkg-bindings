@@ -77,6 +77,64 @@ namespace
    if status is `installed and locked is true then the object locked
    if status is `selected or `removed there is extra key "transact_by" : symbol, where symbol is `user (the highest level),
        `app_high (selected by Yast), `app_low and `solver (the lowest level)
+
+   @example
+     Additionally to keys returned for all resolvables, there also some
+     resolvable-specific ones:
+     
+     `product keys:
+        + "category"
+        + "display_name"
+        + "short_name"
+        + "update_urls"
+        + "flags"
+        + "extra_urls"
+        + "optional_urls"
+        + "register_urls"
+        + "smolt_urls"
+        + "replaces"
+          + "name"
+          + "version"
+          + "arch"
+          + "description"
+          + "display_name"
+          + "short_name"
+     `patch keys:
+        + "interactive"
+        + "reboot_needed"
+        + "relogin_needed"
+        + "affects_pkg_manager"
+        + "is_needed"
+     `package keys:
+        + "path"
+        + "location"
+     `pattern keys:
+        + "category"
+        + "user_visible"
+        + "default"
+        + "icon"
+        + "script"
+        + "order"
+     `language keys:
+        + "code"
+        + "packages"
+        + "requested"
+     
+     If dependencies are requested, this keys are additionally used:
+        + "provides"
+        + "prerequires"
+        + "requires"
+        + "conflicts"
+        + "obsoletes"
+        + "recommends"
+        + "suggests"
+        + "enhances"
+        + "supplements"
+
+     All the dependencies use maps with these keys:
+        + "res_kind"
+        + "name"
+        + "dep_kind"
 */
 
 YCPValue
