@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Sep 19 15:05:31 CEST 2008 - lslezak@suse.cz
+
+- added Pkg::ServiceProbe() function for probing service type
+  (or for checking if there is a service at all) (bnc#427728)
+
+-------------------------------------------------------------------
 Thu Sep 18 17:23:03 CEST 2008 - lslezak@suse.cz
 
 - improved callback evaluation - evaluate the callbacks even when

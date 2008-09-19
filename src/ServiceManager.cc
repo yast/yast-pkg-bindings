@@ -309,4 +309,12 @@ bool ServiceManager::SetService(const std::string old_alias, const zypp::Service
     return false;
 }
 
+std::string ServiceManager::Probe(const zypp::Url &url, const zypp::RepoManager &repomgr) const
+{
+    y2milestone("Probing service at %s...", url.asString().c_str());
+    std::string ret(repomgr.probeService(url).asString());
+    y2milestone("Detected service type: %s", ret.c_str());
+
+    return ret;
+}
 

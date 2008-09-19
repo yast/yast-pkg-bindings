@@ -54,6 +54,8 @@ class ServiceManager
 
 	bool RefreshService(const std::string &alias, zypp::RepoManager &repomgr) const;
 
+	std::string Probe(const zypp::Url &url, const zypp::RepoManager &repomgr) const;
+
 	void Reset();
 
 

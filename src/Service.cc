@@ -290,3 +290,27 @@ YCPValue PkgFunctions::ServicesReset()
     return YCPVoid();
 }
 
+/**
+   @builtin ServiceProbe
+   @short Probe service type at a URL
+   @param url URL of the service
+   @return string probed type or "NONE" if there is no service
+*/
+YCPValue PkgFunctions::ServiceProbe(const YCPString &url)
+{
+    if (url.isNull())
+    {
+	y2error("URL is nil");
+	return YCPVoid();
+    }
+
+    try
+    {
+	const zypp::RepoManager repomanager = CreateRepoManager();
+	return YCPString(service_manager.Probe(zypp::Url(url->asString()->value()), repomanager));
+    }
+    catch(...)
+    {
+	return YCPVoid();
+    }
+}
