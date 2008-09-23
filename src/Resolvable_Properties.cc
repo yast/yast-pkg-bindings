@@ -276,8 +276,8 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		info->add(YCPString("status"), YCPSymbol(stat));
 
 		// the current (string) status in libzypp
-		// 'S_Protected', 'S_Taboo', 'S_Del', 'S_Update', 'S_Install', 'S_AutoDel',
-		// 'S_AutoUpdate', 'S_AutoInstall', 'S_KeepInstalled', or 'S_NoInst'
+		// `S_Protected, `S_Taboo, `S_Del, `S_Update, `S_Install, `S_AutoDel,
+		// `S_AutoUpdate, `S_AutoInstall, `S_KeepInstalled, or `S_NoInst
 		info->add(YCPString("status_detail"), YCPSymbol(zypp::ui::asString(status)));
 
 		// is the resolvable locked? (Locked or Taboo in the UI)
