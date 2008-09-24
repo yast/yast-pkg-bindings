@@ -315,8 +315,8 @@ PkgFunctions::SourceProductData (const YCPInteger& src_id)
 		aval_it != (*it)->availableEnd();
 		++aval_it)
 	    {
-		zypp::Product::constPtr prod = boost::dynamic_pointer_cast<const zypp::Product>(aval_it->resolvable());
-		if (product && product->repoInfo().alias() == alias)
+		zypp::Product::constPtr prod = zypp::asKind<zypp::Product>(aval_it);
+		if (prod && prod->repoInfo().alias() == alias)
 		{
 		    product = prod;
 		    break;

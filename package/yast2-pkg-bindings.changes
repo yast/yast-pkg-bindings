@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Sep 24 14:56:50 CEST 2008 - ma@suse.de
+
+- fixed retrieval of product data (bnc #429067)
+
+-------------------------------------------------------------------
 Wed Sep 24 09:09:39 CEST 2008 - lslezak@suse.cz
 
 - adapted GPG key callbacks - report also the affected repository
