@@ -168,6 +168,8 @@ class PkgFunctions
 
       YCPValue searchPackage(const YCPString &package, bool installed);
 
+      bool CreateBaseProductSymlink();
+
     private:
 
       /**

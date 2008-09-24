@@ -43,11 +43,20 @@
 #include <zypp/target/rpm/RpmDb.h>
 #include <zypp/target/TargetException.h>
 #include <zypp/ZYppCommit.h>
+#include <zypp/base/Regex.h>
 
 #include <zypp/sat/WhatProvides.h>
 
 #include <fstream>
 #include <sstream>
+
+extern "C"
+{
+// ::stat, ::unlink, ::symlink
+#include <unistd.h>
+// errno
+#include <errno.h>
+}
 
 /*
   Textdomain "pkg-bindings"
@@ -2108,6 +2117,9 @@ PkgFunctions::PkgCommit (const YCPInteger& media)
 
     SourceReleaseAll();
 
+    // create the base product link (bnc#413444)
+    CreateBaseProductSymlink();
+
     YCPList ret;
 
     ret->add(YCPInteger(result._result));
@@ -2365,4 +2377,116 @@ PkgFunctions::PkgDU(const YCPString& package)
     }
 
     return MPS2YCPMap(mps);
+}
+
+// helper function - create a symbolic link to the created base product (by SourceCreateBase() function)
+// returns 'true' on success
+// see http://en.opensuse.org/Product_Management/Code11/installed
+bool PkgFunctions::CreateBaseProductSymlink()
+{
+    if (base_product)
+    {
+	y2milestone("Creating symlink for the base product...");
+
+	// get the package
+	zypp::sat::Solvable refsolvable = base_product->referencePackage();
+	
+	if (refsolvable != zypp::sat::Solvable::noSolvable)
+	{
+	    // create a package pointer from the SAT solvable
+	    zypp::Package::Ptr refpkg(zypp::make<zypp::Package>(refsolvable));
+
+	    if (refpkg)
+	    {
+		y2milestone("Found reference package for the base product: %s-%s",
+		    refpkg->name().c_str(), refpkg->edition().asString().c_str());
+
+		// get the package files
+		std::list<std::string> files = refpkg->filenames();
+		y2milestone("The reference package has %zd files", files.size());
+
+		std::string product_file;
+		zypp::str::smatch what;
+		const zypp::str::regex product_file_regex("^/etc/products\\.d/(.*\\.prod)$");
+
+		// find the product file
+		for_(iter, files.begin(), files.end())
+		{
+		    if (zypp::str::regex_match(*iter, what, product_file_regex))
+		    {
+			product_file = what[1];
+			break;
+		    }
+		}
+
+		if (product_file.empty())
+		{
+		    y2error("The product file has not been found");
+		    return false;
+		}
+		else
+		{
+		    y2milestone("Found product file %s", product_file.c_str());
+
+		    // check and remove the existing link (refresh the link after upgrade)
+		    const zypp::Pathname base_link(_target_root / "/etc/products.d/baseproduct");
+
+		    struct stat stat_buf;
+		    if (::stat(base_link.asString().c_str(), &stat_buf) == 0)
+		    {
+			// the file exists, remove it
+			if (::unlink(base_link.asString().c_str()) != 0)
+			{
+			    y2error("Cannot remove base link file %s: %s",
+				base_link.asString().c_str(),
+				::strerror(errno)
+			    );
+			    
+			    return false;
+			}
+		    }
+		    // ENOENT == "No such file or directory", see 'man errno'
+		    else if (errno != ENOENT)
+		    {
+			y2error("Cannot stat %s file: %s", base_link.asString().c_str(), ::strerror(errno));
+			return false;
+		    }
+		    else
+		    {
+			y2debug("Link %s does not exist", base_link.asString().c_str());
+		    }
+
+		    if (::symlink(product_file.c_str(), base_link.asString().c_str()) != 0)
+		    {
+			y2error("Cannot create symlink %s -> %s: %s",
+			    base_link.asString().c_str(),
+			    product_file.c_str(),
+			    ::strerror(errno)
+			);
+
+			return false;
+		    }
+		    else
+		    {
+			y2milestone("Symlink %s -> %s has been created", base_link.asString().c_str(), product_file.c_str());
+		    }
+		}
+	    }
+	    else
+	    {
+		y2error("The reference solvable is not a package");
+		return false;
+	    }
+	}
+	else
+	{
+	    y2milestone("The base product doesn't have any reference package");
+	}
+    }
+    else
+    {
+	y2debug("A base product has not been added");
+    }
+
+    return true;
 }

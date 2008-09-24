@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Sep 24 15:40:09 CEST 2008 - lslezak@suse.cz
+
+- create the base product symlink in Pkg::PkgCommit() (bnc#413444)
+
+-------------------------------------------------------------------
 Wed Sep 24 14:56:50 CEST 2008 - ma@suse.de
 
 - fixed retrieval of product data (bnc #429067)
