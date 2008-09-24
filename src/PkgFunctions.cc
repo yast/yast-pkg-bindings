@@ -61,6 +61,7 @@ PkgFunctions::PkgFunctions () :
     , zypp_pointer(NULL)
     ,_callbackHandler( *new CallbackHandler(*this) )
     ,target_log_set(false)
+    , base_product(NULL)
 {
     const char *domain = "pkg-bindings";
     bindtextdomain( domain, LOCALEDIR );
@@ -129,6 +130,11 @@ zypp::ZYpp::Ptr PkgFunctions::zypp_ptr()
 PkgFunctions::~PkgFunctions ()
 {
     delete &_callbackHandler;
+
+    if (base_product)
+    {
+	base_product = NULL;
+    }
 
     if (zypp_pointer != NULL)
     {

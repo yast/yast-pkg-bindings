@@ -386,22 +386,30 @@ PkgFunctions::SourceDelete (const YCPInteger& id)
 	return YCPBoolean(false);
 
     bool success = true;
+    const std::string repo_alias(repo->repoInfo().alias());
 
     try
     {
+
 	// the resolvables cannot be used anymore, remove them
-	RemoveResolvablesFrom(repo->repoInfo().alias());
+	RemoveResolvablesFrom(repo_alias);
 
 	// update 'repos'
 	repo->setDeleted();
+
+	// removing the base product repository?
+	if (base_product && base_product->repoInfo().alias() == repo_alias)
+	{
+	    y2warning("Resetting the base product, the base product repository has been removed");
+	    base_product = NULL;
+	}
 
 	PkgFreshen();
     }
     catch (const zypp::Exception& excpt)
     {
-	std::string alias = repo->repoInfo().alias();
-	y2error ("Error for '%s': %s", alias.c_str(), excpt.asString().c_str());
-	_last_error.setLastError(alias + ": " + ExceptionAsString(excpt));
+	y2error ("Error for '%s': %s", repo_alias.c_str(), excpt.asString().c_str());
+	_last_error.setLastError(repo_alias + ": " + ExceptionAsString(excpt));
 	success = false;
     }
 

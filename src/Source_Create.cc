@@ -162,10 +162,9 @@ zypp::Url addRO(const zypp::Url &url)
  * \return the SourceId
  * \throws Exception if Source creation fails
 */
-std::vector<zypp::RepoInfo>::size_type
+PkgFunctions::RepoId
 PkgFunctions::createManagedSource( const zypp::Url & url_r,
 		     const zypp::Pathname & path_r,
-		     const bool base_source,
 		     const std::string& type,
 		     const std::string &alias_r,
 		     PkgProgress &progress,
@@ -179,8 +178,6 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
 
     std::string alias = removeAlias(url_r, url);
     y2milestone("Alias from URL: '%s'", alias.c_str());
-
-#warning FIXME: use base_source (base_source vs. addon) (will be probably not needed)
 
     // repository type
     zypp::repo::RepoType repotype;
@@ -628,7 +625,7 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
   prg.toMin();
 
   // remember the new ids for loading the resolvables
-  std::list<std::vector<zypp::RepoInfo>::size_type> new_repos;
+  std::list<RepoId> new_repos;
 
   if (scan) {
     // scan all sources
@@ -665,7 +662,7 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
 
 	try
 	{
-	    std::vector<zypp::RepoInfo>::size_type id = createManagedSource(url, it->_dir, base, type, it->_name, pkgprogress, subprogrcv);
+	    RepoId id = createManagedSource(url, it->_dir, type, it->_name, pkgprogress, subprogrcv);
 
 	    new_repos.push_back(id);
 	}
@@ -681,7 +678,7 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
     if (!scan_only)
     {
 	// load resolvables
-	for(std::list<std::vector<zypp::RepoInfo>::size_type>::const_iterator it = new_repos.begin();
+	for(std::list<RepoId>::const_iterator it = new_repos.begin();
 	    it != new_repos.end() ; ++it )
 	{
 	    zypp::CombinedProgressData subprogrcv2(prg, 10/products.size());
@@ -692,6 +689,13 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
 
 		// no detailed progress needed, refresh has been done in createManagedSource()
 		LoadResolvablesFrom(repo->repoInfo(), subprogrcv2);
+
+		// search for a base product if it hasn't been set
+		if (base && !base_product)
+		{
+		    y2milestone("Searching a base product...");
+		    base_product = FindBaseProduct(repo->repoInfo().alias());
+		}
 	    }
 	    catch ( const zypp::Exception& excpt)
 	    {
@@ -710,7 +714,7 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
 
     try
     {
-	std::vector<zypp::RepoInfo>::size_type new_id = createManagedSource(url, pn, base, type, "", pkgprogress, subprogrcv_create);
+	RepoId new_id = createManagedSource(url, pn, type, "", pkgprogress, subprogrcv_create);
 	new_repos.push_back(new_id);
 
 	if (!scan_only)
@@ -721,6 +725,12 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
 
 	    // load the resolvables
 	    LoadResolvablesFrom(repo->repoInfo(), subprogrcv_load);
+
+	    if (base && !base_product)
+	    {
+		y2milestone("Searching the base product...");
+		base_product = FindBaseProduct(repo->repoInfo().alias());
+	    }
 	}
     }
     catch ( const zypp::Exception& excpt)
@@ -744,7 +754,7 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
       YCPList ids;
 
       // load resolvables
-      for(std::list<std::vector<zypp::RepoInfo>::size_type>::const_iterator it = new_repos.begin();
+      for(std::list<RepoId>::const_iterator it = new_repos.begin();
 	it != new_repos.end() ; ++it )
       {
 	    ids->add(YCPInteger(*it));
@@ -884,3 +894,54 @@ YCPValue PkgFunctions::RepositoryScan(const YCPString& url)
     return ret;
 }
 
+zypp::Product::constPtr PkgFunctions::FindBaseProduct(const std::string &alias) const
+{
+    zypp::Product::constPtr product = NULL;
+
+    // access to the Pool of Selectables
+    zypp::ResPoolProxy selectablePool(zypp::ResPool::instance().proxy());
+
+    // iterate over zypp::Products
+    for_(it, selectablePool.byKindBegin<zypp::Product>(), selectablePool.byKindEnd<zypp::Product>())
+    {
+	// search an available product from the required repository
+	for_(avail_it, (*it)->availableBegin(), (*it)->availableEnd())
+	{
+	    // get the resolvable
+	    zypp::ResObject::constPtr res = *avail_it;
+
+	    // check the repository
+	    if (res && res->repoInfo().alias() == alias)
+	    {
+		product = boost::dynamic_pointer_cast<const zypp::Product>(res);
+
+		if (product)
+		{
+		    break;
+		}
+	    }
+	}
+
+	if (product)
+	{
+	    break;
+	}
+    }
+
+    // no product in the pool
+    if (!product)
+    {
+	y2error("No base product has been found");
+    }
+    else
+    {
+	y2milestone("Found base product: %s %s (%s-%s)",
+	    product->summary().c_str(),
+	    product->edition().asString().c_str(),
+	    product->name().c_str(),
+	    product->edition().asString().c_str()
+	);
+    }
+
+    return product;
+}

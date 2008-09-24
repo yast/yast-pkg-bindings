@@ -43,6 +43,7 @@ class YCPReference;
 
 #include <zypp/ZYpp.h>
 #include <zypp/Package.h>
+#include <zypp/Product.h>
 
 #include <zypp/DiskUsageCounter.h>
 #include <zypp/RepoManager.h>
@@ -125,6 +126,7 @@ class PkgFunctions
       YCPValue TargetInitInternal(const YCPString& root, bool rebuild_rpmdb);
     
       bool aliasExists(const std::string &alias) const;
+      zypp::Product::constPtr FindBaseProduct(const std::string &alias) const;
 
       zypp::RepoManager CreateRepoManager();
 
@@ -180,6 +182,8 @@ class PkgFunctions
 
       ServiceManager service_manager;
 
+      zypp::Product::constPtr base_product;
+
       /**
        * Logging helper:
        * search for a repository and in case of exception, log error
@@ -188,7 +192,7 @@ class PkgFunctions
 	YRepo_Ptr logFindRepository(RepoId id);
 	
 	RepoId createManagedSource(const zypp::Url & url_r,
-	    const zypp::Pathname & path_r, const bool base_source, const std::string& type,
+	    const zypp::Pathname & path_r, const std::string& type,
 	    const std::string &alias_r, PkgProgress &progress, const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc());
 
       /**
