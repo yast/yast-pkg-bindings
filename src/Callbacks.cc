@@ -1660,9 +1660,10 @@ namespace ZyppRecipients {
     ///////////////////////////////////////////////////////////////////
     struct KeyRingReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::KeyRingReport>
     {
-	KeyRingReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+	const PkgFunctions &_pkg_ref;
+	KeyRingReceive( RecipientCtl & construct_r, const PkgFunctions &pk) : Recipient( construct_r ), _pkg_ref(pk) {}
 
-	virtual bool askUserToImportKey( const zypp::PublicKey &key)
+	virtual zypp::KeyRingReport::KeyTrust askUserToAcceptKey( const zypp::PublicKey &key, const zypp::KeyContext &context)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ImportGpgKey) );
 
@@ -1671,46 +1672,29 @@ namespace ZyppRecipients {
 		GPGMap gpgmap(key);
 
 		callback.addMap(gpgmap.getMap());
+		long long srcid = _pkg_ref.logFindAlias(context.repoInfo().alias());
+		callback.addInt(srcid);
 
 		bool res = callback.evaluateBool();
 		y2milestone("Callback ImportGpgKey value: %s", res ? "true" : "false");
 
-		return res;
+		return res ? KEY_TRUST_AND_IMPORT : KEY_DONT_TRUST;
 	    }
 
-	    y2milestone("Callback ImportGpgKey not registered, using default value: %s", zypp::KeyRingReport::askUserToImportKey(key) ? "true" : "false");
+	    y2milestone("Callback ImportGpgKey not registered, using default value: %s", zypp::KeyRingReport::askUserToAcceptKey(key, context) ? "true" : "false");
 
-	    return zypp::KeyRingReport::askUserToImportKey(key);
+	    return zypp::KeyRingReport::askUserToAcceptKey(key, context);
 	}
 
-	virtual bool askUserToTrustKey(const zypp::PublicKey& key)
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_AcceptNonTrustedGpgKey) );
-
-	    if (callback._set)
-	    {
-		GPGMap gpgmap(key);
-
-		callback.addMap(gpgmap.getMap());
-
-		bool res = callback.evaluateBool();
-		y2milestone("Callback AcceptNonTrustedGpgKey value: %s", res ? "true" : "false");
-
-		return res;
-	    }
-
-	    y2milestone("Callback AcceptNonTrustedGpgKey not registered, using default value: %s", zypp::KeyRingReport::askUserToTrustKey(key) ? "true" : "false");
-
-	    return zypp::KeyRingReport::askUserToTrustKey(key);
-	}
-
-	virtual bool askUserToAcceptUnsignedFile(const std::string &file)
+	virtual bool askUserToAcceptUnsignedFile(const std::string &file, const zypp::KeyContext &context)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnsignedFile) );
 
 	    if (callback._set)
 	    {
 		callback.addStr(file);
+		long long srcid = _pkg_ref.logFindAlias(context.repoInfo().alias());
+		callback.addInt(srcid);
 
 		return callback.evaluateBool();
 	    }
@@ -1718,7 +1702,7 @@ namespace ZyppRecipients {
 	    return zypp::KeyRingReport::askUserToAcceptUnsignedFile(file);
 	}
 
-	virtual bool askUserToAcceptUnknownKey(const std::string &file, const std::string &id)
+	virtual bool askUserToAcceptUnknownKey(const std::string &file, const std::string &id, const zypp::KeyContext &context)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnknownGpgKey) );
 
@@ -1726,6 +1710,8 @@ namespace ZyppRecipients {
 	    {
 		callback.addStr(file);
 		callback.addStr(id);
+		long long srcid = _pkg_ref.logFindAlias(context.repoInfo().alias());
+		callback.addInt(srcid);
 
 		bool res = callback.evaluateBool();
 		y2milestone("Callback AcceptUnknownGpgKey value: %s", res ? "true" : "false");
@@ -1738,7 +1724,7 @@ namespace ZyppRecipients {
 	    return zypp::KeyRingReport::askUserToAcceptUnknownKey(file,id);
 	}
 
-	virtual bool askUserToAcceptVerificationFailed(const std::string &file, const zypp::PublicKey &key)
+	virtual bool askUserToAcceptVerificationFailed(const std::string &file, const zypp::PublicKey &key, const zypp::KeyContext &context)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptVerificationFailed) );
 
@@ -1748,6 +1734,8 @@ namespace ZyppRecipients {
 
 		callback.addStr(file);
 		callback.addMap(gpgmap.getMap());
+		long long srcid = _pkg_ref.logFindAlias(context.repoInfo().alias());
+		callback.addInt(srcid);
 
 		return callback.evaluateBool();
 	    }
@@ -1862,7 +1850,7 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
       , _probeSourceReceive( *this )
       , _progressReceive( *this )
       , _digestReceive( *this )
-      , _keyRingReceive( *this )
+      , _keyRingReceive( *this, pkg )
       , _keyRingSignal( *this )
       , _authReceive( *this )
     {

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Sep 24 09:09:39 CEST 2008 - lslezak@suse.cz
+
+- adapted GPG key callbacks - report also the affected repository
+  (bnc#370223)
+
+-------------------------------------------------------------------
 Fri Sep 19 15:05:31 CEST 2008 - lslezak@suse.cz
 
 - added Pkg::ServiceProbe() function for probing service type

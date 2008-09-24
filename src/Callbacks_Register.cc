@@ -68,7 +68,7 @@ YCPValue PkgFunctions::CallbackResolvableReport( const YCPValue& args ) {
 /**
  * @builtin CallbackImportGpgKey
  * @short Register callback function
- * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(map<string,any> key)</code>. The callback function should ask user whether the key is trusted, returned true value means the key is trusted.
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(map<string,any> key, integer repo_id)</code>. The callback function should ask user whether the key is trusted and can be imported, returned 'true' value means to import the trusted key
  * @return void
  */
 YCPValue PkgFunctions::CallbackImportGpgKey( const YCPValue& args ) {
@@ -92,7 +92,8 @@ YCPValue PkgFunctions::CallbackAcceptUnknownGpgKey( const YCPValue& args ) {
  * @return void
  */
 YCPValue PkgFunctions::CallbackAcceptNonTrustedGpgKey( const YCPValue& args ) {
-  return SET_YCP_CB( CB_AcceptNonTrustedGpgKey, args );
+  y2warning("Pkg::CallbackAcceptNonTrustedGpgKey() is obsoleted, ");
+  return YCPVoid();
 }
 
 /**

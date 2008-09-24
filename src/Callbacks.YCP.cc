@@ -112,7 +112,6 @@
 	ENUM_OUT( SourceChange );
 	ENUM_OUT( ResolvableReport );
 	ENUM_OUT( ImportGpgKey );
-	ENUM_OUT( AcceptNonTrustedGpgKey );
 	ENUM_OUT( AcceptUnknownGpgKey );
 	ENUM_OUT( AcceptUnsignedFile );
 	ENUM_OUT( AcceptVerificationFailed );

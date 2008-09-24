@@ -397,15 +397,15 @@ class PkgFunctions
 	/* TYPEINFO: void(void(string,string,string)) */
 	YCPValue CallbackResolvableReport( const YCPValue& /*nil*/ args );
 
-	/* TYPEINFO: void(boolean(map<string,any>)) */
+	/* TYPEINFO: void(boolean(map<string,any>,integer)) */
 	YCPValue CallbackImportGpgKey( const YCPValue& /*nil*/ args );	
 	/* TYPEINFO: void(boolean(map<string,any>)) */
 	YCPValue CallbackAcceptNonTrustedGpgKey( const YCPValue& /*nil*/ args );
-	/* TYPEINFO: void(boolean(string,string)) */
+	/* TYPEINFO: void(boolean(string,string,integer)) */
 	YCPValue CallbackAcceptUnknownGpgKey( const YCPValue& /*nil*/ args );	
-	/* TYPEINFO: void(boolean(string)) */
+	/* TYPEINFO: void(boolean(string,integer)) */
 	YCPValue CallbackAcceptUnsignedFile( const YCPValue& /*nil*/ args );	
-	/* TYPEINFO: void(boolean(string,map<string,any>)) */
+	/* TYPEINFO: void(boolean(string,map<string,any>,integer)) */
 	YCPValue CallbackAcceptVerificationFailed( const YCPValue& /*nil*/ args );	
 	/* TYPEINFO: void(boolean(string,string,string)) */
         YCPValue CallbackAcceptWrongDigest( const YCPValue& /*nil*/ args);

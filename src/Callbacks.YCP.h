@@ -94,7 +94,6 @@ class PkgFunctions::CallbackHandler::YCPCallbacks
       CB_SourceChange,
       CB_ResolvableReport,
       CB_ImportGpgKey,
-      CB_AcceptNonTrustedGpgKey,
       CB_AcceptUnknownGpgKey,
       CB_AcceptUnsignedFile,
       CB_AcceptFileWithoutChecksum,
