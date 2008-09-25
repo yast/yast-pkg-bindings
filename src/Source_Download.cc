@@ -177,6 +177,21 @@ PkgFunctions::SourceProvideDirectory(const YCPInteger& id, const YCPInteger& mid
     return SourceProvideDirectoryInternal(id, mid, d, optional, recursive, false);
 }
 
+/****************************************************************************************
+ * @builtin SourceProvideSignedDirectory
+ * @short make a directory available at the local filesystem
+ * @description
+ * Download a directory from repository (make it available at the local filesystem) and
+ * all the files within it. Requires that all files have been signed with SHA1 checksum.
+ * If there is no checksum or the checksum doesn't match the download fails.
+ *
+ * @param integer id repository to use (id)
+ * @param integer mid Number of the media where the directory is located on ('1' for the 1st media).
+ * @param string d Directory name relative to the media root.
+ * @param boolean optional set to true if the directory may not exist (do not report errors)
+ * @param boolean recursive set to true to provide all subdirectories recursively
+ * @return string local path as string or nil when an error occured
+ */
 YCPValue
 PkgFunctions::SourceProvideSignedDirectory(const YCPInteger& id, const YCPInteger& mid, const YCPString& d, const YCPBoolean &optional, const YCPBoolean &recursive)
 {
