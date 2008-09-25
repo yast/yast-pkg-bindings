@@ -184,8 +184,6 @@ class PkgFunctions
 
       PkgError _last_error;
 
-      bool target_log_set;
-
       ServiceManager service_manager;
 
       zypp::Product::constPtr base_product;

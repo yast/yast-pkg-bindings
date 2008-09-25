@@ -60,7 +60,6 @@ PkgFunctions::PkgFunctions () :
     , _target_loaded(false)
     , zypp_pointer(NULL)
     ,_callbackHandler( *new CallbackHandler(*this) )
-    ,target_log_set(false)
     , base_product(NULL)
 {
     const char *domain = "pkg-bindings";

@@ -2089,14 +2089,6 @@ PkgFunctions::PkgCommit (const YCPInteger& media)
 
     try
     {
-	// if the target log is not set use the default to not loose the information
-	if (!target_log_set)
-	{
-	    std::string default_path(_target_root.asString() + "/var/log/YaST2/y2logRPM");
-	    y2warning("Pkg::TargetLogFile() has not been called, using %s for logging", default_path.c_str());
-	    zypp_ptr()->target()->setInstallationLogfile(default_path);
-	}
-
 	zypp::ZYppCommitPolicy policy;
 	policy.restrictToMedia( medianr );
 	result = zypp_ptr()->commit(policy);

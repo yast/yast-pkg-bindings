@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Sep 25 17:54:02 CEST 2008 - lslezak@suse.cz
+
+- removed another usage of the old logging (bnc#429954)
+- 2.17.15
+
+-------------------------------------------------------------------
 Thu Sep 25 17:31:46 CEST 2008 - lslezak@suse.cz
 
 - Pkg::TargetLogfile() is obsoleted, the log file is now entirely
