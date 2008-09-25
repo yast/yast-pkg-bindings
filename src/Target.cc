@@ -137,27 +137,15 @@ PkgFunctions::TargetRemove(const YCPString& name)
 
 /** ------------------------
  *
- * @builtin TargetLogfile
- * @short init logfile for target
+ * @builtin TargetLogfile - obsoleted, do not use!
  * @param string name
  * @return boolean
  */
 YCPBoolean
 PkgFunctions::TargetLogfile (const YCPString& name)
 {
-    try
-    {
-	bool ret = zypp_ptr()->target()->setInstallationLogfile (name->value());
-	target_log_set = true;
-	return YCPBoolean(ret);
-    }
-    catch (zypp::Exception & excpt)
-    {
-	_last_error.setLastError(ExceptionAsString(excpt));
-	y2error("TargetLogfile has failed: %s", excpt.asString().c_str());
-        return YCPBoolean(false);
-    }
-    return YCPBoolean (true); // never reached
+    y2warning("Pkg::TargetLogfile() is obsoleted, the log file is now entirely handled by libzypp. See http://en.opensuse.org/Libzypp/Package_History");
+    return YCPBoolean (true);
 }
 
 
