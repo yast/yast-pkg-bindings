@@ -34,6 +34,8 @@
 
 #include <HelpTexts.h>
 
+#include <zypp/Fetcher.h>
+
 /*
   Textdomain "pkg-bindings"
 */
@@ -171,6 +173,20 @@ PkgFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mid, con
 YCPValue
 PkgFunctions::SourceProvideDirectory(const YCPInteger& id, const YCPInteger& mid, const YCPString& d, const YCPBoolean &optional, const YCPBoolean &recursive)
 {
+    // dowanload the directory, do not check the signatures
+    return SourceProvideDirectoryInternal(id, mid, d, optional, recursive, false);
+}
+
+YCPValue
+PkgFunctions::SourceProvideSignedDirectory(const YCPInteger& id, const YCPInteger& mid, const YCPString& d, const YCPBoolean &optional, const YCPBoolean &recursive)
+{
+    // dowanload the directory, force signature checks
+    return SourceProvideDirectoryInternal(id, mid, d, optional, recursive, true);
+}
+
+YCPValue
+PkgFunctions::SourceProvideDirectoryInternal(const YCPInteger& id, const YCPInteger& mid, const YCPString& d, const YCPBoolean &optional, const YCPBoolean &recursive, bool check_signatures)
+{
     CallInitDownload(std::string(_("Downloading ") + d->value()));
 
     bool found = true;
@@ -192,7 +208,24 @@ PkgFunctions::SourceProvideDirectory(const YCPInteger& id, const YCPInteger& mid
     {
 	try
 	{
-	    path = repo->mediaAccess()->provideDir(d->value(), recursive->value(), mid->value());
+	    if (check_signatures)
+	    {
+		// use a Fetcher for downloading signed files (see bnc#409927)
+		zypp::Fetcher f;
+		zypp::OnMediaLocation mloc(d->value(), mid->value());
+		zypp::filesystem::TmpDir tmpdir;
+
+		// keep the reference to the tmpdir so the directory is not deleted at the and of the block		
+		tmp_dirs.push_back(tmpdir);
+		path = tmpdir.path();
+		f.enqueueDir(mloc, recursive->value());
+		f.start(path, *repo->mediaAccess()); // uses MediaAccess to retrieve
+		f.reset();
+	    }
+	    else
+	    {
+		path = repo->mediaAccess()->provideDir(d->value(), recursive->value(), mid->value());
+	    }
 	}
 	catch (const zypp::Exception& excpt)
 	{

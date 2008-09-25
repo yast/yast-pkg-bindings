@@ -48,6 +48,7 @@ class YCPReference;
 #include <zypp/DiskUsageCounter.h>
 #include <zypp/RepoManager.h>
 #include <zypp/ProgressData.h>
+#include <zypp/TmpPath.h>
 
 #include <YRepo.h>
 #include <i18n.h>
@@ -147,6 +148,9 @@ class PkgFunctions
       void ScanProductsWithCallBacks(const zypp::Url &url);
       void CallRefreshStarted();
       void CallRefreshDone();
+      YCPValue SourceProvideDirectoryInternal(const YCPInteger& id, const YCPInteger& mid,
+	const YCPString& d, const YCPBoolean &optional,
+	const YCPBoolean &recursive, bool check_signatures);
 
       YCPValue SourceLoadImpl(PkgProgress &progress);
       YCPValue SourceStartManagerImpl(const YCPBoolean& enable, PkgProgress &progress);
@@ -185,6 +189,8 @@ class PkgFunctions
       ServiceManager service_manager;
 
       zypp::Product::constPtr base_product;
+
+      std::vector<zypp::filesystem::TmpDir> tmp_dirs;
 
       /**
        * Logging helper:
@@ -479,6 +485,8 @@ class PkgFunctions
 	YCPValue SourceProvideDir (const YCPInteger&, const YCPInteger&, const YCPString&);
 	/* TYPEINFO: string(integer,integer,string,boolean,boolean)*/
 	YCPValue SourceProvideDirectory(const YCPInteger& id, const YCPInteger& mid, const YCPString& d, const YCPBoolean &optional, const YCPBoolean &recursive);
+	/* TYPEINFO: string(integer,integer,string,boolean,boolean)*/
+	YCPValue SourceProvideSignedDirectory(const YCPInteger& id, const YCPInteger& mid, const YCPString& d, const YCPBoolean &optional, const YCPBoolean &recursive);
 	/* TYPEINFO: boolean(string)*/
 	YCPValue SourceCacheCopyTo (const YCPString&);
 	/* TYPEINFO: boolean(boolean)*/
