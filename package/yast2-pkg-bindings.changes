@@ -5,6 +5,9 @@ Mon Sep 29 14:27:21 CEST 2008 - lslezak@suse.cz
   connection (affected calls Pkg::SourceLoad(),
   Pkg::SourceStartManager() and PkgFunctions::SourceStartCache())
   (bnc#401966)
+- ResolvableProperties() - return more info about product
+  ("register_target", "register_release" and "flavor" keys)
+- 2.17.16
 
 -------------------------------------------------------------------
 Thu Sep 25 17:54:02 CEST 2008 - lslezak@suse.cz
