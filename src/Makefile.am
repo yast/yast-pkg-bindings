@@ -54,6 +54,7 @@ libpy2Pkg_la_SOURCES =				\
 	PkgService.cc PkgService.h		\
 	ServiceManager.cc ServiceManager.h	\
 	Service.cc				\
+	Network.cc				\
 	HelpTexts.h i18n.h log.h
 
 

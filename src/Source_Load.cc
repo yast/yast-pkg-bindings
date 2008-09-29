@@ -190,6 +190,8 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
     autorefresh_skipped = false;
     CallRefreshStarted();
 
+    bool network_is_running = NetworkDetected();
+
     if (repos_to_refresh > 0)
     {
 	// refresh metadata
@@ -216,6 +218,19 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 		    // autorefresh the source
 		    if ((*it)->repoInfo().autorefresh() || raw_metadata_status.empty())
 		    {
+			// do not autorefresh remote repositories when the network is not running
+			if (!network_is_running)
+			{
+			    zypp::Url url = *((*it)->repoInfo().baseUrlsBegin());
+			    
+			    if (remoteRepo(url))
+			    {
+				y2warning("No network connection, skipping autorefresh of remote repository %s (%s)",
+				    (*it)->repoInfo().alias().c_str(), url.asString().c_str());
+				continue;
+			    }
+			}
+
 			try
 			{
 			    y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
@@ -279,16 +294,13 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 		// autorefresh the source
 		if ((*it)->repoInfo().autorefresh())
 		{
-		    if (autorefresh_skipped)
-		    {
-			zypp::RepoStatus raw_metadata_status = repomanager.metadataStatus((*it)->repoInfo());
+		    zypp::RepoStatus raw_metadata_status = repomanager.metadataStatus((*it)->repoInfo());
 
-			// autorefresh the source
-			if (raw_metadata_status.empty() )
-			{
-			    y2error("Missinga metadata, not rebuilding the cache");
-			    continue;
-			}
+		    // autorefresh the source
+		    if (raw_metadata_status.empty() )
+		    {
+			y2error("Missinga metadata, not rebuilding the cache");
+			continue;
 		    }
 
 		    try
@@ -352,8 +364,8 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 	    }
 	    else
 	    {
-		// load objects
-		success = LoadResolvablesFrom((*it)->repoInfo(), load_subprogress) && success;
+		// load objects, do network status check
+		success = LoadResolvablesFrom((*it)->repoInfo(), load_subprogress, true) && success;
 	    }
 	}
 	y2debug("Progress status: %lld", prog_total.val());

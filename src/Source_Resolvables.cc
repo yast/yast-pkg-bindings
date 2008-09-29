@@ -64,7 +64,7 @@ bool PkgFunctions::AnyResolvableFrom(const std::string &alias)
  * A helper function - load resolvable from the repository into the pool
  * Warning: Use AnyResolvableFrom() method for checing if the resolvables might be already loaded
  */
-bool PkgFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zypp::ProgressData::ReceiverFnc &progressrcv)
+bool PkgFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zypp::ProgressData::ReceiverFnc &progressrcv, bool network_check)
 {
     bool success = true;
     unsigned int size_start = zypp_ptr()->pool().size();
@@ -78,6 +78,7 @@ bool PkgFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zyp
     try 
     {
 	zypp::RepoManager repomanager = CreateRepoManager();
+	bool refresh = true;
 
 	// build cache if needed
 	if (!repomanager.isCached(repoinfo) && !autorefresh_skipped)
@@ -85,17 +86,36 @@ bool PkgFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zyp
 	    zypp::RepoStatus raw_metadata_status = repomanager.metadataStatus(repoinfo);
 	    if (raw_metadata_status.empty())
 	    {
-		y2milestone("Missing metadata for source '%s', downloading...", repoinfo.alias().c_str());
+		if (network_check)
+		{
+		    zypp::Url url = *(repoinfo.baseUrlsBegin());
 
-		CallRefreshStarted();
+		    if (remoteRepo(url) && !NetworkDetected())
+		    {
+			y2warning("No network connection, skipping autorefresh of remote repository %s (%s)",
+			    repoinfo.alias().c_str(), url.asString().c_str());
 
-		RefreshWithCallbacks(repoinfo);
+			refresh = false;
+		    }
+		}
 
-		CallRefreshDone();
+		if (refresh)
+		{
+		    y2milestone("Missing metadata for source '%s', downloading...", repoinfo.alias().c_str());
+
+		    CallRefreshStarted();
+
+		    RefreshWithCallbacks(repoinfo);
+
+		    CallRefreshDone();
+		}
 	    }
 
-	    y2milestone("Caching source '%s'...", repoinfo.alias().c_str());
-	    repomanager.buildCache(repoinfo, zypp::RepoManager::BuildIfNeeded, load_subprogress);
+	    if (refresh)
+	    {
+		y2milestone("Caching source '%s'...", repoinfo.alias().c_str());
+		repomanager.buildCache(repoinfo, zypp::RepoManager::BuildIfNeeded, load_subprogress);
+	    }
 	}
 
 	repomanager.loadFromCache(repoinfo);

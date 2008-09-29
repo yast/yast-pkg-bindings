@@ -112,13 +112,19 @@ class PkgFunctions
 
       YCPValue SourceRefreshHelper(const YCPInteger &id, bool forced = false);
 
+      // helper - is the network running?
+      bool NetworkDetected();
+
+      // is the URL remote?
+      bool remoteRepo(const zypp::Url &url);
+
       // conversion methods for type string between Yast and libzypp (for backward compatibility)
       std::string zypp2yastType(const std::string &type);
       std::string yast2zyppType(const std::string &type);
 
       void RemoveResolvablesFrom(const std::string &alias);
       bool AnyResolvableFrom(const std::string &alias);
-      bool LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc());
+      bool LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc(), bool network_check = false);
       std::string UniqueAlias(const std::string &alias);
 
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);

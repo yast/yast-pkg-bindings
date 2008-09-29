@@ -92,6 +92,9 @@ namespace
         + "optional_urls"
         + "register_urls"
         + "smolt_urls"
+	+ "register_target"
+	+ "register_release"
+	+ "flavor"
         + "replaces"
           + "name"
           + "version"
@@ -396,6 +399,13 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
                     {
                       info->add(YCPString("smolt_urls"), smoltUrls);
                     }
+
+		    // registration data
+                    info->add(YCPString("register_target"), YCPString(product->registerTarget()));
+                    info->add(YCPString("register_release"), YCPString(product->registerRelease()));
+
+		    // Live CD, FTP Edition...
+                    info->add(YCPString("flavor"), YCPString(product->flavor()));
 
 		    // get the installed Products it would replace.
 		    zypp::Product::ReplacedProducts replaced(product->replacedProducts());
