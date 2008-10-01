@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Oct  1 13:02:00 CEST 2008 - lslezak@suse.cz
+
+- fixed Pkg::ServiceRefresh() - search for the service URL and pass
+  it to libzypp
+
+-------------------------------------------------------------------
 Mon Sep 29 14:27:21 CEST 2008 - lslezak@suse.cz
 
 - do not autorefresh remote repositories when there is no network

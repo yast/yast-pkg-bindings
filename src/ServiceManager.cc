@@ -114,11 +114,19 @@ bool ServiceManager::SaveServices(zypp::RepoManager &repomgr) const
     return ret;
 }
 
-bool ServiceManager::RefreshService(const std::string &alias, zypp::RepoManager &repomgr) const
+bool ServiceManager::RefreshService(const std::string &alias, zypp::RepoManager &repomgr)
 {
     try
     {
-	repomgr.refreshService(alias);
+	PkgServices::iterator serv_it = _known_services.find(alias);
+
+	if (serv_it == _known_services.end())
+	{
+	    y2error("Service '%s' does not exist", alias.c_str());
+	    return false;
+	}
+
+	repomgr.refreshService(serv_it->second);
 	return true;
     }
     catch(...)

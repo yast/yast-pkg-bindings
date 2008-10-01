@@ -52,7 +52,7 @@ class ServiceManager
 
 	bool SetService(const std::string old_alias, const zypp::ServiceInfo &srv);
 
-	bool RefreshService(const std::string &alias, zypp::RepoManager &repomgr) const;
+	bool RefreshService(const std::string &alias, zypp::RepoManager &repomgr);
 
 	std::string Probe(const zypp::Url &url, const zypp::RepoManager &repomgr) const;
 
