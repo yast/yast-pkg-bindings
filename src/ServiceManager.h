@@ -40,9 +40,9 @@ class ServiceManager
 
 	Services GetServices() const; 
 
-	bool LoadServices(const zypp::RepoManager &repomgr);
+	void LoadServices(const zypp::RepoManager &repomgr);
 
-	bool SaveServices(zypp::RepoManager &repomgr) const;
+	void SaveServices(zypp::RepoManager &repomgr) const;
 
 	bool AddService(const std::string &alias, const std::string &url);
 

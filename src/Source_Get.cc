@@ -370,8 +370,10 @@ PkgFunctions::SourceProduct (const YCPInteger& id)
  * source priority (highest first). A source state is a map:
  * $[
  * "SrcId"	: YCPInteger,
- * "enabled"	: YCPBoolean
- * "autorefresh": YCPBoolean
+ * "enabled"	: YCPBoolean,
+ * "autorefresh": YCPBoolean,
+ * "name"	: YCPString,
+ * "service"	: YCPString
  * ];
  *
  * @return list<map> list of source states (map)
@@ -395,6 +397,7 @@ PkgFunctions::SourceEditGet ()
 	    src_map->add(YCPString("autorefresh"), YCPBoolean((*it)->repoInfo().autorefresh()));
 	    src_map->add(YCPString("name"), YCPString((*it)->repoInfo().name()));
 	    src_map->add(YCPString("priority"), YCPInteger((*it)->repoInfo().priority()));
+	    src_map->add(YCPString("service"), YCPString((*it)->repoInfo().service()));
 
 	    ret->add(src_map);
 	}

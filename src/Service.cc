@@ -74,8 +74,9 @@ YCPValue PkgFunctions::ServiceAdd(const YCPString &alias, const YCPString &url)
 
 	return YCPBoolean(service_manager.AddService(alias->value(), url->value()));
     }
-    catch(...)
+    catch (const zypp::Exception& excpt)
     {
+	_last_error.setLastError(ExceptionAsString(excpt));
     }
 
     return YCPBoolean(false);
@@ -99,8 +100,9 @@ YCPValue PkgFunctions::ServiceDelete(const YCPString &alias)
 
 	return YCPBoolean(service_manager.RemoveService(alias->value()));
     }
-    catch(...)
+    catch (const zypp::Exception& excpt)
     {
+	_last_error.setLastError(ExceptionAsString(excpt));
     }
 
     return YCPBoolean(false);
@@ -209,8 +211,9 @@ YCPValue PkgFunctions::ServiceSet(const YCPString &old_alias, const YCPMap &serv
 
 	return YCPBoolean(service_manager.SetService(old_alias->value(), s));
     }
-    catch(...)
+    catch (const zypp::Exception& excpt)
     {
+	_last_error.setLastError(ExceptionAsString(excpt));
     }
 
     return YCPBoolean(false);
@@ -226,10 +229,12 @@ YCPValue PkgFunctions::ServicesSave()
     try
     {
 	zypp::RepoManager repomanager = CreateRepoManager();
-	return YCPBoolean(service_manager.SaveServices(repomanager));
+	service_manager.SaveServices(repomanager);
+	return YCPBoolean(true);
     }
-    catch(...)
+    catch (const zypp::Exception& excpt)
     {
+	_last_error.setLastError(ExceptionAsString(excpt));
     }
 
     return YCPBoolean(false);
@@ -245,10 +250,12 @@ YCPValue PkgFunctions::ServicesLoad()
     try
     {
 	zypp::RepoManager repomanager = CreateRepoManager();
-	return YCPBoolean(service_manager.LoadServices(repomanager));
+	service_manager.LoadServices(repomanager);
+	return YCPBoolean(true);
     }
-    catch(...)
+    catch (const zypp::Exception& excpt)
     {
+	_last_error.setLastError(ExceptionAsString(excpt));
     }
 
     return YCPBoolean(false);
@@ -273,8 +280,9 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
 	zypp::RepoManager repomanager = CreateRepoManager();
 	return YCPBoolean(service_manager.RefreshService(alias->value(), repomanager));
     }
-    catch(...)
+    catch (const zypp::Exception& excpt)
     {
+	_last_error.setLastError(ExceptionAsString(excpt));
     }
 
     return YCPBoolean(false);
@@ -309,8 +317,9 @@ YCPValue PkgFunctions::ServiceProbe(const YCPString &url)
 	const zypp::RepoManager repomanager = CreateRepoManager();
 	return YCPString(service_manager.Probe(zypp::Url(url->asString()->value()), repomanager));
     }
-    catch(...)
+    catch (const zypp::Exception& excpt)
     {
+	_last_error.setLastError(ExceptionAsString(excpt));
 	return YCPVoid();
     }
 }

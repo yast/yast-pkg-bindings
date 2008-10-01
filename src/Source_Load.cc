@@ -52,6 +52,7 @@
 YCPValue
 PkgFunctions::SourceRestore()
 {
+
     if (repos.size() > 0)
     {
 	y2warning("Number of registered repositories: %zd, skipping repository load!", repos.size());
@@ -495,7 +496,7 @@ PkgFunctions::SourceStartCache (const YCPBoolean& enabled)
 }
 
 /****************************************************************************************
- * @builtin SourceCleanupBroken
+ * @builtin SourceCleanupBroken - obsoleted, do not use!
  *
  * @short Clean up all sources that were not properly restored on the last
  * call of SourceStartManager or SourceStartCache.
