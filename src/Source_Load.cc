@@ -74,6 +74,42 @@ PkgFunctions::SourceRestore()
 	    try
 	    {
 		service_manager.LoadServices(repomanager);
+
+		if (!service_manager.empty())
+		{
+		    // refresh services at first
+		    ServiceManager::Services services(service_manager.GetServices());
+		    bool network_is_running = NetworkDetected();
+
+		    for_(srv_it, services.begin(), services.end())
+		    {
+			try
+			{
+			    if (srv_it->enabled() && srv_it->autorefresh())
+			    {
+				zypp::Url url(srv_it->url());
+
+				if (!network_is_running && remoteRepo(url))
+				{
+				    y2warning("No network connection, skipping autorefresh of remote service %s (%s)",
+					srv_it->alias().c_str(), url.asString().c_str());
+				}
+				else
+				{
+				    y2milestone("Autorefreshing service %s (%s)...", srv_it->alias().c_str(), url.asString().c_str());
+				    service_manager.RefreshService(srv_it->alias(), repomanager);
+				}
+			    }
+			}
+			catch (const zypp::Exception& excpt)
+			{
+			    // service refresh is not fatal, let's continue
+			    y2error ("Error in service refresh: %s", excpt.asString().c_str());
+			    _last_error.setLastError(ExceptionAsString(excpt));
+			    success = false;
+			}
+		    }
+		}
 	    }
 	    catch (const zypp::Exception& excpt)
 	    {
