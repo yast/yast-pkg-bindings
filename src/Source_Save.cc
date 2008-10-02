@@ -77,12 +77,27 @@ YCPValue
 PkgFunctions::SourceSaveAll ()
 {
     y2milestone("Saving the source setup...");
+    bool ret = true;
 
     // nothing to save, return success
-    if (repos.size() == 0)
+    if (repos.empty() && service_manager.empty())
     {
-	y2debug("No repository defined, saving skipped");
-	return YCPBoolean(true);
+	y2debug("No repository or service defined, saving skipped");
+	return YCPBoolean(ret);
+    }
+
+    zypp::RepoManager repomanager = CreateRepoManager();
+
+    // save the services
+    try
+    {
+	service_manager.SaveServices(repomanager);
+	y2milestone("All services have been saved");
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	_last_error.setLastError(ExceptionAsString(excpt));
+	ret = false;
     }
 
     // count removed repos
@@ -124,8 +139,6 @@ PkgFunctions::SourceSaveAll ()
 
     // start the process
     pkgprogress.Start(_("Saving Repositories..."), stages, HelpTexts::save_help);
-
-    zypp::RepoManager repomanager = CreateRepoManager();
 
     // remove deleted repos (the old configurations) at first
     for (RepoCont::iterator it = repos.begin();
@@ -217,7 +230,7 @@ PkgFunctions::SourceSaveAll ()
 
     y2milestone("All sources have been saved");
 
-    return YCPBoolean(true);
+    return YCPBoolean(ret);
 }
 
 /****************************************************************************************
@@ -246,6 +259,9 @@ PkgFunctions::SourceFinishAll ()
 
 	// release all repositories
 	repos.clear();
+
+	// release all services
+	service_manager.Reset();
     }
     catch (zypp::Exception & excpt)
     {
@@ -254,7 +270,7 @@ PkgFunctions::SourceFinishAll ()
 	return YCPBoolean(false);
     }
 
-    y2milestone("All sources have been unregistered");
+    y2milestone("All sources and services have been unregistered");
 
     return YCPBoolean(true);
 }

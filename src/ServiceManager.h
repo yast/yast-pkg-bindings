@@ -58,6 +58,12 @@ class ServiceManager
 
 	void Reset();
 
+	// is there any service? (incl. deleted!)
+	bool empty() const;
+
+	// number of services (incl. deleted!)
+	Services::size_type size() const;
+
 
     private:
 

@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Thu Oct  2 12:50:39 CEST 2008 - lslezak@suse.cz
+
+- removed Pkg::ServicesSave(), Pkg::ServicesLoad() and
+  Pkg::ServicesReset() - the functionality has been moved to
+  Pkg::SourceSaveAll(), Pkg::SourceRestore() and
+  Pkg::SourceFinishAll(). The reason is to descrease the amount
+  exported functions and lower the required changes in YCP code.
+
+-------------------------------------------------------------------
 Wed Oct  1 13:02:00 CEST 2008 - lslezak@suse.cz
 
 - fixed Pkg::ServiceRefresh() - search for the service URL and pass

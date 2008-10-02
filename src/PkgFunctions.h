@@ -787,14 +787,8 @@ class PkgFunctions
 	YCPValue ServiceGet(const YCPString&);
 	/* TYPEINFO: boolean(string,map<string,any>)*/
 	YCPValue ServiceSet(const YCPString&, const YCPMap&);
-	/* TYPEINFO: boolean()*/
-	YCPValue ServicesSave();
-	/* TYPEINFO: boolean()*/
-	YCPValue ServicesLoad();
 	/* TYPEINFO: boolean(string)*/
 	YCPValue ServiceRefresh(const YCPString&);
-	/* TYPEINFO: void()*/
-	YCPValue ServicesReset();
 	/* TYPEINFO: string(string)*/
 	YCPValue ServiceURL(const YCPString &alias);
 	/* TYPEINFO: string(string)*/

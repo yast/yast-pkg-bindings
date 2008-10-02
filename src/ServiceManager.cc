@@ -260,3 +260,14 @@ std::string ServiceManager::Probe(const zypp::Url &url, const zypp::RepoManager 
     return ret;
 }
 
+bool ServiceManager::empty() const
+{
+    return _known_services.empty();
+}
+
+
+ServiceManager::Services::size_type ServiceManager::size() const
+{
+    return _known_services.size();
+}
+

@@ -220,48 +220,6 @@ YCPValue PkgFunctions::ServiceSet(const YCPString &old_alias, const YCPMap &serv
 }
 
 /**
-   @builtin ServicesSave
-   @short Save the current service configuration to disk.
-   @return boolean false if failed
-*/
-YCPValue PkgFunctions::ServicesSave()
-{
-    try
-    {
-	zypp::RepoManager repomanager = CreateRepoManager();
-	service_manager.SaveServices(repomanager);
-	return YCPBoolean(true);
-    }
-    catch (const zypp::Exception& excpt)
-    {
-	_last_error.setLastError(ExceptionAsString(excpt));
-    }
-
-    return YCPBoolean(false);
-}
-
-/**
-   @builtin ServicesLoad
-   @short Load service configurations from disk. If the services have alrady been loaded it does nothing.
-   @return boolean false if failed
-*/
-YCPValue PkgFunctions::ServicesLoad()
-{
-    try
-    {
-	zypp::RepoManager repomanager = CreateRepoManager();
-	service_manager.LoadServices(repomanager);
-	return YCPBoolean(true);
-    }
-    catch (const zypp::Exception& excpt)
-    {
-	_last_error.setLastError(ExceptionAsString(excpt));
-    }
-
-    return YCPBoolean(false);
-}
-
-/**
    @builtin ServiceRefresh
    @short Refresh the service, the service must already be saved on the system!
    @param alias alias of the service to refresh
@@ -286,16 +244,6 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
     }
 
     return YCPBoolean(false);
-}
-
-/**
-   @builtin ServicesReset
-   @short Reset the list of known services. All changes are lost.
-*/
-YCPValue PkgFunctions::ServicesReset()
-{
-    service_manager.Reset();
-    return YCPVoid();
 }
 
 /**

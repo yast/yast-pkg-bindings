@@ -52,21 +52,38 @@
 YCPValue
 PkgFunctions::SourceRestore()
 {
+    // return value
+    bool success = true;
 
     if (repos.size() > 0)
     {
 	y2warning("Number of registered repositories: %zd, skipping repository load!", repos.size());
-	return YCPBoolean(true);
+	return YCPBoolean(success);
     }
-
-    bool success = true;
 
     try
     {
 	zypp::RepoManager repomanager = CreateRepoManager();
+
+	if (!service_manager.empty())
+	{
+	    y2warning("Number of known services: %zd, skipping service load!", service_manager.size());
+	}
+	else
+	{
+	    try
+	    {
+		service_manager.LoadServices(repomanager);
+	    }
+	    catch (const zypp::Exception& excpt)
+	    {
+		_last_error.setLastError(ExceptionAsString(excpt));
+		success = false;
+	    }
+	}
+
 	std::list<zypp::RepoInfo> reps = repomanager.knownRepositories();
 
-	repos.clear();
 	for (std::list<zypp::RepoInfo>::iterator it = reps.begin();
 	    it != reps.end(); ++it)
 	{
