@@ -4,6 +4,7 @@ Fri Oct  3 13:56:41 CEST 2008 - lslezak@suse.cz
 - fixed Pkg::PkgReset() - reset the status (instead of unselect)
   (bnc#431565)
 - service handling related fixes (bnc#427728)
+- 2.17.17
 
 -------------------------------------------------------------------
 Thu Oct  2 12:50:39 CEST 2008 - lslezak@suse.cz
