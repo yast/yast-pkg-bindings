@@ -1799,46 +1799,28 @@ PkgFunctions::PkgNeutral (const YCPString& p)
     return YCPBoolean(ret);
 }
 
+template <class T>
+inline void ResetAllKind(zypp::ResPoolProxy &proxy, const zypp::ResStatus::TransactByValue &level)
+{
+    for_(it, proxy.byKindBegin<T>(), proxy.byKindEnd<T>())
+    {
+	zypp::ui::Selectable::Ptr s = (*it);
+	if (s) s->theObj().status().resetTransact(level);
+    }
+}
+
+
 void ResetAll(const zypp::ResStatus::TransactByValue &level)
 {
     // access to the Pool of Selectables
     zypp::ResPoolProxy selectablePool(zypp::ResPool::instance().proxy());
 
     // unset all packages, patterns...
-    for_(it, selectablePool.byKindBegin<zypp::Package>(), 
-	selectablePool.byKindEnd<zypp::Package>())
-    {
-	zypp::ui::Selectable::Ptr s = (*it);
-	if (s) s->unset(level);
-    }
-
-    for_(it, selectablePool.byKindBegin<zypp::Pattern>(), 
-	selectablePool.byKindEnd<zypp::Pattern>())
-    {
-	zypp::ui::Selectable::Ptr s = (*it);
-	if (s) s->unset(level);
-    }
-
-    for_(it, selectablePool.byKindBegin<zypp::Patch>(), 
-	selectablePool.byKindEnd<zypp::Patch>())
-    {
-	zypp::ui::Selectable::Ptr s = (*it);
-	if (s) s->unset(level);
-    }
-
-    for_(it, selectablePool.byKindBegin<zypp::Product>(), 
-	selectablePool.byKindEnd<zypp::Product>())
-    {
-	zypp::ui::Selectable::Ptr s = (*it);
-	if (s) s->unset(level);
-    }
-
-    for_(it, selectablePool.byKindBegin<zypp::SrcPackage>(), 
-	selectablePool.byKindEnd<zypp::SrcPackage>())
-    {
-	zypp::ui::Selectable::Ptr s = (*it);
-	if (s) s->unset(level);
-    }
+    ResetAllKind<zypp::Package>(selectablePool, level);
+    ResetAllKind<zypp::Pattern>(selectablePool, level);
+    ResetAllKind<zypp::Patch>(selectablePool, level);
+    ResetAllKind<zypp::Product>(selectablePool, level);
+    ResetAllKind<zypp::SrcPackage>(selectablePool, level);
 }
 
 /**
