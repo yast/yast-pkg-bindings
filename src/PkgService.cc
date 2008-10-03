@@ -26,7 +26,7 @@ PkgService::PkgService() : _deleted(false), _old_alias()
 }
 
 PkgService::PkgService(const zypp::ServiceInfo &s, const std::string &old_alias) :
-    zypp::ServiceInfo(s), _deleted(false), _old_alias(old_alias.empty() ? s.alias() : old_alias)
+    zypp::ServiceInfo(s), _deleted(false), _old_alias(old_alias)
 {
 }
 

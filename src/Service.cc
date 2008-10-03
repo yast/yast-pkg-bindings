@@ -137,7 +137,7 @@ YCPValue PkgFunctions::ServiceGet(const YCPString &alias)
 }
 
 /******************************************************************************
- * @builtin SourceURL
+ * @builtin ServiceURL
  *
  * @short Get full service URL (including password!)
  * @param alias alias of the service

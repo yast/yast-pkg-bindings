@@ -50,7 +50,7 @@ class ServiceManager
 
 	zypp::ServiceInfo GetService(const std::string &alias) const;
 
-	bool SetService(const std::string old_alias, const zypp::ServiceInfo &srv);
+	bool SetService(const std::string &old_alias, const zypp::ServiceInfo &srv);
 
 	bool RefreshService(const std::string &alias, zypp::RepoManager &repomgr);
 

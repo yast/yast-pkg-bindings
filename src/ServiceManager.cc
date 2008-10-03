@@ -23,6 +23,7 @@
 #include "ServiceManager.h"
 
 #include <zypp/RepoManager.h>
+#include <y2util/Y2SLog.h>
 
 ServiceManager::ServiceManager() : _services_loaded(false)
 {
@@ -56,28 +57,55 @@ void ServiceManager::SaveServices(zypp::RepoManager &repomgr) const
 {
     for_ (it, _known_services.begin(), _known_services.end())
     {
-	std::string alias(it->second.alias());
-
-	    // delete
-	    if (it->second.isDeleted())
-	    {
-		y2milestone("Removing service %s", alias.c_str());
-		repomgr.removeService(alias);
-	    }
+	// delete
+	if (it->second.isDeleted())
+	{
+	    std::string alias(it->second.alias());
+	    y2milestone("Removing service %s", alias.c_str());
+	    repomgr.removeService(alias);
+	}
     }
 
     for_ (it, _known_services.begin(), _known_services.end())
     {
-	std::string alias(it->second.alias());
-
-	// save
 	if (!it->second.isDeleted())
 	{
-	    if (it->second != repomgr.getService(alias))
+	    const PkgService s_known = it->second;
+	    const std::string alias(s_known.alias());
+	    const zypp::ServiceInfo s_stored = repomgr.getService(alias);
+
+	    DBG << "Known Service: " << it->second << std::endl;
+	    DBG << "Stored Service: " << repomgr.getService(alias) << std::endl;
+
+	    bool modified = (s_stored.url() != s_known.url()
+		|| s_stored.name() != s_known.name()
+		|| s_stored.enabled() != s_known.enabled()
+		|| s_stored.autorefresh() != s_known.autorefresh()
+	    );
+
+	    if (modified)
 	    {
-		y2milestone("Saving modified service %s", alias.c_str());
-		// FIXME use old alias
-		repomgr.modifyService(alias, it->second);
+		std::string orig_alias(s_known.origAlias());
+
+		y2internal("orig_alias: %s", orig_alias.c_str());
+
+		// the old alias is empty for new services
+		if (orig_alias.empty())
+		{
+		    y2milestone("Adding new service %s", alias.c_str());
+		    // add the service
+		    repomgr.addService(s_known);
+		}
+		else
+		{
+		    y2milestone("Saving service %s", alias.c_str());
+		    // use the old alias
+		    repomgr.modifyService(orig_alias, s_known);
+		}
+	    }
+	    else
+	    {
+		y2milestone("Service %s has not been modified, not saving", alias.c_str());
 	    }
 	}
     }
@@ -148,6 +176,7 @@ bool ServiceManager::AddService(const std::string &alias, const std::string &url
     info.setUrl(url);
 
     PkgService srv(info, orig_alias);
+    y2milestone("Adding service %s (orig alias: %s)", alias.c_str(), srv.origAlias().c_str());
 
     _known_services.insert(std::make_pair(alias, srv));
 
@@ -213,7 +242,7 @@ zypp::ServiceInfo ServiceManager::GetService(const std::string &alias) const
     return zypp::ServiceInfo::noService;
 }
 
-bool ServiceManager::SetService(const std::string old_alias, const zypp::ServiceInfo &srv)
+bool ServiceManager::SetService(const std::string &old_alias, const zypp::ServiceInfo &srv)
 {
     PkgServices::const_iterator serv_it = _known_services.find(old_alias);
 
@@ -227,18 +256,10 @@ bool ServiceManager::SetService(const std::string old_alias, const zypp::Service
 	else
 	{
 	    // if the alias has been already changed then keep the original alias
-	    if (old_alias == serv_it->second.alias() )
-	    {
-		PkgService s(srv, old_alias);
-		_known_services[srv.alias()] = s;
-	    }
-	    else
-	    {
-		// keep the old alias
-		PkgService s(srv, serv_it->second.origAlias());
-		_known_services[srv.alias()] = s;
-	    }
-
+	    y2milestone("Setting service: %s (orig alias: %s)", old_alias.c_str(), serv_it->second.origAlias().c_str());
+	    DBG << "Properties: " << srv << std::endl;
+	    PkgService s(srv, serv_it->second.origAlias());
+	    _known_services[srv.alias()] = s;
 	    return true;
 	}
     }
