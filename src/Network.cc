@@ -46,7 +46,7 @@
 bool PkgFunctions::NetworkDetected()
 {
     y2milestone("Checking the network status...");
-    int result = ::system("ip addr|grep -v 'inet6 ::1\\|inet6 fe80'|grep -c inet6");
+    int result = ::system("ip addr|grep -v 'inet6 ::1\\|inet6 fe80'|grep -q inet6 &> /dev/null");
     y2milestone("Network is running: %s", (result == 0) ? "yes" : "no");
 
     return !result;

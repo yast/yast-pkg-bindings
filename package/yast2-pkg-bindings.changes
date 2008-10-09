@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Oct  9 15:25:52 CEST 2008 - lslezak@suse.cz
+
+- do not print anything on the stdout when detecting network
+  status (bnc#433458)
+- 2.17.18
+
+-------------------------------------------------------------------
 Fri Oct  3 13:56:41 CEST 2008 - lslezak@suse.cz
 
 - fixed Pkg::PkgReset() - reset the status (instead of unselect)
