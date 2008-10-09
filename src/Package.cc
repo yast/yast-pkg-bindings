@@ -607,7 +607,7 @@ PkgFunctions::PkgInstalled(const YCPString& package)
  *
  *  @param string package name of the package
  *  @return boolean
- *  @usage Pkg::PkgInstalled("yast2") -> true
+ *  @usage Pkg::PkgAvailable("yast2") -> true
 */
 YCPValue
 PkgFunctions::PkgAvailable(const YCPString& package)
