@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Oct 15 10:56:06 CEST 2008 - lslezak@suse.cz
+
+- report SourceChanged callback also during package installation
+  (bnc#362003)
+
+-------------------------------------------------------------------
 Thu Oct  9 15:25:52 CEST 2008 - lslezak@suse.cz
 
 - do not print anything on the stdout when detecting network

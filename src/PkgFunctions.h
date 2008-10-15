@@ -95,9 +95,11 @@ class PkgFunctions
 
 	// container for the internal structure
 	typedef std::vector<YRepo_Ptr> RepoCont;
+
+    public:
+
 	// ID type
 	typedef RepoCont::size_type RepoId;
-
 
     private: // source related
     
@@ -109,6 +111,9 @@ class PkgFunctions
     
       // flag for skipping autorefresh
       volatile bool autorefresh_skipped;
+
+      RepoId last_reported_repo;
+      int last_reported_mediumnr;
 
       YCPValue SourceRefreshHelper(const YCPInteger &id, bool forced = false);
 
@@ -811,5 +816,8 @@ class PkgFunctions
 	// must be public, used in callbacks
 	RepoId logFindAlias(const std::string &alias) const;
 
+	RepoId LastReportedRepo() const;
+	int LastReportedMedium() const;
+	void SetReportedSource(RepoId repo, int medium);
 };
 #endif // PkgFunctions_h

@@ -2071,6 +2071,10 @@ PkgFunctions::PkgCommit (const YCPInteger& media)
 
     try
     {
+	// reset the values for SourceChanged callback
+	last_reported_repo = -1;
+	last_reported_mediumnr = 1;
+
 	zypp::ZYppCommitPolicy policy;
 	policy.restrictToMedia( medianr );
 	result = zypp_ptr()->commit(policy);

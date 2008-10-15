@@ -259,3 +259,18 @@ std::string PkgFunctions::ExceptionAsString(const zypp::Exception &e)
     return ret;
 }
 
+PkgFunctions::RepoId PkgFunctions::LastReportedRepo() const
+{
+    return last_reported_repo;
+}
+
+int PkgFunctions::LastReportedMedium() const
+{
+    return last_reported_mediumnr;
+}
+
+void PkgFunctions::SetReportedSource(RepoId repo, int medium)
+{
+    last_reported_repo = repo;
+    last_reported_mediumnr = medium;
+}

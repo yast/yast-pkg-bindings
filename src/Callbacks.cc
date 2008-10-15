@@ -256,10 +256,11 @@ namespace ZyppRecipients {
     struct InstallPkgReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::InstallResolvableReport>
     {
 	zypp::Resolvable::constPtr _last;
+	PkgFunctions &_pkg_ref;
 	int last_reported;
 	time_t last_reported_time;
 
-	InstallPkgReceive(RecipientCtl & construct_r) : Recipient(construct_r)
+	InstallPkgReceive(RecipientCtl & construct_r, PkgFunctions &pk) : Recipient(construct_r), _last(NULL), _pkg_ref(pk)
 	{
 	}
 
@@ -284,6 +285,22 @@ namespace ZyppRecipients {
 	  // if we have started this resolvable already, don't do it again
 	  if( _last == resolvable )
 	    return;
+
+	  // convert the repo ID
+	  PkgFunctions::RepoId source_id = _pkg_ref.logFindAlias(res->repoInfo().alias());
+	  int media_nr = res->mediaNr();
+
+	  if( source_id != _pkg_ref.LastReportedRepo() || media_nr != _pkg_ref.LastReportedMedium())
+	  {
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceChange ) );
+	    if (callback._set) {
+	        callback.addInt( source_id );
+	        callback.addInt( media_nr );
+	        callback.evaluate();
+	    }
+
+	    _pkg_ref.SetReportedSource(source_id, media_nr);
+          }
 
 	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
 	  if (callback._set) {
@@ -495,11 +512,9 @@ namespace ZyppRecipients {
     ///////////////////////////////////////////////////////////////////
     struct DownloadResolvableReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::repo::DownloadResolvableReport>
     {
-	static int last_source_id;
-	static int last_source_media;
-	const PkgFunctions &_pkg_ref;
+	PkgFunctions &_pkg_ref;
 
-	DownloadResolvableReceive( RecipientCtl & construct_r, const PkgFunctions &pk ) : Recipient( construct_r ), _pkg_ref(pk) {}
+	DownloadResolvableReceive( RecipientCtl & construct_r, PkgFunctions &pk ) : Recipient( construct_r ), _pkg_ref(pk) {}
 	int last_reported;
 	time_t last_reported_time;
 
@@ -534,10 +549,10 @@ namespace ZyppRecipients {
 	    size = pkg->downloadSize();
 
 	    // convert the repo ID
-	    long long source_id = _pkg_ref.logFindAlias(pkg->repoInfo().alias());
+	    PkgFunctions::RepoId source_id = _pkg_ref.logFindAlias(pkg->repoInfo().alias());
 	    int media_nr = pkg->mediaNr();
 
-	    if( source_id != last_source_id || media_nr != last_source_media )
+	    if( source_id != _pkg_ref.LastReportedRepo() || media_nr != _pkg_ref.LastReportedMedium())
 	    {
 	      CB callback( ycpcb( YCPCallbacks::CB_SourceChange ) );
 	      if (callback._set) {
@@ -545,8 +560,7 @@ namespace ZyppRecipients {
 	        callback.addInt( media_nr );
 	        callback.evaluate();
 	      }
-	      last_source_id = source_id;
-	      last_source_media = media_nr;
+	      _pkg_ref.SetReportedSource(source_id, media_nr);
             }
 	  }
 
@@ -782,10 +796,6 @@ namespace ZyppRecipients {
 	}
 
     };
-
-    int DownloadResolvableReceive::last_source_id = -1;
-    int DownloadResolvableReceive::last_source_media = -1;
-
 
     ///////////////////////////////////////////////////////////////////
     // DownloadProgressReceive
@@ -1833,12 +1843,12 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 
   public:
 
-    ZyppReceive( const YCPCallbacks & ycpcb_r, const PkgFunctions &pkg)
+    ZyppReceive( const YCPCallbacks & ycpcb_r, PkgFunctions &pkg)
       : RecipientCtl( ycpcb_r )
       , _convertDbReceive( *this )
       , _rebuildDbReceive( *this )
       , _scanDbReceive( *this )
-      , _installPkgReceive( *this )
+      , _installPkgReceive( *this, pkg )
       , _removePkgReceive( *this )
       , _providePkgReceive( *this, pkg )
       , _mediaChangeReceive( *this )
@@ -1913,7 +1923,7 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 //	METHOD NAME : PkgFunctions::CallbackHandler::CallbackHandler
 //	METHOD TYPE : Constructor
 //
-PkgFunctions::CallbackHandler::CallbackHandler(const PkgFunctions &pk)
+PkgFunctions::CallbackHandler::CallbackHandler(PkgFunctions &pk)
     : _ycpCallbacks( *new YCPCallbacks() )
     , _zyppReceive( *new ZyppReceive(_ycpCallbacks, pk) )
 {
