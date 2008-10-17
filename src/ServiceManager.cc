@@ -70,52 +70,37 @@ void ServiceManager::SaveServices(zypp::RepoManager &repomgr) const
     {
 	if (!it->second.isDeleted())
 	{
-	    const PkgService s_known = it->second;
-	    const std::string alias(s_known.alias());
-	    const zypp::ServiceInfo s_stored = repomgr.getService(alias);
-
-	    DBG << "Known Service: " << it->second << std::endl;
-	    DBG << "Stored Service: " << repomgr.getService(alias) << std::endl;
-
-	    bool modified = (s_stored.url() != s_known.url()
-		|| s_stored.name() != s_known.name()
-		|| s_stored.enabled() != s_known.enabled()
-		|| s_stored.autorefresh() != s_known.autorefresh()
-	    );
-
-	    if (modified)
-	    {
-		std::string orig_alias(s_known.origAlias());
-
-		y2internal("orig_alias: %s", orig_alias.c_str());
-
-		// the old alias is empty for new services
-		if (orig_alias.empty())
-		{
-		    y2milestone("Adding new service %s", alias.c_str());
-		    // add the service
-		    repomgr.addService(s_known);
-		}
-		else
-		{
-		    y2milestone("Saving service %s", alias.c_str());
-		    // use the old alias
-		    repomgr.modifyService(orig_alias, s_known);
-		}
-	    }
-	    else
-	    {
-		y2milestone("Service %s has not been modified, not saving", alias.c_str());
-	    }
+	    SavePkgService(it->second, repomgr);
 	}
     }
+}
+
+bool ServiceManager::SaveService(const std::string &alias, zypp::RepoManager &repomgr) const
+{
+    PkgServices::const_iterator serv_it = _known_services.find(alias);
+
+    if (serv_it == _known_services.end())
+    {
+	y2error("Service '%s' does not exist", alias.c_str());
+	return false;
+    }
+
+    if (serv_it->second.isDeleted())
+    {
+	y2error("Service '%s' has been deleted", alias.c_str());
+	return false;
+    }
+
+    SavePkgService(serv_it->second, repomgr);
+
+    return true;
 }
 
 bool ServiceManager::RefreshService(const std::string &alias, zypp::RepoManager &repomgr)
 {
     PkgServices::iterator serv_it = _known_services.find(alias);
 
-    if (serv_it == _known_services.end())
+    if (serv_it == _known_services.end() || serv_it->second.isDeleted())
     {
 	y2error("Service '%s' does not exist", alias.c_str());
 	return false;
@@ -292,3 +277,42 @@ ServiceManager::Services::size_type ServiceManager::size() const
     return _known_services.size();
 }
 
+void ServiceManager::SavePkgService(const PkgService &s_known, zypp::RepoManager &repomgr) const
+{
+    const std::string alias(s_known.alias());
+    const zypp::ServiceInfo s_stored = repomgr.getService(alias);
+
+    DBG << "Known Service: " << s_known << std::endl;
+    DBG << "Stored Service: " << s_stored << std::endl;
+
+    bool modified = (s_stored.url() != s_known.url()
+	|| s_stored.name() != s_known.name()
+	|| s_stored.enabled() != s_known.enabled()
+	|| s_stored.autorefresh() != s_known.autorefresh()
+    );
+
+    if (modified)
+    {
+	std::string orig_alias(s_known.origAlias());
+
+	y2internal("orig_alias: %s", orig_alias.c_str());
+
+	// the old alias is empty for new services
+	if (orig_alias.empty())
+	{
+	    y2milestone("Adding new service %s", alias.c_str());
+	    // add the service
+	    repomgr.addService(s_known);
+	}
+	else
+	{
+	    y2milestone("Saving service %s", alias.c_str());
+	    // use the old alias
+	    repomgr.modifyService(orig_alias, s_known);
+	}
+    }
+    else
+    {
+	y2milestone("Service %s has not been modified, not saving", alias.c_str());
+    }
+}

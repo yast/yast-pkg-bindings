@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
 Fri Oct 17 12:06:44 CEST 2008 - lslezak@suse.cz
 
+- added ServiceSave() function (bnc#435669)
 - fixed ServiceDelete() - delete also the repositories belonging
   to the deleted service, similar fix in enabling/disabling
   a service via ServiceSet() (bnc#435711)

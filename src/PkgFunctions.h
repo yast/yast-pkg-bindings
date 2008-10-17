@@ -798,6 +798,8 @@ class PkgFunctions
 	YCPValue ServiceURL(const YCPString &alias);
 	/* TYPEINFO: string(string)*/
 	YCPValue ServiceProbe(const YCPString &url);
+	/* TYPEINFO: boolean(string)*/
+	YCPValue ServiceSave(const YCPString &alias);
 
 
         YCPValue ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies);

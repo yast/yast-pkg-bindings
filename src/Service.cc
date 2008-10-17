@@ -130,6 +130,38 @@ YCPValue PkgFunctions::ServiceDelete(const YCPString &alias)
 
 
 /**
+ *  @builtin ServiceSave
+ *  @short Save a service to .service file
+ *  All services are saved/updated/removed in Pkg::SourceSaveAll()
+ *  @param alias alias of the service to remove
+ *  @return boolean false if failed
+*/
+YCPValue PkgFunctions::ServiceSave(const YCPString &alias)
+{
+    try
+    {
+	if (alias.isNull())
+	{
+	    y2error("Found nil parameter in Pkg::ServiceSave()");
+	    return YCPBoolean(false);
+	}
+
+	std::string service_alias = alias->value();
+	zypp::RepoManager repomanager = CreateRepoManager();
+	y2milestone("Saving service %s", service_alias.c_str());
+
+	bool ret = service_manager.SaveService(service_alias, repomanager);
+	return YCPBoolean(ret);
+    }
+    catch (const zypp::Exception& excpt)
+    {
+	_last_error.setLastError(ExceptionAsString(excpt));
+    }
+
+    return YCPBoolean(false);
+}
+
+/**
    @builtin ServiceGet
    @short Get detailed properties of a service
    @param alias alias of the service
