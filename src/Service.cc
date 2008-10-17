@@ -165,7 +165,7 @@ YCPValue PkgFunctions::ServiceSave(const YCPString &alias)
    @builtin ServiceGet
    @short Get detailed properties of a service
    @param alias alias of the service
-   @return map Service data in map $[ "alias":string, "name":string, "url":string, "autorefresh":boolean, "enabled":boolean, "file":string ]. "file" is name of the file from which the service has been read, it is empty if the service has not been saved yet
+   @return map Service data in map $[ "alias":string, "name":string, "url":string, "autorefresh":boolean, "enabled":boolean, "file":string, "repos_to_disable" : list<string>, "repos_to_enable" : list<string> ]. "file" is name of the file from which the service has been read, it is empty if the service has not been saved yet
 */
 YCPValue PkgFunctions::ServiceGet(const YCPString &alias)
 {
@@ -184,6 +184,30 @@ YCPValue PkgFunctions::ServiceGet(const YCPString &alias)
     ret->add(YCPString("autorefresh"), YCPBoolean(s.autorefresh()));
     ret->add(YCPString("enabled"), YCPBoolean(s.enabled()));
     ret->add(YCPString("file"), YCPString(s.filepath().asString()));
+
+    if (s.reposToDisableSize() > 0)
+    {
+	YCPList lst;
+
+	for_(it, s.reposToDisableBegin(), s.reposToDisableEnd())
+	{
+	    lst->add(YCPString(*it));
+	}
+    
+	ret->add(YCPString("repos_to_disable"), lst);
+    }
+
+    if (s.reposToEnableSize() > 0)
+    {
+	YCPList lst;
+
+	for_(it, s.reposToEnableBegin(), s.reposToEnableEnd())
+	{
+	    lst->add(YCPString(*it));
+	}
+    
+	ret->add(YCPString("repos_to_enable"), lst);
+    }
 
     return ret;
 }
@@ -275,6 +299,48 @@ YCPValue PkgFunctions::ServiceSet(const YCPString &old_alias, const YCPMap &serv
 
 		    repo->repoInfo().setEnabled(enabled);
 		}
+	    }
+	}
+
+	v = service->value(YCPString("repos_to_disable"));
+	if(!v.isNull() && v->isList())
+	{
+	    // clear the list
+	    s.clearReposToDisable();
+
+	    YCPList lst = v->asList();
+
+	    for (int index = 0; index < lst->size(); ++index)
+	    {
+		if( ! lst->value(index)->isString() )
+		{
+		    y2error( "repos_to_disable: value at index %d is not a string: %s", index, lst->toString().c_str());
+		}
+
+		std::string disable_alias(lst->value(index)->asString()->value());
+		y2milestone("Adding repository to disable: %s", disable_alias.c_str());
+		s.addRepoToDisable(disable_alias);
+	    }
+	}
+
+	v = service->value(YCPString("repos_to_enable"));
+	if(!v.isNull() && v->isList())
+	{
+	    // clear the list
+	    s.clearReposToEnable();
+
+	    YCPList lst = v->asList();
+
+	    for (int index = 0; index < lst->size(); ++index)
+	    {
+		if( ! lst->value(index)->isString() )
+		{
+		    y2error( "repos_to_enable: value at index %d is not a string: %s", index, lst->toString().c_str());
+		}
+
+		std::string enable_alias(lst->value(index)->asString()->value());
+		y2milestone("Adding repository to enable: %s", enable_alias.c_str());
+		s.addRepoToEnable(enable_alias);
 	    }
 	}
 
