@@ -98,7 +98,27 @@ YCPValue PkgFunctions::ServiceDelete(const YCPString &alias)
 	    return YCPBoolean(false);
 	}
 
-	return YCPBoolean(service_manager.RemoveService(alias->value()));
+	std::string service_alias = alias->value();
+	bool ret = service_manager.RemoveService(service_alias);
+
+	if (ret)
+	{
+	    RepoId index = 0;
+	    // delete the repositories that belong to the service
+	    for( RepoCont::const_iterator it = repos.begin(); it != repos.end() ; ++it, ++index )
+	    {
+		YRepo_Ptr repo = *it;
+		if (repo->repoInfo().service() == service_alias)
+		{
+		    std::string repo_alias = repo->repoInfo().alias();
+		    y2milestone("Removing repository %zd (%s) belonging to service %s",
+			 index, repo_alias.c_str(), service_alias.c_str());
+		    repo->setDeleted();
+		}
+	    }
+	}
+
+	return YCPBoolean(ret);
     }
     catch (const zypp::Exception& excpt)
     {
@@ -174,6 +194,7 @@ YCPValue PkgFunctions::ServiceSet(const YCPString &old_alias, const YCPMap &serv
 
     try
     {
+	std::string old_alias_str(old_alias->value());
 	zypp::ServiceInfo s(service_manager.GetService(old_alias->value()));
 	YCPValue v;
 
@@ -204,7 +225,25 @@ YCPValue PkgFunctions::ServiceSet(const YCPString &old_alias, const YCPMap &serv
 	v = service->value(YCPString("enabled"));
 	if(!v.isNull() && v->isBoolean())
 	{
-	    s.setEnabled(v->asBoolean()->value());
+	    bool enabled = v->asBoolean()->value();
+	    s.setEnabled(enabled);
+
+	    // enable/disable the repositories belonging to the service
+	    RepoId index = 0;
+	    for( RepoCont::const_iterator it = repos.begin(); it != repos.end() ; ++it, ++index )
+	    {
+		YRepo_Ptr repo = *it;
+		if (repo->repoInfo().enabled() != enabled && repo->repoInfo().service() == old_alias_str
+		    && !repo->isDeleted())
+		{
+		    std::string repo_alias = repo->repoInfo().alias();
+
+		    y2milestone("%s repository %zd (%s) belonging to service %s",
+			 enabled ? "Enabling" : "Disabling", index, repo_alias.c_str(), old_alias_str.c_str());
+
+		    repo->repoInfo().setEnabled(enabled);
+		}
+	    }
 	}
 
 	// note: do not allow to change the file name?
