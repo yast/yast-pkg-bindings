@@ -46,8 +46,16 @@
 bool PkgFunctions::NetworkDetected()
 {
     y2milestone("Checking the network status...");
-    int result = ::system("ip addr|grep -v 'inet6 ::1\\|inet6 fe80'|grep -q inet6 &> /dev/null");
+    // check IPv4 network
+    int result = ::system("ip addr|grep -v '127.0.0\\|inet6'|grep -q inet &> /dev/null");
     y2milestone("Network is running: %s", (result == 0) ? "yes" : "no");
+
+    if (!result)
+    {
+	// IPv4 not detected, try IPv6
+	result = ::system("ip addr|grep -v 'inet6 ::1\\|inet6 fe80'|grep -q inet6 &> /dev/null");
+	y2milestone("Network (IPv6) is running: %s", (result == 0) ? "yes" : "no");
+    }
 
     return !result;
 }

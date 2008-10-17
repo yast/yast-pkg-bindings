@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Oct 17 10:58:43 CEST 2008 - lslezak@suse.cz
+
+- fixed network detection command (bnc#435970)
+
+-------------------------------------------------------------------
 Wed Oct 15 10:56:06 CEST 2008 - lslezak@suse.cz
 
 - report SourceChanged callback also during package installation
