@@ -1505,7 +1505,7 @@ PkgFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_on
 
 /**
  * @builtin PkgUpdateAll
- * @param map<string,any> update_options Options for the solver. All parameters are optional, if a parameter is missing the default value from the package manager (libzypp) is used. Currently supported options: <tt>$["delete_unmaintained":boolean, "silent_downgrades":boolean, "keep_installed_patches":boolean]</tt>
+ * @param map<string,any> update_options Options for the solver. All parameters are optional, if a parameter is missing the default value from the package manager (libzypp) is used. Currently supported options: <tt>$["silent_downgrades":boolean] </tt>
  * @short Update installed packages
  * @description
  * Mark all packages for installation which are installed and have

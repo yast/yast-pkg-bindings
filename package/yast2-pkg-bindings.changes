@@ -8,6 +8,7 @@ Fri Oct 17 12:06:44 CEST 2008 - lslezak@suse.cz
   to the deleted service, similar fix in enabling/disabling
   a service via ServiceSet() (bnc#435711)
 - fixed network detection command (bnc#435970)
+- 2.17.20
 
 -------------------------------------------------------------------
 Wed Oct 15 10:56:06 CEST 2008 - lslezak@suse.cz
