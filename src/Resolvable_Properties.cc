@@ -176,272 +176,272 @@ std::string TransactToString(zypp::ResStatus::TransactByValue trans)
 
 YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::string &req_kind, bool dependencies)
 {
-		YCPMap info;
+    YCPMap info;
 
-		info->add(YCPString("name"), YCPString(item->name()));
-		info->add(YCPString("version"), YCPString(item->edition().asString()));
-		info->add(YCPString("arch"), YCPString(item->arch().asString()));
-		info->add(YCPString("description"), YCPString(item->description()));
+    info->add(YCPString("name"), YCPString(item->name()));
+    info->add(YCPString("version"), YCPString(item->edition().asString()));
+    info->add(YCPString("arch"), YCPString(item->arch().asString()));
+    info->add(YCPString("description"), YCPString(item->description()));
 
-		std::string resolvable_summary = item->summary();
-		if (resolvable_summary.size() > 0)
+    std::string resolvable_summary = item->summary();
+    if (resolvable_summary.size() > 0)
+    {
+	info->add(YCPString("summary"), YCPString(resolvable_summary));
+    }
+
+    // status
+    std::string stat;
+
+    zypp::ResStatus status = item.status();
+
+    if (status.isInstalled() || status.isSatisfied())
+    {
+	if (status.isToBeUninstalled())
+	{
+	    stat = "removed";
+	    info->add(YCPString("transact_by"), YCPSymbol(TransactToString(status.getTransactByValue())));
+	}
+	else
+	{
+	    stat = "installed";
+	}
+    }
+    else if (status.isToBeInstalled())
+    {
+	stat = "selected";
+	info->add(YCPString("transact_by"), YCPSymbol(TransactToString(status.getTransactByValue())));
+    }
+    else
+    {
+	stat = "available";
+    }
+
+    info->add(YCPString("status"), YCPSymbol(stat));
+
+    // is the resolvable locked? (Locked or Taboo in the UI)
+    info->add(YCPString("locked"), YCPBoolean(status.isLocked()));
+
+    // source
+    info->add(YCPString("source"), YCPInteger(logFindAlias(item->repoInfo().alias())));
+
+    // add license info if it is defined
+    std::string license = item->licenseToConfirm();
+    if (!license.empty())
+    {
+	info->add(YCPString("license_confirmed"), YCPBoolean(item.status().isLicenceConfirmed()));
+	info->add(YCPString("license"), YCPString(license));
+    }
+
+    info->add(YCPString("download_size"), YCPInteger(item->downloadSize()));
+    info->add(YCPString("inst_size"), YCPInteger(item->installSize()));
+
+    info->add(YCPString("medium_nr"), YCPInteger(item->mediaNr()));
+    info->add(YCPString("vendor"), YCPString(item->vendor()));
+
+
+    // package specific info
+    if( req_kind == "package" )
+    {
+	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(item.resolvable());
+	if ( pkg )
+	{
+	    std::string tmp = pkg->location().filename().asString();
+	    if (!tmp.empty())
+	    {
+		info->add(YCPString("path"), YCPString(tmp));
+	    }
+
+	    tmp = pkg->location().filename().basename();
+	    if (!tmp.empty())
+	    {
+		info->add(YCPString("location"), YCPString(tmp));
+	    }
+	} else
+	{
+	    y2error("package %s is not a package", item->name().c_str() );
+	}
+    }
+    // product specific info
+    else if( req_kind == "product" ) {
+	zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(item.resolvable());
+	if ( !product )
+	{
+	    y2error("product %s is not a product", item->name().c_str() );
+	    return YCPMap();
+	}
+
+	std::string category(product->isTargetDistribution() ? "base" : "addon");
+
+	info->add(YCPString("category"), YCPString(category));
+	info->add(YCPString("type"), YCPString(category));
+	info->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrls().first().asString()));
+
+	std::string product_summary = product->summary();
+	if (product_summary.size() > 0)
+	{
+	    info->add(YCPString("display_name"), YCPString(product_summary));
+	}
+
+	std::string product_shortname = product->shortName();
+	if (product_shortname.size() > 0)
+	{
+	    info->add(YCPString("short_name"), YCPString(product_shortname));
+	}
+	// use summary for the short name if it's defined
+	else if (product_summary.size() > 0)
+	{
+	    info->add(YCPString("short_name"), YCPString(product_summary));
+	}
+
+	YCPList updateUrls;
+	zypp::Product::UrlList pupdateUrls = product->updateUrls();
+	for_( it, pupdateUrls.begin(), pupdateUrls.end() )
+	{
+	    updateUrls->add(YCPString(it->asString()));
+	}
+	info->add(YCPString("update_urls"), updateUrls);
+
+	YCPList flags;
+	std::list<std::string> pflags = product->flags();
+	for (std::list<std::string>::const_iterator flag_it = pflags.begin();
+	    flag_it != pflags.end(); ++flag_it)
+	{
+	    flags->add(YCPString(*flag_it));
+	}
+	info->add(YCPString("flags"), flags);
+
+	YCPList extraUrls( asYCPList(product->extraUrls()) );
+	if ( extraUrls.size() )
+	{
+	  info->add(YCPString("extra_urls"), extraUrls);
+	}
+
+	YCPList optionalUrls( asYCPList(product->optionalUrls()) );
+	if ( optionalUrls.size() )
+	{
+	  info->add(YCPString("optional_urls"), optionalUrls);
+	}
+
+	YCPList registerUrls( asYCPList(product->registerUrls()) );
+	if ( registerUrls.size() )
+	{
+	  info->add(YCPString("register_urls"), registerUrls);
+	}
+
+	YCPList smoltUrls( asYCPList(product->smoltUrls()) );
+	if ( smoltUrls.size() )
+	{
+	  info->add(YCPString("smolt_urls"), smoltUrls);
+	}
+
+	// registration data
+	info->add(YCPString("register_target"), YCPString(product->registerTarget()));
+	info->add(YCPString("register_release"), YCPString(product->registerRelease()));
+
+	// Live CD, FTP Edition...
+	info->add(YCPString("flavor"), YCPString(product->flavor()));
+
+	// get the installed Products it would replace.
+	zypp::Product::ReplacedProducts replaced(product->replacedProducts());
+
+	if (!replaced.empty())
+	{
+	    YCPList rep_prods;
+
+	    // add the products to the list
+	    for_( it, replaced.begin(), replaced.end() )
+	    {
+		// The current replaced Product.
+		zypp::Product::constPtr replacedProduct(*it);
+
+		if (!replacedProduct) continue;
+
+		YCPMap rprod;
+		rprod->add(YCPString("name"), YCPString(replacedProduct->name()));
+		rprod->add(YCPString("version"), YCPString(replacedProduct->edition().asString()));
+		rprod->add(YCPString("arch"), YCPString(replacedProduct->arch().asString()));
+		rprod->add(YCPString("description"), YCPString(replacedProduct->description()));
+
+		std::string product_summary = replacedProduct->summary();
+		if (product_summary.size() > 0)
 		{
-		    info->add(YCPString("summary"), YCPString(resolvable_summary));
+		    rprod->add(YCPString("display_name"), YCPString(product_summary));
 		}
 
-		// status
-		std::string stat;
-
-		zypp::ResStatus status = item.status();
-
-		if (status.isInstalled() || status.isSatisfied())
+		std::string product_shortname = replacedProduct->shortName();
+		if (product_shortname.size() > 0)
 		{
-		    if (status.isToBeUninstalled())
-		    {
-			stat = "removed";
-			info->add(YCPString("transact_by"), YCPSymbol(TransactToString(status.getTransactByValue())));
-		    }
-		    else
-		    {
-			stat = "installed";
-		    }
+		    rprod->add(YCPString("short_name"), YCPString(product_shortname));
 		}
-		else if (status.isToBeInstalled())
+		// use summary for the short name if it's defined
+		else if (product_summary.size() > 0)
 		{
-		    stat = "selected";
-		    info->add(YCPString("transact_by"), YCPSymbol(TransactToString(status.getTransactByValue())));
+		    rprod->add(YCPString("short_name"), YCPString(product_summary));
 		}
-		else
+	    }
+
+	    info->add(YCPString("replaces"), rep_prods);
+	}
+    }
+    // pattern specific info
+    else if ( req_kind == "pattern" ) {
+	zypp::Pattern::constPtr pattern = boost::dynamic_pointer_cast<const zypp::Pattern>(item.resolvable());
+	info->add(YCPString("category"), YCPString(pattern->category()));
+	info->add(YCPString("user_visible"), YCPBoolean(pattern->userVisible()));
+	info->add(YCPString("default"), YCPBoolean(pattern->isDefault()));
+	info->add(YCPString("icon"), YCPString(pattern->icon().asString()));
+	info->add(YCPString("script"), YCPString(pattern->script().asString()));
+	info->add(YCPString("order"), YCPString(pattern->order()));
+    }
+    // patch specific info
+    else if ( req_kind == "patch" )
+    {
+	zypp::Patch::constPtr patch_ptr = boost::dynamic_pointer_cast<const zypp::Patch>(item.resolvable());
+
+	info->add(YCPString("interactive"), YCPBoolean(patch_ptr->interactive()));
+	info->add(YCPString("reboot_needed"), YCPBoolean(patch_ptr->rebootSuggested()));
+	info->add(YCPString("relogin_needed"), YCPBoolean(patch_ptr->reloginSuggested()));
+	info->add(YCPString("affects_pkg_manager"), YCPBoolean(patch_ptr->restartSuggested()));
+	info->add(YCPString("is_needed"), YCPBoolean(item.isBroken()));
+    }
+
+    // dependency info
+    if (dependencies)
+    {
+	std::set<std::string> _kinds;
+	_kinds.insert("provides");
+	_kinds.insert("prerequires");
+	_kinds.insert("requires");
+	_kinds.insert("conflicts");
+	_kinds.insert("obsoletes");
+	_kinds.insert("recommends");
+	_kinds.insert("suggests");
+	_kinds.insert("enhances");
+	_kinds.insert("supplements");
+	YCPList ycpdeps;
+	for (std::set<std::string>::const_iterator kind_it = _kinds.begin();
+	    kind_it != _kinds.end(); ++kind_it)
+	{
+	    try {
+		zypp::Dep depkind(*kind_it);
+		zypp::Capabilities deps = item.resolvable()->dep(depkind);
+
+		zypp::sat::WhatProvides prv(deps);
+
+		for (zypp::sat::WhatProvides::const_iterator d = prv.begin(); d != prv.end(); ++d)
 		{
-		    stat = "available";
+		    YCPMap ycpdep;
+		    ycpdep->add (YCPString ("res_kind"), YCPString (d->kind().asString()));
+		    ycpdep->add (YCPString ("name"), YCPString (d->name()));
+		    ycpdep->add (YCPString ("dep_kind"), YCPString (*kind_it));
+		    ycpdeps->add (ycpdep);
 		}
-
-		info->add(YCPString("status"), YCPSymbol(stat));
-
-		// is the resolvable locked? (Locked or Taboo in the UI)
-		info->add(YCPString("locked"), YCPBoolean(status.isLocked()));
-
-		// source
-		info->add(YCPString("source"), YCPInteger(logFindAlias(item->repoInfo().alias())));
-
-		// add license info if it is defined
-		std::string license = item->licenseToConfirm();
-		if (!license.empty())
-		{
-		    info->add(YCPString("license_confirmed"), YCPBoolean(item.status().isLicenceConfirmed()));
-		    info->add(YCPString("license"), YCPString(license));
-		}
-
-		info->add(YCPString("download_size"), YCPInteger(item->downloadSize()));
-		info->add(YCPString("inst_size"), YCPInteger(item->installSize()));
-
-		info->add(YCPString("medium_nr"), YCPInteger(item->mediaNr()));
-		info->add(YCPString("vendor"), YCPString(item->vendor()));
-
-
-		// package specific info
-		if( req_kind == "package" )
-		{
-		    zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(item.resolvable());
-                    if ( pkg )
-		    {
-                        std::string tmp = pkg->location().filename().asString();
-                        if (!tmp.empty())
-                        {
-                            info->add(YCPString("path"), YCPString(tmp));
-                        }
-
-                        tmp = pkg->location().filename().basename();
-                        if (!tmp.empty())
-                        {
-                            info->add(YCPString("location"), YCPString(tmp));
-                        }
-                    } else
-                    {
-                        y2error("package %s is not a package", item->name().c_str() );
-                    }
-		}
-		// product specific info
-		else if( req_kind == "product" ) {
-		    zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(item.resolvable());
-                    if ( !product )
-                    {
-                        y2error("product %s is not a product", item->name().c_str() );
-                        return YCPMap();
-                    }
-
-		    std::string category(product->isTargetDistribution() ? "base" : "addon");
-
-                    info->add(YCPString("category"), YCPString(category));
-                    info->add(YCPString("type"), YCPString(category));
-		    info->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrls().first().asString()));
-
-		    std::string product_summary = product->summary();
-		    if (product_summary.size() > 0)
-		    {
-			info->add(YCPString("display_name"), YCPString(product_summary));
-		    }
-
-		    std::string product_shortname = product->shortName();
-		    if (product_shortname.size() > 0)
-		    {
-			info->add(YCPString("short_name"), YCPString(product_shortname));
-		    }
-		    // use summary for the short name if it's defined
-		    else if (product_summary.size() > 0)
-		    {
-			info->add(YCPString("short_name"), YCPString(product_summary));
-		    }
-
-		    YCPList updateUrls;
-		    zypp::Product::UrlList pupdateUrls = product->updateUrls();
-		    for_( it, pupdateUrls.begin(), pupdateUrls.end() )
-		    {
-			updateUrls->add(YCPString(it->asString()));
-		    }
-		    info->add(YCPString("update_urls"), updateUrls);
-
-		    YCPList flags;
-		    std::list<std::string> pflags = product->flags();
-                    for (std::list<std::string>::const_iterator flag_it = pflags.begin();
-			flag_it != pflags.end(); ++flag_it)
-		    {
-			flags->add(YCPString(*flag_it));
-		    }
-		    info->add(YCPString("flags"), flags);
-
-                    YCPList extraUrls( asYCPList(product->extraUrls()) );
-                    if ( extraUrls.size() )
-                    {
-                      info->add(YCPString("extra_urls"), extraUrls);
-                    }
-
-                    YCPList optionalUrls( asYCPList(product->optionalUrls()) );
-                    if ( optionalUrls.size() )
-                    {
-                      info->add(YCPString("optional_urls"), optionalUrls);
-                    }
-
-                    YCPList registerUrls( asYCPList(product->registerUrls()) );
-                    if ( registerUrls.size() )
-                    {
-                      info->add(YCPString("register_urls"), registerUrls);
-                    }
-
-                    YCPList smoltUrls( asYCPList(product->smoltUrls()) );
-                    if ( smoltUrls.size() )
-                    {
-                      info->add(YCPString("smolt_urls"), smoltUrls);
-                    }
-
-		    // registration data
-                    info->add(YCPString("register_target"), YCPString(product->registerTarget()));
-                    info->add(YCPString("register_release"), YCPString(product->registerRelease()));
-
-		    // Live CD, FTP Edition...
-                    info->add(YCPString("flavor"), YCPString(product->flavor()));
-
-		    // get the installed Products it would replace.
-		    zypp::Product::ReplacedProducts replaced(product->replacedProducts());
-
-		    if (!replaced.empty())
-		    {
-			YCPList rep_prods;
-
-			// add the products to the list
-			for_( it, replaced.begin(), replaced.end() )
-			{
-			    // The current replaced Product.
-			    zypp::Product::constPtr replacedProduct(*it);
-
-			    if (!replacedProduct) continue;
-
-			    YCPMap rprod;
-			    rprod->add(YCPString("name"), YCPString(replacedProduct->name()));
-			    rprod->add(YCPString("version"), YCPString(replacedProduct->edition().asString()));
-			    rprod->add(YCPString("arch"), YCPString(replacedProduct->arch().asString()));
-			    rprod->add(YCPString("description"), YCPString(replacedProduct->description()));
-
-			    std::string product_summary = replacedProduct->summary();
-			    if (product_summary.size() > 0)
-			    {
-				rprod->add(YCPString("display_name"), YCPString(product_summary));
-			    }
-
-			    std::string product_shortname = replacedProduct->shortName();
-			    if (product_shortname.size() > 0)
-			    {
-				rprod->add(YCPString("short_name"), YCPString(product_shortname));
-			    }
-			    // use summary for the short name if it's defined
-			    else if (product_summary.size() > 0)
-			    {
-				rprod->add(YCPString("short_name"), YCPString(product_summary));
-			    }
-			}
-
-			info->add(YCPString("replaces"), rep_prods);
-		    }
-		}
-		// pattern specific info
-		else if ( req_kind == "pattern" ) {
-		    zypp::Pattern::constPtr pattern = boost::dynamic_pointer_cast<const zypp::Pattern>(item.resolvable());
-		    info->add(YCPString("category"), YCPString(pattern->category()));
-		    info->add(YCPString("user_visible"), YCPBoolean(pattern->userVisible()));
-		    info->add(YCPString("default"), YCPBoolean(pattern->isDefault()));
-		    info->add(YCPString("icon"), YCPString(pattern->icon().asString()));
-		    info->add(YCPString("script"), YCPString(pattern->script().asString()));
-		    info->add(YCPString("order"), YCPString(pattern->order()));
-		}
-		// patch specific info
-		else if ( req_kind == "patch" )
-		{
-		    zypp::Patch::constPtr patch_ptr = boost::dynamic_pointer_cast<const zypp::Patch>(item.resolvable());
-
-		    info->add(YCPString("interactive"), YCPBoolean(patch_ptr->interactive()));
-		    info->add(YCPString("reboot_needed"), YCPBoolean(patch_ptr->rebootSuggested()));
-		    info->add(YCPString("relogin_needed"), YCPBoolean(patch_ptr->reloginSuggested()));
-		    info->add(YCPString("affects_pkg_manager"), YCPBoolean(patch_ptr->restartSuggested()));
-                    info->add(YCPString("is_needed"), YCPBoolean(item.isBroken()));
-		}
-
-		// dependency info
-		if (dependencies)
-		{
-		    std::set<std::string> _kinds;
-		    _kinds.insert("provides");
-		    _kinds.insert("prerequires");
-		    _kinds.insert("requires");
-		    _kinds.insert("conflicts");
-		    _kinds.insert("obsoletes");
-		    _kinds.insert("recommends");
-		    _kinds.insert("suggests");
-		    _kinds.insert("enhances");
-		    _kinds.insert("supplements");
-		    YCPList ycpdeps;
-		    for (std::set<std::string>::const_iterator kind_it = _kinds.begin();
-			kind_it != _kinds.end(); ++kind_it)
-		    {
-			try {
-			    zypp::Dep depkind(*kind_it);
-			    zypp::Capabilities deps = item.resolvable()->dep(depkind);
-
-			    zypp::sat::WhatProvides prv(deps);
-
-			    for (zypp::sat::WhatProvides::const_iterator d = prv.begin(); d != prv.end(); ++d)
-			    {
-				YCPMap ycpdep;
-				ycpdep->add (YCPString ("res_kind"), YCPString (d->kind().asString()));
-				ycpdep->add (YCPString ("name"), YCPString (d->name()));
-				ycpdep->add (YCPString ("dep_kind"), YCPString (*kind_it));
-				ycpdeps->add (ycpdep);
-			    }
-			}
-			catch (...)
-			{}
-		    }
-		    info->add (YCPString ("dependencies"), ycpdeps);
-		}
+	    }
+	    catch (...)
+	    {}
+	}
+	info->add (YCPString ("dependencies"), ycpdeps);
+    }
 
     return info;
 }
