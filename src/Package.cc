@@ -2468,3 +2468,20 @@ bool PkgFunctions::CreateBaseProductSymlink()
 
     return true;
 }
+
+YCPValue PkgFunctions::CreateSolverTestCase(const YCPString &dir)
+{
+    if (dir.isNull())
+    {
+	y2error("Pkg::CreateSolverTestcase(): nil parameter!");
+	return YCPBoolean(false);
+    }
+
+    std::string testcase_dir(dir->value());
+    y2milestone("Creating a solver test case in directory %s", testcase_dir.c_str());
+    bool success = zypp_ptr()->resolver()->createSolverTestcase(testcase_dir);
+    y2milestone("Testcase saved: %s", success ? "true" : "false");
+
+    return YCPBoolean(success);
+}
+

@@ -185,6 +185,8 @@ class PkgFunctions
 
       bool CreateBaseProductSymlink();
 
+      YCPMap Resolvable2YCPMap(const zypp::PoolItem &item, const std::string &req_kind, bool dependencies);
+
     private:
 
       /**
@@ -675,6 +677,8 @@ class PkgFunctions
 	YCPValue PkgApplReset ();
 	/* TYPEINFO: boolean(boolean)*/
 	YCPBoolean PkgSolve (const YCPBoolean& filter);
+	/* TYPEINFO: boolean(string)*/
+	YCPValue CreateSolverTestCase(const YCPString &dir);
 	/* TYPEINFO: boolean()*/
 	YCPBoolean PkgEstablish ();
 	/* TYPEINFO: boolean()*/
