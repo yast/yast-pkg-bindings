@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue Oct 21 11:08:21 CEST 2008 - lslezak@suse.cz
+
+- fixed ResolvableProperties() - correctly iterate over all
+  available/installed objects (bnc#436842)
+- added Pkg::CreateSolverTestcase() debugging function to create
+  a solver testcase from YCP code
+- 2.17.21
+
+-------------------------------------------------------------------
 Fri Oct 17 12:06:44 CEST 2008 - lslezak@suse.cz
 
 - ServiceGet()/ServiceSet() - query/set ReposToEnable and
