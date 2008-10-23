@@ -43,8 +43,15 @@
 YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 					       const YCPInteger &mid,
 					       const YCPString& f,
-					       const YCPBoolean & optional)
+					       const bool optional,
+					       const bool check_signatures)
 {
+    if (id.isNull() || mid.isNull() || f.isNull())
+    {
+	y2error("ProvideFile: nil argument!");
+	return YCPVoid();
+    }
+
     CallInitDownload(std::string(_("Downloading ") + f->value()));
 
     bool found = true;
@@ -57,7 +64,7 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
     ZyppRecipients::MediaChangeSensitivity _silent_probing_old = _silent_probing;
 
     // disable media change callback for optional file
-    if (optional->value())
+    if (optional)
 	_silent_probing = ZyppRecipients::MEDIA_CHANGE_OPTIONALFILE;
 
     zypp::filesystem::Pathname path; // FIXME use ManagedMedia
@@ -65,14 +72,31 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
     {
 	try
 	{
-	    path = repo->mediaAccess()->provideFile(f->value(), mid->value());
-	    y2milestone("local path: '%s'", path.asString().c_str());
+	    if (check_signatures)
+	    {
+		// use a Fetcher for downloading signed files (see bnc#409927)
+		zypp::Fetcher fch;
+		zypp::OnMediaLocation mloc(f->value(), mid->value());
+		zypp::filesystem::TmpDir tmpdir;
+
+		// keep a reference to the tmpdir so the directory is not deleted at the and of the block		
+		tmp_dirs.push_back(tmpdir);
+		path = tmpdir.path() / f->value();
+		fch.enqueueDigested(mloc);
+		fch.start(path, *repo->mediaAccess()); // uses MediaAccess to retrieve
+		fch.reset();
+	    }
+	    else
+	    {
+		path = repo->mediaAccess()->provideFile(f->value(), mid->value());
+		y2milestone("local path: '%s'", path.asString().c_str());
+	    }
 	}
 	catch (const zypp::Exception& excpt)
 	{
 	    found = false;
 
-	    if (!optional->value())
+	    if (!optional)
 	    {
 		_last_error.setLastError(ExceptionAsString(excpt));
 		y2milestone("File not found: %s", f->value_cstr());
@@ -112,7 +136,7 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 YCPValue
 PkgFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
-    return SourceProvideFileCommon(id, mid, f, false /*optional*/);
+    return SourceProvideFileCommon(id, mid, f, false /*optional*/, false /* signed */);
 }
 
 /****************************************************************************************
@@ -132,7 +156,33 @@ PkgFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, co
 YCPValue
 PkgFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
-    return SourceProvideFileCommon(id, mid, f, true /*optional*/);
+    return SourceProvideFileCommon(id, mid, f, true /*optional*/, false /* signed */);
+}
+
+/****************************************************************************************
+ * @builtin SourceProvideSignedFile
+ *
+ * @short Make a signed file available at the local filesystem
+ * @description
+ * Make a signed Let an InstSrc provide some file (make it available at the local filesystem).
+ *
+ * @param integer id Source ID
+ * @param integer mid Number of the media the file is located on ('1' for the 1st media).
+ * @param string f Filename relative to the media root.
+ * @param boolean optional true if the file can be missing on the medium, if an optional file doesn't exist do not ask user for another medium and return nil.
+ *
+ * @return string local path as string
+ **/
+YCPValue
+PkgFunctions::SourceProvideSignedFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f, const YCPBoolean &optional)
+{
+    if (optional.isNull())
+    {
+	y2error("SourceProvideSignedFile: argument 'optional' is nil!");
+	return YCPVoid();
+    }
+
+    return SourceProvideFileCommon(id, mid, f, optional->value() /*optional*/, true /* signed */);
 }
 
 /****************************************************************************************

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 23 09:41:39 CEST 2008 - lslezak@suse.cz
+
+- added Pkg::SourceProvideSignedFile() function for downloading
+  a single signed file (bnc#409927)
+
+-------------------------------------------------------------------
 Tue Oct 21 11:08:21 CEST 2008 - lslezak@suse.cz
 
 - fixed ResolvableProperties() - correctly iterate over all
