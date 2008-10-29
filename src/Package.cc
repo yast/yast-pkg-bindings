@@ -1505,54 +1505,57 @@ PkgFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_on
 
 /**
  * @builtin PkgUpdateAll
- * @param map<string,any> update_options Options for the solver. All parameters are optional, if a parameter is missing the default value from the package manager (libzypp) is used. Currently supported options: <tt>$["silent_downgrades":boolean] </tt>
+ * @param map<string,any> update_options Options for the solver. All parameters are optional,
+ *	if a parameter is missing the default value from the package manager (libzypp) is used.
+ *	Currently supported options: <tt>$["silent_downgrades":boolean] </tt>
+ *
  * @short Update installed packages
  * @description
  * Mark all packages for installation which are installed and have
  * an available candidate for update.
- *
+ * 
  * This will mark packages for installation *and* for deletion (if a
  * package provides/obsoletes another package)
- *
+ * 
  * This function does not solve dependencies.
- *
+ * 
  * Symbols and integer values returned:
- *
+ * 
  * <b>ProblemListSze</b>: Number of taboo and dropped packages found.
- *
+ * 
  * <b>DeleteUnmaintained</b>: Whether delete_unmaintained arg was true or false.
  * Dependent on this, <b>SumDropped</b> below either denotes packages to delete
  * (if true) or packages to keep (if false).
- *
+ * 
  * <b>SumProcessed</b>: TOTAL number of installed packages we processed.
- *
+ * 
  * <b>SumToInstall</b>: TOTAL number of packages now tagged as to install.
  * Summs <b>Ipreselected</b>, <b>Iupdate</b>, <b>Idowngrade</b>, <b>Ireplaced</b>.
- *
+ * 
  * <b>Ipreselected</b>: Packages which were already taged to install.
- *
+ * 
  * <b>Iupdate</b>: Packages set to install as update to a newer version.
- *
+ * 
  * <b>Idowngrade</b>: Packages set to install performing a version downgrade.
- *
+ * 
  * <b>Ireplaced</b>: Packages set to install as they replace an installed package.
- *
+ * 
  * <b>SumToDelete</b>: TOTAL number of packages now tagged as to delete.
  * Summs <b>Dpreselected</b>, <b>SumDropped</b> if <b>DeleteUnmaintained</b>
  * was set.
- *
+ * 
  * <b>Dpreselected</b>: Packages which were already taged to delete.
- *
+ * 
  * <b>SumToKeep</b>: TOTAL number of packages which remain unchanged.
  * Summs <b>Ktaboo</b>, <b>Knewer</b>, <b>Ksame</b>, <b>SumDropped</b>
  * if <b>DeleteUnmaintained</b> was not set.
- *
+ * 
  * <b>Ktaboo</b>: Packages which are set taboo.
- *
+ * 
  * <b>Knewer</b>: Packages kept because only older versions are available.
- *
+ * 
  * <b>Ksame</b>: Packages kept because they are up to date.
- *
+ * 
  * <b>SumDropped</b>: TOTAL number of dropped packages found. Dependent
  * on the delete_unmaintained arg, they are either tagged as to delete or
  * remain unchanged.
