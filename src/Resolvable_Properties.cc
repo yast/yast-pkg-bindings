@@ -194,7 +194,12 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 
     zypp::ResStatus status = item.status();
 
-    if (status.isInstalled() || status.isSatisfied())
+    if (status.isToBeInstalled())
+    {
+	stat = "selected";
+	info->add(YCPString("transact_by"), YCPSymbol(TransactToString(status.getTransactByValue())));
+    }
+    else if (status.isInstalled() || status.isSatisfied())
     {
 	if (status.isToBeUninstalled())
 	{
@@ -205,11 +210,6 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 	{
 	    stat = "installed";
 	}
-    }
-    else if (status.isToBeInstalled())
-    {
-	stat = "selected";
-	info->add(YCPString("transact_by"), YCPSymbol(TransactToString(status.getTransactByValue())));
     }
     else
     {

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Oct 31 16:29:10 CET 2008 - lslezak@suse.cz
+
+- Pkg::ResolvableProperties() - return correct status for selected
+  patterns (bnc#440611)
+
+-------------------------------------------------------------------
 Thu Oct 23 09:41:39 CEST 2008 - lslezak@suse.cz
 
 - added Pkg::SourceProvideSignedFile() function for downloading
