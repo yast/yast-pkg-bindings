@@ -81,7 +81,8 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 
 		// keep a reference to the tmpdir so the directory is not deleted at the and of the block		
 		tmp_dirs.push_back(tmpdir);
-		path = tmpdir.path() / f->value();
+		path = tmpdir.path();
+		fch.setOptions(zypp::Fetcher::AutoAddIndexes);
 		fch.enqueueDigested(mloc);
 		fch.start(path, *repo->mediaAccess()); // uses MediaAccess to retrieve
 		fch.reset();
@@ -283,7 +284,8 @@ PkgFunctions::SourceProvideDirectoryInternal(const YCPInteger& id, const YCPInte
 		// keep the reference to the tmpdir so the directory is not deleted at the and of the block		
 		tmp_dirs.push_back(tmpdir);
 		path = tmpdir.path();
-		f.enqueueDir(mloc, recursive->value());
+		f.setOptions(zypp::Fetcher::AutoAddIndexes);
+		f.enqueueDigestedDir(mloc, recursive->value());
 		f.start(path, *repo->mediaAccess()); // uses MediaAccess to retrieve
 		f.reset();
 	    }

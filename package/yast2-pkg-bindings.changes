@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Nov  3 14:52:43 CET 2008 - lslezak@suse.cz
+
+- use AutoIndexes zypp::Fetcher feature, fixed signed file
+  downloading (bnc#409927)
+
+-------------------------------------------------------------------
 Fri Oct 31 16:29:10 CET 2008 - lslezak@suse.cz
 
 - Pkg::ResolvableProperties() - return correct status for selected
