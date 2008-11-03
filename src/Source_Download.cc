@@ -86,6 +86,7 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 		fch.enqueueDigested(mloc);
 		fch.start(path, *repo->mediaAccess()); // uses MediaAccess to retrieve
 		fch.reset();
+		path = tmpdir.path() / f->value();
 	    }
 	    else
 	    {
