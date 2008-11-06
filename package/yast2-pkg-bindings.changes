@@ -3,6 +3,7 @@ Thu Nov  6 09:58:09 CET 2008 - lslezak@suse.cz
 
 - return more data (URL lists) in Pkg::SourceProductData()
   (bnc#441917)
+- 2.17.22
 
 -------------------------------------------------------------------
 Mon Nov  3 14:52:43 CET 2008 - lslezak@suse.cz
