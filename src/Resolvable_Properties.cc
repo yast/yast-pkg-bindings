@@ -53,7 +53,7 @@ namespace
     YCPList ret;
     for_( it, urls_r.begin(), urls_r.end() )
     {
-      ret->add( YCPString(it->asString()) );
+      ret->add( YCPString(it->asCompleteString()) );
     }
     return ret;
   }
@@ -91,6 +91,7 @@ namespace
         + "extra_urls"
         + "optional_urls"
         + "register_urls"
+	+ "relnotes_urls"
         + "smolt_urls"
 	+ "register_target"
 	+ "register_release"
@@ -293,12 +294,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 	    info->add(YCPString("short_name"), YCPString(product_summary));
 	}
 
-	YCPList updateUrls;
-	zypp::Product::UrlList pupdateUrls = product->updateUrls();
-	for_( it, pupdateUrls.begin(), pupdateUrls.end() )
-	{
-	    updateUrls->add(YCPString(it->asString()));
-	}
+	YCPList updateUrls(asYCPList(product->updateUrls()));
 	info->add(YCPString("update_urls"), updateUrls);
 
 	YCPList flags;
@@ -332,6 +328,12 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 	if ( smoltUrls.size() )
 	{
 	  info->add(YCPString("smolt_urls"), smoltUrls);
+	}
+
+	YCPList relNotesUrls(asYCPList(product->releaseNotesUrls()));
+	if ( relNotesUrls.size() )
+	{
+	  info->add(YCPString("relnotes_urls"), relNotesUrls);
 	}
 
 	// registration data

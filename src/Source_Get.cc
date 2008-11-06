@@ -272,6 +272,9 @@ PkgFunctions::SourceMediaData (const YCPInteger& id)
   return data;
 }
 
+// defined in Resolvable_Properties.cc
+inline YCPList asYCPList( const zypp::Product::UrlList & urls_r );
+
 /****************************************************************************************
  * @builtin SourceProductData
  * @short Return Product data about the source
@@ -281,11 +284,17 @@ PkgFunctions::SourceMediaData (const YCPInteger& id)
  *
  * <code>
  * $[
- * "label"		: YCPString,
- * "vendor"		: YCPString,
- * "productname"	: YCPString,
- * "productversion"	: YCPString,
- * "relnotesurl"	: YCPString,
+ * "label"		: string,
+ * "vendor"		: string,
+ * "productname"	: string,
+ * "productversion"	: string,
+ * "relnotesurl"	: string,
+ * "relnotes_urls"	: list<string>
+ * "register_urls"	: list<string>
+ * "smolt_urls"		: list<string>
+ * "update_urls"	: list<string>
+ * "extra_urls"		: list<string>
+ * "optional_urls"	: list<string>
  * ];
  * </code>
  *
@@ -330,6 +339,13 @@ PkgFunctions::SourceProductData (const YCPInteger& src_id)
 		ret->add( YCPString("productname"),	YCPString( product->name() ) );
 		ret->add( YCPString("productversion"),	YCPString( product->edition().version() ) );
 		ret->add( YCPString("relnotesurl"), 	YCPString( product->releaseNotesUrls().first().asString()));
+		
+		ret->add( YCPString("relnotes_urls"), 	asYCPList(product->releaseNotesUrls()));
+		ret->add( YCPString("register_urls"), 	asYCPList(product->registerUrls()));
+		ret->add( YCPString("smolt_urls"), 	asYCPList(product->smoltUrls()));
+		ret->add( YCPString("update_urls"), 	asYCPList(product->updateUrls()));
+		ret->add( YCPString("extra_urls"), 	asYCPList(product->extraUrls()));
+		ret->add( YCPString("optional_urls"), 	asYCPList(product->optionalUrls()));
 
 		break;
 	    }
