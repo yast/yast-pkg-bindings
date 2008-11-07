@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Fri Nov  7 12:54:54 CET 2008 - lslezak@suse.cz
+
+- Pkg::SourceProvideSignedFile() - the path may be relative,
+  it's changed to absolute automatically (bnc#409927)
+- Pkg::SourceProbe() - do not log the password in the URL
+  (bnc#441944)
+- 2.17.24
+
+-------------------------------------------------------------------
 Fri Nov  7 10:19:26 CET 2008 - lslezak@suse.cz
 
 - fixed network detection - removed unreliable IPv6 network test

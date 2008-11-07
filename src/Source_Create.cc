@@ -774,13 +774,13 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
  **/
 YCPValue PkgFunctions::RepositoryProbe(const YCPString& url, const YCPString& prod_dir)
 {
-    y2milestone("Probing repository type: '%s'...", url->value().c_str());
     zypp::RepoManager repomanager = CreateRepoManager();
     std::string ret;
 
     try
     {
 	zypp::Url probe_url(url->value());
+	y2milestone("Probing repository type: '%s'...", probe_url.asString().c_str());
 
 	// add the product directory
 	std::string prod = prod_dir->value();

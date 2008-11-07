@@ -76,7 +76,15 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 	    {
 		// use a Fetcher for downloading signed files (see bnc#409927)
 		zypp::Fetcher fch;
-		zypp::OnMediaLocation mloc(f->value(), mid->value());
+
+		// path - add "/" to the beginning if it's missing there
+		std::string media_path(f->value());
+		if (media_path.size() >= 1 && media_path[0] != '/')
+		{
+		    media_path = "/" + media_path;
+		}
+
+		zypp::OnMediaLocation mloc(media_path, mid->value());
 		zypp::filesystem::TmpDir tmpdir;
 
 		// keep a reference to the tmpdir so the directory is not deleted at the and of the block		
