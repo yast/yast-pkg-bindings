@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Fri Nov  7 14:58:14 CET 2008 - lslezak@suse.cz
+
+- Pkg::SourceProvideSignedFile() has been renamed to
+  Pkg::SourceProvideDigestedFile(), added new 
+  Pkg::SourceProvideSignedFile() to dowload signed files (like
+  "/content") (bnc#409927)
+- 2.17.25
+
+-------------------------------------------------------------------
 Fri Nov  7 12:54:54 CET 2008 - lslezak@suse.cz
 
 - Pkg::SourceProvideSignedFile() - the path may be relative,

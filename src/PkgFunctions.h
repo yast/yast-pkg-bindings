@@ -218,7 +218,8 @@ class PkgFunctions
        * provides SourceProvideFile and SourceProvideFileCommon
        */
       YCPValue SourceProvideFileCommon(const YCPInteger &id, const YCPInteger &mid,
-		const YCPString& f, const bool optional, const bool check_signatures);
+		const YCPString& f, const bool optional, const bool check_signatures,
+		const bool digested);
     public:
 	// general
 	/* TYPEINFO: void() */
@@ -501,6 +502,8 @@ class PkgFunctions
 	YCPValue SourceProvideSignedDirectory(const YCPInteger& id, const YCPInteger& mid, const YCPString& d, const YCPBoolean &optional, const YCPBoolean &recursive);
 	/* TYPEINFO: string(integer,integer,string,boolean)*/
 	YCPValue SourceProvideSignedFile(const YCPInteger& id, const YCPInteger& mid, const YCPString& f, const YCPBoolean &optional);
+	/* TYPEINFO: string(integer,integer,string,boolean)*/
+	YCPValue SourceProvideDigestedFile(const YCPInteger& id, const YCPInteger& mid, const YCPString& f, const YCPBoolean &optional);
 	/* TYPEINFO: boolean(string)*/
 	YCPValue SourceCacheCopyTo (const YCPString&);
 	/* TYPEINFO: boolean(boolean)*/

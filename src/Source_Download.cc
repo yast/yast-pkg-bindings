@@ -44,7 +44,8 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 					       const YCPInteger &mid,
 					       const YCPString& f,
 					       const bool optional,
-					       const bool check_signatures)
+					       const bool check_signatures,
+					       const bool digested)
 {
     if (id.isNull() || mid.isNull() || f.isNull())
     {
@@ -91,7 +92,16 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 		tmp_dirs.push_back(tmpdir);
 		path = tmpdir.path();
 		fch.setOptions(zypp::Fetcher::AutoAddIndexes);
-		fch.enqueueDigested(mloc);
+
+		if (digested)
+		{
+		    fch.enqueueDigested(mloc);
+		}
+		else
+		{
+		    fch.addIndex(mloc);
+		}
+
 		fch.start(path, *repo->mediaAccess()); // uses MediaAccess to retrieve
 		fch.reset();
 		path = tmpdir.path() / f->value();
@@ -146,7 +156,7 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 YCPValue
 PkgFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
-    return SourceProvideFileCommon(id, mid, f, false /*optional*/, false /* signed */);
+    return SourceProvideFileCommon(id, mid, f, false /*optional*/, false /* signed */, true /* digested, doesn't matter in this case*/);
 }
 
 /****************************************************************************************
@@ -166,7 +176,7 @@ PkgFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, co
 YCPValue
 PkgFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
-    return SourceProvideFileCommon(id, mid, f, true /*optional*/, false /* signed */);
+    return SourceProvideFileCommon(id, mid, f, true /*optional*/, false /* signed */, true /* digested, doesn't matter in this case*/);
 }
 
 /****************************************************************************************
@@ -192,9 +202,35 @@ PkgFunctions::SourceProvideSignedFile (const YCPInteger& id, const YCPInteger& m
 	return YCPVoid();
     }
 
-    return SourceProvideFileCommon(id, mid, f, optional->value() /*optional*/, true /* signed */);
+    return SourceProvideFileCommon(id, mid, f, optional->value() /*optional*/, true /* signed */, false /* not digested = signed*/);
 }
 
+/****************************************************************************************
+ * @builtin SourceProvideDigestedFile
+ *
+ * @short Make a digested file available at the local filesystem
+ * @description
+ * Make a signed Let an InstSrc provide some file (make it available at the local filesystem).
+ * The checksum is stored either in /content file or in SHA1SUMS file.
+ *
+ * @param integer id Source ID
+ * @param integer mid Number of the media the file is located on ('1' for the 1st media).
+ * @param string f Filename relative to the media root.
+ * @param boolean optional true if the file can be missing on the medium, if an optional file doesn't exist do not ask user for another medium and return nil.
+ *
+ * @return string local path as string
+ **/
+YCPValue
+PkgFunctions::SourceProvideDigestedFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f, const YCPBoolean &optional)
+{
+    if (optional.isNull())
+    {
+	y2error("SourceProvideDigestedFile: argument 'optional' is nil!");
+	return YCPVoid();
+    }
+
+    return SourceProvideFileCommon(id, mid, f, optional->value() /*optional*/, true /* signed */, true /* digested */);
+}
 /****************************************************************************************
  * @builtin SourceProvideDir
  * @short make a directory available at the local filesystem
