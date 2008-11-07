@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Nov  7 10:19:26 CET 2008 - lslezak@suse.cz
+
+- fixed network detection - removed unreliable IPv6 network test
+  (bnc#439068)
+- 2.17.23
+
+-------------------------------------------------------------------
 Thu Nov  6 09:58:09 CET 2008 - lslezak@suse.cz
 
 - return more data (URL lists) in Pkg::SourceProductData()
