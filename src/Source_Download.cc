@@ -185,6 +185,7 @@ PkgFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPInteger&
  * @short Make a signed file available at the local filesystem
  * @description
  * Make a signed Let an InstSrc provide some file (make it available at the local filesystem).
+ * The signature is read from <filename>.asc file, the GPG key is read from <filename>.key file.
  *
  * @param integer id Source ID
  * @param integer mid Number of the media the file is located on ('1' for the 1st media).
