@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Nov 10 14:41:38 CET 2008 - lslezak@suse.cz
+
+- moved asYCPList() to ycpTools.h
+- 2.17.26
+
+-------------------------------------------------------------------
 Fri Nov  7 14:58:14 CET 2008 - lslezak@suse.cz
 
 - Pkg::SourceProvideSignedFile() has been renamed to

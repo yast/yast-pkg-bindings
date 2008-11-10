@@ -27,6 +27,7 @@
 
 #include <PkgFunctions.h>
 #include "log.h"
+#include "ycpTools.h"
 
 #include <zypp/Product.h>
 
@@ -271,9 +272,6 @@ PkgFunctions::SourceMediaData (const YCPInteger& id)
 
   return data;
 }
-
-// defined in Resolvable_Properties.cc
-inline YCPList asYCPList( const zypp::Product::UrlList & urls_r );
 
 /****************************************************************************************
  * @builtin SourceProductData

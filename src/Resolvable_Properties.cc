@@ -27,6 +27,7 @@
 
 #include "PkgFunctions.h"
 #include "log.h"
+#include "ycpTools.h"
 
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPInteger.h>
@@ -44,21 +45,6 @@
 
 #include <zypp/Dep.h>
 #include <zypp/sat/LocaleSupport.h>
-
-namespace
-{
-  /** Trasform zypp::Product::UrlList into YCPList */
-  inline YCPList asYCPList( const zypp::Product::UrlList & urls_r )
-  {
-    YCPList ret;
-    for_( it, urls_r.begin(), urls_r.end() )
-    {
-      ret->add( YCPString(it->asCompleteString()) );
-    }
-    return ret;
-  }
-}
-
 
 /**
    @builtin ResolvableProperties
