@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Nov 12 15:23:15 CET 2008 - lslezak@suse.cz
+
+- get/set "keeppackages" repository property in
+  Pkg::SourceEditSet(), Pkg::SourceEditGet() and
+  Pkg::SourceGeneralData() builtins (bnc#441328, bnc#402617)
+- 2.17.27
+
+-------------------------------------------------------------------
 Mon Nov 10 14:41:38 CET 2008 - lslezak@suse.cz
 
 - moved asYCPList() to ycpTools.h

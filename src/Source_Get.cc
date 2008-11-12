@@ -110,6 +110,7 @@ PkgFunctions::SourceGetCurrent (const YCPBoolean& enabled)
  * "alias"	: YCPString,
  * "name"	: YCPString,
  * "service"	: YCPString, (service to which the repo belongs, empty if there is no service assigned)
+ * "keeppackages" : YCPBoolean,
  * ];
  *
  * </code>
@@ -154,6 +155,8 @@ PkgFunctions::SourceGeneralData (const YCPInteger& id)
     data->add( YCPString("priority"),	YCPInteger(repo->repoInfo().priority()));
 
     data->add( YCPString("service"),	YCPString(repo->repoInfo().service()));
+
+    data->add( YCPString("keeppackages"),	YCPBoolean(repo->repoInfo().keepPackages()));
 
     return data;
 }
@@ -387,7 +390,8 @@ PkgFunctions::SourceProduct (const YCPInteger& id)
  * "enabled"	: YCPBoolean,
  * "autorefresh": YCPBoolean,
  * "name"	: YCPString,
- * "service"	: YCPString
+ * "service"	: YCPString,
+ * "keeppackages" : YCPBoolean,
  * ];
  *
  * @return list<map> list of source states (map)
@@ -412,6 +416,7 @@ PkgFunctions::SourceEditGet ()
 	    src_map->add(YCPString("name"), YCPString((*it)->repoInfo().name()));
 	    src_map->add(YCPString("priority"), YCPInteger((*it)->repoInfo().priority()));
 	    src_map->add(YCPString("service"), YCPString((*it)->repoInfo().service()));
+	    src_map->add(YCPString("keeppackages"), YCPBoolean((*it)->repoInfo().keepPackages()));
 
 	    ret->add(src_map);
 	}

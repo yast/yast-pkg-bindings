@@ -209,6 +209,13 @@ PkgFunctions::SourceEditSet (const YCPList& states)
 	repo->repoInfo().setPriority(priority);
 	y2debug("set priority: %d", priority);
     }
+
+    if(!descr->value(YCPString("keeppackages")).isNull() && descr->value(YCPString("keeppackages"))->isBoolean())
+    {
+        bool keeppackages = descr->value(YCPString("keeppackages"))->asBoolean()->value();
+        y2debug("set keeppackages: %d", keeppackages);
+	repo->repoInfo().setKeepPackages( keeppackages );
+    }
   }
 
   PkgFreshen();
