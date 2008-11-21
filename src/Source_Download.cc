@@ -86,6 +86,8 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 		}
 
 		zypp::OnMediaLocation mloc(media_path, mid->value());
+		mloc.setOptional(optional);
+
 		zypp::filesystem::TmpDir tmpdir;
 
 		// keep a reference to the tmpdir so the directory is not deleted at the and of the block		
