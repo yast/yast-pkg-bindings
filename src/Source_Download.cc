@@ -89,7 +89,8 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 		// the file is never optional for zypp (it cannot tell whether an optional file failed)
 		mloc.setOptional(false);
 
-		zypp::filesystem::TmpDir tmpdir;
+		// create the tmpdir in <_root>/var/tmp
+		zypp::filesystem::TmpDir tmpdir(_target_root / zypp::filesystem::TmpDir::defaultLocation());
 
 		// keep a reference to the tmpdir so the directory is not deleted at the and of the block		
 		tmp_dirs.push_back(tmpdir);
@@ -328,7 +329,8 @@ PkgFunctions::SourceProvideDirectoryInternal(const YCPInteger& id, const YCPInte
 		// use a Fetcher for downloading signed files (see bnc#409927)
 		zypp::Fetcher f;
 		zypp::OnMediaLocation mloc(d->value(), mid->value());
-		zypp::filesystem::TmpDir tmpdir;
+		// create the tmpdir in <_root>/var/tmp
+		zypp::filesystem::TmpDir tmpdir(_target_root / zypp::filesystem::TmpDir::defaultLocation() );
 
 		// keep the reference to the tmpdir so the directory is not deleted at the and of the block		
 		tmp_dirs.push_back(tmpdir);

@@ -50,6 +50,9 @@ PkgFunctions::SourceReleaseAll ()
     y2milestone("Releasing all sources...");
     bool ret = true;
 
+    y2milestone("Removing all tmp directories");
+    tmp_dirs.clear();
+
     for (RepoCont::iterator it = repos.begin();
 	it != repos.end(); ++it)
     {
