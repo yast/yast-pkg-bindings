@@ -87,6 +87,8 @@ class PkgFunctions
 	// add the main locale to the additional ones
 	zypp::Locale preferred_locale;
 
+	zypp::Pathname _download_area;
+
 	/** 
 	 * ZYPP
 	 */

@@ -148,11 +148,18 @@ PkgFunctions::SourceCacheCopyTo (const YCPString& dir)
 YCPValue
 PkgFunctions::SourceMoveDownloadArea (const YCPString & path)
 {
+    if (path.isNull())
+    {
+	y2error("Error: Pkg::SourceMoveDownloadArea(): nil argument");
+	return YCPBoolean(false);
+    }
+
     try
     {
 	y2milestone("Moving download area of all sources to %s", path->value().c_str());
 	zypp::media::MediaManager manager;
 	manager.setAttachPrefix(path->value());
+	_download_area = path->value();
     }
     catch (zypp::Exception & excpt)
     {

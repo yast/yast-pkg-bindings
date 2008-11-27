@@ -68,6 +68,14 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
     if (optional)
 	_silent_probing = ZyppRecipients::MEDIA_CHANGE_OPTIONALFILE;
 
+    y2milestone("Downloading %s%sfile %s from repository %lld, medium %lld",
+	(optional ? "optional " : ""), 
+	(check_signatures ? (digested ? "digested " : "signed ") : ""),
+	f->value().c_str(),
+	id->value(),
+	mid->value()
+    );
+
     zypp::filesystem::Pathname path; // FIXME use ManagedMedia
     if (found)
     {
@@ -77,6 +85,8 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 	    {
 		// use a Fetcher for downloading signed files (see bnc#409927)
 		zypp::Fetcher fch;
+		fch.reset();
+		fch.setOptions(zypp::Fetcher::AutoAddIndexes);
 
 		// path - add "/" to the beginning if it's missing there
 		std::string media_path(f->value());
@@ -89,13 +99,12 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 		// the file is never optional for zypp (it cannot tell whether an optional file failed)
 		mloc.setOptional(false);
 
-		// create the tmpdir in <_root>/var/tmp
-		zypp::filesystem::TmpDir tmpdir(_target_root / zypp::filesystem::TmpDir::defaultLocation());
+		// create the tmpdir in <_download_area>/var/tmp
+		zypp::filesystem::TmpDir tmpdir(_download_area / zypp::filesystem::TmpDir::defaultLocation());
 
 		// keep a reference to the tmpdir so the directory is not deleted at the and of the block		
 		tmp_dirs.push_back(tmpdir);
 		path = tmpdir.path();
-		fch.setOptions(zypp::Fetcher::AutoAddIndexes);
 
 		if (digested)
 		{
@@ -108,7 +117,7 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 
 		fch.start(path, *repo->mediaAccess()); // uses MediaAccess to retrieve
 		fch.reset();
-		path = tmpdir.path() / f->value();
+		path /= f->value();
 	    }
 	    else
 	    {
@@ -150,6 +159,7 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
  * @short Make a file available at the local filesystem
  * @description
  * Let an InstSrc provide some file (make it available at the local filesystem).
+ * Warning: The downloaded files are removed in Pkg::SourceReleaseAll()!
  *
  * @param integer SrcId	Specifies the InstSrc .
  * @param integer medianr Number of the media the file is located on ('1' for the 1st media).
@@ -170,6 +180,7 @@ PkgFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, co
  * @description
  * Let an InstSrc provide some file (make it available at the local filesystem).
  * If the file doesn't exist don't ask user for another medium and return nil
+ * Warning: The downloaded files are removed in Pkg::SourceReleaseAll()!
  *
  * @param integer SrcId	Specifies the InstSrc .
  * @param integer medianr Number of the media the file is located on ('1' for the 1st media).
@@ -190,6 +201,7 @@ PkgFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPInteger&
  * @description
  * Make a signed Let an InstSrc provide some file (make it available at the local filesystem).
  * The signature is read from <filename>.asc file, the GPG key is read from <filename>.key file.
+ * Warning: The downloaded files are removed in Pkg::SourceReleaseAll()!
  *
  * @param integer id Source ID
  * @param integer mid Number of the media the file is located on ('1' for the 1st media).
@@ -217,6 +229,7 @@ PkgFunctions::SourceProvideSignedFile (const YCPInteger& id, const YCPInteger& m
  * @description
  * Make a signed Let an InstSrc provide some file (make it available at the local filesystem).
  * The checksum is stored either in /content file or in SHA1SUMS file.
+ * Warning: The downloaded files are removed in Pkg::SourceReleaseAll()!
  *
  * @param integer id Source ID
  * @param integer mid Number of the media the file is located on ('1' for the 1st media).
@@ -242,6 +255,7 @@ PkgFunctions::SourceProvideDigestedFile (const YCPInteger& id, const YCPInteger&
  * @description
  * Let an InstSrc provide some directory (make it available at the local filesystem) and
  * all the files within it (non recursive).
+ * Warning: The downloaded files are removed in Pkg::SourceReleaseAll()!
  *
  * @param integer SrcId	Specifies the InstSrc .
  * @param integer medianr Number of the media the file is located on ('1' for the 1st media).
@@ -263,6 +277,7 @@ PkgFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mid, con
  * @description
  * Download a directory from repository (make it available at the local filesystem) and
  * all the files within it.
+ * Warning: The downloaded files are removed in Pkg::SourceReleaseAll()!
  *
  * @param integer id repository to use (id)
  * @param integer mid Number of the media where the directory is located on ('1' for the 1st media).
@@ -285,6 +300,7 @@ PkgFunctions::SourceProvideDirectory(const YCPInteger& id, const YCPInteger& mid
  * Download a directory from repository (make it available at the local filesystem) and
  * all the files within it. Requires that all files have been signed with SHA1 checksum.
  * If there is no checksum or the checksum doesn't match the download fails.
+ * Warning: The downloaded files are removed in Pkg::SourceReleaseAll()!
  *
  * @param integer id repository to use (id)
  * @param integer mid Number of the media where the directory is located on ('1' for the 1st media).
@@ -328,9 +344,10 @@ PkgFunctions::SourceProvideDirectoryInternal(const YCPInteger& id, const YCPInte
 	    {
 		// use a Fetcher for downloading signed files (see bnc#409927)
 		zypp::Fetcher f;
+		f.reset();
 		zypp::OnMediaLocation mloc(d->value(), mid->value());
 		// create the tmpdir in <_root>/var/tmp
-		zypp::filesystem::TmpDir tmpdir(_target_root / zypp::filesystem::TmpDir::defaultLocation() );
+		zypp::filesystem::TmpDir tmpdir(_download_area / zypp::filesystem::TmpDir::defaultLocation() );
 
 		// keep the reference to the tmpdir so the directory is not deleted at the and of the block		
 		tmp_dirs.push_back(tmpdir);

@@ -42,6 +42,7 @@
  * @builtin SourceReleaseAll
  *
  * @short Release all medias hold by all sources
+ * Warning: It also deletes the downloaded files!
  * @return boolean
  **/
 YCPValue
