@@ -457,8 +457,7 @@ namespace ZyppRecipients {
 	virtual void start(const zypp::ProgressData &task)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressStart ) );
-	    // TODO: change it to y2debug later
-	    y2milestone("ProgressStart: id:%d, %s", task.numericId(), task.name().c_str());
+	    y2debug("ProgressStart: id:%d, %s", task.numericId(), task.name().c_str());
 
 	    if (callback._set)
 	    {
@@ -477,8 +476,7 @@ namespace ZyppRecipients {
 	virtual bool progress(const zypp::ProgressData &task)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressProgress ) );
-	    // TODO: change it to y2debug later
-	    y2milestone("ProgressProgress: id:%d, %s: %lld%%", task.numericId(), task.name().c_str(), task.reportValue());
+	    y2debug("ProgressProgress: id:%d, %s: %lld%%", task.numericId(), task.name().c_str(), task.reportValue());
 
 	    if (callback._set)
 	    {
@@ -494,8 +492,7 @@ namespace ZyppRecipients {
 	virtual void finish( const zypp::ProgressData &task )
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDone ) );
-	    // TODO: change it to y2debug later
-	    y2milestone("ProgressFinish: id:%d, %s", task.numericId(), task.name().c_str());
+	    y2debug("ProgressFinish: id:%d, %s", task.numericId(), task.name().c_str());
 
 	    if (callback._set)
 	    {
