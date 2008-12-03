@@ -2078,15 +2078,6 @@ PkgFunctions::PkgSolveCheckTargetOnly()
 	_last_error.setLastError(ExceptionAsString(excpt));
     }
 
-    try
-    {
-	// reset the fixsystem flag (bnc#439373)
-	zypp_ptr()->resolver()->reset();
-    }
-    catch (const zypp::Exception& excpt)
-    {
-    }
-
     return YCPBoolean(result);
 }
 
