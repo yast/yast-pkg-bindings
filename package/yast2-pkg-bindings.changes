@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Wed Dec  3 10:18:16 CET 2008 - lslezak@suse.cz
+
+- added Pkg::Solve() function which allows to set
+  ignoreAlreadyRecommended solver flag so Yast does not install
+  extra packages (bnc#445476)
+- Pkg::PkgSolveCheckTargetOnly() - reset fixsystem mode flag
+  (bnc#439373)
+- 2.17.30
+
+-------------------------------------------------------------------
 Thu Nov 27 08:47:47 CET 2008 - lslezak@suse.cz
 
 - honor the download area when downloading signed/digested files
