@@ -1897,6 +1897,51 @@ void SaveProblemList(const zypp::ResolverProblemList &problems, const std::strin
     }
 }
 
+/**
+   @builtin SetSolverFlags
+   @short Set solver flags (options)
+   @param map params solver options, currently accepted options are:
+   "ignoreAlreadyRecommended" : boolean, (do not select recommended packages for already installed packages)
+   "onlyRequires" : boolean, (do not select recommended packages, recommended language packages, modalias packages...)
+   @return boolean true on success (currently it always succeeds)
+*/
+
+YCPValue PkgFunctions::SetSolverFlags(const YCPMap& params)
+{
+    YCPString ignore_key("ignoreAlreadyRecommended");
+    if (!params.isNull() && !params->value(ignore_key).isNull() && params->value(ignore_key)->isBoolean())
+    {
+	bool ignoreAlreadyRecommended = zypp_ptr()->resolver()->ignoreAlreadyRecommended();
+	y2milestone("Setting solver flag ignoreAlreadyRecommended: %d", ignoreAlreadyRecommended);
+	zypp_ptr()->resolver()->setIgnoreAlreadyRecommended(ignoreAlreadyRecommended);
+    }
+
+    YCPString requires_key("onlyRequires");
+    if (!params.isNull() && !params->value(requires_key).isNull() && params->value(requires_key)->isBoolean())
+    {
+	bool onlyRequires = params->value(requires_key)->asBoolean()->value();
+	y2milestone("Setting solver flag onlyRequires: %d", onlyRequires);
+	zypp_ptr()->resolver()->setOnlyRequires(onlyRequires);
+    }
+
+    return YCPBoolean(true);
+}
+
+/**
+   @builtin GetSolverFlags
+   @short Get the current solver flags (options)
+   @return map<string,any> current options see @see SetSolverFlags
+*/
+YCPValue PkgFunctions::GetSolverFlags()
+{
+    YCPMap ret;
+
+    ret->add(YCPString("onlyRequires"), YCPBoolean(zypp_ptr()->resolver()->onlyRequires()));
+    ret->add(YCPString("ignoreAlreadyRecommended"), YCPBoolean(zypp_ptr()->resolver()->ignoreAlreadyRecommended()));
+
+    return ret;
+}
+
 
 /**
    @builtin PkgSolve
@@ -1909,63 +1954,7 @@ void SaveProblemList(const zypp::ResolverProblemList &problems, const std::strin
 YCPBoolean
 PkgFunctions::PkgSolve (const YCPBoolean& filter)
 {
-    return Solve(YCPMap());
-}
-
-/**
-   @builtin Solve
-   @short Solve current package dependencies
-   @param map params solver options, currently accepted $[
-   "ignoreAlreadyRecommended" : boolean, (do not select recommended packages for already installed packages)
-   "onlyRequires" : boolean, (do not select recommended packages, recommended language packages, modalias packages...)
-   ] If no option is provided the function behaves like Pkg::PkgSolve() function.
-   @return boolean true on success, on an failure the dependency problems are saved to /var/log/YaST2/badlist file
-*/
-
-YCPBoolean
-PkgFunctions::Solve (const YCPMap& params)
-{
     bool result = false;
-
-    // the original value
-    bool ignoreAlreadyRecommended = false;
-    // changed flag
-    bool ignoreAlreadyRecommended_set = false;
-    YCPString ignore_key("ignoreAlreadyRecommended");
-    
-    if (!params.isNull() && !params->value(ignore_key).isNull() && params->value(ignore_key)->isBoolean())
-    {
-	ignoreAlreadyRecommended = zypp_ptr()->resolver()->ignoreAlreadyRecommended();
-	bool ignoreAlreadyRecommended_new = params->value(ignore_key)->asBoolean()->value();
-
-	if (ignoreAlreadyRecommended != ignoreAlreadyRecommended_new)
-	{
-	    y2milestone("Setting solver flag ignoreAlreadyRecommended: %d", ignoreAlreadyRecommended_new);
-	    // set the new value
-	    zypp_ptr()->resolver()->setIgnoreAlreadyRecommended(ignoreAlreadyRecommended_new);
-	    ignoreAlreadyRecommended_set = true;
-	}
-    }
-
-    // the original value
-    bool onlyRequires = false;
-    // changed flag
-    bool onlyRequires_set = false;
-    YCPString requires_key("onlyRequires");
-    
-    if (!params.isNull() && !params->value(requires_key).isNull() && params->value(requires_key)->isBoolean())
-    {
-	onlyRequires = zypp_ptr()->resolver()->onlyRequires();
-	bool onlyRequires_new = params->value(requires_key)->asBoolean()->value();
-
-	if (onlyRequires != onlyRequires_new)
-	{
-	    y2milestone("Setting solver flag onlyRequires: %d", onlyRequires_new);
-	    // set the new value
-	    zypp_ptr()->resolver()->setOnlyRequires(onlyRequires_new);
-	    onlyRequires_set = true;
-	}
-    }
 
     try
     {
@@ -1984,20 +1973,6 @@ PkgFunctions::Solve (const YCPMap& params)
 	zypp::ResolverProblemList problems = zypp_ptr()->resolver()->problems();
 	SaveProblemList(problems, "/var/log/YaST2/badlist");
     }
-
-    // set the original flags back if they were changed
-    if (onlyRequires_set)
-    {
-	y2milestone("Restoring solver flag onlyRequires: %d", onlyRequires);
-	zypp_ptr()->resolver()->setOnlyRequires(onlyRequires);
-    }
-
-    if (ignoreAlreadyRecommended_set)
-    {
-	y2milestone("Restoring solver flag ignoreAlreadyRecommended: %d", ignoreAlreadyRecommended);
-	zypp_ptr()->resolver()->setIgnoreAlreadyRecommended(ignoreAlreadyRecommended);
-    }
-
 
     return YCPBoolean(result);
 }

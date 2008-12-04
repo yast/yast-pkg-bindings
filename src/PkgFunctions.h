@@ -683,10 +683,12 @@ class PkgFunctions
 	YCPValue PkgReset ();
 	/* TYPEINFO: boolean()*/
 	YCPValue PkgApplReset ();
+	/* TYPEINFO: map<string,any>()*/
+	YCPValue GetSolverFlags();
+	/* TYPEINFO: boolean(map<string,any>)*/
+	YCPValue SetSolverFlags(const YCPMap& params);
 	/* TYPEINFO: boolean(boolean)*/
 	YCPBoolean PkgSolve (const YCPBoolean& filter);
-	/* TYPEINFO: boolean(map<string,any>)*/
-	YCPBoolean Solve(const YCPMap& params);
 	/* TYPEINFO: boolean(string)*/
 	YCPValue CreateSolverTestCase(const YCPString &dir);
 	/* TYPEINFO: boolean()*/
