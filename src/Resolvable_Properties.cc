@@ -186,7 +186,12 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		// status
 		std::string stat;
 
-		if (it->status().isInstalled() || it->status().isSatisfied())
+		if (it->status().isToBeInstalled())
+		{
+		    stat = "selected";
+		    info->add(YCPString("transact_by"), YCPSymbol(TransactToString(it->status().getTransactByValue())));
+		}
+		else if (it->status().isInstalled() || it->status().isSatisfied())
 		{
 		    if (it->status().isToBeUninstalled())
 		    {
@@ -197,11 +202,6 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 		    {
 			stat = "installed";
 		    }
-		}
-		else if (it->status().isToBeInstalled())
-		{
-		    stat = "selected";
-		    info->add(YCPString("transact_by"), YCPSymbol(TransactToString(it->status().getTransactByValue())));
 		}
 		else
 		{
