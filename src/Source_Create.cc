@@ -484,6 +484,8 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
 	}
     }
 
+    y2debug("Using name: %s", repo.name().c_str());
+
     if (!params->value( YCPString("type") ).isNull() && params->value(YCPString("type"))->isString())
     {
 	std::string type = yast2zyppType(params->value(YCPString("type"))->asString()->value());

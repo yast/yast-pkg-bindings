@@ -1903,12 +1903,25 @@ void SaveProblemList(const zypp::ResolverProblemList &problems, const std::strin
    @param map params solver options, currently accepted options are:
    "ignoreAlreadyRecommended" : boolean, (do not select recommended packages for already installed packages)
    "onlyRequires" : boolean, (do not select recommended packages, recommended language packages, modalias packages...)
+   "reset" : boolean - if set to true then the solver is reset (all added extra requires/conflicts added by user are removed, fixsystem mode is disabled, additional data about solver run are cleared)
    @return boolean true on success (currently it always succeeds)
 */
 
 YCPValue PkgFunctions::SetSolverFlags(const YCPMap& params)
 {
-    YCPString ignore_key("ignoreAlreadyRecommended");
+    const YCPString reset_key("reset");
+    if (!params.isNull() && !params->value(reset_key).isNull() && params->value(reset_key)->isBoolean())
+    {
+	bool reset = params->value(reset_key)->asBoolean()->value();
+
+	if (reset)
+	{
+	    y2milestone("Resetting the solver");
+	    zypp_ptr()->resolver()->reset();
+	}
+    }
+
+    const YCPString ignore_key("ignoreAlreadyRecommended");
     if (!params.isNull() && !params->value(ignore_key).isNull() && params->value(ignore_key)->isBoolean())
     {
 	bool ignoreAlreadyRecommended = zypp_ptr()->resolver()->ignoreAlreadyRecommended();
@@ -1916,7 +1929,7 @@ YCPValue PkgFunctions::SetSolverFlags(const YCPMap& params)
 	zypp_ptr()->resolver()->setIgnoreAlreadyRecommended(ignoreAlreadyRecommended);
     }
 
-    YCPString requires_key("onlyRequires");
+    const YCPString requires_key("onlyRequires");
     if (!params.isNull() && !params->value(requires_key).isNull() && params->value(requires_key)->isBoolean())
     {
 	bool onlyRequires = params->value(requires_key)->asBoolean()->value();
@@ -1930,7 +1943,7 @@ YCPValue PkgFunctions::SetSolverFlags(const YCPMap& params)
 /**
    @builtin GetSolverFlags
    @short Get the current solver flags (options)
-   @return map<string,any> current options see @see SetSolverFlags
+   @return map<string,any> current options see @see SetSolverFlags, "reset" flag is write only
 */
 YCPValue PkgFunctions::GetSolverFlags()
 {
