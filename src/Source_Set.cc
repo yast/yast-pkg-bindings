@@ -80,7 +80,7 @@ PkgFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 		prog_total.sendTo(pkgprogress.Receiver());
 		zypp::CombinedProgressData load_subprogress(prog_total, 100);
 
-		pkgprogress.Start(_("Loading the Package Manager..."), stages, HelpTexts::load_resolvables);
+		pkgprogress.Start(_("Loading the Package Manager..."), stages, _(HelpTexts::load_resolvables));
 
 		success = LoadResolvablesFrom(repo->repoInfo(), load_subprogress);
 	    }

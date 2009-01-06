@@ -408,7 +408,7 @@ PkgFunctions::SourceRefreshHelper (const YCPInteger& id, bool forced)
     prog_total.sendTo(pkgprogress.Receiver());
 
     // 3 steps per repository (download, cache rebuild, load resolvables)
-    pkgprogress.Start(_("Refreshing Repository..."), stages, HelpTexts::refresh_help);
+    pkgprogress.Start(_("Refreshing Repository..."), stages, _(HelpTexts::refresh_help));
 
     try
     {

@@ -142,7 +142,7 @@ PkgFunctions::SourceSaveAll ()
     prog_total.sendTo(pkgprogress.Receiver());
 
     // start the process
-    pkgprogress.Start(_("Saving Repositories..."), stages, HelpTexts::save_help);
+    pkgprogress.Start(_("Saving Repositories..."), stages, _(HelpTexts::save_help));
 
     // remove deleted repos (the old configurations) at first
     for (RepoCont::iterator it = repos.begin();

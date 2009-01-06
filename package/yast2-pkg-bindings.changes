@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Jan  6 12:30:01 CET 2009 - lslezak@suse.cz
+
+- Translate the help texts displayed when loading/saving the
+  package manager (bnc#446054)
+
+-------------------------------------------------------------------
 Mon Dec 15 13:14:06 CET 2008 - lslezak@suse.cz
 
 - Pkg::SetSolverFlags() - support for "reset" key in the map
