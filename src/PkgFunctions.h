@@ -129,6 +129,11 @@ class PkgFunctions
       std::string zypp2yastType(const std::string &type);
       std::string yast2zyppType(const std::string &type);
 
+      // helper - create a directory if it doesn't exist
+      bool CreateDir(const std::string &path);
+      // helper - copy a file or directory
+      bool CopyToDir(const std::string &source, const std::string &target, bool backup = false, bool recursive = true);
+
       void RemoveResolvablesFrom(const std::string &alias);
       bool AnyResolvableFrom(const std::string &alias);
       bool LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc(), bool network_check = false);
