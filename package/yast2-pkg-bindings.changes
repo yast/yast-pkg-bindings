@@ -3,6 +3,8 @@ Tue Jan  6 12:30:01 CET 2009 - lslezak@suse.cz
 
 - Translate the help texts displayed when loading/saving the
   package manager (bnc#446054)
+- Copy the global and user's credentials (user names and passwords)
+  to the target system (bnc#460970)
 
 -------------------------------------------------------------------
 Mon Dec 22 16:49:36 CET 2008 - lslezak@suse.cz

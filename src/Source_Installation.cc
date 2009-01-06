@@ -34,6 +34,17 @@
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPString.h>
 
+extern "C"
+{
+// stat()
+#include <unistd.h>
+// errno
+#include <errno.h>
+}
+
+// getenv()
+#include <cstdlib>
+
 /*
   Textdomain "pkg-bindings"
 */
@@ -51,7 +62,153 @@ PkgFunctions::SourceSetRamCache (const YCPBoolean& a)
     return YCPBoolean( true );
 }
 
+bool PkgFunctions::CreateDir(const std::string &path)
+{
+    if (path.empty())
+    {
+	y2error("Empty directory path");
+	return false;
+    }
 
+    // check if the target exists
+    struct stat stat_buf;
+    if (::stat(path.c_str(), &stat_buf) == 0)
+    {
+	// it exists, is it a directory?
+	if (S_ISDIR(stat_buf.st_mode))
+	{
+	    return true;
+	}
+	else
+	{
+	    // error message (followed by directory name) (TODO improve the message)
+	    _last_error.setLastError(_("Cannot create directory ") + path);
+	    y2error("Target %s exists but it's not a directory", path.c_str());
+	    return false;
+	}
+    }
+    else
+    {
+	// "No such file or directory" error, the target doesn't exist
+	if (errno == ENOENT)
+	{
+	    y2milestone("Creating directory %s...", path.c_str());
+
+	    const char* argv[] =
+	    {
+	      "mkdir",
+	      // create parent dir
+	      "-p",
+	      // finish parameter list
+	      "--",
+	      // target
+	      path.c_str(),
+	      NULL
+	    };
+
+	    // discard stderr, no pty, stderr_fd = -1, use the default locale
+	    zypp::ExternalProgram prog(argv, zypp::ExternalProgram::Discard_Stderr, false, -1, true);
+
+	    if (prog.close())
+	    {
+		// error message (followed by directory name)
+		_last_error.setLastError(_("Cannot create directory ") + path);
+		y2error("Cannot create target directory %s", path.c_str());
+		return false;
+	    }
+	}
+	// other error
+	else
+	{
+	    // error message (followed by directory name) (TODO improve the message)
+	    _last_error.setLastError(_("Cannot create directory ") + path);
+	    y2error("Cannot stat %s: %s", path.c_str(), ::strerror(errno));
+	    return false;
+	}
+    }
+
+    return true;
+}
+
+bool PkgFunctions::CopyToDir(const std::string &source, const std::string &target, bool backup, bool recursive)
+{
+    if (source.empty())
+    {
+	y2error("CopyToDir: Empty source parameter");
+	return false;
+    }
+
+    if (target.empty())
+    {
+	y2error("CopyToDir: Empty target parameter");
+	return false;
+    }
+
+    // check if the source exists
+    struct stat stat_buf;
+    if (::stat(source.c_str(), &stat_buf) != 0 && errno == ENOENT)
+    {
+	y2milestone("Source %s does not exist, skipping", source.c_str());
+	return true;
+    }
+
+    // create the target directory
+    if (!CreateDir(target))
+    {
+	return false;
+    }
+
+    const char* argv[] =
+    {
+      "cp",
+      // preserve the time stamps and permissions
+      "-a",
+      // fill the parameters later
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL
+    };
+
+    int pos = 2;
+
+    if (recursive)
+    {
+	argv[pos++] = "-r";
+    }
+
+    if (backup)
+    {
+	argv[pos++] = "-b";
+    }
+
+    // finish parameter list
+    argv[pos++] = "--";
+
+    // source
+    argv[pos++] = source.c_str();
+
+    // target
+    argv[pos++] = target.c_str();
+
+    // discard stderr, no pty, stderr_fd = -1, use the default locale
+    zypp::ExternalProgram prog(argv, zypp::ExternalProgram::Discard_Stderr, false, -1, true);
+
+    if (prog.close())
+    {
+	// error message (followed by detailed description) (TODO improve the string)
+	const std::string msg = _("Error: Cannot copy the cache to the target directory\n");
+
+	// error message
+	_last_error.setLastError(msg + _("Copying failed"));
+	y2error("Cannot copy %s to %s", source.c_str(), target.c_str());
+	return false;
+    }
+
+    return true;
+}
 
 /****************************************************************************************
  * @builtin SourceCacheCopyTo
@@ -70,7 +227,7 @@ PkgFunctions::SourceCacheCopyTo (const YCPString& dir)
     // error message (followed by detailed description)
     const std::string msg = _("Error: Cannot copy the cache to the target directory\n");
 
-    std::string d = dir->value();
+    std::string d(dir->value());
     y2milestone("Copying source cache to '%s'...", d.c_str());
 
     if (d.empty())
@@ -79,64 +236,46 @@ PkgFunctions::SourceCacheCopyTo (const YCPString& dir)
 	return YCPBoolean(false);
     }
 
-    std::string target = d + "/var/cache";
-
-    // create the target dir
-    const char* argv[] =
+    if (!CreateDir(d))
     {
-      "mkdir",
-      // create parent dir
-      "-p",
-      // finish parameter list
-      "--",
-      // target
-      target.c_str(),
-      NULL
-    };
-
-    // discard stderr, no pty, stderr_fd = -1, use the default locale
-    zypp::ExternalProgram prog(argv, zypp::ExternalProgram::Discard_Stderr, false, -1, true);
-
-    int code = prog.close();
-
-    if (code)
-    {
-	// error message (followed by directory name)
-	_last_error.setLastError(msg + _("Cannot create directory ") + target);
-	y2error("Cannot create target directory %s", target.c_str());
 	return YCPBoolean(false);
     }
 
+    std::string target(d + "/var/cache");
+
     // copy /var/cache/zypp to the target system
-    const char* argv2[] =
+    if (!CopyToDir("/var/cache/zypp", target))
     {
-      "cp",
-      // preserve time stamps
-      "-a",
-      // recursive
-      "-r",
-      // finish parameter list
-      "--",
-      // source
-      "/var/cache/zypp",
-      // target
-      target.c_str(),
-      NULL
-    };
-
-    // discard stderr, no pty, stderr_fd = -1, use the default locale
-    zypp::ExternalProgram prog2(argv2, zypp::ExternalProgram::Discard_Stderr, false, -1, true);
-
-    int code2 = prog2.close();
-
-    if (code2)
-    {
-	// error message
-	_last_error.setLastError(msg + _("Copying failed"));
-	y2error("Cannot copy /var/cache/zypp to %s", d.c_str());
+	return YCPBoolean(false);
     }
 
-    return YCPBoolean(!code2);
+    // copy optional files in /etc/zypp/credentials.d directory
+    std::string source_cred("/etc/zypp/credentials.d");
+    std::string target_cred(d + "/etc/zypp");
+
+    // true = backup target files
+    if (!CopyToDir(source_cred, target_cred, true))
+    {
+	return YCPBoolean(false);
+    }
+
+    // copy user's credentials
+    char *homedir = ::getenv("HOME");
+    if (homedir)
+    {
+	// see file zypp/media/CredentialManager.cc for the user's file definition
+	source_cred = std::string(homedir) + "/.zypp/credentials.cat";
+	target_cred = d + homedir + "/.zypp";
+
+	// copy optional files in $HOME/.zypp/credentials.cat file
+	// true = backup target files
+	if (!CopyToDir(source_cred, target_cred, true))
+	{
+	    return YCPBoolean(false);
+	}
+    }
+
+    return YCPBoolean(true);
 }
 /****************************************************************************************
  * @builtin SourceMoveDownloadArea
