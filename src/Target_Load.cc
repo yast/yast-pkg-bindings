@@ -59,7 +59,7 @@ PkgFunctions::TargetInitInternal(const YCPString& root, bool rebuild_rpmdb)
     stages.push_back(_("Read Installed Packages"));
 
     PkgProgress pkgprogress(_callbackHandler);
-    pkgprogress.Start(_("Loading the Package Manager..."), stages, HelpTexts::load_target);
+    pkgprogress.Start(_("Loading the Package Manager..."), stages, _(HelpTexts::load_target));
 
     try
     {
@@ -175,7 +175,7 @@ PkgFunctions::TargetLoad ()
 
     PkgProgress pkgprogress(_callbackHandler);
 
-    pkgprogress.Start(_("Loading the Package Manager..."), stages, HelpTexts::load_target);
+    pkgprogress.Start(_("Loading the Package Manager..."), stages, _(HelpTexts::load_target));
 
     try
     {

@@ -620,7 +620,7 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
     stages.push_back(_("Load Data"));
   }
 
-  pkgprogress.Start(_("Adding the Repository..."), stages, HelpTexts::create_help);
+  pkgprogress.Start(_("Adding the Repository..."), stages, _(HelpTexts::create_help));
 
   zypp::ProgressData prg(100);
   prg.sendTo(pkgprogress.Receiver());
