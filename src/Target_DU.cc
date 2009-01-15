@@ -188,7 +188,7 @@ YCPMap PkgFunctions::MPS2YCPMap(const zypp::DiskUsageCounter::MountPointSet &mps
  * init DU calculation for given directories
  *
  * <code>
- * parameter: [ $["name":"dir-without-leading-slash",
+ * parameter: [ $["name":"directory",
  *                "free":int_free,
  *		  "used":int_used,
  *		  "readonly":bool] ]
