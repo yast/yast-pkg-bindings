@@ -234,11 +234,6 @@ PkgFunctions::TargetInitDU (const YCPList& dirlist)
 	    && partmap->value(YCPString("name"))->isString())
 	{
 	    dname = partmap->value(YCPString("name"))->asString()->value();
-	    if (dname[0] == '/' && dname.size() > 1)
-	    {
-		// remove the first character (/)
-		dname.erase(dname.begin());
-	    }
 	}
 	else
 	{
