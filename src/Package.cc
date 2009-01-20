@@ -583,10 +583,6 @@ PkgFunctions::searchPackage(const YCPString &package, bool installed)
  *  @builtin PkgInstalled
  *
  *  @short returns 'true' if the package is installed in the system
- *  @description
- *  tag can be a package name, a string from requires/provides
- *  or a file name (since a package implictly provides all its files)
- *
  *  @param string package name of the package
  *  @return boolean
  *  @usage Pkg::PkgInstalled("glibc") -> true
