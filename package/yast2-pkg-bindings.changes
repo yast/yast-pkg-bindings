@@ -1,8 +1,8 @@
 -------------------------------------------------------------------
 Mon Jan 26 16:26:46 CET 2009 - lslezak@suse.cz
 
-- implemented RemoveResolvableReport::problem() callback
-  (bnc#465641)
+- implemented RemoveResolvableReport::problem() callback, do not
+  abort when [Ignore] is pressed (bnc#465641)
 
 -------------------------------------------------------------------
 Fri Jan 16 19:55:14 CET 2009 - lslezak@suse.cz
