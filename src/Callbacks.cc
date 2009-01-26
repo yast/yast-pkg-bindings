@@ -438,6 +438,33 @@ namespace ZyppRecipients {
 	    return zypp::target::rpm::RemoveResolvableReport::progress(value, resolvable);
 	}
 
+        virtual Action problem(
+          zypp::Resolvable::constPtr resolvable
+          , zypp::target::rpm::RemoveResolvableReport::Error error
+          , const std::string &description
+        )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
+	    if (callback._set) {
+		callback.addInt( error );
+		callback.addStr( description );
+
+                std::string ret = callback.evaluateStr();
+
+                // "R" =  retry
+                if (ret == "R") return zypp::target::rpm::RemoveResolvableReport::RETRY;
+
+                // "C" = cancel
+                if (ret == "C") return zypp::target::rpm::RemoveResolvableReport::ABORT;
+
+                // otherwise ignore
+                return zypp::target::rpm::RemoveResolvableReport::IGNORE;
+	    }
+
+	    return zypp::target::rpm::RemoveResolvableReport::problem
+		(resolvable, error, description);
+	}
+
 	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::RemoveResolvableReport::Error error, const std::string &reason)
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
