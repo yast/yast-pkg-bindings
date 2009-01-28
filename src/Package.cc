@@ -1924,7 +1924,7 @@ YCPValue PkgFunctions::SetSolverFlags(const YCPMap& params)
     const YCPString ignore_key("ignoreAlreadyRecommended");
     if (!params.isNull() && !params->value(ignore_key).isNull() && params->value(ignore_key)->isBoolean())
     {
-	bool ignoreAlreadyRecommended = zypp_ptr()->resolver()->ignoreAlreadyRecommended();
+	bool ignoreAlreadyRecommended = params->value(ignore_key)->asBoolean()->value();
 	y2milestone("Setting solver flag ignoreAlreadyRecommended: %d", ignoreAlreadyRecommended);
 	zypp_ptr()->resolver()->setIgnoreAlreadyRecommended(ignoreAlreadyRecommended);
     }
