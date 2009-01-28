@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Jan 28 14:11:58 CET 2009 - lslezak@suse.cz
+
+- Fixed Pkg::SetSolverFlags() function - properly set
+  "ignoreAlreadyRecommended" flag, do not select extra packages for
+  installation (bnc#470185)
+- 2.18.2
+
+-------------------------------------------------------------------
 Mon Jan 26 16:26:46 CET 2009 - lslezak@suse.cz
 
 - implemented RemoveResolvableReport::problem() callback, do not
