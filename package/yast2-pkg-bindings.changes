@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Feb 20 13:16:39 CET 2009 - ma@suse.de
+
+- Removed fragile test for service being modified. Leave it up to libzypp
+  to decide wich actions must be performed when saving a service. (bnc#476418)
+- 2.17.36
+
+-------------------------------------------------------------------
 Wed Jan 28 14:11:58 CET 2009 - lslezak@suse.cz
 
 - Fixed Pkg::SetSolverFlags() function - properly set
@@ -54,7 +61,7 @@ Thu Nov 27 08:47:47 CET 2008 - lslezak@suse.cz
 - honor the download area when downloading signed/digested files
   (do not download the files to the RAM disk during installation),
   remove the downloaded files in Pkg::SourceReleaseAll() to
-  release not needed files (bnc#449564) 
+  release not needed files (bnc#449564)
 - 2.17.29
 
 -------------------------------------------------------------------
@@ -82,7 +89,7 @@ Mon Nov 10 14:41:38 CET 2008 - lslezak@suse.cz
 Fri Nov  7 14:58:14 CET 2008 - lslezak@suse.cz
 
 - Pkg::SourceProvideSignedFile() has been renamed to
-  Pkg::SourceProvideDigestedFile(), added new 
+  Pkg::SourceProvideDigestedFile(), added new
   Pkg::SourceProvideSignedFile() to dowload signed files (like
   "/content") (bnc#409927)
 - 2.17.25
@@ -314,7 +321,7 @@ Mon Aug 11 10:22:30 CEST 2008 - lslezak@suse.cz
 -------------------------------------------------------------------
 Thu Aug  7 17:13:38 CEST 2008 - ma@suse.de
 
-- Adapt to new product handling. 
+- Adapt to new product handling.
 - 2.17.5
 
 -------------------------------------------------------------------
