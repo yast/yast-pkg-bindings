@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Feb 20 13:16:39 CET 2009 - ma@suse.de
+
+- Removed fragile test for service being modified. Leave it up to libzypp
+  to decide wich actions must be performed when saving a service. (bnc#476418)
+
+-------------------------------------------------------------------
 Wed Jan 28 14:11:58 CET 2009 - lslezak@suse.cz
 
 - Fixed Pkg::SetSolverFlags() function - properly set
