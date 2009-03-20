@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Mar 20 15:04:10 CET 2009 - lslezak@suse.cz
+
+- Fixed Pkg::SourceURL() - read username and password using
+  CredentialManager (FATE#303652)
+
+-------------------------------------------------------------------
 Fri Feb 20 13:16:39 CET 2009 - ma@suse.de
 
 - Removed fragile test for service being modified. Leave it up to libzypp
