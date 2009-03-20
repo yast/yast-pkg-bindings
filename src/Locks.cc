@@ -71,8 +71,8 @@ PkgFunctions::AddLock(const YCPMap &lock)
     {
 	for_(map_it, lock.begin(), lock.end())
 	{
-	    YCPValue key(map_it.key());
-	    YCPValue val(map_it.value());
+	    YCPValue key(map_it->first);
+	    YCPValue val(map_it->second);
 
 	    if (key.isNull())
 	    {
