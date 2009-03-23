@@ -30,6 +30,7 @@
 #include "ycpTools.h"
 
 #include <zypp/Product.h>
+#include <zypp/media/CredentialManager.h>
 
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPMap.h>
@@ -176,15 +177,45 @@ PkgFunctions::SourceURL (const YCPInteger& id)
     if (!repo)
         return YCPVoid();
 
-    std::string url;
+    zypp::Url url;
 
     if (repo->repoInfo().baseUrlsBegin() != repo->repoInfo().baseUrlsEnd())
     {
         // #186842
-        url = repo->repoInfo().baseUrlsBegin()->asCompleteString();
+        url = *(repo->repoInfo().baseUrlsBegin());
+
+	// add authentication data if exist
+	zypp::media::CredentialManager cm;
+
+	zypp::media::AuthData_Ptr auth = cm.getCred(url);
+
+	if (auth)
+	{
+	    y2milestone("Authentication data found, adding to URL...");
+
+	    if (auth->valid())
+	    {
+		if (!auth->username().empty())
+		{
+		    y2debug("Adding username...");
+		    url.setUsername(auth->username());
+		}
+
+		if (!auth->password().empty())
+		{
+		    y2debug("Adding password...");
+		    url.setPassword(auth->password());
+		}
+	    }
+	    else
+	    {
+		y2warning("Invalid authentication data, returning URL without username and password");
+	    }
+	}
+
     }
 
-    return YCPString(url);
+    return YCPString(url.asCompleteString());
 }
 
 /****************************************************************************************
