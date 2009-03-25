@@ -211,6 +211,17 @@ PkgFunctions::SourceURL (const YCPInteger& id)
 	    {
 		y2warning("Invalid authentication data, returning URL without username and password");
 	    }
+
+	    // does the url contain credentials query?
+	    zypp::url::ParamMap params = url.getQueryStringMap();
+	    zypp::url::ParamMap::iterator map_it = params.find("credentials");
+
+	    if (map_it != params.end())
+	    {
+		y2milestone("Removing credentials query from URL");
+		params.erase(map_it);
+		url.setQueryStringMap(params);
+	    }
 	}
 
     }
