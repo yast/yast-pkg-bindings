@@ -389,13 +389,13 @@ PkgModuleFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbo
 		// status
 		std::string stat;
 
-		if (it->status().isInstalled())
-		{
-		    stat = "installed";
-		}
-		else if (it->status().isToBeInstalled())
+		if (it->status().isToBeInstalled())
 		{
 		    stat = "selected";
+		}
+		else if (it->status().isInstalled() || it->status().isSatisfied())
+		{
+		    stat = it->status().isToBeUninstalled() ? "removed" : "installed";
 		}
 		else
 		{
