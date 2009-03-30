@@ -30,6 +30,7 @@
 #include "ycpTools.h"
 
 #include <zypp/Product.h>
+#include <zypp/Repository.h>
 #include <zypp/media/CredentialManager.h>
 
 #include <ycp/YCPBoolean.h>
@@ -112,6 +113,7 @@ PkgFunctions::SourceGetCurrent (const YCPBoolean& enabled)
  * "name"	: YCPString,
  * "service"	: YCPString, (service to which the repo belongs, empty if there is no service assigned)
  * "keeppackages" : YCPBoolean,
+ * "is_update_repo" : YCPBoolean, (true if this is an update repo - this requires loaded objects in pool otherwise the flag is not returned! The value is stored in repo metadata, not in .repo file!)
  * ];
  *
  * </code>
@@ -158,6 +160,15 @@ PkgFunctions::SourceGeneralData (const YCPInteger& id)
     data->add( YCPString("service"),	YCPString(repo->repoInfo().service()));
 
     data->add( YCPString("keeppackages"),	YCPBoolean(repo->repoInfo().keepPackages()));
+
+    // add Repository data
+    zypp::Repository repository(zypp::ResPool::instance().reposFind(repo->repoInfo().alias()));
+
+    if (repository != zypp::Repository::noRepository)
+    {
+	y2debug("adding zypp::Repository info");
+	data->add( YCPString("is_update_repo"), YCPBoolean(repository.isUpdateRepo()));
+    }
 
     return data;
 }
