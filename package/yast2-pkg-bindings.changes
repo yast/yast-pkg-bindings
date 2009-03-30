@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Mon Mar 30 16:24:58 CEST 2009 - lslezak@suse.cz
+
+- return "is_update_repo" flag in Pkg::SourceGeneralData() call
+  (requires loaded pool) (bnc#459527)
+- use zypp::RepoManager::makeStupidAlias() for generating
+  repository alias
+- 2.18.3
+
+-------------------------------------------------------------------
 Wed Mar 25 16:55:36 CET 2009 - lslezak@suse.cz
 
 - Fixed Pkg::SourceURL() - remove "credentials" query from URL

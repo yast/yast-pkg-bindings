@@ -237,40 +237,9 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
 	// alias not set via URL, use the passed alias or the URL path
 	if (alias_r.empty())
 	{
-	    // use the last path element in URL 
-	    std::string url_path = url.getPathName();
+	    alias = zypp::RepoManager::makeStupidAlias(url);
 
-	    std::string::size_type pos_begin = url_path.rfind("/");
-	    std::string::size_type pos_end = std::string::npos;
-
-	    // ignore the trailing slash
-	    if (pos_begin == url_path.size() - 1)
-	    {
-		pos_begin = url_path.rfind("/", url_path.size() - 2);
-
-		if (pos_begin != std::string::npos)
-		{
-		    pos_end = url_path.size() - pos_begin - 2;
-		}
-	    }
-	    else
-	    {
-		pos_end = url_path.size() - pos_begin - 1;
-	    }
-
-	    // ignore the found slash character
-	    pos_begin++;
-
-	    alias = std::string(url_path, pos_begin, pos_end);
-
-	    y2milestone("Alias from URL path: %s", alias.c_str());
-
-	    // fallback
-	    if (alias.empty())
-	    {
-		y2milestone("URL alias is empty using 'Repository'");
-		alias = "Repository";
-	    }
+	    y2milestone("Using alias: %s", alias.c_str());
 	}
 	else
 	{
@@ -390,33 +359,8 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
 	repo.setAutorefresh(params->value(YCPString("autorefresh"))->asBoolean()->value());
     }
 
-    std::string alias;
-
-    if (!params->value( YCPString("alias") ).isNull() && params->value(YCPString("alias"))->isString())
-    {
-	alias = params->value(YCPString("alias"))->asString()->value();
-    }
-
-    if (alias.empty())
-    {
-	alias = timestamp();
-
-	// the alias must be unique
-	alias = UniqueAlias(alias);
-    }
-    else
-    {
-	if (aliasExists(alias))
-	{
-	    y2error("alias %s already exists", alias.c_str());
-	    return YCPVoid();
-	}
-    }
-   
-    repo.setAlias(alias);
-
     // use the first base URL as a fallback name 
-    std::string first_url;
+    zypp::Url first_url;
 
     if (!params->value( YCPString("base_urls") ).isNull() && params->value(YCPString("base_urls"))->isList())
     {
@@ -457,7 +401,7 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
 
 	    if (index == 0)
 	    {
-		first_url = url.asString();
+		first_url = url;
 	    }
 
 	    repo.addBaseUrl(url);
@@ -468,6 +412,33 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
 	y2error("Missing \"base_urls\" key in the map");
 	return YCPVoid();
     }
+
+    std::string alias;
+
+    if (!params->value( YCPString("alias") ).isNull() && params->value(YCPString("alias"))->isString())
+    {
+	alias = params->value(YCPString("alias"))->asString()->value();
+    }
+
+    if (alias.empty())
+    {
+	// generate an alias
+	alias = zypp::RepoManager::makeStupidAlias(first_url);
+
+	// the alias must be unique
+	alias = UniqueAlias(alias);
+    }
+    else
+    {
+	if (aliasExists(alias))
+	{
+	    y2error("alias %s already exists", alias.c_str());
+	    return YCPVoid();
+	}
+    }
+   
+    repo.setAlias(alias);
+
 
     // check name parameter
     if (!params->value( YCPString("name") ).isNull() && params->value(YCPString("name"))->isString())
@@ -480,7 +451,7 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
 	// then use the first URL as the name
 	if (repo.name().empty())
 	{
-	    repo.setName(first_url);
+	    repo.setName(first_url.asString());
 	}
     }
 
