@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Apr 21 19:18:16 CEST 2009 - lslezak@suse.cz
+
+- Pkg::ResolvableDependencies() - also return raw (unresolved)
+  dependencies in the result (key "deps"), remove duplicated
+  dependencies in the result (bnc#479575)
+
+-------------------------------------------------------------------
 Mon Mar 30 16:24:58 CEST 2009 - lslezak@suse.cz
 
 - return "is_update_repo" flag in Pkg::SourceGeneralData() call
