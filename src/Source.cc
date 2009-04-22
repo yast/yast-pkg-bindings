@@ -88,6 +88,31 @@ void PkgModuleFunctions::CallSourceReportEnd(const std::string &text)
     }
 }
 
+void PkgModuleFunctions::CallSourceReportInit()
+{
+    // get the YCP callback handler for init event
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportInit);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+}
+
+void PkgModuleFunctions::CallSourceReportDestroy()
+{
+    // get the YCP callback handler for destroy event
+    Y2Function* ycp_handler = _callbackHandler._ycpCallbacks.createCallback(CallbackHandler::YCPCallbacks::CB_SourceReportDestroy);
+
+    // is the callback registered?
+    if (ycp_handler != NULL)
+    {
+	// evaluate the callback function
+	ycp_handler->evaluateCall();
+    }
+}
 /**
  * Logging helper:
  * call zypp::SourceManager::sourceManager()->findSource
@@ -138,6 +163,7 @@ PkgModuleFunctions::SourceSetRamCache (const YCPBoolean& a)
 YCPValue
 PkgModuleFunctions::SourceRestore()
 {
+    CallSourceReportInit();
     CallSourceReportStart(_("Downloading files..."));
 
     bool success = true;
@@ -173,6 +199,7 @@ PkgModuleFunctions::SourceRestore()
     }
 
     CallSourceReportEnd(_("Downloading files..."));
+    CallSourceReportDestroy();
 
     return YCPBoolean(success);
 }
@@ -211,6 +238,7 @@ PkgModuleFunctions::SourceLoad()
 {
     bool success = true;
 
+    CallSourceReportInit();
     CallSourceReportStart(_("Parsing files..."));
 
     std::list<zypp::SourceManager::SourceId> ids;
@@ -271,6 +299,7 @@ PkgModuleFunctions::SourceLoad()
     }
 
     CallSourceReportEnd(_("Parsing files..."));
+    CallSourceReportDestroy();
 
     return YCPBoolean(success);
 }
@@ -712,6 +741,7 @@ PkgModuleFunctions::SourceProduct (const YCPInteger& id)
 YCPValue
 PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
+    CallSourceReportInit();
     CallSourceReportStart(_("Downloading file..."));
 
     zypp::Source_Ref src;
@@ -741,6 +771,7 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
     }
 
     CallSourceReportEnd(_("Downloading file..."));
+    CallSourceReportDestroy();
 
     if (found)
     {
@@ -770,6 +801,7 @@ PkgModuleFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& m
 YCPValue
 PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPInteger& mid, const YCPString& f)
 {
+    CallSourceReportInit();
     CallSourceReportStart(_("Downloading files..."));
 
     YCPValue ret;
@@ -813,6 +845,7 @@ PkgModuleFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPIn
 
 
     CallSourceReportEnd(_("Downloading files..."));
+    CallSourceReportDestroy();
 
     if (found)
     {
@@ -1349,9 +1382,11 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
 	    src.enable();
 
+	    CallSourceReportInit();
 	    CallSourceReportStart(_("Parsing files..."));
     	    zypp_ptr()->addResolvables (src.resolvables());
 	    CallSourceReportEnd(_("Parsing files..."));
+	    CallSourceReportDestroy();
 
 	    // return the id of the first product
 	    if ( ret == -1 )
@@ -1376,9 +1411,11 @@ PkgModuleFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd,
 
 	src.enable();
 
+	CallSourceReportInit();
 	CallSourceReportStart(_("Parsing files..."));
     	zypp_ptr()->addResolvables (src.resolvables());
 	CallSourceReportEnd(_("Parsing files..."));
+	CallSourceReportDestroy();
     }
     catch ( const zypp::Exception& excpt)
     {

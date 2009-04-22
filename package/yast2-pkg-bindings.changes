@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Apr 22 13:30:43 CEST 2009 - lslezak@suse.cz
+
+- new callbacks Pkg::CallbackSourceCreateInit/Destroy() and
+  Pkg::CallbackSourceReportInit() - handle the ctor/dtor of libzypp
+  callbacks (#251726)
+- 2.13.125
+
+-------------------------------------------------------------------
 Fri Mar 27 13:57:53 CET 2009 - lslezak@suse.cz
 
 - Fixed Pkg::SourceCreate() - make the new alias unique - timestamp

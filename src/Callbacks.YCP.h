@@ -72,6 +72,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_StartPackage, CB_ProgressPackage, CB_DonePackage,
 
       CB_SourceCreateStart, CB_SourceCreateProgress, CB_SourceCreateError, CB_SourceCreateEnd,
+      CB_SourceCreateInit, CB_SourceCreateDestroy,
 
       CB_StartSourceRefresh, CB_ErrorSourceRefresh, CB_DoneSourceRefresh, CB_ProgressSourceRefresh,
       CB_StartDeltaDownload, CB_ProgressDeltaDownload, CB_ProblemDeltaDownload,
@@ -81,7 +82,7 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
       CB_StartDownload, CB_ProgressDownload, CB_DoneDownload,
 
       CB_SourceProbeStart, CB_SourceProbeFailed, CB_SourceProbeSucceeded, CB_SourceProbeEnd, CB_SourceProbeProgress, CB_SourceProbeError, 
-      CB_SourceReportStart, CB_SourceReportProgress, CB_SourceReportError, CB_SourceReportEnd, 
+      CB_SourceReportStart, CB_SourceReportProgress, CB_SourceReportError, CB_SourceReportEnd, CB_SourceReportInit, CB_SourceReportDestroy,
 
       CB_ScriptStart, CB_ScriptProgress, CB_ScriptProblem, CB_ScriptFinish,
       CB_Message,
@@ -136,6 +137,8 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( SourceCreateProgress );
 	ENUM_OUT( SourceCreateError );
 	ENUM_OUT( SourceCreateEnd );
+	ENUM_OUT( SourceCreateInit );
+	ENUM_OUT( SourceCreateDestroy );
 
 	ENUM_OUT( SourceProbeStart );
 	ENUM_OUT( SourceProbeFailed );
@@ -148,6 +151,8 @@ class PkgModuleFunctions::CallbackHandler::YCPCallbacks
 	ENUM_OUT( SourceReportProgress );
 	ENUM_OUT( SourceReportError );
 	ENUM_OUT( SourceReportEnd );
+	ENUM_OUT( SourceReportInit );
+	ENUM_OUT( SourceReportDestroy );
 
 	ENUM_OUT( StartSourceRefresh );
 	ENUM_OUT( ErrorSourceRefresh );
