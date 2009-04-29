@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Apr 29 08:45:52 CEST 2009 - lslezak@suse.cz
+
+- report also the URL when repository metadata are not found
+  (bnc#439069)
+- 2.18.4
+
+-------------------------------------------------------------------
 Tue Apr 21 19:18:16 CEST 2009 - lslezak@suse.cz
 
 - Pkg::ResolvableDependencies() - also return raw (unresolved)

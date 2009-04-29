@@ -126,8 +126,9 @@ bool PkgFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zyp
 	if (!autorefresh_skipped)
 	{
 	    std::string alias = repoinfo.alias();
+	    zypp::Url url(repoinfo.url());
 	    y2error ("Resolvables from '%s' havn't been loaded: %s", alias.c_str(), excpt.asString().c_str());
-	    _last_error.setLastError("'" + alias + "': " + ExceptionAsString(excpt));
+	    _last_error.setLastError("'" + alias + "': " + url.asString() + "\n" + ExceptionAsString(excpt));
 	    success = false;
 	}
 	else
