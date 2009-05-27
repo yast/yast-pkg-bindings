@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed May 27 14:49:23 CEST 2009 - ma@suse.de
+
+- Remove use of deprecated Package::filenames.
+
+-------------------------------------------------------------------
 Wed Apr 29 08:45:52 CEST 2009 - lslezak@suse.cz
 
 - report also the URL when repository metadata are not found

@@ -961,8 +961,8 @@ PkgFunctions::PkgPropertiesAll (const YCPString& p)
 	{
 	    // access to the Pool of Selectables
 	    zypp::ResPoolProxy selectablePool(zypp::ResPool::instance().proxy());
-		  
-	    for_(it, selectablePool.byKindBegin<zypp::Package>(), 
+
+	    for_(it, selectablePool.byKindBegin<zypp::Package>(),
 		selectablePool.byKindEnd<zypp::Package>())
 	    {
 		zypp::ui::Selectable::Ptr s = (*it);
@@ -1058,10 +1058,10 @@ YCPList _create_filelist(const zypp::PoolItem &pi)
 	return ret;
     }
 
-    std::list<std::string> files = package->filenames();
+    zypp::Package::FileList files( package->filelist() );
 
     // insert the file names
-    for (std::list<string>::iterator it = files.begin(); it != files.end(); ++it)
+    for_( it, files.begin(), files.end() )
     {
 	ret->add(YCPString(*it));
     }
@@ -1266,8 +1266,8 @@ PkgFunctions::IsManualSelection ()
     {
 	// access to the Pool of Selectables
 	zypp::ResPoolProxy selectablePool(zypp::ResPool::instance().proxy());
-	      
-	for_(it, selectablePool.byKindBegin<zypp::Package>(), 
+
+	for_(it, selectablePool.byKindBegin<zypp::Package>(),
 	    selectablePool.byKindEnd<zypp::Package>())
 	{
 	    zypp::ui::Selectable::Ptr s = (*it);
@@ -1378,8 +1378,8 @@ PkgFunctions::FilterPackages(const YCPBoolean& y_byAuto, const YCPBoolean& y_byA
     {
 	// access to the Pool of Selectables
 	zypp::ResPoolProxy selectablePool(zypp::ResPool::instance().proxy());
-	      
-	for_(it, selectablePool.byKindBegin<zypp::Package>(), 
+
+	for_(it, selectablePool.byKindBegin<zypp::Package>(),
 	    selectablePool.byKindEnd<zypp::Package>())
 	{
 	    zypp::ui::Selectable::Ptr s = (*it);
@@ -1435,8 +1435,8 @@ PkgFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_on
     {
 	// access to the Pool of Selectables
 	zypp::ResPoolProxy selectablePool(zypp::ResPool::instance().proxy());
-	      
-	for_(it, selectablePool.byKindBegin<zypp::Package>(), 
+
+	for_(it, selectablePool.byKindBegin<zypp::Package>(),
 	    selectablePool.byKindEnd<zypp::Package>())
 	{
 	    zypp::ui::Selectable::Ptr s = (*it);
@@ -1509,49 +1509,49 @@ PkgFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_on
  * @description
  * Mark all packages for installation which are installed and have
  * an available candidate for update.
- * 
+ *
  * This will mark packages for installation *and* for deletion (if a
  * package provides/obsoletes another package)
- * 
+ *
  * This function does not solve dependencies.
- * 
+ *
  * Symbols and integer values returned:
- * 
+ *
  * <b>ProblemListSze</b>: Number of taboo and dropped packages found.
- * 
+ *
  * <b>DeleteUnmaintained</b>: Whether delete_unmaintained arg was true or false.
  * Dependent on this, <b>SumDropped</b> below either denotes packages to delete
  * (if true) or packages to keep (if false).
- * 
+ *
  * <b>SumProcessed</b>: TOTAL number of installed packages we processed.
- * 
+ *
  * <b>SumToInstall</b>: TOTAL number of packages now tagged as to install.
  * Summs <b>Ipreselected</b>, <b>Iupdate</b>, <b>Idowngrade</b>, <b>Ireplaced</b>.
- * 
+ *
  * <b>Ipreselected</b>: Packages which were already taged to install.
- * 
+ *
  * <b>Iupdate</b>: Packages set to install as update to a newer version.
- * 
+ *
  * <b>Idowngrade</b>: Packages set to install performing a version downgrade.
- * 
+ *
  * <b>Ireplaced</b>: Packages set to install as they replace an installed package.
- * 
+ *
  * <b>SumToDelete</b>: TOTAL number of packages now tagged as to delete.
  * Summs <b>Dpreselected</b>, <b>SumDropped</b> if <b>DeleteUnmaintained</b>
  * was set.
- * 
+ *
  * <b>Dpreselected</b>: Packages which were already taged to delete.
- * 
+ *
  * <b>SumToKeep</b>: TOTAL number of packages which remain unchanged.
  * Summs <b>Ktaboo</b>, <b>Knewer</b>, <b>Ksame</b>, <b>SumDropped</b>
  * if <b>DeleteUnmaintained</b> was not set.
- * 
+ *
  * <b>Ktaboo</b>: Packages which are set taboo.
- * 
+ *
  * <b>Knewer</b>: Packages kept because only older versions are available.
- * 
+ *
  * <b>Ksame</b>: Packages kept because they are up to date.
- * 
+ *
  * <b>SumDropped</b>: TOTAL number of dropped packages found. Dependent
  * on the delete_unmaintained arg, they are either tagged as to delete or
  * remain unchanged.
@@ -2419,7 +2419,7 @@ bool PkgFunctions::CreateBaseProductSymlink()
 
 	// get the package
 	zypp::sat::Solvable refsolvable = base_product->referencePackage();
-	
+
 	if (refsolvable != zypp::sat::Solvable::noSolvable)
 	{
 	    // create a package pointer from the SAT solvable
@@ -2470,7 +2470,7 @@ bool PkgFunctions::CreateBaseProductSymlink()
 				base_link.asString().c_str(),
 				::strerror(errno)
 			    );
-			    
+
 			    return false;
 			}
 		    }
