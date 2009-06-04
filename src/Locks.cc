@@ -43,12 +43,6 @@
 // UINT_MAX
 #include <climits>
 
-// SEARCH_* constants (SEARCH_STRING, SEARCH_SUBSTRING,...)
-extern "C"
-{
-#include "satsolver/repo.h"
-}
-
 
 /**
  * @builtin AddLock
@@ -57,7 +51,7 @@ extern "C"
  * Add a new lock to the package manager. Input parameter is a map $[ "kind" : list<string>,
  * "install_status":string, "repo_id":list<integer>, "case_sensitive" : boolean, "global_string":list<string>
  * "string_type" : string, "solvable:.*" : list<string> ]
- * 
+ *
  * see http://en.opensuse.org/Libzypp/Locksfile for more information
  * @param map lock Definition of the lock
  * @return boolean true on success
@@ -106,7 +100,7 @@ PkgFunctions::AddLock(const YCPMap &lock)
 
 			    if (!list_item.isNull() && list_item->isString())
 			    {
-				query.addKind(zypp::ResKind(list_item->asString()->value())); 
+				query.addKind(zypp::ResKind(list_item->asString()->value()));
 			    }
 			    else
 			    {
@@ -353,7 +347,7 @@ YCPMap PkgFunctions::PoolQuery2YCPMap(const zypp::PoolQuery &pool_query)
 	}
 
     }
-    
+
     // add "kind" attribute
     if (!pool_query.kinds().empty())
     {
@@ -369,7 +363,7 @@ YCPMap PkgFunctions::PoolQuery2YCPMap(const zypp::PoolQuery &pool_query)
 
     // add "install_status" attribute
     std::string status;
-    
+
     switch(pool_query.statusFilterFlags())
     {
 	case zypp::PoolQuery::ALL : status = "all"; break;
@@ -415,12 +409,13 @@ YCPMap PkgFunctions::PoolQuery2YCPMap(const zypp::PoolQuery &pool_query)
     // add "string_type" attribute
     std::string str_type;
 
-    switch(pool_query.matchType())
+    switch(pool_query.matchMode().mode())
     {
-	case SEARCH_STRING : str_type = "exact"; break;
-	case SEARCH_SUBSTRING : str_type = "substring"; break;
-	case SEARCH_GLOB : str_type = "glob"; break;
-	case SEARCH_REGEX : str_type = "regex"; break;
+	case zypp::Match::STRING : str_type = "exact"; break;
+	case zypp::Match::SUBSTRING : str_type = "substring"; break;
+	case zypp::Match::GLOB : str_type = "glob"; break;
+	case zypp::Match::REGEX : str_type = "regex"; break;
+        default: break;
     }
 
     if (!str_type.empty())
@@ -436,7 +431,7 @@ YCPMap PkgFunctions::PoolQuery2YCPMap(const zypp::PoolQuery &pool_query)
  * @short Get list of current locks
  * @description
  * Returns list of of current locks, see AddLock() for details about returned lock map.
- * 
+ *
  * see http://en.opensuse.org/Libzypp/Locksfile for more information
  * @return list list of locks (YCP maps)
  */
@@ -496,7 +491,7 @@ YCPValue PkgFunctions::RemoveLock(const YCPInteger &lock_idx)
 
 	zypp::Locks::const_iterator it = locks.begin();
 	zypp::Locks::const_iterator it_end = locks.end();
-	
+
 	unsigned int i = 0;
 	while(i < idx)
 	{

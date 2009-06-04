@@ -1035,7 +1035,7 @@ namespace ZyppRecipients {
 		if (!ycp_val.isNull() && ycp_val->isString())
 		{
 		    // set the entered username
-		    auth_data.setUserName(ycp_val->asString()->value());
+		    auth_data.setUsername(ycp_val->asString()->value());
 		}
 		else
 		{

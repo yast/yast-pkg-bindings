@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Jun  4 15:21:20 CEST 2009 - ma@suse.de
+
+- Remove more use of deprecated methods.
+- 2.18.6
+
+-------------------------------------------------------------------
 Wed May 27 14:49:23 CEST 2009 - ma@suse.de
 
 - Remove use of deprecated Package::filenames.
