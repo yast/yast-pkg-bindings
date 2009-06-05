@@ -409,7 +409,7 @@ YCPMap PkgFunctions::PoolQuery2YCPMap(const zypp::PoolQuery &pool_query)
     // add "string_type" attribute
     std::string str_type;
 
-    switch(pool_query.matchMode().mode())
+    switch(pool_query.matchMode())
     {
 	case zypp::Match::STRING : str_type = "exact"; break;
 	case zypp::Match::SUBSTRING : str_type = "substring"; break;
