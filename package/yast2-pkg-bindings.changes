@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Jun 16 15:50:59 CEST 2009 - lslezak@suse.cz
+
+- Do not call RefreshStarted callback when refresh is not needed,
+  do not change "Abort" button label when not necessary
+  (bnc#504131)
+- 2.18.7
+
+-------------------------------------------------------------------
 Thu Jun  4 15:21:20 CEST 2009 - ma@suse.de
 
 - Remove more use of deprecated methods.
