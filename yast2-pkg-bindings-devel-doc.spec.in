@@ -15,7 +15,7 @@ BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-de
 
 Buildarch: noarch
 Requires:  yast2-pkg-bindings = %{version}
-Summary:   Documentation for yast2-pkg-bindings package
+Summary:   YaST2 - Documentation for yast2-pkg-bindings package
 Group:     Documentation/HTML
 
 %description

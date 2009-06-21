@@ -7,7 +7,7 @@ BuildRequires: libzypp-devel >= 6.6.0
 # new GPG callbacks
 Requires:	libzypp >= 6.6.0
 
-Summary:	-
+Summary:	YaST2 - Package Manager Access
 
 %description
 -
