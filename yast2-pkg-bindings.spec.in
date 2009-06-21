@@ -10,7 +10,8 @@ Requires:	libzypp >= 6.6.0
 Summary:	YaST2 - Package Manager Access
 
 %description
--
+This package contains a name space for accessing the package manager
+library in YaST2.
 
 @PREP@
 # build only the library, ignore documentation (it is in devel-doc package)
