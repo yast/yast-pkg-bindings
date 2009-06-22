@@ -1,6 +1,7 @@
 @HEADER-COMMENT@
 
 @HEADER@
+License: GPL v2 or later
 BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer sgml-skel yast2-core-devel yast2-devtools
 BuildRequires: libzypp-devel >= 6.6.0
 
@@ -21,11 +22,14 @@ echo "src" > SUBDIRS
 
 @INSTALL@
 rm -rf %{buildroot}/@plugindir@/libpy2Pkg.la
+rm -rf %{buildroot}/@plugindir@/libpy2Pkg.so
+rm -rf %{buildroot}/@plugindir@/libpy2Pkgzypp.la
 
 @CLEAN@
 
 %files
 %defattr(-,root,root)
 @plugindir@/libpy2Pkg.so.*
-@plugindir@/libpy2Pkg.so
+@plugindir@/libpy2Pkgzypp.so
+@plugindir@/libpy2Pkgzypp.so.*
 %doc @docdir@
