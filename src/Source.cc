@@ -25,6 +25,9 @@
 //#include <sys/statvfs.h>
 
 #include <iostream>
+#include <sstream>
+#include <algorithm>
+
 #include <ycp/y2log.h>
 
 #include <ycpTools.h>
@@ -1037,11 +1040,15 @@ createManagedSource( const zypp::Url & url_r,
   bool alias_found = false;
   std::list<zypp::SourceManager::SourceId> ids = zypp::SourceManager::sourceManager()->allSources();
 
+  // remember the existing aliases
+  std::list<std::string> aliases;
+
   for( std::list<zypp::SourceManager::SourceId>::iterator it = ids.begin(); it != ids.end(); ++it)
   {
     try
     {
 	zypp::Source_Ref src = zypp::SourceManager::sourceManager()->findSource(*it);
+	aliases.push_back(src.alias());
 
 	if (src.alias() == newsrc.alias())
 	{
@@ -1085,7 +1092,28 @@ createManagedSource( const zypp::Url & url_r,
 
     alias += timestamp ();
   
+    // does the alias already exist?
+    if (std::find_if(aliases.begin(), aliases.end(), std::bind2nd(std::equal_to<std::string>(), alias)) != aliases.end())
+    {
+	// yes, make the alias unique (see bnc #406720)
+	int uniq_suffix = 0;
+	std::string new_alias;
+
+	do
+	{
+	    std::ostringstream os;
+	    os << alias << '_' << uniq_suffix;
+	    new_alias = os.str();
+	    uniq_suffix++;
+	}
+	while (std::find_if(aliases.begin(), aliases.end(), std::bind2nd(std::equal_to<std::string>(), new_alias)) != aliases.end());
+
+	y2milestone("Make the new alias unique: '%s' -> '%s'", alias.c_str(), new_alias.c_str());
+	alias = new_alias;
+    }
+
     newsrc.setAlias( alias );
+
     y2milestone("Using time stamp '%s' as the alias", alias.c_str());
   }
 

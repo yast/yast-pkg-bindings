@@ -1,4 +1,18 @@
 -------------------------------------------------------------------
+Fri Mar 27 13:57:53 CET 2009 - lslezak@suse.cz
+
+- Fixed Pkg::SourceCreate() - make the new alias unique - timestamp
+  alias uses 1 second granularity which might not be sufficient
+  in AutoYast (bnc#406720)
+- 2.13.124
+
+-------------------------------------------------------------------
+Wed Mar 25 13:41:30 CET 2009 - lslezak@suse.cz
+
+- Fixed Pkg::ResolvableProperties() - return `removed status for
+  items selected to delete (bnc#481101)
+
+-------------------------------------------------------------------
 Mon Mar 10 14:45:08 CET 2008 - lslezak@suse.cz
 
 - check whether the alias of a new source is already in use, if yes
