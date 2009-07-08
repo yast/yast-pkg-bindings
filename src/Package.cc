@@ -39,7 +39,6 @@
 #include <zypp/ResStatus.h>
 
 #include <zypp/ResPool.h>
-#include <zypp/UpgradeStatistics.h>
 #include <zypp/target/rpm/RpmDb.h>
 #include <zypp/target/TargetException.h>
 #include <zypp/ZYppCommit.h>
@@ -1503,58 +1502,14 @@ PkgFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_on
  * @builtin PkgUpdateAll
  * @param map<string,any> update_options Options for the solver. All parameters are optional,
  *	if a parameter is missing the default value from the package manager (libzypp) is used.
- *	Currently supported options: <tt>$["silent_downgrades":boolean] </tt>
+ *	Currently supported options: <tt>NONE</tt>
  *
  * @short Update installed packages
  * @description
- * Mark all packages for installation which are installed and have
- * an available candidate for update.
+ * Perform a distribution upgrade. This function solves
+ * dependencies.
  *
- * This will mark packages for installation *and* for deletion (if a
- * package provides/obsoletes another package)
- *
- * This function does not solve dependencies.
- *
- * Symbols and integer values returned:
- *
- * <b>ProblemListSze</b>: Number of taboo and dropped packages found.
- *
- * <b>DeleteUnmaintained</b>: Whether delete_unmaintained arg was true or false.
- * Dependent on this, <b>SumDropped</b> below either denotes packages to delete
- * (if true) or packages to keep (if false).
- *
- * <b>SumProcessed</b>: TOTAL number of installed packages we processed.
- *
- * <b>SumToInstall</b>: TOTAL number of packages now tagged as to install.
- * Summs <b>Ipreselected</b>, <b>Iupdate</b>, <b>Idowngrade</b>, <b>Ireplaced</b>.
- *
- * <b>Ipreselected</b>: Packages which were already taged to install.
- *
- * <b>Iupdate</b>: Packages set to install as update to a newer version.
- *
- * <b>Idowngrade</b>: Packages set to install performing a version downgrade.
- *
- * <b>Ireplaced</b>: Packages set to install as they replace an installed package.
- *
- * <b>SumToDelete</b>: TOTAL number of packages now tagged as to delete.
- * Summs <b>Dpreselected</b>, <b>SumDropped</b> if <b>DeleteUnmaintained</b>
- * was set.
- *
- * <b>Dpreselected</b>: Packages which were already taged to delete.
- *
- * <b>SumToKeep</b>: TOTAL number of packages which remain unchanged.
- * Summs <b>Ktaboo</b>, <b>Knewer</b>, <b>Ksame</b>, <b>SumDropped</b>
- * if <b>DeleteUnmaintained</b> was not set.
- *
- * <b>Ktaboo</b>: Packages which are set taboo.
- *
- * <b>Knewer</b>: Packages kept because only older versions are available.
- *
- * <b>Ksame</b>: Packages kept because they are up to date.
- *
- * <b>SumDropped</b>: TOTAL number of dropped packages found. Dependent
- * on the delete_unmaintained arg, they are either tagged as to delete or
- * remain unchanged.
+ * Symbols and integer values returned: <tt>NONE</tt>
  *
  * @return map<symbol,integer> summary of the update
  */
@@ -1562,7 +1517,14 @@ PkgFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_on
 YCPValue
 PkgFunctions::PkgUpdateAll (const YCPMap& options)
 {
-    zypp::UpgradeStatistics stats;
+  {
+    // NOTE(ma): Since libzypp switched to use libsatsolver for distribution upgrade,
+    // there are no more in-/output arguments to doUpgrade. The statistics previously
+    // returned from resolver()->doUpgrade(stats) via the UpgradeStatistics argument
+    // no longer exist. If some feedback is required here, libzypp could offer sort of
+    // transaction summary. Such a summary woulfd not be tied to the distribution upgrade,
+    // but would be available all the time and reflect the status of the zypp pool.
+
 
     YCPValue delete_unmaintained = options->value(YCPString("delete_unmaintained"));
     if(!delete_unmaintained.isNull())
@@ -1573,15 +1535,7 @@ PkgFunctions::PkgUpdateAll (const YCPMap& options)
     YCPValue silent_downgrades = options->value(YCPString("silent_downgrades"));
     if(!silent_downgrades.isNull())
     {
-	if (silent_downgrades->isBoolean())
-	{
-	    stats.silent_downgrades = silent_downgrades->asBoolean()->value();
-	}
-	else
-	{
-	    y2error("unexpected type of 'silent_downgrades' key: %s, must be a boolean!",
-		Type::vt2type(silent_downgrades->valuetype())->toString().c_str());
-	}
+	y2error("'silent_downgrades' flag is obsoleted and should not be used, check the code!");
     }
 
     YCPValue keep_installed_patches = options->value(YCPString("keep_installed_patches"));
@@ -1596,40 +1550,10 @@ PkgFunctions::PkgUpdateAll (const YCPMap& options)
     try
     {
 	// solve upgrade, get statistics
-	zypp_ptr()->resolver()->doUpgrade(stats);
+	zypp_ptr()->resolver()->doUpgrade();
     }
     catch (...)
-    {
-	return data;
-    }
-
-    data->add( YCPSymbol("ProblemListSze"), YCPInteger(stats.chk_is_taboo + stats.chk_dropped));
-
-    // packages to install; sum and details
-    data->add( YCPSymbol("SumToInstall"), YCPInteger( stats.totalToInstall() ) );
-    data->add( YCPSymbol("Ipreselected"), YCPInteger( stats.chk_already_toins ) );
-    data->add( YCPSymbol("Iupdate"),      YCPInteger( stats.chk_to_update ) );
-    data->add( YCPSymbol("Idowngrade"),   YCPInteger( stats.chk_to_downgrade ) );
-    data->add( YCPSymbol("Ireplaced"),    YCPInteger( stats.chk_replaced
-						      + stats.chk_replaced_guessed
-						      + stats.chk_add_split ) );
-    // packages to delete; sum and details (! see dropped packages)
-    data->add( YCPSymbol("SumToDelete"),  YCPInteger( stats.totalToDelete() ) );
-    data->add( YCPSymbol("Dpreselected"), YCPInteger( stats.chk_already_todel ) );
-
-    // packages to delete; sum and details (! see dropped packages)
-    data->add( YCPSymbol("SumToKeep"),    YCPInteger( stats.totalToKeep() ) );
-    data->add( YCPSymbol("Ktaboo"),       YCPInteger( stats.chk_is_taboo ) );
-    data->add( YCPSymbol("Knewer"),       YCPInteger( stats.chk_to_keep_downgrade ) );
-    data->add( YCPSymbol("Ksame"),        YCPInteger( stats.chk_to_keep_installed  ) );
-
-    // dropped packages; dependent on the delete_unmaintained
-    // option set for doUpdate, dropped packages count as ToDelete
-    // or ToKeep.
-    data->add( YCPSymbol("SumDropped"),   YCPInteger( stats.chk_dropped ) );
-
-    // Total mumber of installed packages processed
-    data->add( YCPSymbol("SumProcessed"), YCPInteger( stats.chk_installed_total ) );
+    {}
 
     return data;
 }
