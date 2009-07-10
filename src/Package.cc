@@ -1517,7 +1517,6 @@ PkgFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_on
 YCPValue
 PkgFunctions::PkgUpdateAll (const YCPMap& options)
 {
-  {
     // NOTE(ma): Since libzypp switched to use libsatsolver for distribution upgrade,
     // there are no more in-/output arguments to doUpgrade. The statistics previously
     // returned from resolver()->doUpgrade(stats) via the UpgradeStatistics argument
