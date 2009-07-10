@@ -144,7 +144,8 @@ class PkgFunctions
       YCPValue PkgMediaSizesOrCount (bool sizes, bool download_size = false);
       YCPValue TargetInitInternal(const YCPString& root, bool rebuild_rpmdb);
     
-      bool aliasExists(const std::string &alias) const;
+      bool aliasExists(const std::string &alias, const std::list<zypp::RepoInfo> &reps) const;
+
       zypp::Product::constPtr FindBaseProduct(const std::string &alias) const;
 
       zypp::RepoManager CreateRepoManager();

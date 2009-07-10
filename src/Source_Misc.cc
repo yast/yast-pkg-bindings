@@ -87,11 +87,20 @@ PkgFunctions::RepoId PkgFunctions::logFindAlias(const std::string &alias) const
     return -1LL;
 }
 
-bool PkgFunctions::aliasExists(const std::string &alias) const
+bool PkgFunctions::aliasExists(const std::string &alias, const std::list<zypp::RepoInfo> &reps) const
 {
+    // search in loaded repositories
     for(RepoCont::const_iterator it = repos.begin(); it != repos.end() ; ++it)
     {
-	if (!(*it)->isDeleted() && (*it)->repoInfo().alias() == alias)
+	if ((*it)->repoInfo().alias() == alias)
+	    return true;
+    }
+
+    // search in stored repositories
+    for (std::list<zypp::RepoInfo>::const_iterator it = reps.begin();
+	it != reps.end(); ++it)
+    {
+	if (it->alias() == alias)
 	    return true;
     }
 
@@ -142,7 +151,11 @@ std::string PkgFunctions::UniqueAlias(const std::string &alias)
     std::string ret = alias;
 
     unsigned int id = 0;
-    while(aliasExists(ret))
+
+    // search in stored repositories
+    std::list<zypp::RepoInfo> reps = CreateRepoManager().knownRepositories();
+
+    while(aliasExists(ret, reps))
     {
 	y2milestone("Alias %s already found: %zd", ret.c_str(), logFindAlias(ret));
 

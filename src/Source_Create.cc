@@ -331,13 +331,16 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
     RefreshWithCallbacks(repo, subprogrcv_ref);
     progress.NextStage();
 
-    // build cache if needed
-    if (!repomanager.isCached(repo))
+    // remove the cache
+    if (repomanager.isCached(repo))
     {
-	y2milestone("Caching source '%s'...", repo.alias().c_str());
-
-	repomanager.buildCache(repo, zypp::RepoManager::BuildIfNeeded, subprogrcv_build);
+	y2milestone("Removing cache for repository '%s'...", repo.alias().c_str());
+	repomanager.cleanCache(repo);
     }
+
+    y2milestone("Caching repository '%s'...", repo.alias().c_str());
+    repomanager.buildCache(repo, zypp::RepoManager::BuildIfNeeded, subprogrcv_build);
+
     progress.NextStage();
 
     prg.toMax();
@@ -406,7 +409,10 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
     }
     else
     {
-	if (aliasExists(alias))
+	// search in stored repositories
+	std::list<zypp::RepoInfo> reps = CreateRepoManager().knownRepositories();
+
+	if (aliasExists(alias, reps))
 	{
 	    y2error("alias %s already exists", alias.c_str());
 	    return YCPVoid();
