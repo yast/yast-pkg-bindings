@@ -23,14 +23,11 @@ echo "src" > SUBDIRS
 
 @INSTALL@
 rm -rf %{buildroot}/@plugindir@/libpy2Pkg.la
-rm -rf %{buildroot}/@plugindir@/libpy2Pkg.so
-rm -rf %{buildroot}/@plugindir@/libpy2Pkgzypp.la
 
 @CLEAN@
 
 %files
 %defattr(-,root,root)
 @plugindir@/libpy2Pkg.so.*
-@plugindir@/libpy2Pkgzypp.so
-@plugindir@/libpy2Pkgzypp.so.*
+@plugindir@/libpy2Pkg.so
 %doc @docdir@

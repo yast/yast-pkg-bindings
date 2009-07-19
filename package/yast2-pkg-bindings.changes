@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Sun Jul 19 10:08:53 CEST 2009 - coolo@novell.com
+
+- revert file list changes that slipped in while adding licenses
+
+-------------------------------------------------------------------
 Fri Jul 10 11:18:04 CEST 2009 - lslezak@suse.cz
 
 - clean existing cache for added repositories, do not reuse
