@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Sep 18 17:51:45 CEST 2009 - ma@suse.de
+
+- Remove connection to dead zypp::ScanDBReport.
+- 2.18.10
+
+-------------------------------------------------------------------
 Sun Jul 19 10:08:53 CEST 2009 - coolo@novell.com
 
 - revert file list changes that slipped in while adding licenses
