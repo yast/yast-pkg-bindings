@@ -285,6 +285,15 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 			    }
 			}
 
+
+			zypp::RepoManager::RefreshCheckStatus ref_stat = repomanager.checkIfToRefreshMetadata((*it)->repoInfo(), *((*it)->repoInfo().baseUrlsBegin()));
+
+			if (ref_stat != zypp::RepoManager::REFRESH_NEEDED)
+			{
+			    y2internal("Skipping repository '%s' - refresh is not needed", (*it)->repoInfo().alias().c_str());
+			    continue;
+			}
+
 			try
 			{
 			    y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());

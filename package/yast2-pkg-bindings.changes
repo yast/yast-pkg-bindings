@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Jun 16 15:50:59 CEST 2009 - lslezak@suse.cz
+
+- Do not call RefreshStarted callback when refresh is not needed,
+  do not change "Abort" button label when not necessary
+  (bnc#504131)
+
+-------------------------------------------------------------------
 Fri Jul 10 11:18:04 CEST 2009 - lslezak@suse.cz
 
 - clean existing cache for added repositories, do not reuse
