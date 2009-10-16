@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Oct 16 13:27:02 CEST 2009 - lslezak@suse.cz
+
+- added "check_alias" option to Pkg::RepositoryAdd() to allow
+  repository overwriting (bnc#543468)
+
+-------------------------------------------------------------------
 Tue Jun 16 15:50:59 CEST 2009 - lslezak@suse.cz
 
 - Do not call RefreshStarted callback when refresh is not needed,
