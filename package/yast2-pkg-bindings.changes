@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Oct 16 13:27:02 CEST 2009 - lslezak@suse.cz
+
+- added "check_alias" option to Pkg::RepositoryAdd() to allow
+  repository overwriting (bnc#543468)
+- 2.18.11
+
+-------------------------------------------------------------------
 Fri Sep 18 17:51:45 CEST 2009 - ma@suse.de
 
 - Remove connection to dead zypp::ScanDBReport.

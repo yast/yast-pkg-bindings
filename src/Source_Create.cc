@@ -337,7 +337,7 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
  * automatically when loading the repository content (Pkg::SourceLoad())
  *
  * @param map map with repository parameters: $[ "enabled" : boolean, "autorefresh" : boolean, "name" : string,
- *   "alias" : string, "base_urls" : list<string>, "priority" : integer, "prod_dir" : string, "type" : string ] 
+ *   "alias" : string, "base_urls" : list<string>, "check_alias" : boolean, "priority" : integer, "prod_dir" : string, "type" : string ] 
  * @return integer Repository ID or nil on error
  **/
 YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
@@ -433,13 +433,26 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
     }
     else
     {
-	// search in stored repositories
-	std::list<zypp::RepoInfo> reps = CreateRepoManager().knownRepositories();
-
-	if (aliasExists(alias, reps))
+	bool check_alias = true;
+	if (!params->value( YCPString("check_alias") ).isNull() && params->value(YCPString("check_alias"))->isBoolean())
 	{
-	    y2error("alias %s already exists", alias.c_str());
-	    return YCPVoid();
+	    check_alias = params->value(YCPString("check_alias"))->asBoolean()->value();
+	}
+
+	if (check_alias)
+	{
+	    // search in stored repositories
+	    std::list<zypp::RepoInfo> reps = CreateRepoManager().knownRepositories();
+
+	    if (aliasExists(alias, reps))
+	    {
+		y2error("alias %s already exists", alias.c_str());
+		return YCPVoid();
+	    }
+	}
+	else
+	{
+	    y2milestone("Skipping alias check (check_alias == false)");
 	}
     }
    
