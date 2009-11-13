@@ -1,16 +1,18 @@
 @HEADER-COMMENT@
 
 @HEADER@
+Group:	System/YaST
+License: GPL v2 or later
 BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer sgml-skel yast2-core-devel yast2-devtools
-BuildRequires: libzypp-devel >= 5.24.7
+BuildRequires: libzypp-devel >= 6.22.0
 
-# new GPG callbacks
-Requires:	libzypp >= 5.24.7
+Requires:	libzypp >= 6.22.0
 
-Summary:	-
+Summary:	YaST2 - Package Manager Access
 
 %description
--
+This package contains a name space for accessing the package manager
+library in YaST2.
 
 @PREP@
 # build only the library, ignore documentation (it is in devel-doc package)

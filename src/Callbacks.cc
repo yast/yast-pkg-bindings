@@ -189,66 +189,6 @@ namespace ZyppRecipients {
 	}
     };
 
-    struct ScanDbReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::ScanDBReport>
-    {
-	ScanDbReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
-
-        virtual void start()
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_StartScanDb ) );
-	    if ( callback._set ) {
-		callback.evaluate();
-	    }
-	}
-
-        virtual bool progress(int value)
-        {
-	    CB callback( ycpcb( YCPCallbacks::CB_ProgressScanDb ) );
-	    if ( callback._set ) {
-		// report changed values
-		callback.addInt( value );
-		return callback.evaluateBool();
-	    }
-
-	    // return default value from the parent class
-	    return zypp::target::rpm::ScanDBReport::progress(value);
-	}
-
-        virtual Action problem(zypp::target::rpm::ScanDBReport::Error error, const std::string &description)
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_ErrorScanDb ) );
-	    if ( callback._set ) {
-		callback.addInt( error );
-		callback.addStr( description );
-
-		std::string ret = callback.evaluateStr();
-
-                // "C" = cancel (abort)
-                if (ret == "C") return zypp::target::rpm::ScanDBReport::ABORT;
-
-                // "R" =  retry
-                if (ret == "R") return zypp::target::rpm::ScanDBReport::RETRY;
-
-                // "I" = ignore
-                if (ret == "I") return zypp::target::rpm::ScanDBReport::IGNORE;
-
-		y2warning("Unknown callback result '%s', using default value", ret.c_str());
-	    }
-
-	    return zypp::target::rpm::ScanDBReport::problem(error, description);
-	}
-
-        virtual void finish(zypp::target::rpm::ScanDBReport::Error error, const std::string &reason)
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_DoneScanDb ) );
-	    if ( callback._set ) {
-		callback.addInt( error );
-		callback.addStr( reason );
-
-		callback.evaluate();
-	    }
-	}
-    };
 
     ///////////////////////////////////////////////////////////////////
     // InstallPkgCallback
@@ -1035,7 +975,7 @@ namespace ZyppRecipients {
 		if (!ycp_val.isNull() && ycp_val->isString())
 		{
 		    // set the entered username
-		    auth_data.setUserName(ycp_val->asString()->value());
+		    auth_data.setUsername(ycp_val->asString()->value());
 		}
 		else
 		{
@@ -1831,7 +1771,6 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
     // RRM DB callbacks
     ZyppRecipients::ConvertDbReceive  _convertDbReceive;
     ZyppRecipients::RebuildDbReceive  _rebuildDbReceive;
-    ZyppRecipients::ScanDbReceive  _scanDbReceive;
 
     // package callbacks
     ZyppRecipients::InstallPkgReceive _installPkgReceive;
@@ -1871,7 +1810,6 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
       : RecipientCtl( ycpcb_r )
       , _convertDbReceive( *this )
       , _rebuildDbReceive( *this )
-      , _scanDbReceive( *this )
       , _installPkgReceive( *this, pkg )
       , _removePkgReceive( *this )
       , _providePkgReceive( *this, pkg )
@@ -1891,7 +1829,6 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 	// connect the receivers
 	_convertDbReceive.connect();
 	_rebuildDbReceive.connect();
-	_scanDbReceive.connect();
 	_installPkgReceive.connect();
 	_removePkgReceive.connect();
 	_providePkgReceive.connect();
@@ -1914,7 +1851,6 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 	// disconnect the receivers
 	_convertDbReceive.disconnect();
 	_rebuildDbReceive.disconnect();
-	_scanDbReceive.disconnect();
 	_installPkgReceive.disconnect();
 	_removePkgReceive.disconnect();
 	_providePkgReceive.disconnect();

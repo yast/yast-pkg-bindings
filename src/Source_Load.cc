@@ -242,8 +242,8 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
     zypp::RepoManager repomanager = CreateRepoManager();
 
     autorefresh_skipped = false;
-    CallRefreshStarted();
 
+    bool refresh_started_called = false;
     bool network_is_running = NetworkDetected();
 
     if (repos_to_refresh > 0)
@@ -298,6 +298,12 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 			{
 			    y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
 			    // refresh the repository
+			    if (!refresh_started_called)
+			    {
+				// call the init callback
+				CallRefreshStarted();
+				refresh_started_called = true;
+			    }
 			    RefreshWithCallbacks((*it)->repoInfo(), prog.receiver());
 			}
 			// NOTE: subtask progresses are reported as done in the destructor
@@ -406,7 +412,11 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 	}
     }
 
-    CallRefreshDone();
+    if (refresh_started_called)
+    {
+	// call the finish callback
+	CallRefreshDone();
+    }
 
     progress.NextStage();
 

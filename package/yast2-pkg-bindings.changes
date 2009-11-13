@@ -1,4 +1,28 @@
 -------------------------------------------------------------------
+Fri Nov 13 10:21:20 CET 2009 - lslezak@suse.cz
+
+- Backported changes for SP1 updatestack update:
+    - Remove connection to dead zypp::ScanDBReport.
+    - Remove references to deprecated UpgradeStatistics.
+    - Remove more use of deprecated methods.
+    - Remove use of deprecated Package::filenames.
+    - report also the URL when repository metadata are not found
+      (bnc#439069)
+    - Pkg::ResolvableDependencies() - also return raw (unresolved)
+      dependencies in the result (key "deps"), remove duplicated
+      dependencies in the result (bnc#479575)
+    - return "is_update_repo" flag in Pkg::SourceGeneralData() call
+      (requires loaded pool) (bnc#459527)
+    - use zypp::RepoManager::makeStupidAlias() for generating
+      repository alias
+    - disk usage: do not remove the leading slash in the path
+      (bnc#222967)
+    - call the refresh callbacks only when there is something to
+      refresh (bnc#441512)
+
+- 2.17.41
+
+-------------------------------------------------------------------
 Tue Oct 20 13:47:06 CEST 2009 - lslezak@suse.cz
 
 - 2.17.40

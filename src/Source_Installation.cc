@@ -81,8 +81,8 @@ bool PkgFunctions::CreateDir(const std::string &path)
 	}
 	else
 	{
-	    // error message (followed by directory name) (TODO improve the message)
-	    _last_error.setLastError(_("Cannot create directory ") + path);
+	    // error message (followed by directory name)
+	    _last_error.setLastError(_("Target is not a directory: ") + path);
 	    y2error("Target %s exists but it's not a directory", path.c_str());
 	    return false;
 	}
@@ -120,8 +120,8 @@ bool PkgFunctions::CreateDir(const std::string &path)
 	// other error
 	else
 	{
-	    // error message (followed by directory name) (TODO improve the message)
-	    _last_error.setLastError(_("Cannot create directory ") + path);
+	    // error message (followed by directory name)
+	    _last_error.setLastError(_("Cannot check status of directory ") + path);
 	    y2error("Cannot stat %s: %s", path.c_str(), ::strerror(errno));
 	    return false;
 	}
@@ -198,7 +198,7 @@ bool PkgFunctions::CopyToDir(const std::string &source, const std::string &targe
 
     if (prog.close())
     {
-	// error message (followed by detailed description) (TODO improve the string)
+	// error message (followed by detailed description)
 	const std::string msg = _("Error: Cannot copy the cache to the target directory\n");
 
 	// error message

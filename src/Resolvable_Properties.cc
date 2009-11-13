@@ -407,6 +407,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 	_kinds.insert("enhances");
 	_kinds.insert("supplements");
 	YCPList ycpdeps;
+	YCPList rawdeps;
 	for (std::set<std::string>::const_iterator kind_it = _kinds.begin();
 	    kind_it != _kinds.end(); ++kind_it)
 	{
@@ -414,21 +415,50 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 		zypp::Dep depkind(*kind_it);
 		zypp::Capabilities deps = item.resolvable()->dep(depkind);
 
+		// add raw dependencies
+		for_(it, deps.begin(), deps.end())
+		{
+		    YCPMap rawdep;
+		    rawdep->add(YCPString(*kind_it), YCPString(it->asString()));
+		    rawdeps->add(rawdep);
+		}
+
 		zypp::sat::WhatProvides prv(deps);
 
+		// resolve dependencies
 		for (zypp::sat::WhatProvides::const_iterator d = prv.begin(); d != prv.end(); ++d)
 		{
-		    YCPMap ycpdep;
-		    ycpdep->add (YCPString ("res_kind"), YCPString (d->kind().asString()));
-		    ycpdep->add (YCPString ("name"), YCPString (d->name()));
-		    ycpdep->add (YCPString ("dep_kind"), YCPString (*kind_it));
-		    ycpdeps->add (ycpdep);
+		    if (d->kind().asString().empty() || d->name().empty())
+		    {
+			y2debug("Empty kind or name: kind: %s, name: %s", d->kind().asString().c_str(), d->name().c_str());
+		    }
+		    else
+		    {
+			YCPMap ycpdep;
+			ycpdep->add (YCPString ("res_kind"), YCPString (d->kind().asString()));
+			ycpdep->add (YCPString ("name"), YCPString (d->name()));
+			ycpdep->add (YCPString ("dep_kind"), YCPString (*kind_it));
+
+			if (!ycpdeps.contains(ycpdep))
+			{
+			    ycpdeps->add (ycpdep);
+			}
+		    }
 		}
 	    }
 	    catch (...)
 	    {}
 	}
-	info->add (YCPString ("dependencies"), ycpdeps);
+
+	if (ycpdeps.size() > 0)
+	{
+	    info->add (YCPString ("dependencies"), ycpdeps);
+	}
+
+	if (rawdeps.size() > 0)
+	{
+	    info->add (YCPString ("deps"), rawdeps);
+	}
     }
 
     return info;

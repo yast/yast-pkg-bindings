@@ -1,8 +1,6 @@
 #
 # Makefile.am for .../agent-pkg-bindings/testsuite
 #
-SUBDIRS = devel
-
 AUTOMAKE_OPTIONS = dejagnu
 
 clean-local:
