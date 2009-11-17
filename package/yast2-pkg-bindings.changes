@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Nov 17 12:52:06 UTC 2009 - dmacvicar@novell.com
+
+- fix Locks binding using YCP Map iterator API not existing on 
+  SLE-SP1
+
+-------------------------------------------------------------------
 Fri Nov 13 10:21:20 CET 2009 - lslezak@suse.cz
 
 - Backported changes for SP1 updatestack update:
