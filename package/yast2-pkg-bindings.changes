@@ -34,19 +34,19 @@ Fri Oct 16 13:27:02 CEST 2009 - lslezak@suse.cz
   repository overwriting (bnc#543468)
 
 -------------------------------------------------------------------
-Tue Jun 16 15:50:59 CEST 2009 - lslezak@suse.cz
-
-- Do not call RefreshStarted callback when refresh is not needed,
-  do not change "Abort" button label when not necessary
-  (bnc#504131)
-
--------------------------------------------------------------------
 Fri Jul 10 11:18:04 CEST 2009 - lslezak@suse.cz
 
 - clean existing cache for added repositories, do not reuse
   existing aliases for new repositories, make the new aliases
   really unique (bnc#519218)
 - 2.17.39
+
+-------------------------------------------------------------------
+Tue Jun 16 15:50:59 CEST 2009 - lslezak@suse.cz
+
+- Do not call RefreshStarted callback when refresh is not needed,
+  do not change "Abort" button label when not necessary
+  (bnc#504131)
 
 -------------------------------------------------------------------
 Wed Mar 25 16:55:36 CET 2009 - lslezak@suse.cz
