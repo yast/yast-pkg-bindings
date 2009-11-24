@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Nov 24 09:40:12 UTC 2009 - lslezak@suse.cz
+
+- use zypp::Url::schemeIsRemote() instead of the hardcoded protocol
+  list (bnc#551661)
+
+-------------------------------------------------------------------
 Fri Oct 16 13:27:02 CEST 2009 - lslezak@suse.cz
 
 - added "check_alias" option to Pkg::RepositoryAdd() to allow

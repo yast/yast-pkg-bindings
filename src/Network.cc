@@ -60,10 +60,5 @@ bool PkgFunctions::NetworkDetected()
 bool PkgFunctions::remoteRepo(const zypp::Url &url)
 {
     // is it a remote repository?
-    std::string scheme(zypp::str::toLower(url.getScheme()));
-
-    y2debug("Repository schema: %s", scheme.c_str());
-
-    return (scheme == "ftp" || scheme == "http" || scheme == "https" || scheme == "nfs"
-	|| scheme == "smb");
+    return url.schemeIsRemote();
 }
