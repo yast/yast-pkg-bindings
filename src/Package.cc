@@ -2355,7 +2355,7 @@ bool PkgFunctions::CreateBaseProductSymlink()
 
 		// get the package files
                 zypp::Package::FileList files( refpkg->filelist() );
-		y2milestone("The reference package has %zd files", files.size());
+		y2milestone("The reference package has %d files", files.size());
 
 		std::string product_file;
 		zypp::str::smatch what;
