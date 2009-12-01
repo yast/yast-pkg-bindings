@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Dec  1 15:28:04 UTC 2009 - lslezak@suse.cz
+
+- Pkg::ResolvableProperties() - return product file and it's
+  upgrades section for `product resolvables (bnc#559554)
+
+-------------------------------------------------------------------
 Tue Nov 24 09:40:12 UTC 2009 - lslezak@suse.cz
 
 - use zypp::Url::schemeIsRemote() instead of the hardcoded protocol
