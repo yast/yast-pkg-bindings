@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Dec  3 08:19:45 UTC 2009 - lslezak@suse.cz
+
+- return more details when a service refresh fails (bnc#558049)
+
+-------------------------------------------------------------------
 Tue Dec  1 15:28:04 UTC 2009 - lslezak@suse.cz
 
 - Pkg::ResolvableProperties() - return product file and it's

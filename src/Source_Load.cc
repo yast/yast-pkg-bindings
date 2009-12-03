@@ -105,7 +105,9 @@ PkgFunctions::SourceRestore()
 			{
 			    // service refresh is not fatal, let's continue
 			    y2error ("Error in service refresh: %s", excpt.asString().c_str());
-			    _last_error.setLastError(ExceptionAsString(excpt));
+			    // error message, service name and URL is appened at the end of the string
+			    _last_error.setLastError(std::string(_("Error refreshing service")) + " " + srv_it->name() + " ("
+			        + srv_it->url().asString() + "):\n\n" + ExceptionAsString(excpt));
 			    success = false;
 			}
 		    }
