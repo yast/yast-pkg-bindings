@@ -1727,7 +1727,10 @@ inline void ResetAllKind(zypp::ResPoolProxy &proxy, const zypp::ResStatus::Trans
     for_(it, proxy.byKindBegin<T>(), proxy.byKindEnd<T>())
     {
 	zypp::ui::Selectable::Ptr s = (*it);
-	if (s) s->theObj().status().resetTransact(level);
+	if (s && (level == zypp::ResStatus::USER || s->theObj().status().transacts()))
+	{
+	    s->theObj().status().resetTransact(level);
+	}
     }
 }
 
