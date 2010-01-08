@@ -45,6 +45,8 @@
 
 #include <zypp/Dep.h>
 #include <zypp/sat/LocaleSupport.h>
+#include <zypp/parser/ProductFileReader.h>
+#include <zypp/base/Regex.h>
 
 /**
    @builtin ResolvableProperties
@@ -89,6 +91,13 @@
           + "description"
           + "display_name"
           + "short_name"
+	+ "product_file" -> string : product file (full file name with target root prefix)
+	+ "upgrades" -> list<map> : parsed data from the product file (upgrades section)
+	  + "name" -> string
+	  + "summary" -> string
+	  + "repository" -> string : URL path
+	  + "notify"  -> boolean
+	  + "status" -> string
      `patch keys:
         + "interactive"
         + "reboot_needed"
@@ -369,6 +378,75 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 	    }
 
 	    info->add(YCPString("replaces"), rep_prods);
+	}
+
+	std::string product_file;
+
+	// add reference file in /etc/products.d
+	if (status.isInstalled())
+	{
+	    product_file = (_target_root + "/etc/products.d/" + product->referenceFilename()).asString();
+	    y2milestone("Parsing product file %s", product_file.c_str());
+	    const zypp::parser::ProductFileData productFileData = zypp::parser::ProductFileReader::scanFile(product_file);
+
+	    YCPList upgrade_list;
+
+	    for_( upit, productFileData.upgrades().begin(), productFileData.upgrades().end() )
+	    {
+	      const zypp::parser::ProductFileData::Upgrade & upgrade( *upit );
+
+	      YCPMap upgrades;
+	      upgrades->add(YCPString("name"), YCPString(upgrade.name()));
+	      upgrades->add(YCPString("summary"), YCPString(upgrade.summary()));
+	      upgrades->add(YCPString("repository"), YCPString(upgrade.repository()));
+	      upgrades->add(YCPString("notify"), YCPBoolean(upgrade.notify()));
+	      upgrades->add(YCPString("status"), YCPString(upgrade.status()));
+
+	      upgrade_list->add(upgrades);
+	    }
+
+	    info->add(YCPString("upgrades"), upgrade_list);
+	}
+	else
+	{
+	    // get the package
+	    zypp::sat::Solvable refsolvable = product->referencePackage();
+
+	    if (refsolvable != zypp::sat::Solvable::noSolvable)
+	    {
+		// create a package pointer from the SAT solvable
+		zypp::Package::Ptr refpkg(zypp::make<zypp::Package>(refsolvable));
+
+		if (refpkg)
+		{
+		    // get the package files
+		    zypp::Package::FileList files( refpkg->filelist() );
+		    y2milestone("The reference package has %d files", files.size());
+
+		    zypp::str::smatch what;
+		    const zypp::str::regex product_file_regex("^/etc/products\\.d/(.*\\.prod)$");
+
+		    // find the product file
+		    for_(iter, files.begin(), files.end())
+		    {
+			if (zypp::str::regex_match(*iter, what, product_file_regex))
+			{
+			    product_file = what[1];
+			    break;
+			}
+		    }
+		}
+	    }
+	}
+
+	if (product_file.empty())
+	{
+	    y2warning("The product file has not been found");
+	}
+	else
+	{
+	    y2milestone("Found product file %s", product_file.c_str());
+	    info->add(YCPString("product_file"), YCPString(product_file));
 	}
     }
     // pattern specific info

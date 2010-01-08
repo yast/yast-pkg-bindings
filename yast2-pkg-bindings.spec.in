@@ -2,10 +2,10 @@
 
 @HEADER@
 BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer sgml-skel yast2-core-devel yast2-devtools
-BuildRequires: libzypp-devel >= 5.24.7
+# <upgrades> section support (bnc#559554)
+BuildRequires:	libzypp-devel >= 5.30.21
 
-# new GPG callbacks
-Requires:	libzypp >= 5.24.7
+Requires:	libzypp >= 5.30.21
 
 Summary:	-
 

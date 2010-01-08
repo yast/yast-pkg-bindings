@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Jan  8 13:00:43 UTC 2010 - lslezak@suse.cz
+
+- Pkg::ResolvableProperties() - return product file and it's
+  upgrades section for `product resolvables (bnc#559554)
+- 2.17.39.1
+
+-------------------------------------------------------------------
 Fri Jul 10 11:18:04 CEST 2009 - lslezak@suse.cz
 
 - clean existing cache for added repositories, do not reuse
