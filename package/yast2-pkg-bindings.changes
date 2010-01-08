@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Jan  8 13:00:43 UTC 2010 - lslezak@suse.cz
+
+- Pkg::ResolvableProperties() - return product file and it's
+  upgrades section for `product resolvables (bnc#559554)
+- 2.17.43
+
+-------------------------------------------------------------------
 Wed Jan  6 17:50:26 UTC 2010 - lslezak@suse.cz
 
 - Pkg::ResolvableProperties() - always return "transact_by" flag,
