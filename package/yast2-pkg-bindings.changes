@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Jan 18 14:40:21 UTC 2010 - lslezak@suse.cz
+
+- Pkg::ResolvableProperties() - return 'product' value from
+  <upgrade> section (bnc#571621)
+
+-------------------------------------------------------------------
 Wed Jan  6 17:50:26 UTC 2010 - lslezak@suse.cz
 
 - Pkg::ResolvableProperties() - always return "transact_by" flag,
