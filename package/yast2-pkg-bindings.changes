@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Jan 18 14:40:21 UTC 2010 - lslezak@suse.cz
+
+- Pkg::ResolvableProperties() - return 'product' value from
+  <upgrade> section (bnc#571621)
+- 2.17.44
+
+-------------------------------------------------------------------
 Fri Jan  8 13:00:43 UTC 2010 - lslezak@suse.cz
 
 - Pkg::ResolvableProperties() - return product file and it's

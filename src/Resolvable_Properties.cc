@@ -401,6 +401,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 	      upgrades->add(YCPString("repository"), YCPString(upgrade.repository()));
 	      upgrades->add(YCPString("notify"), YCPBoolean(upgrade.notify()));
 	      upgrades->add(YCPString("status"), YCPString(upgrade.status()));
+	      upgrades->add(YCPString("product"), YCPString(upgrade.product()));
 
 	      upgrade_list->add(upgrades);
 	    }
