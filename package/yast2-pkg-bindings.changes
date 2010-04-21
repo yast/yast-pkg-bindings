@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Apr 21 17:22:31 UTC 2010 - lslezak@suse.cz
+
+- reload services rnd epositories after service refresh to avoid
+  overwriting the updated files (bnc#581766)
+- 2.19.1
+
+-------------------------------------------------------------------
 Mon Jan 18 14:40:21 UTC 2010 - lslezak@suse.cz
 
 - Pkg::ResolvableProperties() - return 'product' value from

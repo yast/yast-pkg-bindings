@@ -373,7 +373,24 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
 	}
 
 	zypp::RepoManager repomanager = CreateRepoManager();
-	return YCPBoolean(service_manager.RefreshService(alias->value(), repomanager));
+
+	if (!service_manager.RefreshService(alias->value(), repomanager))
+	{
+	    return YCPBoolean(false);
+	}
+
+	// reload all repositories
+	for (RepoCont::size_type idx = 0; idx != repos.size(); ++idx)
+	{
+	    // the repo has not been removed
+	    if (!(repos[idx])->isDeleted())
+	    {
+		y2milestone("Reloading repository %s", (repos[idx])->repoInfo().alias().c_str());
+		repos[idx]->repoInfo() = repomanager.getRepositoryInfo((repos[idx])->repoInfo().alias());
+	    }
+	}
+
+	return YCPBoolean(true);
     }
     catch (const zypp::Exception& excpt)
     {
