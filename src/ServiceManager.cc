@@ -107,6 +107,16 @@ bool ServiceManager::RefreshService(const std::string &alias, zypp::RepoManager 
     }
 
     repomgr.refreshService(serv_it->second);
+
+    // reload the service from disk (bnc#585827)
+    PkgService new_service(repomgr.getService(alias), alias);
+    DBG << "Reloaded service: " << new_service;
+
+    // remove the old service
+    _known_services.erase(serv_it);
+    // insert new
+    _known_services.insert(std::make_pair(alias, new_service));
+
     return true;
 }
 
