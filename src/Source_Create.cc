@@ -654,7 +654,11 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
 
 	try
 	{
-	    RepoId id = createManagedSource(url, it->_dir, type, it->_name, pkgprogress, subprogrcv);
+	    // don't use spaces in alias
+	    std::string alias(it->_name);
+	    zypp::str::replaceAll(alias, " ", "-");
+
+	    RepoId id = createManagedSource(url, it->_dir, type, alias, pkgprogress, subprogrcv);
 
 	    new_repos.push_back(id);
 	}

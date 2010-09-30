@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Sep 30 17:32:48 UTC 2010 - lslezak@suse.cz
+
+- don't use spaces in repo alias (bnc#596950)
+- 2.20.1
+
+-------------------------------------------------------------------
 Thu Sep 30 16:23:06 UTC 2010 - lslezak@suse.cz
 
 - don't preselect locked patches (bnc#627316)
