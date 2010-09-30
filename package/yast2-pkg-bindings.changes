@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Sep 30 16:23:06 UTC 2010 - lslezak@suse.cz
+
+- don't preselect locked patches (bnc#627316)
+- 2.20.0
+
+-------------------------------------------------------------------
 Wed Apr 21 17:22:31 UTC 2010 - lslezak@suse.cz
 
 - reload services rnd epositories after service refresh to avoid

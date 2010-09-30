@@ -95,7 +95,7 @@ PkgFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselect)
 	    y2milestone("Procesing patch %s", (*it)->name().c_str());
 	    zypp::ui::Selectable::Ptr s = *it;
 
-	    if (s && s->isNeeded())
+	    if (s && s->isNeeded() && !s->isUnwanted())
 	    {
 		zypp::Patch::constPtr patch = zypp::dynamic_pointer_cast<const zypp::Patch>
 		    (s->candidateObj().resolvable());
