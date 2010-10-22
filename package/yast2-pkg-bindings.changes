@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Oct 22 07:00:47 UTC 2010 - lslezak@localhost
+
+- ignore just the failed repository during autorefresh, load the
+  other repositories (bnc#620895)
+
+-------------------------------------------------------------------
 Thu Sep 30 17:32:48 UTC 2010 - lslezak@suse.cz
 
 - don't use spaces in repo alias (bnc#596950)

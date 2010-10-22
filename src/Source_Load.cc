@@ -248,6 +248,10 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
     bool refresh_started_called = false;
     bool network_is_running = NetworkDetected();
 
+    // remember failed repositories during autorefresh,
+    // don't load packages from them
+    RepoCont failed_refresh;
+
     if (repos_to_refresh > 0)
     {
 	// refresh metadata
@@ -287,17 +291,16 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 			    }
 			}
 
-
-			zypp::RepoManager::RefreshCheckStatus ref_stat = repomanager.checkIfToRefreshMetadata((*it)->repoInfo(), *((*it)->repoInfo().baseUrlsBegin()));
-
-			if (ref_stat != zypp::RepoManager::REFRESH_NEEDED)
-			{
-			    y2internal("Skipping repository '%s' - refresh is not needed", (*it)->repoInfo().alias().c_str());
-			    continue;
-			}
-
 			try
 			{
+			    zypp::RepoManager::RefreshCheckStatus ref_stat = repomanager.checkIfToRefreshMetadata((*it)->repoInfo(), *((*it)->repoInfo().baseUrlsBegin()));
+
+			    if (ref_stat != zypp::RepoManager::REFRESH_NEEDED)
+			    {
+				y2internal("Skipping repository '%s' - refresh is not needed", (*it)->repoInfo().alias().c_str());
+				continue;
+			    }
+
 			    y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
 			    // refresh the repository
 			    if (!refresh_started_called)
@@ -312,6 +315,9 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 			// no need to handle them in the exception code
 			catch (const zypp::Exception& excpt)
 			{
+			    // remember the failed autorefresh
+			    failed_refresh.push_back(*it);
+
 			    if (autorefresh_skipped)
 			    {
 				y2warning("autorefresh_skipped, ignoring the exception");
@@ -428,6 +434,14 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 	// load resolvables only from enabled repos which are not deleted
 	if ((*it)->repoInfo().enabled() && !(*it)->isDeleted())
 	{
+	    // check whether the refresh failed or not
+	    RepoCont::iterator failed_it = find(failed_refresh.begin(), failed_refresh.end(), *it);
+	    if (failed_it != failed_refresh.end())
+	    {
+		y2warning("Ignoring packages from repository '%s' (%s) - refresh has failed", (*it)->repoInfo().name().c_str(), (*it)->repoInfo().alias().c_str());
+		continue;
+	    }
+
 	    y2debug("Loading: %s, Status: %lld", (*it)->repoInfo().alias().c_str(), prog_total.val());
 
 	    // subtask
