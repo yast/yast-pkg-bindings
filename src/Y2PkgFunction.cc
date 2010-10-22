@@ -35,6 +35,10 @@
 
 #include <ycp/y2log.h>
 
+// use backtrace_symbols()
+#include <execinfo.h>
+
+
     Y2PkgFunction::Y2PkgFunction (string name, PkgFunctions* instance, unsigned int pos) :
 	m_position (pos)
 	, m_instance (instance)
@@ -102,6 +106,26 @@
 	return true;
     }
 
+    void Y2PkgFunction::log_backtrace()
+    {
+	// see 'man backtrace_symbols' for more details
+	#define BACKTRACE_BUFFER_SIZE 100
+	void *buffer[BACKTRACE_BUFFER_SIZE];
+	int ptrs = backtrace(buffer, BACKTRACE_BUFFER_SIZE);
+
+	char **strings = backtrace_symbols(buffer, ptrs);
+	if (strings != NULL) {
+	    y2internal("-------- Backtrace begin (use c++filt tool for converting to symbols) --------");
+
+	    for (int j = 0; j < ptrs; j++)
+	       y2internal("    Frame %d: %s", j, strings[j]);
+
+	    y2internal("-------- Backtrace end --------");
+
+	    free(strings);
+	}
+    }
+
     YCPValue Y2PkgFunction::evaluateCall ()
     {
 	ycpmilestone ("Pkg Builtin called: %s", name().c_str() );
@@ -115,10 +139,12 @@
 	catch (const std::exception& excpt)
 	{
 	    y2internal("Caught an unhandled exception: %s", excpt.what());
+	    log_backtrace();
 	}
 	catch (...)
 	{
 	    y2internal("Caught an unhandled exception");
+	    log_backtrace();
 	}
 
 	return YCPNull ();

@@ -16,6 +16,8 @@ class Y2PkgFunction: public Y2Function
     YCPValue m_param4;
     YCPValue m_param5;
     string m_name;
+
+    void log_backtrace();
 public:
 
     Y2PkgFunction (string name, PkgFunctions* instance, unsigned int pos);

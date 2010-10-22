@@ -3,6 +3,9 @@ Fri Oct 22 07:00:47 UTC 2010 - lslezak@localhost
 
 - ignore just the failed repository during autorefresh, load the
   other repositories (bnc#620895)
+- put a backtrace to y2log when an unhandled excecptinon is caught
+  in the global catch section for easy debugging
+- 2.20.2
 
 -------------------------------------------------------------------
 Thu Sep 30 17:32:48 UTC 2010 - lslezak@suse.cz
