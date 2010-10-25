@@ -1,5 +1,5 @@
 -------------------------------------------------------------------
-Fri Oct 22 07:00:47 UTC 2010 - lslezak@localhost
+Mon Oct 25 07:29:56 UTC 2010 - lslezak@suse.cz
 
 - ignore just the failed repository during autorefresh, load the
   other repositories (bnc#620895)
