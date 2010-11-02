@@ -267,7 +267,7 @@ class PkgFunctions
 	// FIXME: create ErrorProvide
 	/* TYPEINFO: void(string(integer,string,string)) */
 	YCPValue CallbackDoneProvide (const YCPValue& /*nil*/ args);
-	/* TYPEINFO: void(void(string,string,integer,boolean)) */
+	/* TYPEINFO: void(void(string,string,string,integer,boolean)) */
 	YCPValue CallbackStartPackage (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(integer)) */
 	YCPValue CallbackProgressPackage (const YCPValue& /*nil*/ args);

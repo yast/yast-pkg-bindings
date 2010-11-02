@@ -244,6 +244,7 @@ namespace ZyppRecipients {
 
 	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
 	  if (callback._set) {
+	    callback.addStr(res->name());
 	    callback.addStr(res->location().filename());
 	    callback.addStr(res->summary());
 	    callback.addInt(res->installSize());
@@ -351,6 +352,7 @@ namespace ZyppRecipients {
 	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
 	  if (callback._set) {
 	    callback.addStr(resolvable->name());
+	    callback.addStr(std::string());
 	    callback.addStr(std::string());
 	    callback.addInt(-1);
 	    callback.addBool(true);	// is_delete = true

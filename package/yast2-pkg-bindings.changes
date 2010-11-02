@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Nov  2 14:30:38 UTC 2010 - lslezak@suse.cz
+
+- updated StartPackage callback - added the package name to the
+  arguments (file location is not enough, it's too dificult to get
+  just the name from it in YCP)
+- 2.20.3
+
+-------------------------------------------------------------------
 Mon Oct 25 07:29:56 UTC 2010 - lslezak@suse.cz
 
 - ignore just the failed repository during autorefresh, load the
