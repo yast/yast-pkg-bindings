@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Apr  5 11:12:10 UTC 2011 - lslezak@localhost
+
+- do not refresh empty repositories, remember loaded status
+  (bnc#665488)
+
+-------------------------------------------------------------------
 Wed Apr 21 17:22:31 UTC 2010 - lslezak@suse.cz
 
 - reload services after refresh to avoid overwriting the updated

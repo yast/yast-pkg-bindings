@@ -134,9 +134,8 @@ class PkgFunctions
       // helper - copy a file or directory
       bool CopyToDir(const std::string &source, const std::string &target, bool backup = false, bool recursive = true);
 
-      void RemoveResolvablesFrom(const std::string &alias);
-      bool AnyResolvableFrom(const std::string &alias);
-      bool LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc(), bool network_check = false);
+      void RemoveResolvablesFrom(YRepo_Ptr repo);
+      bool LoadResolvablesFrom(YRepo_Ptr repo, const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc(), bool network_check = false);
       std::string UniqueAlias(const std::string &alias);
 
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);

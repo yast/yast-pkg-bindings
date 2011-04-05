@@ -261,7 +261,7 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 		prog.sendTo(refresh_subprogress);
 		y2debug("Progress status: %lld", prog_total.val());
 
-		if (AnyResolvableFrom((*it)->repoInfo().alias()))
+		if ((*it)->isLoaded())
 		{
 		    y2milestone("Resolvables from '%s' are already present, not loading", (*it)->repoInfo().alias().c_str());
 		}
@@ -354,7 +354,7 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 	    prog.sendTo(rebuild_subprogress);
 
 	    y2debug("Progress status: %lld", prog_total.val());
-	    if (AnyResolvableFrom((*it)->repoInfo().alias()))
+	    if ((*it)->isLoaded())
 	    {
 		y2milestone("Resolvables from '%s' are already present, not rebuilding the cache", (*it)->repoInfo().alias().c_str());
 	    }
@@ -431,14 +431,14 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 	    // subtask
 	    zypp::CombinedProgressData load_subprogress(prog_total, 100);
 
-	    if (AnyResolvableFrom((*it)->repoInfo().alias()))
+	    if ((*it)->isLoaded())
 	    {
 		y2milestone("Resolvables from '%s' are already present, not loading", (*it)->repoInfo().alias().c_str());
 	    }
 	    else
 	    {
 		// load objects, do network status check
-		success = LoadResolvablesFrom((*it)->repoInfo(), load_subprogress, true) && success;
+		success = LoadResolvablesFrom(*it, load_subprogress, true) && success;
 	    }
 	}
 	y2debug("Progress status: %lld", prog_total.val());

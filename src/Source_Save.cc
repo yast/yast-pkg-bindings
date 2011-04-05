@@ -258,7 +258,7 @@ PkgFunctions::SourceFinishAll ()
 	for (RepoCont::iterator it = repos.begin();
 	    it != repos.end(); ++it)
 	{
-	    RemoveResolvablesFrom((*it)->repoInfo().alias());
+	    RemoveResolvablesFrom(*it);
 	}
 
 	// release all repositories
