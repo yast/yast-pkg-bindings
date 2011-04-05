@@ -40,32 +40,28 @@
 /*
  * A helper function - remove all resolvables from the repository from the pool
  */
-void PkgFunctions::RemoveResolvablesFrom(const std::string &alias)
+void PkgFunctions::RemoveResolvablesFrom(YRepo_Ptr repo)
 {
+    const std::string &alias = repo->repoInfo().alias();
     y2milestone("Removing resolvables from '%s'", alias.c_str());
     // remove the resolvables if they have been loaded
     zypp::sat::Pool::instance().reposErase(alias);
-}
 
-/*
- * A helper function - is there any resolvable from the repository in the pool?
- */
-bool PkgFunctions::AnyResolvableFrom(const std::string &alias)
-{
-    zypp::Repository r = zypp::sat::Pool::instance().reposFind(alias);
-    if ( r != zypp::Repository::noRepository )
-    {
-        return ( r.solvablesSize() > 0 );
-    }
-    return false;
+    repo->resetLoaded();
 }
 
 /*
  * A helper function - load resolvable from the repository into the pool
- * Warning: Use AnyResolvableFrom() method for checing if the resolvables might be already loaded
  */
-bool PkgFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zypp::ProgressData::ReceiverFnc &progressrcv, bool network_check)
+bool PkgFunctions::LoadResolvablesFrom(YRepo_Ptr repo, const zypp::ProgressData::ReceiverFnc &progressrcv, bool network_check)
 {
+    if (repo->isLoaded())
+    {
+	y2milestone("Repository is already loaded");
+	return true;
+    }
+
+    const zypp::RepoInfo &repoinfo = repo->repoInfo();
     bool success = true;
     unsigned int size_start = zypp_ptr()->pool().size();
     y2milestone("Loading resolvables from '%s', pool size at start: %d", repoinfo.alias().c_str(), size_start);
@@ -119,6 +115,7 @@ bool PkgFunctions::LoadResolvablesFrom(const zypp::RepoInfo &repoinfo, const zyp
 	}
 
 	repomanager.loadFromCache(repoinfo);
+	repo->setLoaded();
 	//y2milestone("Loaded %zd resolvables", store.size());
     }
     catch(const zypp::repo::RepoNotCachedException &excpt )

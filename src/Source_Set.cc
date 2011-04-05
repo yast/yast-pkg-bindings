@@ -69,8 +69,8 @@ PkgFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 	// add/remove resolvables
 	if (enable)
 	{
-	    // load resolvables only when they are missing
-	    if (!AnyResolvableFrom(repo->repoInfo().alias()))
+	    // load resolvables only when they haven't been loaded yet
+	    if (!repo->isLoaded())
 	    {
 		std::list<std::string> stages;
 		stages.push_back(_("Load Data"));
@@ -82,13 +82,13 @@ PkgFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 
 		pkgprogress.Start(_("Loading the Package Manager..."), stages, _(HelpTexts::load_resolvables));
 
-		success = LoadResolvablesFrom(repo->repoInfo(), load_subprogress);
+		success = LoadResolvablesFrom(repo, load_subprogress);
 	    }
 	}
 	else
 	{
 	    // the source has been disabled, remove resolvables from the pool
-	    RemoveResolvablesFrom(repo->repoInfo().alias());
+	    RemoveResolvablesFrom(repo);
 	}
 
 	PkgFreshen();
@@ -399,7 +399,7 @@ PkgFunctions::SourceDelete (const YCPInteger& id)
     {
 
 	// the resolvables cannot be used anymore, remove them
-	RemoveResolvablesFrom(repo_alias);
+	RemoveResolvablesFrom(repo);
 
 	// update 'repos'
 	repo->setDeleted();

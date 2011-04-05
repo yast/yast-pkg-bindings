@@ -32,7 +32,7 @@
 IMPL_PTR_TYPE(YRepo);
 
 YRepo::YRepo(zypp::RepoInfo & repo)
-    : _repo(repo), _deleted(false)
+    : _repo(repo), _deleted(false), _loaded(false)
 {}
 
 YRepo::~YRepo()

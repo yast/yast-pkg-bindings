@@ -684,7 +684,7 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
 		YRepo_Ptr repo = logFindRepository(*it);
 
 		// no detailed progress needed, refresh has been done in createManagedSource()
-		LoadResolvablesFrom(repo->repoInfo(), subprogrcv2);
+		LoadResolvablesFrom(repo, subprogrcv2);
 
 		// search for a base product if it hasn't been set
 		if (base && !base_product)
@@ -720,7 +720,7 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
 	    YRepo_Ptr repo = logFindRepository(new_id);
 
 	    // load the resolvables
-	    LoadResolvablesFrom(repo->repoInfo(), subprogrcv_load);
+	    LoadResolvablesFrom(repo, subprogrcv_load);
 
 	    if (base && !base_product)
 	    {
