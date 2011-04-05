@@ -2015,31 +2015,8 @@ PkgFunctions::PkgSolveErrors()
     return YCPVoid();
 }
 
-/**
-   @builtin PkgCommit
-
-   @short Commit package changes (actually install/delete packages)
-   @description
-
-   if medianr == 0, all packages regardless of media are installed
-
-   if medianr > 0, only packages from this media are installed
-
-   @param integer medianr Media Number
-   @return list [ int successful, list failed, list remaining, list srcremaining ]
-   The 'successful' value will be negative, if installation was aborted !
-
-*/
-YCPValue
-PkgFunctions::PkgCommit (const YCPInteger& media)
+YCPValue PkgFunctions::CommitHelper(const zypp::ZYppCommitPolicy &policy)
 {
-    int medianr = media->value ();
-
-    if (medianr < 0)
-    {
-	return YCPError ("Bad args to Pkg::PkgCommit");
-    }
-
     zypp::ZYpp::CommitResult result;
 
     // clean the last reported source
@@ -2052,8 +2029,6 @@ PkgFunctions::PkgCommit (const YCPInteger& media)
 	last_reported_repo = -1;
 	last_reported_mediumnr = 1;
 
-	zypp::ZYppCommitPolicy policy;
-	policy.restrictToMedia( medianr );
 	result = zypp_ptr()->commit(policy);
     }
     catch (const zypp::target::TargetAbortedException & excpt)
@@ -2116,6 +2091,186 @@ PkgFunctions::PkgCommit (const YCPInteger& media)
     ret->add(srclist);
 
     return ret;
+}
+
+/**
+   @builtin PkgCommit
+
+   @short Commit package changes (actually install/delete packages), see also Pkg::Commit()
+   @description
+
+   if medianr == 0, all packages regardless of media are installed
+
+   if medianr > 0, only packages from this media are installed
+
+   @param integer medianr Media Number
+   @return list [ int successful, list failed, list remaining, list srcremaining ]
+   The 'successful' value will be negative, if installation was aborted !
+
+*/
+YCPValue
+PkgFunctions::PkgCommit (const YCPInteger& media)
+{
+    int medianr = media->value ();
+
+    if (medianr < 0)
+    {
+	return YCPError ("Bad args to Pkg::PkgCommit");
+    }
+
+    zypp::ZYppCommitPolicy policy;
+    policy.restrictToMedia( medianr );
+
+    return CommitHelper(policy);
+}
+
+/**
+ * @builtin Commit
+ *
+ * @short Commit package changes (actually install/delete packages)
+ * @description
+ *
+ * @param map commit configuration, currently supported values:
+ *   $["download_mode":`default|`download_only|`download_only|`download_in_advance|
+ *      `download_in_heaps|`download_as_needed, "medium_nr":<integer>,
+ *      "dry_run":<boolean>, "exclude_docs":<boolean>, "no_signature":<boolean>],
+ *   the default is $["download_mode":`default, "medium_nr":0 (all media),
+ *      "dry_run":false, "exclude_docs":false, "no_signature":false],
+ *
+ *  @return list [ int successful, list failed, list remaining, list srcremaining ]
+ * The 'successful' value will be negative, if installation was aborted !
+*/
+/* TYPEINFO: list<any>(integer)*/
+YCPValue PkgFunctions::Commit (const YCPMap& config)
+{
+    zypp::ZYppCommitPolicy policy;
+
+    if (!config.isNull())
+    {
+        YCPString key("download_mode");
+
+        // set the download mode
+        if(!config->value(key).isNull())
+        {
+            if (config->value(key)->isSymbol())
+            {
+                std::string mode = config->value(key)->asSymbol()->symbol();
+
+                if (mode == "default")
+                {
+                    policy.downloadMode(zypp::DownloadDefault);
+                }
+                else if (mode == "download_only")
+                {
+                    policy.downloadMode(zypp::DownloadOnly);
+                }
+                else if (mode == "download_in_advance")
+                {
+                    policy.downloadMode(zypp::DownloadInAdvance);
+                }
+                else if (mode == "download_in_heaps")
+                {
+                    policy.downloadMode(zypp::DownloadInHeaps);
+                }
+                else if (mode == "download_as_needed")
+                {
+                    policy.downloadMode(zypp::DownloadAsNeeded);
+                }
+                else
+                {
+                    y2error("Invalid download mode: %s", mode.c_str());
+                    _last_error.setLastError(std::string("Invalid download mode: ") + mode);
+                    return YCPVoid();
+                }
+
+                y2milestone("Using download mode: %s", mode.c_str());
+            }
+            else
+            {
+                y2error("Invalid download mode: symbol is required, got: %s", config->value(key)->asString()->value().c_str());
+                _last_error.setLastError(std::string("Invalid download mode: ") + config->value(key)->asString()->value());
+                return YCPVoid();
+            }
+        }
+
+        key = YCPString("medium_nr");
+        // set the medium number
+        if(!config->value(key).isNull())
+        {
+            if (config->value(key)->isInteger())
+            {
+                unsigned medium_nr = config->value(key)->asInteger()->value();
+                policy.restrictToMedia(medium_nr);
+
+                y2milestone("Restricting commit only to medium number: %u", medium_nr);
+            }
+            else
+            {
+                y2error("Invalid medium number: integer is required, got: %s", config->value(key)->asString()->value().c_str());
+                _last_error.setLastError(std::string("Invalid medium number: ") + config->value(key)->asString()->value());
+                return YCPVoid();
+            }
+        }
+
+        key = YCPString("dry_run");
+        // set the medium number
+        if(!config->value(key).isNull())
+        {
+            if (config->value(key)->isBoolean())
+            {
+                bool dry_run = config->value(key)->asBoolean()->value();
+                policy.dryRun(dry_run);
+
+                y2milestone("Dry run commit: %s", config->value(key)->asString()->value().c_str());
+            }
+            else
+            {
+                y2error("Dry run option: boolean is required, got: %s", config->value(key)->asString()->value().c_str());
+                _last_error.setLastError(std::string("Invalid dry run option: ") + config->value(key)->asString()->value());
+                return YCPVoid();
+            }
+        }
+
+        key = YCPString("exclude_docs");
+        // set the medium number
+        if(!config->value(key).isNull())
+        {
+            if (config->value(key)->isBoolean())
+            {
+                bool exclude_docs = config->value(key)->asBoolean()->value();
+                policy.rpmExcludeDocs(exclude_docs);
+
+                y2milestone("Excluding documentation: %s", config->value(key)->asString()->value().c_str());
+            }
+            else
+            {
+                y2error("Exclude documentation option: boolean is required, got: %s", config->value(key)->asString()->value().c_str());
+                _last_error.setLastError(std::string("Invalid exclude documentation option: ") + config->value(key)->asString()->value());
+                return YCPVoid();
+            }
+        }
+
+        key = YCPString("no_signature");
+        // set the medium number
+        if(!config->value(key).isNull())
+        {
+            if (config->value(key)->isBoolean())
+            {
+                bool no_signature = config->value(key)->asBoolean()->value();
+                policy.rpmNoSignature(no_signature);
+
+                y2milestone("Don't check RPM signature: %s", config->value(key)->asString()->value().c_str());
+            }
+            else
+            {
+                y2error("No signature option: boolean is required, got: %s", config->value(key)->asString()->value().c_str());
+                _last_error.setLastError(std::string("Invalid no signature option: ") + config->value(key)->asString()->value());
+                return YCPVoid();
+            }
+        }
+    }
+
+    return CommitHelper(policy);
 }
 
 /**
