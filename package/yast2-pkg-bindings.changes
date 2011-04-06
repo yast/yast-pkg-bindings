@@ -5,6 +5,8 @@ Tue Apr  5 11:12:10 UTC 2011 - lslezak@suse.cz
   (bnc#665488)
 - added Pkg::Commit() function which accepts commit options map
   (with download_mode, dry_run... options) (FATE#308951)
+- added Pkg::ZConfig() function returning current libzypp config
+  (FATE#308951)
 
 -------------------------------------------------------------------
 Tue Nov  2 14:30:38 UTC 2010 - lslezak@suse.cz

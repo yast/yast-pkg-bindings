@@ -35,6 +35,8 @@
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPMap.h>
 #include <ycp/YCPVoid.h>
+#include <ycp/YCPSymbol.h>
+#include <ycp/YCPList.h>
 
 #include <zypp/ZYppFactory.h>
 
@@ -273,4 +275,106 @@ void PkgFunctions::SetReportedSource(RepoId repo, int medium)
 {
     last_reported_repo = repo;
     last_reported_mediumnr = medium;
+}
+
+/**
+ * @builtin ZConfig
+ * @short get the current libzypp configuration
+ * @return map<string,any> libzypp configuration map
+ */
+YCPValue PkgFunctions::ZConfig()
+{
+    zypp::ZConfig &zconfig = zypp::ZConfig::instance();
+
+    YCPMap ret;
+
+    ret->add(YCPString("repo_cache_path"), YCPString(zconfig.repoCachePath().asString()));
+    ret->add(YCPString("repo_metadata_path"), YCPString(zconfig.repoMetadataPath().asString()));
+    ret->add(YCPString("repo_solv_files_path"), YCPString(zconfig.repoSolvfilesPath().asString()));
+    ret->add(YCPString("repo_packages_path"), YCPString(zconfig.repoPackagesPath().asString()));
+
+    ret->add(YCPString("config_path"), YCPString(zconfig.configPath().asString()));
+
+    ret->add(YCPString("known_repos_path"), YCPString(zconfig.knownReposPath().asString()));
+    ret->add(YCPString("known_services_path"), YCPString(zconfig.knownServicesPath().asString()));
+
+    ret->add(YCPString("repo_add_probe"), YCPBoolean(zconfig.repo_add_probe()));
+    ret->add(YCPString("repo_refresh_delay"), YCPInteger(zconfig.repo_refresh_delay()));
+    ret->add(YCPString("repo_label_is_alias"), YCPBoolean(zconfig.repoLabelIsAlias()));
+
+    ret->add(YCPString("download_max_concurrent_connections"), YCPInteger(zconfig.download_max_concurrent_connections()));
+    ret->add(YCPString("download_min_download_speed"), YCPInteger(zconfig.download_min_download_speed()));
+    ret->add(YCPString("download_max_download_speed"), YCPInteger(zconfig.download_max_download_speed()));
+    ret->add(YCPString("download_max_silent_tries"), YCPInteger(zconfig.download_max_silent_tries()));
+    ret->add(YCPString("download_use_deltarpm"), YCPBoolean(zconfig.download_use_deltarpm()));
+    ret->add(YCPString("download_use_deltarpm_always"), YCPBoolean(zconfig.download_use_deltarpm_always()));
+    ret->add(YCPString("download_media_prefer_download"), YCPBoolean(zconfig.download_media_prefer_download()));
+    ret->add(YCPString("download_media_prefer_volatile"), YCPBoolean(zconfig.download_media_prefer_volatile()));
+
+    const char* dmode;
+    zypp::DownloadMode dm = zconfig.commit_downloadMode();
+    
+    if (dm == zypp::DownloadDefault) dmode = "default";
+    else if (dm == zypp::DownloadInAdvance) dmode = "download_in_advance";
+    else if (dm == zypp::DownloadAsNeeded) dmode = "download_as_needed";
+    else if (dm == zypp::DownloadInHeaps) dmode = "download_in_heaps";
+    else if (dm == zypp::DownloadOnly) dmode = "download_only";
+    else dmode = "unknown";
+
+    ret->add(YCPString("download_mode"), YCPSymbol(dmode));
+
+    ret->add(YCPString("system_root"), YCPString(zconfig.systemRoot().asString()));
+    ret->add(YCPString("system_architecture"), YCPString(zconfig.systemArchitecture().asString()));
+    ret->add(YCPString("system_default_architecture"), YCPString(zconfig.defaultSystemArchitecture().asString()));
+
+    ret->add(YCPString("text_locale_default"), YCPString(zconfig.defaultTextLocale().code()));
+    ret->add(YCPString("text_locale"), YCPString(zconfig.textLocale().code()));
+
+    ret->add(YCPString("vendor_path"), YCPString(zconfig.vendorPath().asString()));
+
+    ret->add(YCPString("solver_only_requires"), YCPBoolean(zconfig.solver_onlyRequires()));
+    ret->add(YCPString("solver_allow_vendor_change"), YCPBoolean(zconfig.solver_allowVendorChange()));
+    ret->add(YCPString("solver_cleandeps_on_remove"), YCPBoolean(zconfig.solver_cleandepsOnRemove()));
+    ret->add(YCPString("solver_upgrade_testcases_to_keep"), YCPBoolean(zconfig.solver_upgradeTestcasesToKeep()));
+    ret->add(YCPString("solver_upgrade_remove_dropped_packages"), YCPBoolean(zconfig.solverUpgradeRemoveDroppedPackages()));
+    ret->add(YCPString("solver_check_system_file"), YCPString(zconfig.solver_checkSystemFile().asString()));
+
+    ret->add(YCPString("locks_file"), YCPString(zconfig.locksFile().asString()));
+    ret->add(YCPString("locks_file_apply"), YCPBoolean(zconfig.apply_locks_file()));
+
+    ret->add(YCPString("update_data_path"), YCPString(zconfig.update_dataPath().asString()));
+    ret->add(YCPString("update_messages_path"), YCPString(zconfig.update_messagesPath().asString()));
+    ret->add(YCPString("update_scripts_path"), YCPString(zconfig.update_scriptsPath().asString()));
+    ret->add(YCPString("update_messages_notify"), YCPString(zconfig.updateMessagesNotify()));
+
+    YCPList rpm_flags;
+    zypp::target::rpm::RpmInstFlags flags = zconfig.rpmInstallFlags();
+
+    if (flags.testFlag(zypp::target::rpm::RPMINST_EXCLUDEDOCS)) rpm_flags->add(YCPString("--excludedocs"));
+    if (flags.testFlag(zypp::target::rpm::RPMINST_NOSCRIPTS)) rpm_flags->add(YCPString("--noscripts"));
+    if (flags.testFlag(zypp::target::rpm::RPMINST_FORCE)) rpm_flags->add(YCPString("--force"));
+    if (flags.testFlag(zypp::target::rpm::RPMINST_IGNORESIZE)) rpm_flags->add(YCPString("--ignoresize"));
+    if (flags.testFlag(zypp::target::rpm::RPMINST_JUSTDB)) rpm_flags->add(YCPString("--justdb"));
+    if (flags.testFlag(zypp::target::rpm::RPMINST_NODEPS)) rpm_flags->add(YCPString("--nodeps"));
+    if (flags.testFlag(zypp::target::rpm::RPMINST_NODIGEST)) rpm_flags->add(YCPString("--nodigest"));
+    if (flags.testFlag(zypp::target::rpm::RPMINST_NOSIGNATURE)) rpm_flags->add(YCPString("--nosignature"));
+    if (flags.testFlag(zypp::target::rpm::RPMINST_TEST)) rpm_flags->add(YCPString("--test"));
+
+    if (flags.testFlag(zypp::target::rpm::RPMINST_NOUPGRADE))
+        rpm_flags->add(YCPString("-i"));
+    else
+        rpm_flags->add(YCPString("-U"));
+
+    ret->add(YCPString("rpm_install_flags"), rpm_flags);
+    
+    ret->add(YCPString("history_log_file"), YCPString(zconfig.historyLogFile().asString()));
+
+    ret->add(YCPString("credentials_global_dir"), YCPString(zconfig.credentialsGlobalDir().asString()));
+    ret->add(YCPString("credentials_global_file"), YCPString(zconfig.credentialsGlobalFile().asString()));
+
+    ret->add(YCPString("plugins_path"), YCPString(zconfig.pluginsPath().asString()));
+
+    ret->add(YCPString("distro_version_pkg"), YCPString(zconfig.distroverpkg()));
+
+    return ret;
 }
