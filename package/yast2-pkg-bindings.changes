@@ -7,6 +7,7 @@ Tue Apr  5 11:12:10 UTC 2011 - lslezak@suse.cz
   (with download_mode, dry_run... options) (FATE#308951)
 - added Pkg::ZConfig() function returning current libzypp config
   (FATE#308951)
+- 2.21.0
 
 -------------------------------------------------------------------
 Tue Nov  2 14:30:38 UTC 2010 - lslezak@suse.cz
