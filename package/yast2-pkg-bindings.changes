@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Apr 15 15:57:13 UTC 2011 - lslezak@localhost
+
+- 2.17.46
+
+-------------------------------------------------------------------
 Tue Apr  5 11:12:10 UTC 2011 - lslezak@suse.cz
 
 - do not refresh empty repositories, remember loaded status
