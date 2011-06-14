@@ -3,6 +3,8 @@ Tue Jun 14 08:40:30 UTC 2011 - lslezak@suse.cz
 
 - added Pkg::CommitPolicy()
 - support for download in advance mode in yast2-wagon (fate#308951)
+- Pkg::ResolvableProperties() - return "product_package" value
+  for available products (fate#310730)
 - 2.17.47
 
 -------------------------------------------------------------------
