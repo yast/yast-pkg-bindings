@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Jun 14 08:40:30 UTC 2011 - lslezak@suse.cz
+
+- added Pkg::CommitPolicy()
+- support for download in advance mode in yast2-wagon (fate#308951)
+- 2.17.47
+
+-------------------------------------------------------------------
 Fri Apr 15 15:57:13 UTC 2011 - lslezak@localhost
 
 - 2.17.46
