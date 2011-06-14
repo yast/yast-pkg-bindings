@@ -49,6 +49,7 @@ class YCPReference;
 #include <zypp/RepoManager.h>
 #include <zypp/ProgressData.h>
 #include <zypp/TmpPath.h>
+#include <zypp/ZYppCommitPolicy.h>
 
 #include <YRepo.h>
 #include <i18n.h>
@@ -193,6 +194,9 @@ class PkgFunctions
       bool CreateBaseProductSymlink();
 
       YCPMap Resolvable2YCPMap(const zypp::PoolItem &item, const std::string &req_kind, bool dependencies);
+
+      // CommitPolicy used for commit
+      zypp::ZYppCommitPolicy *commit_policy;
 
     private:
 
@@ -704,11 +708,13 @@ class PkgFunctions
 	YCPBoolean PkgSolveCheckTargetOnly ();
 	/* TYPEINFO: integer()*/
 	YCPValue PkgSolveErrors ();
-        YCPValue CommitHelper(const zypp::ZYppCommitPolicy &policy);
+        YCPValue CommitHelper(const zypp::ZYppCommitPolicy *policy);
 	/* TYPEINFO: list<any>(integer)*/
 	YCPValue PkgCommit (const YCPInteger& medianr);
 	/* TYPEINFO: list<any>(map<string,any>)*/
 	YCPValue Commit (const YCPMap& config);
+	/* TYPEINFO: map<string,any>()*/
+	YCPValue CommitPolicy();
 
 	/* TYPEINFO: boolean(map<string,any>)*/
 	YCPValue AddLock(const YCPMap &lock);

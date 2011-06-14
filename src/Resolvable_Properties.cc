@@ -91,7 +91,8 @@
           + "description"
           + "display_name"
           + "short_name"
-	+ "product_file" -> string : product file (full file name with target root prefix)
+	+ "product_file" -> string : product file (full file name with target root prefix) (only for installed products)
+	+ "product_package" -> string : package name providing the product (only for available products)
 	+ "upgrades" -> list<map> : parsed data from the product file (upgrades section)
 	  + "name" -> string
 	  + "summary" -> string
@@ -420,6 +421,8 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 
 		if (refpkg)
 		{
+		    info->add(YCPString("product_package"), YCPString(refpkg->name()));
+
 		    // get the package files
 		    zypp::Package::FileList files( refpkg->filelist() );
 		    y2milestone("The reference package has %d files", files.size());

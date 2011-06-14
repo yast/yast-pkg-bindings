@@ -2015,7 +2015,7 @@ PkgFunctions::PkgSolveErrors()
     return YCPVoid();
 }
 
-YCPValue PkgFunctions::CommitHelper(const zypp::ZYppCommitPolicy &policy)
+YCPValue PkgFunctions::CommitHelper(const zypp::ZYppCommitPolicy *policy)
 {
     zypp::ZYpp::CommitResult result;
 
@@ -2029,7 +2029,7 @@ YCPValue PkgFunctions::CommitHelper(const zypp::ZYppCommitPolicy &policy)
 	last_reported_repo = -1;
 	last_reported_mediumnr = 1;
 
-	result = zypp_ptr()->commit(policy);
+	result = zypp_ptr()->commit(*policy);
     }
     catch (const zypp::target::TargetAbortedException & excpt)
     {
@@ -2093,6 +2093,48 @@ YCPValue PkgFunctions::CommitHelper(const zypp::ZYppCommitPolicy &policy)
     return ret;
 }
 
+YCPValue PkgFunctions::CommitPolicy()
+{
+    YCPMap ret;
+
+    if (commit_policy == NULL)
+    {
+	return ret;
+    }
+
+    zypp::DownloadMode d_mode = commit_policy->downloadMode();
+    std::string mode;
+
+    switch (d_mode)
+    {
+	case zypp::DownloadDefault:
+	    mode = "default";
+	    break;
+	case zypp::DownloadOnly:
+	    mode = "download_only";
+	    break;
+	case zypp::DownloadInAdvance:
+	    mode = "download_in_advance";
+	    break;
+	case zypp::DownloadInHeaps:
+	    mode = "download_in_heaps";
+	    break;
+	case zypp::DownloadAsNeeded:
+	    mode = "download_as_needed";
+	    break;
+	default :
+	    y2error("Unknown download mode");
+    }
+
+    if (!mode.empty())
+    {
+	ret->add(YCPString("download_mode"), YCPSymbol(mode));
+    }
+
+
+    return ret;
+}
+
 /**
    @builtin PkgCommit
 
@@ -2118,10 +2160,15 @@ PkgFunctions::PkgCommit (const YCPInteger& media)
 	return YCPError ("Bad args to Pkg::PkgCommit");
     }
 
-    zypp::ZYppCommitPolicy policy;
-    policy.restrictToMedia( medianr );
+    commit_policy = new zypp::ZYppCommitPolicy;
+    commit_policy->restrictToMedia(medianr);
 
-    return CommitHelper(policy);
+    YCPValue ret = CommitHelper(commit_policy);
+
+    delete commit_policy;
+    commit_policy = NULL;
+
+    return ret;
 }
 
 /**
@@ -2143,7 +2190,7 @@ PkgFunctions::PkgCommit (const YCPInteger& media)
 /* TYPEINFO: list<any>(integer)*/
 YCPValue PkgFunctions::Commit (const YCPMap& config)
 {
-    zypp::ZYppCommitPolicy policy;
+    commit_policy = new zypp::ZYppCommitPolicy;
 
     if (!config.isNull())
     {
@@ -2158,28 +2205,32 @@ YCPValue PkgFunctions::Commit (const YCPMap& config)
 
                 if (mode == "default")
                 {
-                    policy.downloadMode(zypp::DownloadDefault);
+                    commit_policy->downloadMode(zypp::DownloadDefault);
                 }
                 else if (mode == "download_only")
                 {
-                    policy.downloadMode(zypp::DownloadOnly);
+                    commit_policy->downloadMode(zypp::DownloadOnly);
                 }
                 else if (mode == "download_in_advance")
                 {
-                    policy.downloadMode(zypp::DownloadInAdvance);
+                    commit_policy->downloadMode(zypp::DownloadInAdvance);
                 }
                 else if (mode == "download_in_heaps")
                 {
-                    policy.downloadMode(zypp::DownloadInHeaps);
+                    commit_policy->downloadMode(zypp::DownloadInHeaps);
                 }
                 else if (mode == "download_as_needed")
                 {
-                    policy.downloadMode(zypp::DownloadAsNeeded);
+                    commit_policy->downloadMode(zypp::DownloadAsNeeded);
                 }
                 else
                 {
                     y2error("Invalid download mode: %s", mode.c_str());
                     _last_error.setLastError(std::string("Invalid download mode: ") + mode);
+
+		    delete commit_policy;
+		    commit_policy = NULL;
+
                     return YCPVoid();
                 }
 
@@ -2189,6 +2240,10 @@ YCPValue PkgFunctions::Commit (const YCPMap& config)
             {
                 y2error("Invalid download mode: symbol is required, got: %s", config->value(key)->asString()->value().c_str());
                 _last_error.setLastError(std::string("Invalid download mode: ") + config->value(key)->asString()->value());
+
+		delete commit_policy;
+		commit_policy = NULL;
+
                 return YCPVoid();
             }
         }
@@ -2200,7 +2255,7 @@ YCPValue PkgFunctions::Commit (const YCPMap& config)
             if (config->value(key)->isInteger())
             {
                 unsigned medium_nr = config->value(key)->asInteger()->value();
-                policy.restrictToMedia(medium_nr);
+                commit_policy->restrictToMedia(medium_nr);
 
                 y2milestone("Restricting commit only to medium number: %u", medium_nr);
             }
@@ -2208,6 +2263,10 @@ YCPValue PkgFunctions::Commit (const YCPMap& config)
             {
                 y2error("Invalid medium number: integer is required, got: %s", config->value(key)->asString()->value().c_str());
                 _last_error.setLastError(std::string("Invalid medium number: ") + config->value(key)->asString()->value());
+
+		delete commit_policy;
+		commit_policy = NULL;
+
                 return YCPVoid();
             }
         }
@@ -2219,7 +2278,7 @@ YCPValue PkgFunctions::Commit (const YCPMap& config)
             if (config->value(key)->isBoolean())
             {
                 bool dry_run = config->value(key)->asBoolean()->value();
-                policy.dryRun(dry_run);
+                commit_policy->dryRun(dry_run);
 
                 y2milestone("Dry run commit: %s", config->value(key)->asString()->value().c_str());
             }
@@ -2227,6 +2286,10 @@ YCPValue PkgFunctions::Commit (const YCPMap& config)
             {
                 y2error("Dry run option: boolean is required, got: %s", config->value(key)->asString()->value().c_str());
                 _last_error.setLastError(std::string("Invalid dry run option: ") + config->value(key)->asString()->value());
+
+		delete commit_policy;
+		commit_policy = NULL;
+
                 return YCPVoid();
             }
         }
@@ -2238,7 +2301,7 @@ YCPValue PkgFunctions::Commit (const YCPMap& config)
             if (config->value(key)->isBoolean())
             {
                 bool exclude_docs = config->value(key)->asBoolean()->value();
-                policy.rpmExcludeDocs(exclude_docs);
+                commit_policy->rpmExcludeDocs(exclude_docs);
 
                 y2milestone("Excluding documentation: %s", config->value(key)->asString()->value().c_str());
             }
@@ -2246,6 +2309,10 @@ YCPValue PkgFunctions::Commit (const YCPMap& config)
             {
                 y2error("Exclude documentation option: boolean is required, got: %s", config->value(key)->asString()->value().c_str());
                 _last_error.setLastError(std::string("Invalid exclude documentation option: ") + config->value(key)->asString()->value());
+
+		delete commit_policy;
+		commit_policy = NULL;
+
                 return YCPVoid();
             }
         }
@@ -2257,7 +2324,7 @@ YCPValue PkgFunctions::Commit (const YCPMap& config)
             if (config->value(key)->isBoolean())
             {
                 bool no_signature = config->value(key)->asBoolean()->value();
-                policy.rpmNoSignature(no_signature);
+                commit_policy->rpmNoSignature(no_signature);
 
                 y2milestone("Don't check RPM signature: %s", config->value(key)->asString()->value().c_str());
             }
@@ -2265,12 +2332,21 @@ YCPValue PkgFunctions::Commit (const YCPMap& config)
             {
                 y2error("No signature option: boolean is required, got: %s", config->value(key)->asString()->value().c_str());
                 _last_error.setLastError(std::string("Invalid no signature option: ") + config->value(key)->asString()->value());
+
+		delete commit_policy;
+		commit_policy = NULL;
+
                 return YCPVoid();
             }
         }
     }
 
-    return CommitHelper(policy);
+    YCPValue ret = CommitHelper(commit_policy);
+
+    delete commit_policy;
+    commit_policy = NULL;
+
+    return ret;
 }
 
 /**
