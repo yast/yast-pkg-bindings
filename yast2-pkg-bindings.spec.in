@@ -11,6 +11,10 @@ Requires:	libzypp >= 6.6.0
 
 Summary:	YaST2 - Package Manager Access
 
+%if 0%{?suse_version} == 1130
+Patch0:		openSUSE-11.3.diff
+%endif
+
 %description
 This package contains a name space for accessing the package manager
 library in YaST2.
@@ -18,6 +22,10 @@ library in YaST2.
 @PREP@
 # build only the library, ignore documentation (it is in devel-doc package)
 echo "src" > SUBDIRS
+
+%if 0%{?suse_version} == 1130
+%patch0 -p0
+%endif
 
 @BUILD@
 
