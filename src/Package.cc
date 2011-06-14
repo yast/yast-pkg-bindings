@@ -2107,9 +2107,6 @@ YCPValue PkgFunctions::CommitPolicy()
 
     switch (d_mode)
     {
-	case zypp::DownloadDefault:
-	    mode = "default";
-	    break;
 	case zypp::DownloadOnly:
 	    mode = "download_only";
 	    break;
