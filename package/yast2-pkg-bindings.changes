@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Jun 21 13:00:56 UTC 2011 - lslezak@suse.cz
+
+- added Pkg::Add/RemoveUpgradeRepo() and Pkg::GetUpgradeRepos()
+  (fate#311994)
+
+-------------------------------------------------------------------
 Tue Jun 14 08:40:30 UTC 2011 - lslezak@suse.cz
 
 - added Pkg::CommitPolicy()

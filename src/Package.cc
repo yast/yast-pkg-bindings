@@ -2349,6 +2349,101 @@ YCPValue PkgFunctions::Commit (const YCPMap& config)
     return ret;
 }
 
+/*
+ Helper function for adding/removing an upgrade repository
+*/
+YCPValue PkgFunctions::AddRemoveUpgradeRepo(const YCPInteger &repo, bool add)
+{
+    if (repo.isNull())
+    {
+	y2error("Passed nil paramter");
+        _last_error.setLastError("Used 'nil' repository ID for upgrade");
+	return YCPBoolean(false);
+    }
+
+    long long repo_id = repo->value();
+    YRepo_Ptr r = logFindRepository(repo_id);
+    if (!r)
+    {
+	y2error("Invalid repository ID %lld", repo_id);
+        _last_error.setLastError("Invalid repository ID " + repo->toString());
+	return YCPBoolean(false);
+    }
+
+    zypp::Repository repository(zypp::ResPool::instance().reposFind(r->repoInfo().alias()));
+
+    if (repository == zypp::Repository::noRepository)
+    {
+	y2error("Invalid repository ID %lld", repo_id);
+        _last_error.setLastError("Invalid repository ID " + repo->toString());
+	return YCPBoolean(false);
+    }
+
+    if (add)
+    {
+	y2milestone("Adding upgrade repo %lld", repo_id);
+	zypp_ptr()->resolver()->addUpgradeRepo(repository);
+    }
+    else
+    {
+	y2milestone("Removing upgrade repo %lld", repo_id);
+	zypp_ptr()->resolver()->removeUpgradeRepo(repository);
+    }
+
+    return YCPBoolean(true);
+}
+
+/**
+   @builtin AddUpgradeRepo
+
+   @short Add upgrade repository for distribution upgrade
+   @return boolean true on success
+*/
+YCPValue PkgFunctions::AddUpgradeRepo(const YCPInteger &repo)
+{
+    return AddRemoveUpgradeRepo(repo, true);
+}
+
+/**
+   @builtin RemoveUpgradeRepo
+
+   @short Remove a repository from upgrade list
+   @return boolean true on success
+*/
+YCPValue PkgFunctions::RemoveUpgradeRepo(const YCPInteger &repo)
+{
+    return AddRemoveUpgradeRepo(repo, false);
+}
+
+/**
+   @builtin GetUpgradeRepos
+
+   @short Get list of current upgrade repositories
+   @return list<integer> all current upgrade repositories
+*/
+YCPValue PkgFunctions::GetUpgradeRepos()
+{
+    YCPList ret;
+
+    unsigned long index = 0;
+    for_(it, repos.begin(), repos.end())
+    {
+	if (!(*it)->isDeleted())
+	{
+	    zypp::Repository repository(zypp::ResPool::instance().reposFind((*it)->repoInfo().alias()));
+	    if (zypp_ptr()->resolver()->upgradingRepo(repository))
+	    {
+		ret->add(YCPInteger(index));
+	    }
+	}
+	index++;
+    }
+
+    std::string result(ret->toString());
+    y2milestone("Current upgrade repos: %s", result.c_str());
+    return ret;
+}
+
 /**
    @builtin GetBackupPath
 
