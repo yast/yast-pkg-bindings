@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Jun 22 14:42:04 UTC 2011 - lslezak@suse.cz
+
+- 2.21.2
+
+-------------------------------------------------------------------
 Tue Jun 21 13:00:56 UTC 2011 - lslezak@suse.cz
 
 - added Pkg::Add/RemoveUpgradeRepo() and Pkg::GetUpgradeRepos()
