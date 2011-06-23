@@ -293,6 +293,13 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 
 			try
 			{
+			    if (!refresh_started_called)
+			    {
+				// call the init callback
+				CallRefreshStarted();
+				refresh_started_called = true;
+			    }
+
 			    zypp::RepoManager::RefreshCheckStatus ref_stat = repomanager.checkIfToRefreshMetadata((*it)->repoInfo(), *((*it)->repoInfo().baseUrlsBegin()));
 
 			    if (ref_stat != zypp::RepoManager::REFRESH_NEEDED)
@@ -303,12 +310,6 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 
 			    y2milestone("Autorefreshing source: %s", (*it)->repoInfo().alias().c_str());
 			    // refresh the repository
-			    if (!refresh_started_called)
-			    {
-				// call the init callback
-				CallRefreshStarted();
-				refresh_started_called = true;
-			    }
 			    RefreshWithCallbacks((*it)->repoInfo(), prog.receiver());
 			}
 			// NOTE: subtask progresses are reported as done in the destructor
