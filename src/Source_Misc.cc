@@ -92,7 +92,7 @@ bool PkgFunctions::aliasExists(const std::string &alias, const std::list<zypp::R
     // search in loaded repositories
     for(RepoCont::const_iterator it = repos.begin(); it != repos.end() ; ++it)
     {
-	if ((*it)->repoInfo().alias() == alias)
+	if (!(*it)->isDeleted() && (*it)->repoInfo().alias() == alias)
 	    return true;
     }
 

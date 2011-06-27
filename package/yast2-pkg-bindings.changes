@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Jun 27 15:04:18 UTC 2011 - lslezak@suse.cz
+
+- ignore deleted repositories when checking uniqueness of an alias
+  (bnc#702399)
+- 2.21.4
+
+-------------------------------------------------------------------
 Thu Jun 23 11:59:48 UTC 2011 - lslezak@suse.cz
 
 - fixed aborting autorefresh (bnc#691828)
