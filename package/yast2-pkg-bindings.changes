@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+
+- added Pkg::Commit() function which accepts commit options map
+  (with download_mode, dry_run... options) (FATE#308951)
+
+-------------------------------------------------------------------
 Wed Apr 21 17:22:31 UTC 2010 - lslezak@suse.cz
 
 - reload services after refresh to avoid overwriting the updated
