@@ -334,7 +334,7 @@ YCPValue PkgFunctions::ZConfig()
 
     ret->add(YCPString("solver_only_requires"), YCPBoolean(zconfig.solver_onlyRequires()));
     ret->add(YCPString("solver_allow_vendor_change"), YCPBoolean(zconfig.solver_allowVendorChange()));
-    ret->add(YCPString("solver_cleandeps_on_remove"), YCPBoolean(zconfig.solver_cleandepsOnRemove()));
+    //ret->add(YCPString("solver_cleandeps_on_remove"), YCPBoolean(zconfig.solver_cleandepsOnRemove()));
     ret->add(YCPString("solver_upgrade_testcases_to_keep"), YCPBoolean(zconfig.solver_upgradeTestcasesToKeep()));
     ret->add(YCPString("solver_upgrade_remove_dropped_packages"), YCPBoolean(zconfig.solverUpgradeRemoveDroppedPackages()));
     ret->add(YCPString("solver_check_system_file"), YCPString(zconfig.solver_checkSystemFile().asString()));
