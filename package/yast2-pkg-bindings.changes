@@ -1,4 +1,5 @@
 -------------------------------------------------------------------
+Tue Jul 19 19:43:23 UTC 2011 - lslezak@suse.cz
 
 - added Pkg::Add/RemoveUpgradeRepo() and Pkg::GetUpgradeRepos()
 - added Pkg::CommitPolicy()
