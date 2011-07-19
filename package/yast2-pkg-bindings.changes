@@ -1,5 +1,7 @@
 -------------------------------------------------------------------
 
+- added Pkg::CommitPolicy()
+- support for download in advance mode in yast2-wagon (fate#308951)
 - added Pkg::Commit() function which accepts commit options map
   (with download_mode, dry_run... options) (FATE#308951)
 - added Pkg::ZConfig() function returning current libzypp config

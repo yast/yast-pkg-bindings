@@ -61,6 +61,7 @@ PkgFunctions::PkgFunctions () :
       _target_root( "/" )
     , _target_loaded(false)
     , zypp_pointer(NULL)
+    , commit_policy(NULL)
     ,_callbackHandler( *new CallbackHandler(*this) )
     , base_product(NULL)
 {
