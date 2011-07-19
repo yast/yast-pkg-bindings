@@ -1,5 +1,6 @@
 -------------------------------------------------------------------
 
+- added Pkg::Add/RemoveUpgradeRepo() and Pkg::GetUpgradeRepos()
 - added Pkg::CommitPolicy()
 - support for download in advance mode in yast2-wagon (fate#308951)
 - added Pkg::Commit() function which accepts commit options map

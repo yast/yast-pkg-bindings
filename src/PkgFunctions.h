@@ -232,6 +232,10 @@ class PkgFunctions
       YCPValue SourceProvideFileCommon(const YCPInteger &id, const YCPInteger &mid,
 		const YCPString& f, const bool optional, const bool check_signatures,
 		const bool digested);
+
+      // a helper function to add or remove an upgrade repository
+      YCPValue AddRemoveUpgradeRepo(const YCPInteger &repo, bool add);
+
     public:
 	// general
 	/* TYPEINFO: void() */
@@ -716,6 +720,12 @@ class PkgFunctions
 	YCPValue Commit (const YCPMap& config);
 	/* TYPEINFO: map<string,any>()*/
 	YCPValue CommitPolicy();
+	/* TYPEINFO: boolean(integer)*/
+	YCPValue AddUpgradeRepo(const YCPInteger &repo);
+	/* TYPEINFO: list<integer>()*/
+	YCPValue GetUpgradeRepos();
+	/* TYPEINFO: boolean(integer)*/
+	YCPValue RemoveUpgradeRepo(const YCPInteger &repo);
 
 	/* TYPEINFO: boolean(map<string,any>)*/
 	YCPValue AddLock(const YCPMap &lock);
