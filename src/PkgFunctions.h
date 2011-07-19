@@ -714,7 +714,7 @@ class PkgFunctions
 	YCPValue PkgCommit (const YCPInteger& medianr);
 	/* TYPEINFO: list<any>(map<string,any>)*/
 	YCPValue Commit (const YCPMap& config);
-	/* TYPEINFO: map<string,any>*/
+	/* TYPEINFO: map<string,any>()*/
 	YCPValue CommitPolicy();
 
 	/* TYPEINFO: boolean(map<string,any>)*/
