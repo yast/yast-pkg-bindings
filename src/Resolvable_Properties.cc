@@ -41,6 +41,7 @@
 #include <zypp/Patch.h>
 #include <zypp/Pattern.h>
 #include <zypp/Package.h>
+#include <zypp/SrcPackage.h>
 #include <zypp/ui/Status.h>
 
 #include <zypp/Dep.h>
@@ -108,6 +109,10 @@
      `package keys:
         + "path"
         + "location"
+     `srcpackage keys:
+        + "path"
+        + "location"
+	+ "src_type" -> string : "src" or "nosrc" type
      `pattern keys:
         + "category"
         + "user_visible"
@@ -256,6 +261,30 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 	} else
 	{
 	    y2error("package %s is not a package", item->name().c_str() );
+	}
+    }
+    else if( req_kind == "srcpackage" )
+    {
+	zypp::SrcPackage::constPtr pkg = boost::dynamic_pointer_cast<const zypp::SrcPackage>(item.resolvable());
+	if (pkg)
+	{
+	    std::string tmp(pkg->location().filename().asString());
+	    if (!tmp.empty())
+	    {
+		info->add(YCPString("path"), YCPString(tmp));
+	    }
+
+	    tmp = pkg->location().filename().basename();
+	    if (!tmp.empty())
+	    {
+		info->add(YCPString("location"), YCPString(tmp));
+	    }
+
+	    info->add(YCPString("src_type"), YCPString(pkg->sourcePkgType()));
+	}
+	else
+	{
+	    y2error("%s is not a srcpackage", item->name().c_str() );
 	}
     }
     // product specific info
@@ -563,6 +592,9 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
     }
     else if ( req_kind == "package" ) {
 	kind = zypp::ResKind::package;
+    }
+    else if ( req_kind == "srcpackage" ) {
+	kind = zypp::ResKind::srcpackage;
     }
     else if ( req_kind == "pattern" ) {
 	kind = zypp::ResKind::pattern;
