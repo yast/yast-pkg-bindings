@@ -244,6 +244,7 @@ PkgFunctions::SourceSaveAll ()
  * @description
  * Release all known installation repositories. Releasing is done automaticaly in Pkg::
  * destructor, but can be done explicitly to force reloading of registered repositories.
+ * Upgrade repositories are automatically removed from the solver.
  * Use SourceSaveAll() to not loose the new registered sources before calling SourceFinishAll()!
  * @return boolean true on success
  **/
@@ -259,6 +260,16 @@ PkgFunctions::SourceFinishAll ()
 	    it != repos.end(); ++it)
 	{
 	    RemoveResolvablesFrom((*it)->repoInfo().alias());
+	}
+
+	// remove all upgrading repositories from the solver before destructing them
+	for_(it, zypp::ResPool::instance().knownRepositoriesBegin(), zypp::ResPool::instance().knownRepositoriesEnd())
+	{
+	    if (zypp_ptr()->resolver()->upgradingRepo(*it))
+	    {
+		y2milestone("Removing upgrade repository '%s' (%s)", it->name().c_str(), it->alias().c_str());
+		zypp_ptr()->resolver()->removeUpgradeRepo(*it);
+	    }
 	}
 
 	// release all repositories
