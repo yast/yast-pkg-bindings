@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Aug  1 09:28:55 UTC 2011 - lslezak@suse.cz
+
+- Pkg::SourceFinishAll() - remove upgrading repositories from the
+  solver, fixes solver crash when called later (bnc#709494)
+- 2.17.50
+
+-------------------------------------------------------------------
 Mon Jun 27 15:04:18 UTC 2011 - lslezak@suse.cz
 
 - ignore deleted repositories when checking uniqueness of an alias
