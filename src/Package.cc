@@ -1548,8 +1548,18 @@ PkgFunctions::PkgUpdateAll (const YCPMap& options)
 
     try
     {
+	// store the current ignoreAlreadyRecommended flag
+	bool ignore_recommended_bak = zypp_ptr()->resolver()->ignoreAlreadyRecommended();
+	// in full distupgrade enable recommended packages - zypper compatibility
+	y2milestone("Setting ignoreAlreadyRecommended to false");
+	zypp_ptr()->resolver()->setIgnoreAlreadyRecommended(false);
+
 	// solve upgrade, get statistics
 	zypp_ptr()->resolver()->doUpgrade();
+
+	// set the original flag
+	y2milestone("Reverting ignoreAlreadyRecommended to: %s", ignore_recommended_bak ? "true" : "false");
+	zypp_ptr()->resolver()->setIgnoreAlreadyRecommended(ignore_recommended_bak);
     }
     catch (...)
     {}

@@ -96,6 +96,10 @@ zypp::ZYpp::Ptr PkgFunctions::zypp_ptr()
 	{
 	    y2milestone("Initializing Zypp library...");
 	    zypp_pointer = zypp::getZYpp();
+
+ 	    // initialize solver flag, be compatible with zypper
+	    zypp_pointer->resolver()->setIgnoreAlreadyRecommended(true);
+
 	    return zypp_pointer;
 	}
 	catch (const zypp::Exception &excpt)

@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Aug  2 11:02:34 UTC 2011 - lslezak@suse.cz
+
+- set ignoreAlreadyRecommended solver flag by default - make the
+  YaST package management compatible with zypper (bnc#668588)
+- 2.21.7
+
+-------------------------------------------------------------------
 Mon Aug  1 09:28:55 UTC 2011 - lslezak@suse.cz
 
 - Pkg::SourceFinishAll() - remove upgrading repositories from the
