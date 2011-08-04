@@ -844,6 +844,8 @@ class PkgFunctions
         // configuration related functions
 	/* TYPEINFO: map<string,any>()*/
 	YCPValue ZConfig();
+	/* TYPEINFO: boolean(map<string,any>)*/
+	YCPValue SetZConfig(const YCPMap &cfg);
 
         YCPValue ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies);
 	YCPValue ResolvableSetPatches(const YCPSymbol& kind_r, bool preselect);

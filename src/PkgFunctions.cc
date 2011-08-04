@@ -285,6 +285,7 @@ void PkgFunctions::SetReportedSource(RepoId repo, int medium)
 /**
  * @builtin ZConfig
  * @short get the current libzypp configuration
+ * Return current libzypp configuration. See /etc/zypp/zypp.conf for more details
  * @return map<string,any> libzypp configuration map
  */
 YCPValue PkgFunctions::ZConfig()
@@ -383,3 +384,71 @@ YCPValue PkgFunctions::ZConfig()
 
     return ret;
 }
+
+/**
+ * @builtin SetZConfig
+ * @short set the current libzypp configuration
+ * This is a set counterpart to Pkg::ZConfig(). Note that the set of options which can be changed is very limited.
+ * Currently supported values: $[ "download_media_prefer_download" : boolean,
+ * "update_messages_notify" : string,
+ * "solver_upgrade_remove_dropped_packages" : boolean ]
+ * @return boolean true on success
+ */
+YCPValue PkgFunctions::SetZConfig(const YCPMap &cfg)
+{
+    zypp::ZConfig &zconfig = zypp::ZConfig::instance();
+
+    const char *key = "download_media_prefer_download";
+    if(!cfg->value(YCPString(key)).isNull())
+    {
+	const YCPValue val = cfg->value(YCPString(key));
+	if (val->isBoolean())
+	{
+	    const bool prefer_download = val->asBoolean()->value();
+	    y2milestone("new download_media_prefer_download value: %s", prefer_download ? "true" : "false");
+	    zconfig.set_download_media_prefer_download(prefer_download);
+	}
+	else
+	{
+	    y2error("Expected boolean value for '%s' key, found %s", key, val->toString().c_str());
+	    return YCPBoolean(false);
+	}
+    }
+
+    key = "update_messages_notify";
+    if(!cfg->value(YCPString(key)).isNull())
+    {
+	const YCPValue val = cfg->value(YCPString(key));
+	if (val->isString())
+	{
+	    const std::string notify(val->asString()->value());
+	    y2milestone("new update_messages_notify value: %s", notify.c_str());
+	    zconfig.setUpdateMessagesNotify(notify);
+	}
+	else
+	{
+	    y2error("Expected string value for '%s' key, found %s", key, val->toString().c_str());
+	    return YCPBoolean(false);
+	}
+    }
+
+    key = "solver_upgrade_remove_dropped_packages";
+    if(!cfg->value(YCPString(key)).isNull())
+    {
+	const YCPValue val = cfg->value(YCPString(key));
+	if (val->isBoolean())
+	{
+	    const bool drop_packages = val->asBoolean()->value();
+	    y2milestone("new solver_upgrade_remove_dropped_packages value: %s", drop_packages ? "true" : "false");
+	    zconfig.setSolverUpgradeRemoveDroppedPackages(drop_packages);
+	}
+	else
+	{
+	    y2error("Expected boolean value for '%s' key, found %s", key, val->toString().c_str());
+	    return YCPBoolean(false);
+	}
+    }
+
+    return YCPBoolean(true);
+}
+

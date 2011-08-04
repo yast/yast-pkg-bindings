@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Aug  4 14:42:32 UTC 2011 - lslezak@suse.cz
+
+- added Pkg::SetZConfig() to change some libzypp options at runtime
+  e.g. prefer CD/DVD to dowload during installation/update
+  (bnc#693230)
+
+-------------------------------------------------------------------
 Tue Aug  2 11:02:34 UTC 2011 - lslezak@suse.cz
 
 - set ignoreAlreadyRecommended solver flag by default - make the
