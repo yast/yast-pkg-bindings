@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Wed Aug 10 13:17:36 UTC 2011 - lslezak@suse.cz
+
+- Pkg::SourceStartManager() - always display progress, do not
+  assume that any repository present cannot trigger refresh,
+  that's false if the previous refresh failed and causes crash
+  (bnc#711182)
+- 2.17.51
+
+-------------------------------------------------------------------
 Mon Aug  1 09:28:55 UTC 2011 - lslezak@suse.cz
 
 - Pkg::SourceFinishAll() - remove upgrading repositories from the
