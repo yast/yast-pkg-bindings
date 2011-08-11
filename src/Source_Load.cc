@@ -485,7 +485,7 @@ PkgFunctions::SourceStartManager (const YCPBoolean& enable)
     PkgProgress pkgprogress(_callbackHandler);
 
     // display the progress only when sources will be loaded
-    if (enable->value() && repos.size() == 0)
+    if (enable->value())
     {
 	std::list<std::string> stages;
 	stages.push_back(_("Load Sources"));

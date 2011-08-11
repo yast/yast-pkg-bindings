@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Wed Aug 10 13:17:36 UTC 2011 - lslezak@suse.cz
+
+- Pkg::SourceStartManager() - always display progress, do not
+  assume that any repository present cannot trigger refresh,
+  that's false if the previous refresh failed and causes crash
+  (bnc#711182)
+- 2.21.9
+
+-------------------------------------------------------------------
 Fri Aug  5 07:36:53 UTC 2011 - lslezak@suse.cz
 
 - 2.21.8
