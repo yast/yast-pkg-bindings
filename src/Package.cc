@@ -1940,28 +1940,6 @@ PkgFunctions::PkgEstablish ()
     return YCPBoolean(false);
 }
 
-
-/**
-   @builtin PkgFreshen
-   @short check all package freshens and schedule matching ones for installation - obsoleted, not needed
-   @return boolean
-
-   Returns true. (If no pool item 'transacts')
-
-   The pool should NOT have any items set to 'transact' (scheduled for installation
-   or removal)
-   If it has, dependencies will be solved and the returned result might be false.
-
-*/
-#warning Freshens is obsolete
-YCPBoolean
-PkgFunctions::PkgFreshen()
-{
-    y2warning("Pkg::PkgFreshen() is obsoleted, it is not needed anymore");
-    return YCPBoolean(true);
-}
-
-
 /**
    @builtin PkgSolveCheckTargetOnly
 

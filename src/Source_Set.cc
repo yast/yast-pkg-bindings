@@ -90,8 +90,6 @@ PkgFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 	    // the source has been disabled, remove resolvables from the pool
 	    RemoveResolvablesFrom(repo);
 	}
-
-	PkgFreshen();
     }
     catch (const zypp::Exception& excpt)
     {
@@ -218,7 +216,6 @@ PkgFunctions::SourceEditSet (const YCPList& states)
     }
   }
 
-  PkgFreshen();
   return YCPBoolean( !error );
 }
 
@@ -382,8 +379,6 @@ PkgFunctions::SourceDelete (const YCPInteger& id)
 	    y2warning("Resetting the base product, the base product repository has been removed");
 	    base_product = NULL;
 	}
-
-	PkgFreshen();
     }
     catch (const zypp::Exception& excpt)
     {

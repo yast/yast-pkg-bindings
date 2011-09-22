@@ -726,7 +726,6 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
 
   if (!scan_only)
   {
-      PkgFreshen();
       return YCPInteger(*new_repos.begin());
   }
   else
