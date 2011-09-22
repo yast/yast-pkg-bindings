@@ -197,14 +197,13 @@ inline std::string join( const std::list<std::string> & lines_r, const std::stri
 // ------------------------
 /**
  *  @builtin PkgMediaNames
- *  @short Return names of sources in installation order
+ *  @short Return names of sources
  *  @return list< list<any> > Names and ids of Sources
  *  @usage Pkg::PkgMediaNames () -> [ ["source_1_name", source_1_id] , ["source_2_name", source_2_id], ...]
  */
 YCPValue
 PkgFunctions::PkgMediaNames ()
 {
-# warning No installation order
     YCPList res;
 
     RepoId index = 0;
