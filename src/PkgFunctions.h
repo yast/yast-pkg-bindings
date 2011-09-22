@@ -539,12 +539,8 @@ class PkgFunctions
         YCPValue SourceRaisePriority (const YCPInteger&);
 	/* TYPEINFO: void(integer)*/
         YCPValue SourceLowerPriority (const YCPInteger&);
-	/* TYPEINFO: boolean()*/
-        YCPValue SourceSaveRanks ();
 	/* TYPEINFO: boolean(integer,string)*/
         YCPValue SourceChangeUrl (const YCPInteger&, const YCPString&);
-	/* TYPEINFO: boolean(map<integer,integer>)*/
-	YCPValue SourceInstallOrder (const YCPMap&);
 	/* TYPEINFO: list<map<string,any>>()*/
         YCPValue SourceEditGet ();
 	/* TYPEINFO: boolean(list<map<string,any>>)*/
@@ -762,27 +758,6 @@ class PkgFunctions
 	/* TYPEINFO: string()*/
 	YCPValue SystemArchitecture();
 
-	// you patch related
-	/* TYPEINFO: map<any,any>()*/
-        YCPValue YouStatus ();
-	/* TYPEINFO: string(list<any>)*/
-	YCPValue YouGetServers (const YCPList &strings);
-	/* TYPEINFO: string(map<any,any>)*/
-	YCPValue YouSetServer (const YCPMap& strings);
-	/* TYPEINFO: map<any,any>()*/
-	YCPValue YouGetUserPassword ();
-	/* TYPEINFO: string(string,string,boolean)*/
-	YCPValue YouSetUserPassword (const YCPString& user, const YCPString& passwd, const YCPBoolean& persistent);
-	/* TYPEINFO: string(boolean,boolean)*/
-	YCPValue YouRetrievePatchInfo (const YCPBoolean& download, const YCPBoolean& sign);
-	/* TYPEINFO: boolean()*/
-	YCPValue YouProcessPatches ();
-	/* TYPEINFO: string()*/
-	YCPValue YouGetDirectory ();
-	/* TYPEINFO: void()*/
-	YCPValue YouSelectPatches ();
-	/* TYPEINFO: boolean()*/
-        YCPValue YouRemovePackages ();
 	/* TYPEINFO: boolean(string,symbol)*/
         YCPValue ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: boolean(string,symbol,string,string)*/

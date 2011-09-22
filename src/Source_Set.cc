@@ -347,34 +347,6 @@ PkgFunctions::SourceLowerPriority (const YCPInteger& id)
 }
 
 /****************************************************************************************
- * Pkg::SourceSaveRanks () -> boolean
- *
- * @short Obsoleted function, do not use
- * @return boolean true
- **/
-YCPValue
-PkgFunctions::SourceSaveRanks ()
-{
-  y2error( "SourceSaveRanks not implemented" );
-
-  return YCPBoolean( true );
-}
-
-/****************************************************************************************
- * @builtin SourceInstallOrder
- *
- * @short not implemented, do not use (Explicitly set an install order.)
- * @return boolean
- **/
-YCPValue
-PkgFunctions::SourceInstallOrder (const YCPMap& ord)
-{
-#warning SourceInstallOrder is not implemented
-  return YCPBoolean( true );
-}
-
-
-/****************************************************************************************
  * @builtin SourceDelete
  * @short Delete a Source
  * @description

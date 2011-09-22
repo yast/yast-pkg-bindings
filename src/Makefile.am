@@ -28,7 +28,6 @@ libpy2Pkg_la_SOURCES =				\
 	PkgModuleFunctions.cc			\
 	PkgFunctions.h PkgFunctions.cc		\
 	Package.cc				\
-	Patch.cc				\
 	Resolvable_Install.cc			\
 	Resolvable_Patches.cc			\
 	Resolvable_Properties.cc		\
