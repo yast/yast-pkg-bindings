@@ -485,7 +485,7 @@ YCPValue PkgFunctions::RemoveLock(const YCPInteger &lock_idx)
 
 	if (locks.size() < idx + 1)
 	{
-	    y2error("Invalid lock index %d, %ld locks defined", idx, locks.size());
+	    y2error("Invalid lock index %d, %zd locks defined", idx, locks.size());
 	    return YCPBoolean(false);
 	}
 
