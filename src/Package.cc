@@ -1922,25 +1922,6 @@ PkgFunctions::PkgSolve (const YCPBoolean& filter)
 }
 
 /**
-   @builtin PkgEstablish
-   @short establish the pool state - obsoleted, not needed
-   @return boolean
-
-   Returns true. (If no pool item 'transacts')
-
-   The pool should NOT have any items set to 'transact' (scheduled for installation
-   or removal)
-   If it has, dependencies will be solved and the returned result might be false.
-
-*/
-YCPBoolean
-PkgFunctions::PkgEstablish ()
-{
-    y2warning("Pkg::PkgEstablish() is obsoleted, it is not needed anymore");
-    return YCPBoolean(false);
-}
-
-/**
    @builtin PkgSolveCheckTargetOnly
 
    @short Solve packages currently installed on target system.

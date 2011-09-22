@@ -701,8 +701,6 @@ class PkgFunctions
 	/* TYPEINFO: boolean(string)*/
 	YCPValue CreateSolverTestCase(const YCPString &dir);
 	/* TYPEINFO: boolean()*/
-	YCPBoolean PkgEstablish ();
-	/* TYPEINFO: boolean()*/
 	YCPBoolean PkgSolveCheckTargetOnly ();
 	/* TYPEINFO: integer()*/
 	YCPValue PkgSolveErrors ();
@@ -727,8 +725,6 @@ class PkgFunctions
 	/* TYPEINFO: boolean(integer)*/
 	YCPValue RemoveLock(const YCPInteger &lock_idx);
 
-	/* FIXME: is this needed? */
-	YCPValue PkgPrepareOrder (YCPList args);
 	/* TYPEINFO: list<list<integer>>()*/
 	YCPValue PkgMediaSizes ();
 	/* TYPEINFO: list<list<integer>>()*/
