@@ -57,7 +57,7 @@ PkgFunctions::SourceRestore()
 
     if (repos.size() > 0)
     {
-	y2warning("Number of registered repositories: %zd, skipping repository load!", repos.size());
+	y2warning("Number of registered repositories: %ld, skipping repository load!", repos.size());
 	return YCPBoolean(success);
     }
 
@@ -67,7 +67,7 @@ PkgFunctions::SourceRestore()
 
 	if (!service_manager.empty())
 	{
-	    y2warning("Number of known services: %zd, skipping service load!", service_manager.size());
+	    y2warning("Number of known services: %ld, skipping service load!", service_manager.size());
 	}
 	else
 	{

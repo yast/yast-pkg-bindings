@@ -116,7 +116,7 @@ bool PkgFunctions::LoadResolvablesFrom(YRepo_Ptr repo, const zypp::ProgressData:
 
 	repomanager.loadFromCache(repoinfo);
 	repo->setLoaded();
-	//y2milestone("Loaded %zd resolvables", store.size());
+	//y2milestone("Loaded %lld resolvables", store.size());
     }
     catch(const zypp::repo::RepoNotCachedException &excpt )
     {

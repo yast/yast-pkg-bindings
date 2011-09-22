@@ -111,7 +111,7 @@ YCPValue PkgFunctions::ServiceDelete(const YCPString &alias)
 		if (repo->repoInfo().service() == service_alias)
 		{
 		    std::string repo_alias = repo->repoInfo().alias();
-		    y2milestone("Removing repository %zd (%s) belonging to service %s",
+		    y2milestone("Removing repository %lld (%s) belonging to service %s",
 			 index, repo_alias.c_str(), service_alias.c_str());
 		    repo->setDeleted();
 		}
@@ -294,7 +294,7 @@ YCPValue PkgFunctions::ServiceSet(const YCPString &old_alias, const YCPMap &serv
 		{
 		    std::string repo_alias = repo->repoInfo().alias();
 
-		    y2milestone("%s repository %zd (%s) belonging to service %s",
+		    y2milestone("%s repository %lld (%s) belonging to service %s",
 			 enabled ? "Enabling" : "Disabling", index, repo_alias.c_str(), old_alias_str.c_str());
 
 		    repo->repoInfo().setEnabled(enabled);

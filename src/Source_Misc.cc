@@ -43,7 +43,7 @@ YRepo_Ptr PkgFunctions::logFindRepository(RepoId id)
 {
     try
     {
-	if (id < 0 || id >= repos.size())
+	if (id < 0 || id >= (long long)repos.size())
 	{
 	    // not found
 	    throw(std::exception());
@@ -57,7 +57,7 @@ YRepo_Ptr PkgFunctions::logFindRepository(RepoId id)
 
 	if (repos[id]->isDeleted())
 	{
-	    y2error("Source %zd has been deleted, the ID is not valid", id);
+	    y2error("Source %lld has been deleted, the ID is not valid", id);
 	    return YRepo_Ptr();
 	}
 
@@ -65,7 +65,7 @@ YRepo_Ptr PkgFunctions::logFindRepository(RepoId id)
     }
     catch (...)
     {
-	y2error("Cannot find source with ID: %zd", id);
+	y2error("Cannot find source with ID: %lld", id);
 	// TODO: improve the error message
 	_last_error.setLastError(_("Cannot find source"));
     }
@@ -157,7 +157,7 @@ std::string PkgFunctions::UniqueAlias(const std::string &alias)
 
     while(aliasExists(ret, reps))
     {
-	y2milestone("Alias %s already found: %zd", ret.c_str(), logFindAlias(ret));
+	y2milestone("Alias %s already found: %lld", ret.c_str(), logFindAlias(ret));
 
 	// the alias already exists - add a counter 
 	std::ostringstream ostr;

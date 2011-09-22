@@ -102,7 +102,7 @@ class PkgFunctions
     public:
 
 	// ID type
-	typedef RepoCont::size_type RepoId;
+	typedef long long RepoId;
 
     private: // source related
     
