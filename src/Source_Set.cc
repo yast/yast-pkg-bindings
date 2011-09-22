@@ -180,7 +180,7 @@ PkgFunctions::SourceEditSet (const YCPList& states)
 
 	if (repo->repoInfo().enabled() != enable)
 	{
-	    y2warning("Pkg::SourceEditSet() does not refresh the pool (src: %zd, state: %s)", id, enable ? "disabled -> enabled" : "enabled -> disabled");
+	    y2warning("Pkg::SourceEditSet() does not refresh the pool (src: %lld, state: %s)", id, enable ? "disabled -> enabled" : "enabled -> disabled");
 	}
 
         y2debug("set enabled: %d", enable);

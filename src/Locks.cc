@@ -172,7 +172,7 @@ PkgFunctions::AddLock(const YCPMap &lock)
 				}
 				else
 				{
-				    y2error("Repository %zd not found", repo_id);
+				    y2error("Repository %lld not found", repo_id);
 				    return YCPBoolean(false);
 				}
 			    }

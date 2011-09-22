@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Sep 22 13:26:20 UTC 2011 - lslezak@suse.cz
+
+- use signed type for RepoId, fixes returning 2^32 - 1 instead of
+  -1 on i586 (bnc#718514)
+
+-------------------------------------------------------------------
 Wed Aug 10 13:17:36 UTC 2011 - lslezak@suse.cz
 
 - Pkg::SourceStartManager() - always display progress, do not
