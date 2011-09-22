@@ -83,22 +83,6 @@ void PkgFunctions::ScanProductsWithCallBacks(const zypp::Url &url)
     _silent_probing = _silent_probing_old;
 }
 
-static std::string timestamp ()
-{
-    time_t t = time(NULL);
-    struct tm * tmp = localtime(&t);
-
-    if (tmp == NULL) {
-	return "";
-    }
-
-    char outstr[50];
-    if (strftime(outstr, sizeof(outstr), "%Y%m%d-%H%M%S", tmp) == 0) {
-	return "";
-    }
-    return outstr;
-}
-
 /**
  * Take the ?alias=foo part of old_url, if any, and return it,
  * putting the rest to new_url.

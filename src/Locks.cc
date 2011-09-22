@@ -490,7 +490,6 @@ YCPValue PkgFunctions::RemoveLock(const YCPInteger &lock_idx)
 	}
 
 	zypp::Locks::const_iterator it = locks.begin();
-	zypp::Locks::const_iterator it_end = locks.end();
 
 	unsigned int i = 0;
 	while(i < idx)
