@@ -300,16 +300,3 @@ PkgFunctions::SourceMoveDownloadArea (const YCPString & path)
     return YCPBoolean(true);
 }
 
-/**
- * @builtin InstSysMode
- * @short obsoleted - do not use
- * @return void
- */
-YCPValue
-PkgFunctions::InstSysMode ()
-{
-    y2warning("Pkg::InstSysMode() is obsoleted, it's not needed anymore");
-    return YCPVoid();
-}
-
-

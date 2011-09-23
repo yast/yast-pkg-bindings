@@ -237,8 +237,6 @@ class PkgFunctions
 
     public:
 	// general
-	/* TYPEINFO: void() */
-	YCPValue InstSysMode ();
 	/* TYPEINFO: void(string) */
 	YCPValue SetLocale (const YCPString& locale);
 	/* TYPEINFO: string() */
