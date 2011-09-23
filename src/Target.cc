@@ -24,15 +24,12 @@
 
 #include <PkgFunctions.h>
 
-#include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
-#include <ycp/YCPInteger.h>
 #include <ycp/YCPSymbol.h>
 #include <ycp/YCPString.h>
 #include <ycp/YCPList.h>
 #include <ycp/YCPMap.h>
 
-#include <zypp/base/Easy.h>
 #include <zypp/Product.h>
 #include <zypp/target/rpm/RpmDb.h>
 
@@ -132,97 +129,6 @@ PkgFunctions::TargetRemove(const YCPString& name)
     }
 
     return YCPBoolean (true);
-}
-
-/** ------------------------
- *
- * @builtin TargetProducts
- *
- * @short Return list of maps of all installed products
- * @description
- * return list of maps of all installed products in reverse
- * installation order (product installed last comes first)
- *
- * Deprecated, will be replaced by ResolvableProperties() in the future.
- *
- * @return list
- */
-
-YCPList
-PkgFunctions::TargetProducts ()
-{
-    YCPList products;
-
-    try
-    {
-        zypp::ResPool pool( zypp::ResPool::instance() ); // ResPool is a global singleton
-
-        for_( it, pool.byKindBegin<zypp::Product>(), pool.byKindEnd<zypp::Product>() )
-        {
-          if ( ! it->status().isInstalled() )
-            continue;
-          zypp::Product::constPtr product = asKind<zypp::Product>( it->resolvable() );
-
-          #warning TargetProducts does not return all keys
-          YCPMap prod;
-          // see also PkgFunctions::Descr2Map and Product.ycp::Product
-          // FIXME unify with code in Pkg::ResolvablePropertiesEx
-          prod->add( YCPString("name"), YCPString( product->name() ) );
-          prod->add( YCPString("version"), YCPString( product->edition().version() ) );
-
-          std::string category(product->isTargetDistribution() ? "base" : "addon");
-          prod->add(YCPString("type"), YCPString(category));
-          prod->add(YCPString("category"), YCPString(category));
-
-          prod->add(YCPString("vendor"), YCPString(product->vendor()));
-          prod->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrls().first().asString()));
-          std::string product_summary = product->summary();
-          if (product_summary.size() > 0)
-          {
-            prod->add(YCPString("display_name"), YCPString(product_summary));
-          }
-          std::string product_shortname = product->shortName();
-          if (product_shortname.size() > 0)
-          {
-            prod->add(YCPString("short_name"), YCPString(product_shortname));
-          }
-          // use summary for the short name if it's defined
-          else if (product_summary.size() > 0)
-          {
-            prod->add(YCPString("short_name"), YCPString(product_summary));
-          }
-          prod->add(YCPString("description"), YCPString((*it)->description()));
-
-          std::string resolvable_summary = (*it)->summary();
-          if (resolvable_summary.size() > 0)
-          {
-            prod->add(YCPString("summary"), YCPString((*it)->summary()));
-          }
-          YCPList updateUrls;
-          zypp::Product::UrlList pupdateUrls = product->updateUrls();
-          for_( it, pupdateUrls.begin(), pupdateUrls.end() )
-          {
-            updateUrls->add(YCPString(it->asString()));
-          }
-          prod->add(YCPString("update_urls"), updateUrls);
-
-          YCPList flags;
-          std::list<std::string> pflags = product->flags();
-          for (std::list<std::string>::const_iterator flag_it = pflags.begin();
-            flag_it != pflags.end(); ++flag_it)
-          {
-            flags->add(YCPString(*flag_it));
-          }
-          prod->add(YCPString("flags"), flags);
-
-          products->add(prod);
-        }
-    }
-    catch(...)
-    {
-    }
-
-    return products;
 }
 
 /** ------------------------

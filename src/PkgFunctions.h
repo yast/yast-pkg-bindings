@@ -581,8 +581,6 @@ class PkgFunctions
 	YCPBoolean TargetInstall (const YCPString&);
 	/* TYPEINFO: boolean(string)*/
 	YCPBoolean TargetRemove (const YCPString&);
-	/* TYPEINFO: list<any>()*/
-	YCPList TargetProducts ();
 	/* TYPEINFO: boolean()*/
 	YCPBoolean TargetRebuildDB ();
 	/* TYPEINFO: void(list<map<any,any>>)*/
