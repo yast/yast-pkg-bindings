@@ -1283,43 +1283,6 @@ PkgFunctions::IsManualSelection ()
     return YCPBoolean(false);
 }
 
-// ------------------------
-/**
-   @builtin PkgAnyToDelete
-
-   @short Check if there are any package to be deleted - obsoleted
-   @description
-   return true if any packages are to be deleted
-   @return boolean
-
-*/
-YCPValue
-PkgFunctions::PkgAnyToDelete ()
-{
-    y2warning("Pkg::PkgAnyToDelete() is obsoleted, use Pkg::IsAnyResolvable(`package, `to_remove) instead");
-    return IsAnyResolvable(YCPSymbol("package"), YCPSymbol("to_remove"));
-}
-
-// ------------------------
-/**
-   @builtin AnyToInstall
-
-   @short Check if there are any package to be installed - obsoleted
-   @description
-   return true if any packages are to be installed
-   @return boolean
-
-*/
-YCPValue
-PkgFunctions::PkgAnyToInstall ()
-{
-    y2warning("Pkg::PkgAnyToInstall() is obsoleted, use Pkg::IsAnyResolvable(`package, `to_install) instead");
-    return IsAnyResolvable(YCPSymbol("package"), YCPSymbol("to_install"));
-}
-
-// ------------------------
-
-
 /* helper function */
 static void
 pkg2list (YCPList &list, const zypp::PoolItem &item, bool names_only)

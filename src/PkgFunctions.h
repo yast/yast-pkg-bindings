@@ -618,10 +618,6 @@ class PkgFunctions
 	YCPValue RestoreState (const YCPBoolean&);
 	/* TYPEINFO: map<symbol,integer>(map<string,any>)*/
 	YCPValue PkgUpdateAll (const YCPMap& options);
-	/* TYPEINFO: boolean()*/
-	YCPValue PkgAnyToDelete ();
-	/* TYPEINFO: boolean()*/
-	YCPValue PkgAnyToInstall ();
 	// FIXME: is this needed?
 	YCPValue PkgFileHasOwner (YCPList args);
 	/* TYPEINFO: list<list<any>>(string) */
