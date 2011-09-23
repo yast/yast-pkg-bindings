@@ -569,8 +569,6 @@ class PkgFunctions
 	YCPBoolean TargetDisableSources ();
 	/* TYPEINFO: boolean()*/
 	YCPBoolean TargetFinish ();
-	/* TYPEINFO: boolean(string)*/
-	YCPBoolean TargetLogfile (const YCPString&);
 	/* TYPEINFO: integer(string)*/
 	YCPInteger TargetCapacity (const YCPString&);
 	/* TYPEINFO: integer(string)*/

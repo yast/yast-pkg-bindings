@@ -134,21 +134,6 @@ PkgFunctions::TargetRemove(const YCPString& name)
     return YCPBoolean (true);
 }
 
-
-/** ------------------------
- *
- * @builtin TargetLogfile - obsoleted, do not use!
- * @param string name
- * @return boolean
- */
-YCPBoolean
-PkgFunctions::TargetLogfile (const YCPString& name)
-{
-    y2warning("Pkg::TargetLogfile() is obsoleted, the log file is now entirely handled by libzypp. See http://en.opensuse.org/Libzypp/Package_History");
-    return YCPBoolean (true);
-}
-
-
 /** ------------------------
  *
  * @builtin TargetProducts
