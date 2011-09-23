@@ -31,7 +31,6 @@ libpy2Pkg_la_SOURCES =				\
 	Resolvable_Install.cc			\
 	Resolvable_Patches.cc			\
 	Resolvable_Properties.cc		\
-	Selection.cc				\
 	Target.cc Target_DU.cc Target_Load.cc	\
 	Locale.cc Locks.cc			\
 	Source_Callbacks.cc			\

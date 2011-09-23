@@ -596,27 +596,13 @@ class PkgFunctions
 	/* TYPEINFO: boolean(string,symbol)*/
 	YCPBoolean TargetStoreRemove(const YCPString& root, const YCPSymbol& kind_r);
 
-	// selection related
-	/* TYPEINFO: list<string>(symbol,string)*/
-	YCPValue GetSelections (const YCPSymbol& stat, const YCPString& cat);
-	/* TYPEINFO: list<string>(symbol,string)*/
-	YCPValue GetPatterns (const YCPSymbol& stat, const YCPString& cat);
+	// backup related
 	/* TYPEINFO: string()*/
 	YCPValue GetBackupPath ();
 	/* TYPEINFO: void(string)*/
 	YCPValue SetBackupPath (const YCPString& path);
 	/* TYPEINFO: void(boolean)*/
 	YCPValue CreateBackups (const YCPBoolean& flag);
-	/* TYPEINFO: map<string,any>(string)*/
-	YCPValue SelectionData (const YCPString& cat);
-	/* TYPEINFO: list<string>(string,boolean,string)*/
-	YCPValue SelectionContent (const YCPString&, const YCPBoolean&, const YCPString&);
-	/* TYPEINFO: boolean(string)*/
-	YCPBoolean SetSelection (const YCPString&);
-	/* TYPEINFO: boolean(string)*/
-	YCPValue ClearSelection (const YCPString&);
-	/* TYPEINFO: boolean() */
-	YCPBoolean ActivateSelections ();
 
 	// package related
 	/* TYPEINFO: list<string>(symbol,boolean)*/

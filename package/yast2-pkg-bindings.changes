@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Sep 23 11:21:12 UTC 2011 - lslezak@suse.cz
+
+- removed obsoleted selection related functions:
+  Pkg::GetSelections(), Pkg::GetPatterns(), Pkg::SelectionData(), 
+  Pkg::SelectionContent(), Pkg::SetSelection(),
+  Pkg::ClearSelection(), Pkg::ActivateSelections()
+
+-------------------------------------------------------------------
 Thu Sep 22 13:26:20 UTC 2011 - lslezak@suse.cz
 
 - use signed type for RepoId, fixes returning 2^32 - 1 instead of
