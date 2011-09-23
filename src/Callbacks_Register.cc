@@ -185,41 +185,6 @@ YCPValue PkgFunctions::CallbackSourceChange( const YCPValue& args ) {
   return SET_YCP_CB( CB_SourceChange, args );
 }
 
-
-YCPValue PkgFunctions::CallbackYouProgress( const YCPValue& args ) {
-  y2warning("Pkg::CallbackYouProgress is obsoleted, do not use it (empty implementation)!");
-  return YCPVoid();
-}
-
-YCPValue PkgFunctions::CallbackYouPatchProgress( const YCPValue& args ) {
-  y2warning("Pkg::CallbackYouPatchProgress is obsoleted, do not use it (empty implementation)!");
-  return YCPVoid();
-}
-
-YCPValue PkgFunctions::CallbackYouError( const YCPValue& args ) {
-  y2warning("Pkg::CallbackYouError is obsoleted, do not use it (empty implementation)!");
-  return YCPVoid();
-}
-
-YCPValue PkgFunctions::CallbackYouMessage( const YCPValue& args ) {
-  y2warning("Pkg::CallbackYouMessage is obsoleted, do not use it (empty implementation)!");
-  return YCPVoid();
-}
-
-YCPValue PkgFunctions::CallbackYouLog( const YCPValue& args ) {
-  y2warning("Pkg::CallbackYouLog is obsoleted, do not use it (empty implementation)!");
-  return YCPVoid();
-}
-
-YCPValue PkgFunctions::CallbackYouExecuteYcpScript( const YCPValue& args ) {
-  y2warning("Pkg::CallbackYouExecuteYcpScript is obsoleted, do not use it (empty implementation)!");
-  return YCPVoid();
-}
-YCPValue PkgFunctions::CallbackYouScriptProgress( const YCPValue& args ) {
-  y2warning("Pkg::CallbackYouScriptProgress is obsoleted, do not use it (empty implementation)!");
-  return YCPVoid();
-}
-
 YCPValue PkgFunctions::CallbackStartRebuildDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_StartRebuildDb, args );
 }

@@ -384,21 +384,6 @@ class PkgFunctions
 	YCPValue CallbackSourceChange (const YCPValue& /*nil*/ args);
 
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackYouProgress (const YCPValue& /*nil*/ args);
-	/* TYPEINFO: void(void()) */
-	YCPValue CallbackYouPatchProgress (const YCPValue& /*nil*/ args);
-	/* TYPEINFO: void(void()) */
-	YCPValue CallbackYouError (const YCPValue& /*nil*/ args);
-	/* TYPEINFO: void(void()) */
-	YCPValue CallbackYouMessage (const YCPValue& /*nil*/ args);
-	/* TYPEINFO: void(void()) */
-	YCPValue CallbackYouLog (const YCPValue& /*nil*/ args);
-	/* TYPEINFO: void(void()) */
-        YCPValue CallbackYouExecuteYcpScript (const YCPValue& /*nil*/ args);
-	/* TYPEINFO: void(void()) */
-        YCPValue CallbackYouScriptProgress (const YCPValue& /*nil*/ args);
-
-	/* TYPEINFO: void(void()) */
         YCPValue CallbackStartRebuildDb (const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(integer)) */
         YCPValue CallbackProgressRebuildDb (const YCPValue& /*nil*/ args);
