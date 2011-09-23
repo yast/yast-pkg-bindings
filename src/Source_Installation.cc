@@ -49,18 +49,6 @@ extern "C"
   Textdomain "pkg-bindings"
 */
 
-/****************************************************************************************
- * @builtin SourceSetRamCache
- * @short Obsoleted function, do not use
- * @param boolean
- * @return boolean
- **/
-YCPValue
-PkgFunctions::SourceSetRamCache (const YCPBoolean& a)
-{
-    y2warning( "Pkg::SourceSetRamCache is obsolete and does nothing");
-    return YCPBoolean( true );
-}
 
 bool PkgFunctions::CreateDir(const std::string &path)
 {
