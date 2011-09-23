@@ -249,27 +249,6 @@ PkgFunctions::SourceProvideDigestedFile (const YCPInteger& id, const YCPInteger&
 
     return SourceProvideFileCommon(id, mid, f, optional->value() /*optional*/, true /* signed */, true /* digested */);
 }
-/****************************************************************************************
- * @builtin SourceProvideDir
- * @short make a directory available at the local filesystem
- * @description
- * Let an InstSrc provide some directory (make it available at the local filesystem) and
- * all the files within it (non recursive).
- * Warning: The downloaded files are removed in Pkg::SourceReleaseAll()!
- *
- * @param integer SrcId	Specifies the InstSrc .
- * @param integer medianr Number of the media the file is located on ('1' for the 1st media).
- * @param string dir Directoryname relative to the media root.
- * @return string local path as string
- */
-YCPValue
-PkgFunctions::SourceProvideDir (const YCPInteger& id, const YCPInteger& mid, const YCPString& d)
-{
-    y2warning("Pkg::SourceProvideDir() is obsoleted use Pkg::SourceProvideDirectory() instead");
-    // non optional, non recursive
-    return SourceProvideDirectory(id, mid, d, false, false);
-}
-
 
 /****************************************************************************************
  * @builtin SourceProvideDirectory
