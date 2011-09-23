@@ -466,8 +466,6 @@ class PkgFunctions
 	YCPValue SourceStartCache (const YCPBoolean&);
 	/* TYPEINFO: list<integer>(boolean)*/
 	YCPValue SourceGetCurrent (const YCPBoolean& enabled);
-	/* TYPEINFO: boolean(integer)*/
-	YCPValue SourceFinish (const YCPInteger&);
 	/* TYPEINFO: boolean()*/
 	YCPValue SourceSaveAll ();
 	/* TYPEINFO: boolean()*/

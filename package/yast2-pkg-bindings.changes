@@ -10,7 +10,8 @@ Fri Sep 23 11:21:12 UTC 2011 - lslezak@suse.cz
   Pkg::InstSysMode(), Pkg::SourceProduct(),
   Pkg::SourceCleanupBroken(), Pkg::SourceGetBrokenSources(),
   Pkg::SourceProvideDir(), Pkg::CallbackYou*(),
-  Pkg::PkgAnyToDelete(), Pkg::PkgAnyToInstall() functions
+  Pkg::PkgAnyToDelete(), Pkg::PkgAnyToInstall(),
+  Pkg::SourceFinish() functions
 
 -------------------------------------------------------------------
 Thu Sep 22 13:26:20 UTC 2011 - lslezak@suse.cz

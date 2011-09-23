@@ -290,17 +290,3 @@ PkgFunctions::SourceFinishAll ()
     return YCPBoolean(true);
 }
 
-
-/****************************************************************************************
- * @builtin SourceFinish
- * @short Disable an Installation Source - obsoleted
- * @param integer SrcId Specifies the InstSrc.
- * @return boolean
- **/
-YCPValue
-PkgFunctions::SourceFinish (const YCPInteger& id)
-{
-    y2warning("Pkg::SourceFinish() is obsoleted, use Pkg::SourceSetEnabled(id, false) instead");
-    return SourceSetEnabled(id, false);
-}
-
