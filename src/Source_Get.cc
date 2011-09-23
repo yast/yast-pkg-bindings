@@ -418,20 +418,6 @@ PkgFunctions::SourceProductData (const YCPInteger& src_id)
 }
 
 /****************************************************************************************
- * @builtin SourceProduct
- * @short Obsoleted function, do not use, see SourceProductData builtin
- * @deprecated
- * @param integer
- * @return map empty map
- **/
-YCPValue
-PkgFunctions::SourceProduct (const YCPInteger& id)
-{
-  y2error("Pkg::SourceProduct() is obsoleted, use Pkg::SourceProductData() instead!");
-  return SourceProductData(id);
-}
-
-/****************************************************************************************
  * @builtin SourceEditGet
  *
  * @short Get state of Sources

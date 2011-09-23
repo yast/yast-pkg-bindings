@@ -515,8 +515,6 @@ class PkgFunctions
 	YCPValue SourceProvideDigestedFile(const YCPInteger& id, const YCPInteger& mid, const YCPString& f, const YCPBoolean &optional);
 	/* TYPEINFO: boolean(string)*/
 	YCPValue SourceCacheCopyTo (const YCPString&);
-	/* TYPEINFO: map<string,string>(integer)*/
-	YCPValue SourceProduct (const YCPInteger&);
 	/* TYPEINFO: boolean(integer,boolean)*/
         YCPValue SourceSetEnabled (const YCPInteger&, const YCPBoolean&);
 	/* TYPEINFO: boolean(integer,boolean)*/
