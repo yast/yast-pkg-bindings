@@ -481,8 +481,6 @@ class PkgFunctions
 	YCPValue SourceCreateEx (const YCPString&, const YCPString&, bool, const YCPString& source_type, bool scan_only = false);
 	/* TYPEINFO: list<integer>(boolean)*/
 	YCPValue SourceStartCache (const YCPBoolean&);
-	/* TYPEINFO: boolean()*/
-	YCPValue SourceCleanupBroken ();
 	/* TYPEINFO: list<integer>(boolean)*/
 	YCPValue SourceGetCurrent (const YCPBoolean& enabled);
 	/* TYPEINFO: boolean(integer)*/

@@ -7,7 +7,8 @@ Fri Sep 23 11:21:12 UTC 2011 - lslezak@suse.cz
   Pkg::ClearSelection(), Pkg::ActivateSelections()
 - removed obsoleted Pkg::TargetLogfile(), Pkg::TargetProducts(),
   Pkg::LastErrorId(), Pkg::Init(), Pkg::SourceSetRamCache(),
-  Pkg::InstSysMode(), Pkg::SourceProduct() functions
+  Pkg::InstSysMode(), Pkg::SourceProduct(),
+  Pkg::SourceCleanupBroken() functions
 
 -------------------------------------------------------------------
 Thu Sep 22 13:26:20 UTC 2011 - lslezak@suse.cz

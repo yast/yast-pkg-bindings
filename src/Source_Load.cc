@@ -584,17 +584,3 @@ PkgFunctions::SourceStartCache (const YCPBoolean& enabled)
     return YCPList();
 }
 
-/****************************************************************************************
- * @builtin SourceCleanupBroken - obsoleted, do not use!
- *
- * @short Clean up all sources that were not properly restored on the last
- * call of SourceStartManager or SourceStartCache.
- *
- * @return boolean
- **/
-YCPValue
-PkgFunctions::SourceCleanupBroken ()
-{
-    y2warning("Pkg::SourceCleanupBroken() is obsoleted, it's not needed anymore.");
-    return YCPBoolean(true);
-}
