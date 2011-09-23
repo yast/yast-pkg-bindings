@@ -11,7 +11,7 @@ Fri Sep 23 11:21:12 UTC 2011 - lslezak@suse.cz
   Pkg::SourceCleanupBroken(), Pkg::SourceGetBrokenSources(),
   Pkg::SourceProvideDir(), Pkg::CallbackYou*(),
   Pkg::PkgAnyToDelete(), Pkg::PkgAnyToInstall(),
-  Pkg::SourceFinish() functions
+  Pkg::SourceFinish(), Pkg::GetLocale(), Pkg::SetLocale() functions
 
 -------------------------------------------------------------------
 Thu Sep 22 13:26:20 UTC 2011 - lslezak@suse.cz

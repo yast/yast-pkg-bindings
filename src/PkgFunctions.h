@@ -238,10 +238,6 @@ class PkgFunctions
     public:
 	// general
 	/* TYPEINFO: void(string) */
-	YCPValue SetLocale (const YCPString& locale);
-	/* TYPEINFO: string() */
-	YCPValue GetLocale ();
-	/* TYPEINFO: void(string) */
 	YCPValue SetTextLocale(const YCPString&);
 	/* TYPEINFO: void(string) */
 	YCPValue SetPackageLocale(const YCPString&);

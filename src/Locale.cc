@@ -101,25 +101,6 @@ PkgFunctions::SetPackageLocale (const YCPString &locale)
 }
 
 /**
- * @builtin SetLocale
- * @short Set The Main (Preferred) Locale -- OBSOLETED!
- * @description
- * OBSOLETED, DO NOT USE! It has been replaced by SetTextLocale() and SetMainLocale() calls (see bug #223624)
- * @param string locale Locale
- * @return void
- */
-YCPValue
-PkgFunctions::SetLocale (const YCPString &locale)
-{
-    y2warning("Pkg::SetLocale() is obsoleted, use Pkg::SetTextLocale() and/or Pkg::SetPackageLocale() instead. Pkg::SetLocale() currently calls both functions");
-
-    SetTextLocale(locale);
-    SetPackageLocale(locale);
-
-    return YCPVoid();
-}
-
-/**
  * @builtin GetTextLocale
  * @short get the currently preferred locale
  * @return string locale
@@ -137,19 +118,6 @@ PkgFunctions::GetTextLocale ()
     }
 
     return YCPVoid();
-}
-
-/**
- * @builtin GetLocale
- * @short get the currently preferred locale
- * @return string locale
- * @usage Pkg::GetLocale () -> "en_US"
- */
-YCPValue
-PkgFunctions::GetLocale ()
-{
-    y2warning("Pkg::GetLocale() is obsoleted, use Pkg::GetTextLocale() or Pkg::GetPackageLocale() instead. Pkg::GetLocale() currently calls Pkg::GetTextLocale()");
-    return GetTextLocale();
 }
 
 /**
