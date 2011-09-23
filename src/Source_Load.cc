@@ -140,20 +140,6 @@ PkgFunctions::SourceRestore()
 }
 
 /****************************************************************************************
- * @builtin SourceGetBrokenSources
- *
- * @short Return list of broken sources (sources which failed to restore)
- * @description
- * Get list of all sources which could not have been restored.
- * @return list<string> list of aliases (product names or URLs)
- **/
-YCPValue PkgFunctions::SourceGetBrokenSources()
-{
-    y2warning("Pkg::SourceGetBrokenSources() is obsoleted, it's not needed anymore.");
-    return YCPList();
-}
-
-/****************************************************************************************
  * @builtin SourceLoad
  *
  * @short Load resolvables from the installation sources
