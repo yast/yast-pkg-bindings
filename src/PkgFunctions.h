@@ -414,8 +414,6 @@ class PkgFunctions
 
 	/* TYPEINFO: void(boolean(map<string,any>,integer)) */
 	YCPValue CallbackImportGpgKey( const YCPValue& /*nil*/ args );	
-	/* TYPEINFO: void(boolean(map<string,any>)) */
-	YCPValue CallbackAcceptNonTrustedGpgKey( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(boolean(string,string,integer)) */
 	YCPValue CallbackAcceptUnknownGpgKey( const YCPValue& /*nil*/ args );	
 	/* TYPEINFO: void(boolean(string,integer)) */

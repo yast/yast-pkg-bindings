@@ -86,17 +86,6 @@ YCPValue PkgFunctions::CallbackAcceptUnknownGpgKey( const YCPValue& args ) {
 }
 
 /**
- * @builtin CallbackAcceptNonTrustedGpgKey
- * @short Register callback function
- * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, map<string,any> key)</code>. The callback function should ask user whether the unknown key can be accepted, returned true value means to accept the file.
- * @return void
- */
-YCPValue PkgFunctions::CallbackAcceptNonTrustedGpgKey( const YCPValue& args ) {
-  y2warning("Pkg::CallbackAcceptNonTrustedGpgKey() is obsoleted, ");
-  return YCPVoid();
-}
-
-/**
  * @builtin CallbackAcceptUnsignedFile
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename)</code>. The callback function should ask user whether the unsigned file can be accepted, returned true value means to accept the file.
