@@ -260,8 +260,6 @@ class PkgFunctions
 	/* TYPEINFO: string() */
 	YCPValue LastErrorDetails ();
 	/* TYPEINFO: boolean() */
-	YCPValue Init ();
-	/* TYPEINFO: boolean() */
 	YCPValue Connect ();
 
 	// callbacks

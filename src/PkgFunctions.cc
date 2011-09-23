@@ -205,18 +205,6 @@ PkgFunctions::LastErrorDetails ()
     return YCPString (_last_error.lastErrorDetails());
 }
 
-/**
- * @builtin Init
- * @short completely initialize package management (currently it is empty)
- * @return boolean true on success
- */
-YCPValue
-PkgFunctions::Init ()
-{
-#warning  FIXME can be Init() empty??
-    return YCPBoolean(true);
-}
-
 zypp::RepoManager PkgFunctions::CreateRepoManager()
 {
     // set path option, use root dir as a prefix for the default directory
