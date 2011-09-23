@@ -618,8 +618,6 @@ class PkgFunctions
 	YCPValue RestoreState (const YCPBoolean&);
 	/* TYPEINFO: map<symbol,integer>(map<string,any>)*/
 	YCPValue PkgUpdateAll (const YCPMap& options);
-	// FIXME: is this needed?
-	YCPValue PkgFileHasOwner (YCPList args);
 	/* TYPEINFO: list<list<any>>(string) */
 	YCPList  PkgQueryProvides(const YCPString& tag);
 
