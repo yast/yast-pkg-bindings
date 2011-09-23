@@ -206,30 +206,6 @@ PkgFunctions::LastErrorDetails ()
 }
 
 /**
- * @builtin LastErrorId
- * @short Obsoleted function, do not use
- * @return string
- */
-YCPValue
-PkgFunctions::LastErrorId ()
-{
-
-    /* TODO FIXME
-    int errorId = _last_error;
-    switch ( errorId ) {
-        case PMError::E_ok:
-            return YCPString( "ok" );
-        case InstSrcError::E_isrc_cache_duplicate:
-            return YCPString( "instsrc_duplicate" );
-        default:
-            return YCPString( "error" );
-    }
-    */
-
-    return YCPString( "ok" );
-}
-
-/**
  * @builtin Init
  * @short completely initialize package management (currently it is empty)
  * @return boolean true on success

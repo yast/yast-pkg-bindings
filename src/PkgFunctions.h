@@ -259,8 +259,6 @@ class PkgFunctions
 	YCPValue LastError ();
 	/* TYPEINFO: string() */
 	YCPValue LastErrorDetails ();
-	/* TYPEINFO: string() */
-	YCPValue LastErrorId ();
 	/* TYPEINFO: boolean() */
 	YCPValue Init ();
 	/* TYPEINFO: boolean() */
