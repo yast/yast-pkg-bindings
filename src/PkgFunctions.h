@@ -609,8 +609,6 @@ class PkgFunctions
 	YCPValue CreateBackups (const YCPBoolean& flag);
 	/* TYPEINFO: map<string,any>(string)*/
 	YCPValue SelectionData (const YCPString& cat);
-	/* TYPEINFO: map<string,any>(string)*/
-	YCPValue PatternData (const YCPString& pat);
 	/* TYPEINFO: list<string>(string,boolean,string)*/
 	YCPValue SelectionContent (const YCPString&, const YCPBoolean&, const YCPString&);
 	/* TYPEINFO: boolean(string)*/
