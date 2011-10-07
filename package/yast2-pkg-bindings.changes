@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Oct  7 10:12:22 UTC 2011 - lslezak@suse.cz
+
+- solver reset - reset also the distupgrade solver flag
+  (bnc#709480)
+- 2.21.11
+
+-------------------------------------------------------------------
 Fri Sep 23 11:21:12 UTC 2011 - lslezak@suse.cz
 
 - removed obsoleted selection related functions:
