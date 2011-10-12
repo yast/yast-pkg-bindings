@@ -15,6 +15,15 @@ Index: src/Package.cc
 ===================================================================
 --- src/Package.cc	(revision 64337)
 +++ src/Package.cc	(working copy)
+@@ -1812,8 +1812,6 @@
+ 	{
+ 	    y2milestone("Resetting the solver");
+ 	    zypp_ptr()->resolver()->reset();
+-	    // reset also the dist upgrade flag (set by PkgUpdateAll())
+-	    zypp_ptr()->resolver()->setUpgradeMode(false);
+ 	}
+     }
+ 
 @@ -2107,9 +2107,6 @@
  
      switch (d_mode)

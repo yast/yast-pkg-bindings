@@ -15,6 +15,10 @@ Summary:	YaST2 - Package Manager Access
 Patch0:		openSUSE-11.3.diff
 %endif
 
+%if 0%{?suse_version} == 1140
+Patch0:		openSUSE-11.4.diff
+%endif
+
 %description
 This package contains a name space for accessing the package manager
 library in YaST2.
@@ -23,7 +27,7 @@ library in YaST2.
 # build only the library, ignore documentation (it is in devel-doc package)
 echo "src" > SUBDIRS
 
-%if 0%{?suse_version} == 1130
+%if 0%{?suse_version} == 1130 || 0%{?suse_version} == 1140
 %patch0 -p0
 %endif
 
