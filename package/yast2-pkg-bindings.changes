@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Oct  7 10:12:22 UTC 2011 - lslezak@suse.cz
+
+- solver reset - reset also the distupgrade solver flag
+  (bnc#709480)
+- 2.17.45.3
+
+-------------------------------------------------------------------
 Mon Aug  1 09:28:55 UTC 2011 - lslezak@suse.cz
 
 - Pkg::SourceFinishAll() - remove upgrading repositories from the

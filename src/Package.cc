@@ -1840,6 +1840,8 @@ YCPValue PkgFunctions::SetSolverFlags(const YCPMap& params)
 	{
 	    y2milestone("Resetting the solver");
 	    zypp_ptr()->resolver()->reset();
+	    // reset also the dist upgrade flag (set by PkgUpdateAll())
+	    zypp_ptr()->resolver()->setUpgradeMode(false);
 	}
     }
 
