@@ -4,14 +4,15 @@ Name: yast2-pkg-bindings-devel-doc
 
 Version:        @VERSION@
 Release:        0
-License:        GPL
+License:        GPL-2.0+
 Group:          Documentation/HTML
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        yast2-pkg-bindings-@VERSION@.tar.bz2
 Prefix:         %_prefix
 
 # same as in the main package (because we use the same configure.in.in)
-BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer sgml-skel yast2-core-devel yast2-devtools libzypp-devel 
+BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer sgml-skel yast2-core-devel yast2-devtools libzypp-devel 
+BuildRequires:  libtool gcc-c++
 
 Buildarch: noarch
 Requires:  yast2-pkg-bindings = %{version}

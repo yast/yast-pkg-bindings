@@ -3,8 +3,9 @@
 @HEADER@
 Group:	System/YaST
 License: GPL-2.0+
-BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer sgml-skel yast2-core-devel yast2-devtools
+BuildRequires: blocxx-devel docbook-xsl-stylesheets doxygen libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer sgml-skel yast2-core-devel yast2-devtools
 BuildRequires: libzypp-devel >= 6.10.0
+BuildRequires: libtool gcc-c++
 
 # new GPG callbacks
 Requires:	libzypp >= 6.6.0

@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Nov 25 12:24:13 UTC 2011 - coolo@suse.com
+
+- add libtool as buildrequire to avoid implicit dependency
+
+-------------------------------------------------------------------
 Fri Oct  7 10:12:22 UTC 2011 - lslezak@suse.cz
 
 - solver reset - reset also the distupgrade solver flag
