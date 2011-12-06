@@ -382,11 +382,24 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
 	// reload all repositories
 	for (RepoCont::size_type idx = 0; idx != repos.size(); ++idx)
 	{
+	    YRepo_Ptr repo = repos[idx];
+
 	    // the repo has not been removed
-	    if (!(repos[idx])->isDeleted())
+	    if (!repo->isDeleted())
 	    {
-		y2milestone("Reloading repository %s", (repos[idx])->repoInfo().alias().c_str());
-		repos[idx]->repoInfo() = repomanager.getRepositoryInfo((repos[idx])->repoInfo().alias());
+		zypp::RepoInfo info(repo->repoInfo());
+		y2milestone("Reloading repository %s", info.alias().c_str());
+
+		if (repomanager.hasRepo(info))
+		{
+		    repos[idx]->repoInfo() = repomanager.getRepositoryInfo(info.alias());
+		}
+		else
+		{
+		    y2milestone("Repository %s has been removed, unloading it", (info.alias().c_str()));
+		    RemoveResolvablesFrom(repo);
+		    repo->setDeleted();
+		}
 	    }
 	}
 
