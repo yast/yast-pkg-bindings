@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Dec  6 13:29:53 UTC 2011 - lslezak@suse.cz
+
+- fixed reloading of repositories which have been removed during
+  service reload (bnc#724449)
+- 2.22.0
+
+-------------------------------------------------------------------
 Fri Nov 25 12:24:13 UTC 2011 - coolo@suse.com
 
 - add libtool as buildrequire to avoid implicit dependency
