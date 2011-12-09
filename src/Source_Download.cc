@@ -96,8 +96,7 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 		}
 
 		zypp::OnMediaLocation mloc(media_path, mid->value());
-		// the file is never optional for zypp (it cannot tell whether an optional file failed)
-		mloc.setOptional(false);
+		mloc.setOptional(optional);
 
 		// create the tmpdir in <_download_area>/var/tmp
 		zypp::filesystem::TmpDir tmpdir(_download_area / zypp::filesystem::TmpDir::defaultLocation());
