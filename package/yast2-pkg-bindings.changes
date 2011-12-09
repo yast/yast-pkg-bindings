@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Dec  9 12:54:54 UTC 2011 - lslezak@suse.cz
+
+- fixed downloading optional files - pass the optional flag to
+  libzypp to skip media change callback for optional files
+  (bnc#735340)
+- 2.17.55
+
+-------------------------------------------------------------------
 Tue Dec  6 13:29:53 UTC 2011 - lslezak@suse.cz
 
 - fixed reloading of repositories which have been removed during
