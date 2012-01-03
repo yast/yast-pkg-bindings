@@ -143,6 +143,26 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 
     if (found)
     {
+	// check if the file really exists
+	struct stat buf;
+	int status = ::stat(path.asString().c_str(), &buf);
+
+	y2debug("File: %s, status: %d", path.asString().c_str(), status);
+
+	if (status != 0)
+	{
+	    if (errno == ENOENT)
+	    {
+		y2milestone("File not found: %s, download failed", path.asString().c_str());
+	    }
+	    else
+	    {
+		y2error("Cannot check status of the downloaded file: %s", strerror(errno));
+	    }
+
+	    return YCPVoid();
+	}
+
 	return YCPString(path.asString());
     }
     else
