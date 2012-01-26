@@ -314,7 +314,11 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
 
     prg.toMax();
 }
-    repos.push_back(new YRepo(repo));
+
+    YRepo_Ptr new_repo = new YRepo(repo);
+    new_repo->setAdded();
+ 
+    repos.push_back(new_repo);
 
     y2milestone("Added source '%s': '%s', enabled: %s, autorefresh: %s",
 	repo.alias().c_str(),
@@ -511,7 +515,10 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
 
     repo.setPackagesPath(repomanager.packagesPath(repo));
 
-    repos.push_back(new YRepo(repo));
+    YRepo_Ptr new_repo = new YRepo(repo);
+    new_repo->setAdded();
+
+    repos.push_back(new_repo);
 
     // the new source is at the end of the list
     return YCPInteger(repos.size() - 1);

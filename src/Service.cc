@@ -394,7 +394,8 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
 		{
 		    repos[idx]->repoInfo() = repomanager.getRepositoryInfo(info.alias());
 		}
-		else
+		// do not remove repos which have not been saved yet (freshly added)
+		else if (!repo->isAdded())
 		{
 		    y2milestone("Repository %s has been removed, unloading it", (info.alias().c_str()));
 		    RemoveResolvablesFrom(repo);
