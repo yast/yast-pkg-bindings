@@ -220,6 +220,12 @@ PkgFunctions::SourceSaveAll ()
 		    y2milestone("Adding repository '%s'", current_alias.c_str());
 		    repomanager.addRepository((*it)->repoInfo());
 		}
+
+		if (!(*it)->isAdded())
+		{
+		    y2milestone("Resetting added flag for repository %s", current_alias.c_str());
+		    (*it)->resetAdded();
+		}
 	    }
 	    catch (zypp::Exception & excpt)
 	    {

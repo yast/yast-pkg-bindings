@@ -39,6 +39,7 @@ private:
     zypp::RepoInfo _repo;
     zypp::MediaSetAccess_Ptr _maccess;
     bool _deleted;
+    bool _added;
 
     YRepo() {}
 
@@ -52,6 +53,10 @@ public:
 
     bool isDeleted() {return _deleted;}
     void setDeleted() {_deleted = true;}
+
+    bool isAdded() {return _added;}
+    void setAdded() {_added = true;}
+    void resetAdded() {_added = false;}
 
 public:
     static const YRepo NOREPO;

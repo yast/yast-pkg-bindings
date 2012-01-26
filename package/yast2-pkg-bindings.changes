@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Jan 26 11:50:25 UTC 2012 - lslezak@suse.cz
+
+- fixed saving additional repositories added by registration
+  (a regression introduced by bnc#724449 fix) (bnc#742033)
+- 2.17.45.5
+
+-------------------------------------------------------------------
 Tue Dec  6 13:29:53 UTC 2011 - lslezak@suse.cz
 
 - fixed reloading of repositories which have been removed during
