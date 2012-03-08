@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Mar  8 08:16:23 UTC 2012 - lslezak@suse.cz
+
+- added Pkg::ResolvableUpdate() to avoid downgrading resolvables
+  (bnc#751147)
+
+-------------------------------------------------------------------
 Tue Jan  3 16:58:42 UTC 2012 - lslezak@suse.cz
 
 - check if downloading optional file really succeeded (bnc#736693)
