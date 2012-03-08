@@ -235,6 +235,17 @@ class PkgFunctions
 
       // a helper function to add or remove an upgrade repository
       YCPValue AddRemoveUpgradeRepo(const YCPInteger &repo, bool add);
+      
+      // action for a resolvable
+      enum ResolvableAction
+      {
+        Install,
+        Remove,
+        Update
+      };
+
+      // helper for installing/removing/upgrading a resolvable
+      bool ResolvableUpdateInstallOrDelete(const YCPString& name_r, const YCPSymbol& kind_r, ResolvableAction action);
 
     public:
 	// general
@@ -790,6 +801,8 @@ class PkgFunctions
 	YCPValue ResolvableInstallArchVersion( const YCPString& name_r, const YCPSymbol& kind_r, const YCPString& arch, const YCPString& vers );
 	/* TYPEINFO: boolean(string,symbol,integer)*/
 	YCPValue ResolvableInstallRepo( const YCPString& name_r, const YCPSymbol& kind_r, const YCPInteger& repo_r );
+	/* TYPEINFO: boolean(string,symbol)*/
+        YCPValue ResolvableUpdate( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: boolean(string,symbol)*/
         YCPValue ResolvableRemove( const YCPString& name_r, const YCPSymbol& kind_r );
 	/* TYPEINFO: boolean(string,symbol,boolean)*/

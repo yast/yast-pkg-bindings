@@ -236,7 +236,7 @@ PkgFunctions::ResolvableInstallRepo( const YCPString& name_r, const YCPSymbol& k
     return YCPBoolean(ret);
 }
 
-bool ResolvableInstallOrDelete(const YCPString& name_r, const YCPSymbol& kind_r, bool install)
+bool PkgFunctions::ResolvableUpdateInstallOrDelete(const YCPString& name_r, const YCPSymbol& kind_r, ResolvableAction action)
 {
     zypp::Resolvable::Kind kind;
     
@@ -275,9 +275,68 @@ bool ResolvableInstallOrDelete(const YCPString& name_r, const YCPSymbol& kind_r,
 
     if (s)
     {
-	y2milestone("%s: %s:%s ", install ? "Installing" : "Removing", req_kind.c_str(), name.c_str());
-	return install ? s->setToInstall(zypp::ResStatus::APPL_HIGH):
-	    s->setToDelete(zypp::ResStatus::APPL_HIGH);
+        if (action == Install)
+        {
+            y2milestone("Installing %s %s ", req_kind.c_str(), name.c_str());
+            return s->setToInstall(zypp::ResStatus::APPL_HIGH);
+        }
+        else if (action == Remove)
+        {
+            y2milestone("Removing %s %s ", req_kind.c_str(), name.c_str());
+	    return s->setToDelete(zypp::ResStatus::APPL_HIGH);
+        }
+        else if (action == Update)
+        {
+            y2milestone("Updating %s %s ", req_kind.c_str(), name.c_str());
+            
+            // update candidate
+            zypp::PoolItem update = s->updateCandidateObj();
+            
+            // installed version
+            zypp::PoolItem installed;
+            if (zypp::traits::isPseudoInstalled(s->kind()))
+            {
+                for_(it, s->availableBegin(), s->availableEnd())
+                  // this is OK also for patches - isSatisfied() excludes !isRelevant()
+                  if (it->status().isSatisfied()
+                      && (!installed || installed->edition() < (*it)->edition()))
+                    installed = *it;
+            }
+            else
+            {
+                installed = s->installedObj();
+            }
+            
+            if (!installed)
+            {
+                y2milestone("%s is not installed, nothing to update", name.c_str());
+                return false;
+            }
+            
+            if (!update)
+            {
+                y2milestone("Update for %s is not available, no change", name.c_str());
+                return false;
+            }
+            
+            if (update->edition() > installed->edition())
+            {
+                y2milestone("Updating %s from %s.%s to %s.%s", name.c_str(), installed->edition().asString().c_str(),
+                    installed->arch().asString().c_str(), update->edition().asString().c_str(), update->arch().asString().c_str());
+                return update.status().setToBeInstalled(whoWantsIt);
+            }
+            else
+            {
+                y2milestone("%s %s: installed version (%s) is higher than available update (%s), no change",
+                    req_kind.c_str(), name.c_str(), installed->edition().asString().c_str(), update->edition().asString().c_str());
+                return false;
+            }
+        }
+        else
+        {
+            y2internal("Unknown resolvable action");
+            return false;
+        }
     }
     else
     {
@@ -298,9 +357,24 @@ bool ResolvableInstallOrDelete(const YCPString& name_r, const YCPSymbol& kind_r,
 YCPValue
 PkgFunctions::ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r )
 {
-    // true = install
-    return YCPBoolean(ResolvableInstallOrDelete(name_r, kind_r, true));
+    return YCPBoolean(ResolvableUpdateInstallOrDelete(name_r, kind_r, Install));
 }
+
+// ------------------------
+/**
+   @builtin ResolvableUpgrade
+   @short Install all resolvables with selected name and kind
+   @param name_r name of the resolvable 
+   @param kind_r kind of resolvable, can be `product, `patch, `package, `srcpackage or `pattern
+   @return boolean true if upgrade candidate was selected, false if the highest version is already installed or if there is no upgrade candidate
+ * 
+*/
+YCPValue
+PkgFunctions::ResolvableUpdate( const YCPString& name_r, const YCPSymbol& kind_r )
+{
+    return YCPBoolean(ResolvableUpdateInstallOrDelete(name_r, kind_r, Update));
+}
+
 
 // ------------------------
 /**
@@ -314,7 +388,7 @@ YCPValue
 PkgFunctions::ResolvableRemove ( const YCPString& name_r, const YCPSymbol& kind_r )
 {
     // false = remove
-    return YCPBoolean(ResolvableInstallOrDelete(name_r, kind_r, false));
+    return YCPBoolean(ResolvableUpdateInstallOrDelete(name_r, kind_r, Remove));
 }
 
 // ------------------------
