@@ -2,6 +2,8 @@
 Tue Mar 27 16:56:58 UTC 2012 - lslezak@suse.cz
 
 - removed libxcrypt-devel from buildrequires (aschnell)
+- dropped build support for openSUSE-11.x
+- 2.22.1
 
 -------------------------------------------------------------------
 Thu Mar  8 08:16:23 UTC 2012 - lslezak@suse.cz
