@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Apr 11 15:53:52 CEST 2012 - tgoettlicher@suse.de
+
+- license update: GPL-2.0
+  Numerous GPL-2.0 files in the package (see e.g. src/Arch.cc)
+
+-------------------------------------------------------------------
 Tue Mar 27 16:56:58 UTC 2012 - lslezak@suse.cz
 
 - removed libxcrypt-devel from buildrequires (aschnell)
