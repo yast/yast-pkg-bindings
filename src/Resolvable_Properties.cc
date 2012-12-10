@@ -502,6 +502,18 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 	info->add(YCPString("relogin_needed"), YCPBoolean(patch_ptr->reloginSuggested()));
 	info->add(YCPString("affects_pkg_manager"), YCPBoolean(patch_ptr->restartSuggested()));
 	info->add(YCPString("is_needed"), YCPBoolean(item.isBroken()));
+        // add names of packages, contained in the patch
+        YCPList contents;
+        // ... or, alternatively, add mapping of name->version
+        YCPMap content_map;
+        zypp::Patch::Contents c( patch_ptr->contents() );
+        for_( it, c.begin(), c.end() )
+        {
+          contents->add (YCPString (it->name()));
+          content_map->add (YCPString (it->name()), YCPString (it->edition().c_str()));
+        }
+        info->add(YCPString("contents"), contents);
+        info->add(YCPString("content_map"), content_map);
     }
 
     // dependency info
