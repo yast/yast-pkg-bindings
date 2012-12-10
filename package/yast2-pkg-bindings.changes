@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Dec 10 13:20:03 CET 2012 - jsuchome@suse.cz
+
+- showing patch contents (packages with their versions) as part
+  of ResolvableProperties call
+- 2.23.0
+
+-------------------------------------------------------------------
 Wed Apr 11 14:45:19 UTC 2012 - lslezak@suse.cz
 
 - 2.22.2
