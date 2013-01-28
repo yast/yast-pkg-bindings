@@ -67,7 +67,6 @@
    if status is `selected or `removed there is extra key "transact_by" : symbol, where symbol is `user (the highest level),
        `app_high (selected by Yast), `app_low and `solver (the lowest level)
 
-   @example
      Additionally to keys returned for all resolvables, there also some
      resolvable-specific ones:
      

@@ -62,11 +62,9 @@
     &PkgModuleFunctionsLocale;
     &PkgModuleFunctionsLocks;
     &PkgModuleFunctionsPackage;
-    &PkgModuleFunctionsPatch;
     &PkgModuleFunctionsResolvable_Install;
     &PkgModuleFunctionsResolvable_Patches;
     &PkgModuleFunctionsResolvable_Properties;
-    &PkgModuleFunctionsSelection;
     &PkgModuleFunctionsSource_Create;
     &PkgModuleFunctionsSource_Download;
     &PkgModuleFunctionsSource_Get;
