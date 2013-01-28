@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Jan 28 10:42:12 UTC 2013 - lslezak@suse.cz
+
+- fixed documentation build (bnc#800692)
+- 2.23.1
+
+-------------------------------------------------------------------
 Mon Dec 10 13:20:03 CET 2012 - jsuchome@suse.cz
 
 - showing patch contents (packages with their versions) as part
