@@ -1948,9 +1948,79 @@ PkgFunctions::PkgSolveErrors()
     return YCPVoid();
 }
 
+namespace
+{
+  ///////////////////////////////////////////////////////////////////
+  /// \class OldStyleCommitResult
+  /// \brief Mimic deprecated old ZYppCommitResult API using plain data members.
+  ///////////////////////////////////////////////////////////////////
+  struct OldStyleCommitResult
+  {
+    OldStyleCommitResult()
+    : _result( 0 )
+    {}
+
+    OldStyleCommitResult( const zypp::ZYppCommitResult & result_r )
+    : _result( 0 )
+    {
+      const zypp::ZYppCommitResult::TransactionStepList & steps( result_r.transactionStepList() );
+      for_( step, steps.begin(), steps.end() )
+      {
+	if ( step->stepType() == zypp::sat::Transaction::TRANSACTION_IGNORE )
+	{
+	  // For non-packages only products might have beed installed.
+	  // All the rest is ignored.
+	  if ( step->satSolvable().isSystem() || ! step->satSolvable().isKind<zypp::Product>() )
+	    continue;
+	}
+	else if ( step->stepType() == zypp::sat::Transaction::TRANSACTION_ERASE )
+	{
+	  continue;
+	}
+	// to be installed:
+	switch ( step->stepStage() )
+	{
+	  case zypp::sat::Transaction::STEP_TODO:
+	    if ( step->satSolvable().isKind<zypp::Package>() )
+	      _remaining.push_back( zypp::PoolItem( *step ) );
+	    else if ( step->satSolvable().isKind<zypp::SrcPackage>() )
+	      _srcremaining.push_back( zypp::PoolItem( *step ) );
+	    break;
+	  case zypp::sat::Transaction::STEP_DONE:
+	    ++_result;
+	    break;
+	  case zypp::sat::Transaction::STEP_ERROR:
+	    ++_result;
+	    _errors.push_back( zypp::PoolItem( *step ) );
+	    break;
+	}
+      }
+    }
+
+    typedef std::list<zypp::PoolItem> PoolItemList;
+    /**
+     * number of committed resolvables
+     **/
+    int          _result;
+    /**
+     * list of resolvables with error
+     **/
+    PoolItemList _errors;
+    /**
+     * list of resolvables remaining (due to wrong media)
+     **/
+    PoolItemList _remaining;
+    /**
+     * list of kind:source resolvables remaining (due to wrong media)
+     **/
+    PoolItemList _srcremaining;
+  };
+  ///////////////////////////////////////////////////////////////////
+} // namespace
+
 YCPValue PkgFunctions::CommitHelper(const zypp::ZYppCommitPolicy *policy)
 {
-    zypp::ZYpp::CommitResult result;
+    OldStyleCommitResult result;
 
     // clean the last reported source
     // DownloadResolvableReceive::last_source_id = -1;
@@ -1962,7 +2032,7 @@ YCPValue PkgFunctions::CommitHelper(const zypp::ZYppCommitPolicy *policy)
 	last_reported_repo = -1;
 	last_reported_mediumnr = 1;
 
-	result = zypp_ptr()->commit(*policy);
+	result = OldStyleCommitResult( zypp_ptr()->commit(*policy) );
     }
     catch (const zypp::target::TargetAbortedException & excpt)
     {
