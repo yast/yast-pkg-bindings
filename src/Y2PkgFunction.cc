@@ -102,7 +102,6 @@
 
     bool Y2PkgFunction::finishParameters ()
     {
-	y2internal ("finishParameters not implemented");
 	return true;
     }
 
