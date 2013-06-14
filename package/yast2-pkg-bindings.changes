@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jun 14 08:29:51 UTC 2013 - lslezak@suse.cz
+
+- removed obsolete BuildRequires (blocxx, libgcrypt, doxygen,
+  perl-XML-Writer)
+
+-------------------------------------------------------------------
 Wed May 22 13:00:04 UTC 2013 - lslezak@suse.cz
 
 - removed logging from finishParameters() function
