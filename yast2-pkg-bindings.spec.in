@@ -3,12 +3,17 @@
 @HEADER@
 Group:	System/YaST
 License: GPL-2.0
-BuildRequires: blocxx-devel docbook-xsl-stylesheets doxygen libgcrypt-devel libxslt perl-XML-Writer sgml-skel yast2-core-devel yast2-devtools
-BuildRequires: libzypp-devel >= 6.10.0
-BuildRequires: libtool gcc-c++
+
+BuildRequires:  docbook-xsl-stylesheets
+BuildRequires:  gcc-c++
+BuildRequires:  libtool
+BuildRequires:  libxslt
+BuildRequires:  libzypp-devel >= 6.10.0
+BuildRequires:  yast2-core-devel
+BuildRequires:  yast2-devtools
 
 # new GPG callbacks
-Requires:	libzypp >= 6.6.0
+Requires:	libzypp >= 6.10.0
 
 Summary:	YaST2 - Package Manager Access
 

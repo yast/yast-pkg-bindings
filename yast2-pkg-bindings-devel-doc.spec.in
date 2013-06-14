@@ -11,8 +11,13 @@ Source0:        yast2-pkg-bindings-@VERSION@.tar.bz2
 Prefix:         %_prefix
 
 # same as in the main package (because we use the same configure.in.in)
-BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen libgcrypt-devel libxslt perl-XML-Writer sgml-skel yast2-core-devel yast2-devtools libzypp-devel 
-BuildRequires:  libtool gcc-c++
+BuildRequires:  docbook-xsl-stylesheets
+BuildRequires:  gcc-c++
+BuildRequires:  libtool
+BuildRequires:  libxslt
+BuildRequires:  libzypp-devel >= 6.10.0
+BuildRequires:  yast2-core-devel
+BuildRequires:  yast2-devtools
 
 Buildarch: noarch
 Requires:  yast2-pkg-bindings = %{version}
