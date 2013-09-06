@@ -165,7 +165,7 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
 
     // repository type
     zypp::repo::RepoType repotype;
-    zypp::RepoManager repomanager = CreateRepoManager();
+    zypp::RepoManager* repomanager = CreateRepoManager();
 
     const bool do_probing = type.empty();
 
@@ -274,10 +274,10 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
     zypp::CombinedProgressData subprogrcv_build(prg, 70);
 
     // set metadata path (#293428)
-    zypp::Pathname metadatapath = repomanager.metadataPath(repo);
+    zypp::Pathname metadatapath = repomanager->metadataPath(repo);
     repo.setMetadataPath(metadatapath);
     // set packages path
-    repo.setPackagesPath(repomanager.packagesPath(repo));
+    repo.setPackagesPath(repomanager->packagesPath(repo));
 
     y2milestone("Adding source '%s' (%s, dir: %s)", repo.alias().c_str(), url.asString().c_str(), path_r.asString().c_str());
     // note: exceptions should be caught by the calling code
@@ -285,14 +285,14 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
     progress.NextStage();
 
     // remove the cache
-    if (repomanager.isCached(repo))
+    if (repomanager->isCached(repo))
     {
 	y2milestone("Removing cache for repository '%s'...", repo.alias().c_str());
-	repomanager.cleanCache(repo);
+	repomanager->cleanCache(repo);
     }
 
     y2milestone("Caching repository '%s'...", repo.alias().c_str());
-    repomanager.buildCache(repo, zypp::RepoManager::BuildIfNeeded, subprogrcv_build);
+    repomanager->buildCache(repo, zypp::RepoManager::BuildIfNeeded, subprogrcv_build);
 
     progress.NextStage();
 
@@ -426,7 +426,7 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
 	if (check_alias)
 	{
 	    // search in stored repositories
-	    std::list<zypp::RepoInfo> reps = CreateRepoManager().knownRepositories();
+	    std::list<zypp::RepoInfo> reps = CreateRepoManager()->knownRepositories();
 
 	    if (aliasExists(alias, reps))
 	    {
@@ -489,11 +489,11 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
     }
 
     // set metadata path (#293428)
-    zypp::RepoManager repomanager = CreateRepoManager();
-    zypp::Pathname metadatapath = repomanager.metadataPath(repo);
+    zypp::RepoManager* repomanager = CreateRepoManager();
+    zypp::Pathname metadatapath = repomanager->metadataPath(repo);
     repo.setMetadataPath(metadatapath);
 
-    repo.setPackagesPath(repomanager.packagesPath(repo));
+    repo.setPackagesPath(repomanager->packagesPath(repo));
 
     repos.push_back(new YRepo(repo));
 
@@ -753,7 +753,6 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
  **/
 YCPValue PkgFunctions::RepositoryProbe(const YCPString& url, const YCPString& prod_dir)
 {
-    zypp::RepoManager repomanager = CreateRepoManager();
     std::string ret;
 
     try

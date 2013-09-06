@@ -410,7 +410,7 @@ PkgFunctions::SourceRefreshHelper (const YCPInteger& id, bool forced)
 
     try
     {
-	zypp::RepoManager repomanager = CreateRepoManager();
+	zypp::RepoManager* repomanager = CreateRepoManager();
 	y2milestone("Refreshing metadata '%s'", repo->repoInfo().alias().c_str());
 	RefreshWithCallbacks(repo->repoInfo(), zypp::ProgressData::ReceiverFnc(), forced ? zypp::RepoManager::RefreshForced : zypp::RepoManager::RefreshIfNeeded);
 
@@ -419,7 +419,7 @@ PkgFunctions::SourceRefreshHelper (const YCPInteger& id, bool forced)
 	pkgprogress.NextStage();
 
 	y2milestone("Caching source '%s'...", repo->repoInfo().alias().c_str());
-	repomanager.buildCache(repo->repoInfo(), forced ? zypp::RepoManager::BuildForced : zypp::RepoManager::BuildIfNeeded);
+	repomanager->buildCache(repo->repoInfo(), forced ? zypp::RepoManager::BuildForced : zypp::RepoManager::BuildIfNeeded);
     }
     catch ( const zypp::Exception & expt )
     {

@@ -45,10 +45,22 @@ YCPValue
 PkgFunctions::TargetInitInternal(const YCPString& root, bool rebuild_rpmdb)
 {
     const std::string r(root->value());
+    bool new_target;
+
+    try
+    {
+        new_target = SetTarget(r);
+    }
+    catch (zypp::Exception & excpt)
+    {
+        _last_error.setLastError(ExceptionAsString(excpt));
+        y2error("TargetInit has failed: %s", excpt.msg().c_str() );
+        return YCPError(excpt.msg().c_str(), YCPBoolean(false));
+    }
 
     // display the progress if the target is changed or if the resolvables haven't been loaded
     // otherwise there will be a quick flashing progress with no real action
-    if (_target_root == r && _target_loaded)
+    if (!new_target && _target_loaded)
     {
 	y2milestone("Target %s is already initialized", r.c_str());
 	return YCPBoolean(true);
@@ -80,8 +92,6 @@ PkgFunctions::TargetInitInternal(const YCPString& root, bool rebuild_rpmdb)
         return YCPError(excpt.msg().c_str(), YCPBoolean(false));
     }
     
-    _target_root = zypp::Pathname(r);
-
     // locks are optional, might not be present on the target
     zypp::Pathname lock_file(_target_root + zypp::ZConfig::instance().locksFile());
     try
@@ -137,11 +147,12 @@ PkgFunctions::TargetRebuildInit(const YCPString& root)
 YCPValue
 PkgFunctions::TargetInitialize (const YCPString& root)
 {
-    std::string r = root->value();
+    const std::string r = root->value();
 
     try
     {
         zypp_ptr()->initializeTarget(r);
+        SetTarget(r);
     }
     catch (zypp::Exception & excpt)
     {
@@ -149,8 +160,6 @@ PkgFunctions::TargetInitialize (const YCPString& root)
         y2error("TargetInit has failed: %s", excpt.msg().c_str() );
         return YCPError(excpt.msg().c_str(), YCPBoolean(false));
     }
-    
-    _target_root = zypp::Pathname(root->value());
     
     return YCPBoolean(true);
 }

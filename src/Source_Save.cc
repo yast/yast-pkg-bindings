@@ -90,12 +90,12 @@ PkgFunctions::SourceSaveAll ()
 	return YCPBoolean(ret);
     }
 
-    zypp::RepoManager repomanager = CreateRepoManager();
+    zypp::RepoManager* repomanager = CreateRepoManager();
 
     // save the services
     try
     {
-	service_manager.SaveServices(repomanager);
+	service_manager.SaveServices(*repomanager);
 	y2milestone("All services have been saved");
     }
     catch (const zypp::Exception& excpt)
@@ -156,26 +156,26 @@ PkgFunctions::SourceSaveAll ()
 	    try
 	    {
 		// remove the metadata
-		zypp::RepoStatus raw_metadata_status = repomanager.metadataStatus((*it)->repoInfo());
+		zypp::RepoStatus raw_metadata_status = repomanager->metadataStatus((*it)->repoInfo());
 		if (!raw_metadata_status.empty())
 		{
 		    y2milestone("Removing metadata for source '%s'...", repo_alias.c_str());
-		    repomanager.cleanMetadata((*it)->repoInfo());
+		    repomanager->cleanMetadata((*it)->repoInfo());
 		}
 		prog_total.incr();
 
 		// remove the cache
-		if (repomanager.isCached((*it)->repoInfo()))
+		if (repomanager->isCached((*it)->repoInfo()))
 		{
 		    y2milestone("Removing cache for '%s'...", repo_alias.c_str());
-		    repomanager.cleanCache((*it)->repoInfo());
+		    repomanager->cleanCache((*it)->repoInfo());
 		}
 		prog_total.incr();
 
 		// does the repository exist?
-		repomanager.getRepositoryInfo(repo_alias);
+		repomanager->getRepositoryInfo(repo_alias);
 		y2milestone("Removing repository '%s'", repo_alias.c_str());
-		repomanager.removeRepository((*it)->repoInfo());
+		repomanager->removeRepository((*it)->repoInfo());
 		prog_total.incr();
 	    }
 	    catch (const zypp::repo::RepoNotFoundException &ex)
@@ -210,15 +210,15 @@ PkgFunctions::SourceSaveAll ()
 		try
 		{
 		    // if the repository already exists then just modify it
-		    repomanager.getRepositoryInfo(current_alias);
+		    repomanager->getRepositoryInfo(current_alias);
 		    y2milestone("Modifying repository '%s'", current_alias.c_str());
-		    repomanager.modifyRepository(current_alias, (*it)->repoInfo());
+		    repomanager->modifyRepository(current_alias, (*it)->repoInfo());
 		}
 		catch (const zypp::repo::RepoNotFoundException &ex)
 		{
 		    // the repository was not found, add it
 		    y2milestone("Adding repository '%s'", current_alias.c_str());
-		    repomanager.addRepository((*it)->repoInfo());
+		    repomanager->addRepository((*it)->repoInfo());
 		}
 	    }
 	    catch (zypp::Exception & excpt)

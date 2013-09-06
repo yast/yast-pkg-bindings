@@ -73,13 +73,13 @@ bool PkgFunctions::LoadResolvablesFrom(YRepo_Ptr repo, const zypp::ProgressData:
 
     try 
     {
-	zypp::RepoManager repomanager = CreateRepoManager();
+	zypp::RepoManager* repomanager = CreateRepoManager();
 	bool refresh = true;
 
 	// build cache if needed
-	if (!repomanager.isCached(repoinfo) && !autorefresh_skipped)
+	if (!repomanager->isCached(repoinfo) && !autorefresh_skipped)
 	{
-	    zypp::RepoStatus raw_metadata_status = repomanager.metadataStatus(repoinfo);
+	    zypp::RepoStatus raw_metadata_status = repomanager->metadataStatus(repoinfo);
 	    if (raw_metadata_status.empty())
 	    {
 		if (network_check)
@@ -110,11 +110,11 @@ bool PkgFunctions::LoadResolvablesFrom(YRepo_Ptr repo, const zypp::ProgressData:
 	    if (refresh)
 	    {
 		y2milestone("Caching source '%s'...", repoinfo.alias().c_str());
-		repomanager.buildCache(repoinfo, zypp::RepoManager::BuildIfNeeded, load_subprogress);
+		repomanager->buildCache(repoinfo, zypp::RepoManager::BuildIfNeeded, load_subprogress);
 	    }
 	}
 
-	repomanager.loadFromCache(repoinfo);
+	repomanager->loadFromCache(repoinfo);
 	repo->setLoaded();
 	//y2milestone("Loaded %zd resolvables", store.size());
     }
