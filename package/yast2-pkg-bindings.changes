@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Sep  9 12:39:05 UTC 2013 - lslezak@suse.cz
+
+- do not abort if package installation fails, always ask user
+  (evaluate the callback), libzypp no longer uses 3 installation
+  attempts (fixes openqa failures when btrfs is used)
+- 3.0.2
+
+-------------------------------------------------------------------
 Fri Sep  6 15:33:30 UTC 2013 - lslezak@suse.cz
 
 - use a single RepoManager instance to avoid repository metadata
