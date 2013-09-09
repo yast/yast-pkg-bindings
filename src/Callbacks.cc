@@ -282,15 +282,10 @@ namespace ZyppRecipients {
           zypp::Resolvable::constPtr resolvable
           , zypp::target::rpm::InstallResolvableReport::Error error
           , const std::string &description
+          // note: the RpmLevel argument is not used anymore, ignore it
           , zypp::target::rpm::InstallResolvableReport::RpmLevel level
         )
 	{
-	    if (level != zypp::target::rpm::InstallResolvableReport::RPM_NODEPS_FORCE)
-	    {
-		y2milestone( "Retrying installation problem with too low severity (%d)", level);
-		return zypp::target::rpm::InstallResolvableReport::ABORT;
-	    }
-
 	    _last = zypp::Resolvable::constPtr();
 
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
@@ -314,20 +309,14 @@ namespace ZyppRecipients {
 		(resolvable, error, description, level);
 	}
 
+        // note: the RpmLevel argument is not used anymore, ignore it
 	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, const std::string &reason, zypp::target::rpm::InstallResolvableReport::RpmLevel level)
 	{
-	    if (error != zypp::target::rpm::InstallResolvableReport::NO_ERROR && level != zypp::target::rpm::InstallResolvableReport::RPM_NODEPS_FORCE)
-	    {
-		y2milestone( "Skipping finish due to retrying installation problem with too low severity (%d)", level);
-		return;
-	    }
-
-	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
-	    if (callback._set) {
-		callback.addInt( level == zypp::target::rpm::InstallResolvableReport::RPM_NODEPS_FORCE ? error : NO_ERROR);
-		callback.addStr( reason );
-		callback.evaluateStr(); // return value ignored by RpmDb
-	    }
+            // errors are handled in the problem() callback above, here just log the message
+            if (error != zypp::target::rpm::InstallResolvableReport::NO_ERROR)
+            {
+                y2milestone("Error in finish callback: %s", reason.c_str());
+            }
 	}
     };
 
