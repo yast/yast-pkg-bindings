@@ -130,8 +130,8 @@ void PkgFunctions::RefreshWithCallbacks(const zypp::RepoInfo &repo, const zypp::
 
     try
     {
-	zypp::RepoManager repomanager = CreateRepoManager();
-	repomanager.refreshMetadata(repo, refresh, progressrcv);
+	zypp::RepoManager* repomanager = CreateRepoManager();
+	repomanager->refreshMetadata(repo, refresh, progressrcv);
     }
     catch(...)
     {
@@ -161,8 +161,8 @@ zypp::repo::RepoType PkgFunctions::ProbeWithCallbacks(const zypp::Url &url)
     try
     {
 	// probe type of the repository 
-	zypp::RepoManager repomanager = CreateRepoManager();
-	repotype = repomanager.probe(url);
+	zypp::RepoManager* repomanager = CreateRepoManager();
+	repotype = repomanager->probe(url);
     }
     catch(...)
     {

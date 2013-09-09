@@ -61,6 +61,7 @@ PkgFunctions::PkgFunctions () :
       _target_root( "/" )
     , _target_loaded(false)
     , zypp_pointer(NULL)
+    , repo_manager(NULL)
     , commit_policy(NULL)
     ,_callbackHandler( *new CallbackHandler(*this) )
     , base_product(NULL)
@@ -142,6 +143,13 @@ PkgFunctions::~PkgFunctions ()
 	base_product = NULL;
     }
 
+    if (repo_manager)
+    {
+      y2milestone("Releasing the repo manager...");
+      delete repo_manager;
+      repo_manager = NULL;
+    }
+
     if (zypp_pointer != NULL)
     {
 	y2milestone("Releasing the zypp pointer...");
@@ -205,14 +213,16 @@ PkgFunctions::LastErrorDetails ()
     return YCPString (_last_error.lastErrorDetails());
 }
 
-zypp::RepoManager PkgFunctions::CreateRepoManager()
+zypp::RepoManager* PkgFunctions::CreateRepoManager()
 {
+    if (repo_manager) return repo_manager;
+
     // set path option, use root dir as a prefix for the default directory
     zypp::RepoManagerOptions repo_options(_target_root);
-
     y2milestone("Path to repository files: %s", repo_options.knownReposPath.asString().c_str());
 
-    return zypp::RepoManager(repo_options);
+    repo_manager = new zypp::RepoManager(repo_options);
+    return repo_manager;
 }
 
 // convert Exception object to string represenatation
@@ -416,3 +426,44 @@ YCPValue PkgFunctions::SetZConfig(const YCPMap &cfg)
     return YCPBoolean(true);
 }
 
+bool PkgFunctions::RepoManagerUpdateTarget(const std::string& root)
+{
+    bool new_target = _target_root != root;
+
+    // a repository manager is present and the target has been changed
+    if (repo_manager && new_target)
+    {
+        y2milestone("Updating RepoManager target from %s to %s", _target_root.c_str(), root.c_str());
+
+        // repository manager options cannot be replaced, a new repository manager is needed
+        zypp::RepoManager* new_repo_manager = new zypp::RepoManager(zypp::RepoManagerOptions(root));
+
+        // register the known repositories
+        if (repos.empty() && service_manager.empty())
+        {
+            for (RepoCont::iterator it = repos.begin();
+                it != repos.end(); ++it)
+            {
+                // ignore removed repositories
+                if (!(*it)->isDeleted())
+                {
+                    new_repo_manager->addRepository((*it)->repoInfo());
+                }
+            }
+        }
+
+        // replace the old repository manager
+        delete repo_manager;
+        repo_manager = new_repo_manager;
+    }
+
+    return new_target;
+}
+
+bool PkgFunctions::SetTarget(const std::string &root)
+{
+    bool new_target = RepoManagerUpdateTarget(root);
+    _target_root = root;
+
+    return new_target;
+}

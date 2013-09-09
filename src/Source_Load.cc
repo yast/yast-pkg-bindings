@@ -63,7 +63,7 @@ PkgFunctions::SourceRestore()
 
     try
     {
-	zypp::RepoManager repomanager = CreateRepoManager();
+	zypp::RepoManager* repomanager = CreateRepoManager();
 
 	if (!service_manager.empty())
 	{
@@ -73,7 +73,7 @@ PkgFunctions::SourceRestore()
 	{
 	    try
 	    {
-		service_manager.LoadServices(repomanager);
+		service_manager.LoadServices(*repomanager);
 
 		if (!service_manager.empty())
 		{
@@ -97,7 +97,7 @@ PkgFunctions::SourceRestore()
 				else
 				{
 				    y2milestone("Autorefreshing service %s (%s)...", srv_it->alias().c_str(), url.asString().c_str());
-				    service_manager.RefreshService(srv_it->alias(), repomanager);
+				    service_manager.RefreshService(srv_it->alias(), *repomanager);
 				}
 			    }
 			}
@@ -120,7 +120,7 @@ PkgFunctions::SourceRestore()
 	    }
 	}
 
-	std::list<zypp::RepoInfo> reps = repomanager.knownRepositories();
+	std::list<zypp::RepoInfo> reps = repomanager->knownRepositories();
 
 	for (std::list<zypp::RepoInfo>::iterator it = reps.begin();
 	    it != reps.end(); ++it)
@@ -227,7 +227,7 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
     prog_total.sendTo(progress.Receiver());
     y2debug("Progress status: %lld", prog_total.val());
 
-    zypp::RepoManager repomanager = CreateRepoManager();
+    zypp::RepoManager* repomanager = CreateRepoManager();
 
     autorefresh_skipped = false;
 
@@ -259,7 +259,7 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 		}
 		else
 		{
-		    zypp::RepoStatus raw_metadata_status = repomanager.metadataStatus((*it)->repoInfo());
+		    zypp::RepoStatus raw_metadata_status = repomanager->metadataStatus((*it)->repoInfo());
 
 		    // autorefresh the source
 		    if ((*it)->repoInfo().autorefresh() || raw_metadata_status.empty())
@@ -286,7 +286,7 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 				refresh_started_called = true;
 			    }
 
-			    zypp::RepoManager::RefreshCheckStatus ref_stat = repomanager.checkIfToRefreshMetadata((*it)->repoInfo(), *((*it)->repoInfo().baseUrlsBegin()));
+			    zypp::RepoManager::RefreshCheckStatus ref_stat = repomanager->checkIfToRefreshMetadata((*it)->repoInfo(), *((*it)->repoInfo().baseUrlsBegin()));
 
 			    if (ref_stat != zypp::RepoManager::REFRESH_NEEDED)
 			    {
@@ -358,7 +358,7 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 		// autorefresh the source
 		if ((*it)->repoInfo().autorefresh())
 		{
-		    zypp::RepoStatus raw_metadata_status = repomanager.metadataStatus((*it)->repoInfo());
+		    zypp::RepoStatus raw_metadata_status = repomanager->metadataStatus((*it)->repoInfo());
 
 		    // autorefresh the source
 		    if (raw_metadata_status.empty() )
@@ -372,8 +372,8 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 			// rebuild cache (the default policy is "if needed")
 			y2milestone("Rebuilding cache for '%s'...", (*it)->repoInfo().alias().c_str());
 
-			//repomanager.buildCache((*it)->repoInfo(), zypp::RepoManager::BuildIfNeeded, prog.receiver());
-			repomanager.buildCache((*it)->repoInfo(), zypp::RepoManager::BuildIfNeeded, rebuild_subprogress);
+			//repomanager->buildCache((*it)->repoInfo(), zypp::RepoManager::BuildIfNeeded, prog.receiver());
+			repomanager->buildCache((*it)->repoInfo(), zypp::RepoManager::BuildIfNeeded, rebuild_subprogress);
 		    }
 		    // NOTE: subtask progresses are reported as done in the descructor
 		    // no need to handle them in the exception code

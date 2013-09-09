@@ -153,7 +153,7 @@ std::string PkgFunctions::UniqueAlias(const std::string &alias)
     unsigned int id = 0;
 
     // search in stored repositories
-    std::list<zypp::RepoInfo> reps = CreateRepoManager().knownRepositories();
+    std::list<zypp::RepoInfo> reps = CreateRepoManager()->knownRepositories();
 
     while(aliasExists(ret, reps))
     {

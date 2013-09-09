@@ -51,15 +51,15 @@ PkgFunctions::TargetDisableSources ()
     {
 // FIXME: should it also remove from pool?
 
-	zypp::RepoManager repomanager = CreateRepoManager();
-	std::list<zypp::RepoInfo> all_sources = repomanager.knownRepositories();
+	zypp::RepoManager* repomanager = CreateRepoManager();
+	std::list<zypp::RepoInfo> all_sources = repomanager->knownRepositories();
 
 	for (std::list<zypp::RepoInfo>::iterator it = all_sources.begin(); it != all_sources.end(); ++it)
 	{
 	    y2milestone("Disabling source '%s'", it->alias().c_str());
 	    it->setAutorefresh(false);
 
-	    repomanager.modifyRepository(it->alias(), *it);
+	    repomanager->modifyRepository(it->alias(), *it);
 	}
     }
     catch (zypp::Exception & excpt)

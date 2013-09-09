@@ -84,6 +84,10 @@ class PkgFunctions
 	
 	zypp::ZYpp::Ptr zypp_pointer;
 
+        // use a single RepoManager instance to avoid "unused" metadata cleanup
+        // see https://bugzilla.novell.com/show_bug.cgi?id=802665#c27
+        zypp::RepoManager* repo_manager;
+
 	// remember the main locale (set by SetLocale) for SetAdditionalLocales,
 	// add the main locale to the additional ones
 	zypp::Locale preferred_locale;
@@ -120,6 +124,13 @@ class PkgFunctions
 
       YCPValue SourceRefreshHelper(const YCPInteger &id, bool forced = false);
 
+      // helper for updating repository manager after changing the target root
+      // return true if the target root has been changed
+      bool RepoManagerUpdateTarget(const std::string& root);
+
+      // set new target directory
+      bool SetTarget(const std::string &root);
+
       // helper - is the network running?
       bool NetworkDetected();
 
@@ -148,7 +159,7 @@ class PkgFunctions
 
       zypp::Product::constPtr FindBaseProduct(const std::string &alias) const;
 
-      zypp::RepoManager CreateRepoManager();
+      zypp::RepoManager* CreateRepoManager();
 
       void SetCurrentDU();
 
