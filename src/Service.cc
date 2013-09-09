@@ -147,10 +147,10 @@ YCPValue PkgFunctions::ServiceSave(const YCPString &alias)
 	}
 
 	std::string service_alias = alias->value();
-	zypp::RepoManager repomanager = CreateRepoManager();
+	zypp::RepoManager* repomanager = CreateRepoManager();
 	y2milestone("Saving service %s", service_alias.c_str());
 
-	bool ret = service_manager.SaveService(service_alias, repomanager);
+	bool ret = service_manager.SaveService(service_alias, *repomanager);
 	return YCPBoolean(ret);
     }
     catch (const zypp::Exception& excpt)
@@ -372,9 +372,9 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
 	    return YCPBoolean(false);
 	}
 
-	zypp::RepoManager repomanager = CreateRepoManager();
+	zypp::RepoManager* repomanager = CreateRepoManager();
 
-	if (!service_manager.RefreshService(alias->value(), repomanager))
+	if (!service_manager.RefreshService(alias->value(), *repomanager))
 	{
 	    return YCPBoolean(false);
 	}
@@ -390,9 +390,9 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
 		zypp::RepoInfo info(repo->repoInfo());
 		y2milestone("Reloading repository %s", info.alias().c_str());
 
-		if (repomanager.hasRepo(info))
+		if (repomanager->hasRepo(info))
 		{
-		    repos[idx]->repoInfo() = repomanager.getRepositoryInfo(info.alias());
+		    repos[idx]->repoInfo() = repomanager->getRepositoryInfo(info.alias());
 		}
 		else
 		{
@@ -429,8 +429,8 @@ YCPValue PkgFunctions::ServiceProbe(const YCPString &url)
 
     try
     {
-	const zypp::RepoManager repomanager = CreateRepoManager();
-	return YCPString(service_manager.Probe(zypp::Url(url->asString()->value()), repomanager));
+	const zypp::RepoManager* repomanager = CreateRepoManager();
+	return YCPString(service_manager.Probe(zypp::Url(url->asString()->value()), *repomanager));
     }
     catch (const zypp::Exception& excpt)
     {

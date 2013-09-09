@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Sep  6 15:33:30 UTC 2013 - lslezak@suse.cz
+
+- use a single RepoManager instance to avoid repository metadata
+  removal (bnc#802665#c27)
+- 3.0.1
+
+-------------------------------------------------------------------
 Tue Jul 30 08:29:16 UTC 2013 - yast-devel@opensuse.org
 
 - version 3.0.0
