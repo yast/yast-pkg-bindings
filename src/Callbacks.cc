@@ -288,6 +288,7 @@ namespace ZyppRecipients {
 	{
 	    _last = zypp::Resolvable::constPtr();
 
+            // for historical reasons the DonePackage callback is used for error reporting
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
 		callback.addInt( error );
@@ -310,12 +311,23 @@ namespace ZyppRecipients {
 	}
 
         // note: the RpmLevel argument is not used anymore, ignore it
-	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, const std::string &reason, zypp::target::rpm::InstallResolvableReport::RpmLevel level)
+	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, const std::string &reason, zypp::target::rpm::InstallResolvableReport::RpmLevel /*level*/)
 	{
             // errors are handled in the problem() callback above, here just log the message
             if (error != zypp::target::rpm::InstallResolvableReport::NO_ERROR)
             {
                 y2milestone("Error in finish callback: %s", reason.c_str());
+            }
+
+            CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
+            if (callback._set) {
+                // report no error, errors were already reported in problem() callback above,
+                // just report real "done" status
+                callback.addInt(NO_ERROR);
+                callback.addStr(std::string(""));
+
+                // return value ignored
+                callback.evaluateStr();
             }
 	}
     };
