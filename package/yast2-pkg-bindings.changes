@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Sep 30 08:59:03 UTC 2013 - lslezak@suse.cz
+
+- evaluate DonePackage callback (to close the package installation
+  progress popup) when package installation is finished
+  (bnc#842465)
+- 3.0.3
+
+-------------------------------------------------------------------
 Mon Sep  9 12:39:05 UTC 2013 - lslezak@suse.cz
 
 - do not abort if package installation fails, always ask user
