@@ -61,4 +61,3 @@ echo "doc" > SUBDIRS
 %doc %{yast_docdir}/html
 %dir %{yast_docdir}
 %exclude %{yast_docdir}/COPYING
-%exclude %{yast_docdir}/README
