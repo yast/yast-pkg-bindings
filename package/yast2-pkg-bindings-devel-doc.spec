@@ -58,6 +58,7 @@ echo "doc" > SUBDIRS
 
 %files
 %defattr(-,root,root)
-%doc %{yast_docdir}/html
-%dir %{yast_docdir}
-%exclude %{yast_docdir}/COPYING
+# do not use yast_docdir macro as it use wrong pkg name
+%dir %{_datadir}/doc/packages/yast2-pkg-bindings
+%doc %{_datadir}/doc/packages/yast2-pkg-bindings/html
+%exclude %{_datadir}/doc/packages/yast2-pkg-bindings/COPYING
