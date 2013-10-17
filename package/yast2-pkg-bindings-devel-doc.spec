@@ -22,7 +22,7 @@ Release:        0
 License:        GPL-2.0
 Group:          Documentation/HTML
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-Source0:        yast2-pkg-bindings-3.1.0.tar.bz2
+Source0:        yast2-pkg-bindings-%{version}.tar.bz2
 Prefix:         %_prefix
 
 # same as in the main package (because we use the same configure.in.in)
