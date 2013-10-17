@@ -4,11 +4,11 @@
 
 SUBDIRS = autodocs
 
-htmldir = $(docdir)/html
+xmldir = $(docdir)/xml
 
-EXTRA_DIST =
+xml_DATA = \
+  builtins.xml \
+  pkg-bindings-section.xml
+EXTRA_DIST =  builtins.xml pkg-bindings-section.xml
 
 CLEANFILES = $(xmlfiles)
-
-clean-local:
-	rm -rf html

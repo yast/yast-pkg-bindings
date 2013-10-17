@@ -60,5 +60,5 @@ echo "doc" > SUBDIRS
 %defattr(-,root,root)
 # do not use yast_docdir macro as it use wrong pkg name
 %dir %{_datadir}/doc/packages/yast2-pkg-bindings
-%doc %{_datadir}/doc/packages/yast2-pkg-bindings/html
+%doc %{_datadir}/doc/packages/yast2-pkg-bindings/xml
 %exclude %{_datadir}/doc/packages/yast2-pkg-bindings/COPYING
