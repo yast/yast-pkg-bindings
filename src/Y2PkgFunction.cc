@@ -102,7 +102,24 @@
 
     bool Y2PkgFunction::finishParameters ()
     {
-	return true;
+        // set missing parameters to YCPVoid so the m_paramX->isVoid() tests
+        // in PkgBuiltinCalls.h do not crash for the default YCPNull value
+        if (m_param1.isNull())
+            m_param1 = YCPVoid();
+
+        if (m_param2.isNull())
+            m_param2 = YCPVoid();
+
+        if (m_param3.isNull())
+            m_param3 = YCPVoid();
+
+        if (m_param4.isNull())
+            m_param4 = YCPVoid();
+
+        if (m_param5.isNull())
+            m_param5 = YCPVoid();
+
+        return true;
     }
 
     void Y2PkgFunction::log_backtrace()
