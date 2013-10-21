@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 21 12:34:16 UTC 2013 - lslezak@suse.cz
+
+- do not crash when a parameter is missing, log an error
+  (bnc#846467)
+- 3.0.4
+
+-------------------------------------------------------------------
 Mon Sep 30 08:59:03 UTC 2013 - lslezak@suse.cz
 
 - evaluate DonePackage callback (to close the package installation
