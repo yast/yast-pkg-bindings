@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Sep  7 18:49:14 CEST 2011 - ma@suse.de
+
+- Bump version to indicate SUSE Manager release
+- 2.13.1000
+
+-------------------------------------------------------------------
 Wed Apr 22 13:30:43 CEST 2009 - lslezak@suse.cz
 
 - new callbacks Pkg::CallbackSourceCreateInit/Destroy() and
