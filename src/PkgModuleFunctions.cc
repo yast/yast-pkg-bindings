@@ -34,9 +34,9 @@
 #include <ycp/YCPMap.h>
 #include <ycp/YCPVoid.h>
 
-#include <zypp/SourceManager.h>
 #include <zypp/ZYppFactory.h>
-#include <zypp/ResPool.h>
+#include <zypp/Locale.h>
+//#include <zypp/ResPool.h>
 
 // sleep
 #include <unistd.h>
@@ -45,7 +45,7 @@
 #include <cstdlib>
 
 // textdomain
-#include <libintl.h>                                                                                                                                           
+#include <libintl.h>
 
 class Y2PkgFunction: public Y2Function
 {
@@ -174,8 +174,12 @@ const zypp::ResStatus::TransactByValue PkgModuleFunctions::whoWantsIt = zypp::Re
 PkgModuleFunctions::PkgModuleFunctions ()
     : Y2Namespace()
     , _target_root( "/" )
+    , _target_loaded(false)
     , zypp_pointer(NULL)
-    ,_callbackHandler( *new CallbackHandler( ) )
+    , autorefresh_skipped(false)
+    , last_reported_repo(-1)
+    , last_reported_mediumnr(-1)
+    ,_callbackHandler( *new CallbackHandler(*this ) )
 {
     registerFunctions ();
 
@@ -230,6 +234,15 @@ zypp::ZYpp::Ptr PkgModuleFunctions::zypp_ptr()
     return zypp_pointer;
 }
 
+zypp::RepoManager PkgModuleFunctions::CreateRepoManager()
+{
+    // set path option, use root dir as a prefix for the default directory
+    zypp::RepoManagerOptions repo_options(_target_root);
+
+    y2milestone("Path to repository files: %s", repo_options.knownReposPath.asString().c_str());
+
+    return zypp::RepoManager(repo_options);
+}
 
 /**
  * Destructor.
@@ -300,17 +313,69 @@ PkgModuleFunctions::Connect()
 }
 
 /**
- * @builtin InstSysMode
- * @short obsoleted - do not use
+ * @short Set Package Manager Locale
+ * @description
+ * Set the given locale as the output locale -- all messages from the package manager (errors, warnings,...)
+ * will be returned in the selected language. This built-in does not change package selection in any way.
+ * @param string locale Locale
  * @return void
  */
-YCPValue
-PkgModuleFunctions::InstSysMode ()
+static YCPValue
+SetTextLocale (const YCPString &locale)
 {
-    y2warning("Pkg::InstSysMode() is obsoleted, it's not needed anymore");
+    try
+    {
+	zypp::Locale loc = zypp::Locale(locale->value());
+	zypp::ZConfig::instance().setTextLocale(loc);
+    }
+    catch (const std::exception& excpt)
+    {
+	y2error("Caught an exception: %s", excpt.what());
+    }
+    catch (...)
+    {
+	y2internal("Caught an unknown exception");
+    }
+
     return YCPVoid();
 }
 
+/**
+ * @short Select locale for installation
+ * @description
+ * Select the main locale for installation, call Pkg::PkgSolve() to select the respective packages.
+ * @param string locale Locale
+ * @return void
+ */
+YCPValue
+PkgModuleFunctions::SetPackageLocale (const YCPString &locale)
+{
+    try
+    {
+	zypp::Locale loc = zypp::Locale(locale->value());
+
+	// add packages for the preferred locale, preserve additional locales
+	zypp::LocaleSet lset = zypp::sat::Pool::instance().getRequestedLocales();
+
+	// remove the previous locale
+	if (preferred_locale != zypp::Locale::noCode)
+	{
+	    lset.erase(preferred_locale);
+	}
+
+	// add the new locale
+	lset.insert(loc);
+	zypp::sat::Pool::instance().setRequestedLocales(lset);
+
+	// remember the main locale
+	preferred_locale = loc;
+    }
+    catch(...)
+    {
+    }
+
+    return YCPVoid();
+}
 
 /**
  * @builtin SetLocale
@@ -323,31 +388,8 @@ PkgModuleFunctions::InstSysMode ()
 YCPValue
 PkgModuleFunctions::SetLocale (const YCPString &locale)
 {
-    try
-    {
-	zypp::Locale loc = zypp::Locale(locale->value());
-	zypp_ptr()->setTextLocale(loc);
-
-	// add packages for the preferred locale, preserve additional locales
-	zypp::ZYpp::LocaleSet lset = zypp_ptr()->getRequestedLocales();
-
-	// remove the previous locale
-	if (preferred_locale != zypp::Locale::noCode)
-	{
-	    lset.erase(preferred_locale);
-	}
-
-	// add the new locale
-	lset.insert(loc);
-	zypp_ptr()->setRequestedLocales(lset);
-
-	// remember the main locale
-	preferred_locale = loc;
-    }
-    catch(...)
-    {
-    }
-
+    SetTextLocale(locale);
+    SetPackageLocale(locale);
     return YCPVoid();
 }
 
@@ -383,7 +425,7 @@ PkgModuleFunctions::GetLocale ()
 YCPValue
 PkgModuleFunctions::SetAdditionalLocales (YCPList langycplist)
 {
-    zypp::ZYpp::LocaleSet lset;
+    zypp::LocaleSet lset;
 
     int i = 0;
     while (i < langycplist->size())
@@ -407,7 +449,7 @@ PkgModuleFunctions::SetAdditionalLocales (YCPList langycplist)
 
     try
     {
-	zypp_ptr()->setRequestedLocales(lset);
+	zypp::sat::Pool::instance().setRequestedLocales(lset);
     }
     catch(...)
     {
@@ -431,9 +473,9 @@ PkgModuleFunctions::GetAdditionalLocales ()
 
     try
     {
-	zypp::ZYpp::LocaleSet lset = zypp_ptr()->getRequestedLocales();
+	zypp::LocaleSet lset = zypp::sat::Pool::instance().getRequestedLocales();
 
-	for (zypp::ZYpp::LocaleSet::const_iterator it = lset.begin();
+	for (zypp::LocaleSet::const_iterator it = lset.begin();
 	     it != lset.end(); ++it)
 	{
 	  // ignore the main locale
@@ -507,15 +549,7 @@ PkgModuleFunctions::LastErrorId ()
 YCPValue
 PkgModuleFunctions::Init ()
 {
-    try {
-	zypp::SourceManager::sourceManager()->reset();
-    }
-    catch( const zypp::Exception & expt )
-    {
-	y2error( "Initialization of libzypp failed" );
-	return YCPBoolean(false);
-    }
-
+    // With Code11 stack, nothing to initialize
     return YCPBoolean(true);
 }
 

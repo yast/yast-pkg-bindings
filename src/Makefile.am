@@ -17,20 +17,38 @@ AM_LDFLAGS = -L${libdir}
 plugin_LTLIBRARIES = libpy2Pkg.la
 
 libpy2Pkg_la_SOURCES =				\
+	HelpTexts.h				\
+	i18n.h 					\
+	log.h					\
+	GPGMap.h GPGMap.cc			\
 	PkgError.cc PkgError.h			\
 	Y2PkgComponent.cc Y2PkgComponent.h	\
 	Y2CCPkg.cc Y2CCPkg.h			\
 	ycpTools.cc ycpTools.h			\
 	PkgModule.cc PkgModule.h		\
+	YRepo.h YRepo.cc                        \
+	PkgProgress.cc PkgProgress.h		\
+	Utils.cc			\
+	ServiceManager.cc ServiceManager.h	\
+	PkgService.cc PkgService.h		\
+	Network.cc 				\
 	PkgModuleFunctions.h			\
 	PkgModuleFunctions.cc			\
-	ProvideProcess.cc ProvideProcess.h	\
 	Package.cc				\
 	Patch.cc				\
 	Resolvable.cc				\
 	Selection.cc				\
 	Target.cc				\
-	Source.cc				\
+        Source_Callbacks.cc                     \
+        Source_Create.cc                        \
+        Source_Download.cc                      \
+        Source_Get.cc                           \
+        Source_Installation.cc                  \
+        Source_Load.cc                          \
+        Source_Misc.cc                          \
+        Source_Resolvables.cc                   \
+        Source_Save.cc                          \
+        Source_Set.cc                           \
 	Keyring.cc				\
 	Callbacks.h				\
 	Callbacks.YCP.h				\

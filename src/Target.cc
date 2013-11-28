@@ -38,43 +38,79 @@
 
 #include <zypp/target/rpm/RpmDb.h>
 #include <zypp/Product.h>
-#include <zypp/SourceManager.h>
+#include <zypp/RepoManager.h>
+#include <zypp/Locks.h>
 #include <zypp/DiskUsageCounter.h>
-#include <zypp/target/store/PersistentStorage.h>
+
+#include "PkgProgress.h"
+#include "HelpTexts.h"
 
 using namespace zypp;
 
 /** ------------------------
  *
  * @builtin TargetInit
- * @deprecated
  * @short Initialize Target and load resolvables
  * @param string root Root Directory
- * @param boolean new If true, initialize new rpm database
+ * @param boolean unused Dummy option, only for backward compatibility
  * @return boolean
  */
 YCPValue
 PkgModuleFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unused_and_broken*/)
 {
-    std::string r = root->value();
+    bool rebuild_rpmdb = false;
+    const std::string r(root->value());
+
+    // display the progress if the target is changed or if the resolvables haven't been loaded
+    // otherwise there will be a quick flashing progress with no real action
+    if (_target_root == r && _target_loaded)
+    {
+	y2milestone("Target %s is already initialized", r.c_str());
+	return YCPBoolean(true);
+    }
+
+    std::list<std::string> stages;
+    stages.push_back(_("Initialize the Target System"));
+    stages.push_back(_("Read Installed Packages"));
+
+    PkgProgress pkgprogress(_callbackHandler);
+    pkgprogress.Start(_("Loading the Package Manager..."), stages, _(HelpTexts::load_resolvables));
 
     try
     {
-	zypp_ptr()->initTarget(r);
-        zypp_ptr()->addResolvables( zypp_ptr()->target()->resolvables(), true );
+	if (rebuild_rpmdb)
+	{
+	    y2milestone("Initializing the target with rebuild");
+	}
+
+	zypp_ptr()->initializeTarget(r, rebuild_rpmdb);
+	//pkgprogress.NextStage();
+        zypp_ptr()->target()->load();
+	_target_loaded = true;
     }
     catch (zypp::Exception & excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
-	ycperror("TargetInit has failed: %s", excpt.msg().c_str() );
+	_last_error.setLastError(ExceptionAsString(excpt));
+	y2error("TargetInit has failed: %s", excpt.msg().c_str() );
         return YCPError(excpt.msg().c_str(), YCPBoolean(false));
     }
-    
-    _target_root = zypp::Pathname(root->value());
-    
-    // we have moved to a different target, the broken source information
-    // is no longer valid
-    _broken_sources.clear();
+
+    _target_root = zypp::Pathname(r);
+
+    // locks are optional, might not be present on the target
+    zypp::Pathname lock_file(_target_root + zypp::ZConfig::instance().locksFile());
+    try
+    {
+	// read and apply the persistent locks
+	y2milestone("Reading locks from %s", lock_file.asString().c_str());
+	zypp::Locks::instance().readAndApply(lock_file);
+    }
+    catch (zypp::Exception & excpt)
+    {
+	y2warning("Error reading persistent locks from %s", lock_file.asString().c_str());
+    }
+
+    pkgprogress.Done();
 
     return YCPBoolean(true);
 }
@@ -97,16 +133,12 @@ PkgModuleFunctions::TargetInitialize (const YCPString& root)
     }
     catch (zypp::Exception & excpt)
     {
-        _last_error.setLastError(excpt.asUserString());
-        ycperror("TargetInit has failed: %s", excpt.msg().c_str() );
+        _last_error.setLastError(ExceptionAsString(excpt));
+        y2error("TargetInit has failed: %s", excpt.msg().c_str() );
         return YCPError(excpt.msg().c_str(), YCPBoolean(false));
     }
-    
+
     _target_root = zypp::Pathname(root->value());
-    
-    // we have moved to a different target, the broken source information
-    // is no longer valid
-    _broken_sources.clear();
 
     return YCPBoolean(true);
 }
@@ -120,17 +152,33 @@ PkgModuleFunctions::TargetInitialize (const YCPString& root)
 YCPValue
 PkgModuleFunctions::TargetLoad ()
 {
+    if (_target_loaded)
+    {
+	y2milestone("The target system is already loaded");
+	return YCPBoolean(true);
+    }
+
+    std::list<std::string> stages;
+    stages.push_back(_("Read Installed Packages"));
+
+    PkgProgress pkgprogress(_callbackHandler);
+
+    pkgprogress.Start(_("Loading the Package Manager..."), stages, _(HelpTexts::load_resolvables));
+
     try
     {
-        zypp_ptr()->addResolvables( zypp_ptr()->target()->resolvables(), true );
+        zypp_ptr()->target()->load();
+	_target_loaded = true;
     }
     catch (zypp::Exception & excpt)
     {
-        _last_error.setLastError(excpt.asUserString());
-        ycperror("TargetLoad has failed: %s", excpt.msg().c_str() );
+        _last_error.setLastError(ExceptionAsString(excpt));
+        y2error("TargetLoad has failed: %s", excpt.msg().c_str() );
         return YCPError(excpt.msg().c_str(), YCPBoolean(false));
     }
-    
+
+    pkgprogress.Done();
+
     return YCPBoolean(true);
 }
 
@@ -146,26 +194,23 @@ PkgModuleFunctions::TargetDisableSources ()
 {
     try
     {
-	zypp::SourceManager::disableSourcesAt( _target_root );
+// FIXME: should it also remove from pool?
 
-	// disable source refresh - workaround for #220056
-	zypp::storage::PersistentStorage store;
-	store.init( _target_root );
+	zypp::RepoManager repomanager = CreateRepoManager();
+	std::list<zypp::RepoInfo> all_sources = repomanager.knownRepositories();
 
-	std::list<zypp::source::SourceInfo> new_sources = store.storedSources();
-	y2milestone("Disabling refresh for sources at %s", _target_root.asString().c_str());
-
-	for ( std::list<zypp::source::SourceInfo>::iterator it = new_sources.begin(); it != new_sources.end(); ++it)
+	for (std::list<zypp::RepoInfo>::iterator it = all_sources.begin(); it != all_sources.end(); ++it)
 	{
-	    y2milestone("Disabling refresh: alias: %s", it->alias().c_str());
+	    y2milestone("Disabling source '%s'", it->alias().c_str());
 	    it->setAutorefresh(false);
-	    store.storeSource( *it );
+
+	    repomanager.modifyRepository(it->alias(), *it);
 	}
     }
     catch (zypp::Exception & excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
-	ycperror("TargetDisableSources has failed: %s", excpt.msg().c_str() );
+	_last_error.setLastError(ExceptionAsString(excpt));
+	y2error("TargetDisableSources has failed: %s", excpt.msg().c_str() );
         return YCPBoolean(false);
     }
 
@@ -185,13 +230,20 @@ PkgModuleFunctions::TargetFinish ()
     try
     {
 	zypp_ptr()->finishTarget();
+
+	zypp::Pathname lock_file(_target_root + zypp::ZConfig::instance().locksFile());
+	zypp::Locks::instance().save(lock_file);
     }
     catch (zypp::Exception & excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
-	ycperror("TargetFinish has failed: %s", excpt.msg().c_str() );
+	_last_error.setLastError(ExceptionAsString(excpt));
+	y2error("TargetFinish has failed: %s", excpt.msg().c_str() );
         return YCPBoolean(false);
     }
+
+    // reset the target
+    _target_root = zypp::Pathname();
+    _target_loaded = false;
 
     return YCPBoolean(true);
 }
@@ -218,8 +270,8 @@ PkgModuleFunctions::TargetInstall(const YCPString& filename)
     }
     catch (zypp::Exception & excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
-	ycperror("TargetInstall has failed: %s", excpt.asString().c_str());
+	_last_error.setLastError(ExceptionAsString(excpt));
+	y2error("TargetInstall has failed: %s", excpt.asString().c_str());
         return YCPBoolean(false);
     }
 
@@ -247,8 +299,8 @@ PkgModuleFunctions::TargetRemove(const YCPString& name)
     }
     catch (zypp::Exception & excpt)
     {
-	_last_error.setLastError(excpt.asUserString());
-	ycperror("TargetRemove has failed: %s", excpt.asString().c_str());
+	_last_error.setLastError(ExceptionAsString(excpt));
+	y2error("TargetRemove has failed: %s", excpt.asString().c_str());
         return YCPBoolean(false);
     }
 
@@ -266,17 +318,8 @@ PkgModuleFunctions::TargetRemove(const YCPString& name)
 YCPBoolean
 PkgModuleFunctions::TargetLogfile (const YCPString& name)
 {
-    try
-    {
-	return YCPBoolean (zypp_ptr()->target()->setInstallationLogfile (name->value()));
-    }
-    catch (zypp::Exception & excpt)
-    {
-	_last_error.setLastError(excpt.asUserString());
-	ycperror("TargetLogfile has failed: %s", excpt.asString().c_str());
-        return YCPBoolean(false);
-    }
-    return YCPBoolean (true); // never reached
+    y2warning("Pkg::TargetLogfile() is obsoleted, the log file is now entirely handled by libzypp. See http://en.opensuse.org/Libzypp/Package_History");
+    return YCPBoolean (true);
 }
 
 
@@ -375,56 +418,65 @@ PkgModuleFunctions::TargetProducts ()
 
     try
     {
-        for (ResStore::resfilter_const_iterator it = zypp_ptr()->target()->byKindBegin(ResTraits<Product>::kind); it != zypp_ptr()->target()->byKindEnd(ResTraits<Product>::kind); ++it)
+        zypp::ResPool pool( zypp::ResPool::instance() ); // ResPool is a global singleton
+
+        for_( it, pool.byKindBegin<zypp::Product>(), pool.byKindEnd<zypp::Product>() )
         {
-          zypp::Product::constPtr product = asKind<const zypp::Product>( *it );
-#warning TargetProducts does not return all keys
+          if ( ! it->status().isInstalled() )
+            continue;
+          zypp::Product::constPtr product = asKind<zypp::Product>( it->resolvable() );
+
+          #warning TargetProducts does not return all keys
           YCPMap prod;
-          // see also PkgModuleFunctions::Descr2Map and Product.ycp::Product
-// FIXME unify with code in Pkg::ResolvablePropertiesEx
+          // see also PkgFunctions::Descr2Map and Product.ycp::Product
+          // FIXME unify with code in Pkg::ResolvablePropertiesEx
           prod->add( YCPString("name"), YCPString( product->name() ) );
           prod->add( YCPString("version"), YCPString( product->edition().version() ) );
-	  prod->add(YCPString("category"), YCPString(product->category()));
-	  prod->add(YCPString("vendor"), YCPString(product->vendor()));
-	  prod->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrl().asString()));
-	  std::string product_summary = product->summary();
-	  if (product_summary.size() > 0)
-	  {
-	    prod->add(YCPString("display_name"), YCPString(product_summary));
-	  }
-	  std::string product_shortname = product->shortName();
-	  if (product_shortname.size() > 0)
-	  {
-	    prod->add(YCPString("short_name"), YCPString(product_shortname));
-	  }
-	  // use summary for the short name if it's defined
-	  else if (product_summary.size() > 0)
-	  {
-	    prod->add(YCPString("short_name"), YCPString(product_summary));
-	  }
-	  prod->add(YCPString("description"), YCPString((*it)->description()));
 
-	  std::string resolvable_summary = (*it)->summary();
-	  if (resolvable_summary.size() > 0)
-	  {
-	    prod->add(YCPString("summary"), YCPString((*it)->summary()));
-	  }
-	  YCPList updateUrls;
-	  std::list<zypp::Url> pupdateUrls = product->updateUrls();
-	  for (std::list<zypp::Url>::const_iterator it = pupdateUrls.begin(); it != pupdateUrls.end(); ++it)
-	  {
-	    updateUrls->add(YCPString(it->asString()));
-	  }
-	  prod->add(YCPString("update_urls"), updateUrls);
+          std::string category(product->isTargetDistribution() ? "base" : "addon");
+          prod->add(YCPString("type"), YCPString(category));
+          prod->add(YCPString("category"), YCPString(category));
 
-	  YCPList flags;
-	  std::list<std::string> pflags = product->flags();
-	  for (std::list<std::string>::const_iterator flag_it = pflags.begin();
-	    flag_it != pflags.end(); ++flag_it)
-	  {
-	    flags->add(YCPString(*flag_it));
-	  }
-	  prod->add(YCPString("flags"), flags);
+          prod->add(YCPString("vendor"), YCPString(product->vendor()));
+          prod->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrls().first().asString()));
+          std::string product_summary = product->summary();
+          if (product_summary.size() > 0)
+          {
+            prod->add(YCPString("display_name"), YCPString(product_summary));
+          }
+          std::string product_shortname = product->shortName();
+          if (product_shortname.size() > 0)
+          {
+            prod->add(YCPString("short_name"), YCPString(product_shortname));
+          }
+          // use summary for the short name if it's defined
+          else if (product_summary.size() > 0)
+          {
+            prod->add(YCPString("short_name"), YCPString(product_summary));
+          }
+          prod->add(YCPString("description"), YCPString((*it)->description()));
+
+          std::string resolvable_summary = (*it)->summary();
+          if (resolvable_summary.size() > 0)
+          {
+            prod->add(YCPString("summary"), YCPString((*it)->summary()));
+          }
+          YCPList updateUrls;
+          zypp::Product::UrlList pupdateUrls = product->updateUrls();
+          for_( it, pupdateUrls.begin(), pupdateUrls.end() )
+          {
+            updateUrls->add(YCPString(it->asString()));
+          }
+          prod->add(YCPString("update_urls"), updateUrls);
+
+          YCPList flags;
+          std::list<std::string> pflags = product->flags();
+          for (std::list<std::string>::const_iterator flag_it = pflags.begin();
+            flag_it != pflags.end(); ++flag_it)
+          {
+            flags->add(YCPString(*flag_it));
+          }
+          prod->add(YCPString("flags"), flags);
 
           products->add(prod);
         }
@@ -471,7 +523,7 @@ void PkgModuleFunctions::SetCurrentDU()
     // set the mount points
     zypp_ptr()->setPartitions(system);
 }
-	
+
 
 /** ------------------------
  *
@@ -687,7 +739,7 @@ PkgModuleFunctions::TargetFileHasOwner (const YCPString& filepath)
 {
     try
     {
-	return YCPBoolean (zypp_ptr()->target()->whoOwnsFile(filepath->value()));
+	return YCPBoolean (zypp_ptr()->target()->whoOwnsFile(filepath->value()).c_str());
     }
     catch (...)
     {
@@ -695,7 +747,6 @@ PkgModuleFunctions::TargetFileHasOwner (const YCPString& filepath)
 
     return YCPBoolean(false);
 }
-
 
 /**
    @builtin TargetStoreRemove
@@ -711,70 +762,5 @@ PkgModuleFunctions::TargetFileHasOwner (const YCPString& filepath)
 YCPBoolean
 PkgModuleFunctions::TargetStoreRemove(const YCPString& root, const YCPSymbol& kind_r)
 {
-    zypp::Resolvable::Kind kind;
-    std::string req_kind = kind_r->symbol();
-
-    if( req_kind == "product" ) {
-	kind = zypp::ResTraits<zypp::Product>::kind;
-    }
-    else if ( req_kind == "patch" ) {
-    	kind = zypp::ResTraits<zypp::Patch>::kind;
-    }
-    else if ( req_kind == "package" ) {
-	kind = zypp::ResTraits<zypp::Package>::kind;
-    }
-    else if ( req_kind == "selection" ) {
-	kind = zypp::ResTraits<zypp::Selection>::kind;
-    }
-    else if ( req_kind == "pattern" ) {
-	kind = zypp::ResTraits<zypp::Pattern>::kind;
-    }
-    else if ( req_kind == "language" ) {
-	kind = zypp::ResTraits<zypp::Language>::kind;
-    }
-    else
-    {
-	y2error("Pkg::TargetStoreRemove: unknown symbol: %s", req_kind.c_str());
-	return YCPBoolean(false);
-    }
-
-    bool success = true;
-
-    std::string target_root = root->value();
-    if (target_root.empty())
-    {
-	y2error("Pkg::TargetStoreRemove: parameter root is empty");
-	return YCPBoolean(false);
-    }
-
-    try
-    {
-	// create a storage
-	zypp::storage::PersistentStorage store;
-	store.init( target_root );
-
-	// get all resolvables of the required kind
-	std::list<ResObject::Ptr> objects = store.storedObjects(kind);
-
-	y2warning("Removing %d objects of kind '%s' from %s", objects.size(), req_kind.c_str(), target_root.c_str());
-
-	// remove the resolvables
-	for( std::list<ResObject::Ptr>::const_iterator it = objects.begin(); it != objects.end(); ++it)
-	{
-	    try {
-		store.deleteObject(*it);
-	    } catch( const zypp::Exception& excpt )
-	    {
-		y2error("TargetStoreRemove has failed: %s", excpt.msg().c_str());
-		success = false;
-	    }
-	}
-    }
-    catch( const zypp::Exception& excpt )
-    {
-	y2error("TargetStoreRemove has failed: %s", excpt.msg().c_str());
-	success = false;
-    }
-    
-    return YCPBoolean(success);
+    return YCPBoolean(true);
 }

@@ -29,6 +29,7 @@
 #include <YCP.h>
 
 #include <zypp/Pathname.h>
+#include <zypp/Product.h>
 #include <zypp/Url.h>
 
 ///////////////////////////////////////////////////////////////////
@@ -244,6 +245,16 @@ inline YCPList asYCPList( const std::list<std::string> & lst ) {
   return ret;
 }
 
+/** Trasform zypp::Product::UrlList into YCPList */
+inline YCPList asYCPList( const zypp::Product::UrlList & urls_r )
+{
+   YCPList ret;
+   for_( it, urls_r.begin(), urls_r.end() )
+    {
+      ret->add( YCPString(it->asCompleteString()) );
+    }
+   return ret;
+}
 
 ///////////////////////////////////////////////////////////////////
 

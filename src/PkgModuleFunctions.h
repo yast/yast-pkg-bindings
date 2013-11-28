@@ -40,13 +40,16 @@
 
 #include <zypp/ZYpp.h>
 #include <zypp/Pathname.h>
+#include <zypp/TmpPath.h>
 #include <zypp/Url.h>
 #include <zypp/Arch.h>
+#include <zypp/RepoManager.h>
 #include <zypp/DiskUsageCounter.h>
-#include <zypp/SourceManager.h>
-
 #include "PkgError.h"
+#include "YRepo.h"
+#include "ServiceManager.h"
 
+class PkgProgress;
 
 // textdomain
 extern "C" {
@@ -60,7 +63,6 @@ extern "C" {
 
 // define new _ macro
 #define _(MSG) ::dgettext("pkg-bindings", MSG)
-
 
 /**
  * A simple class for package management access
@@ -78,31 +80,79 @@ class PkgModuleFunctions : public Y2Namespace
   protected:
 
 	zypp::Pathname _target_root;
-	
-	std::set<std::string> _broken_sources;
+	bool _target_loaded;
 
 	zypp::ZYpp::Ptr zypp_pointer;
 
+        // From Code11, but we only use it as a helper
+        YCPValue SetPackageLocale (const YCPString &locale);
 	// remember the main locale (set by SetLocale) for SetAdditionalLocales,
 	// add the main locale to the additional ones
 	zypp::Locale preferred_locale;
 
-	/** 
+	zypp::Pathname _download_area;
+
+	/**
 	 * ZYPP
 	 */
 	zypp::ZYpp::Ptr zypp_ptr();
 
 
+	// container for the internal structure
+	typedef std::vector<YRepo_Ptr> RepoCont;
+
+        YCPValue CommitHelper(const zypp::ZYppCommitPolicy &policy);
+
+    public:
+
+	// ID type
+	typedef RepoCont::size_type RepoId;
+
     private: // source related
 
-      bool DoProvideNameKind( const std::string & name, zypp::Resolvable::Kind kind, zypp::Arch architecture,
-			      const std::string& version, const bool onlyNeeded = false);
-      bool DoRemoveNameKind( const std::string & name, zypp::Resolvable::Kind kind);
-      bool DoProvideAllKind(zypp::Resolvable::Kind kind);
-      bool DoRemoveAllKind(zypp::Resolvable::Kind kind);
-      bool DoAllKind(zypp::Resolvable::Kind kind, bool provide);
+      // all known installation sources
+      RepoCont repos;
+
+      // table for converting libzypp source type to Yast type (for backward compatibility)
+      std::map<std::string, std::string> type_conversion_table;
+
+      // flag for skipping autorefresh
+      volatile bool autorefresh_skipped;
+
+      RepoId last_reported_repo;
+      int last_reported_mediumnr;
+
+      YCPValue SourceRefreshHelper(const YCPInteger &id, bool forced = false);
+
+      // helper - is the network running?
+      bool NetworkDetected();
+
+      // is the URL remote?
+      bool remoteRepo(const zypp::Url &url);
+
+      // conversion methods for type string between Yast and libzypp (for backward compatibility)
+      std::string zypp2yastType(const std::string &type);
+      std::string yast2zyppType(const std::string &type);
+
+      // helper - create a directory if it doesn't exist
+      bool CreateDir(const std::string &path);
+      // helper - copy a file or directory
+      bool CopyToDir(const std::string &source, const std::string &target, bool backup = false, bool recursive = true);
+
+      void RemoveResolvablesFrom(YRepo_Ptr repo);
+      bool LoadResolvablesFrom(YRepo_Ptr repo, const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc(), bool network_check = false);
+      std::string UniqueAlias(const std::string &alias);
+
       YCPValue GetPkgLocation(const YCPString& p, bool full_path);
-      YCPValue PkgProp( zypp::PoolItem_Ref item );
+      YCPValue PkgProp(const zypp::PoolItem &item);
+      YCPValue PkgMediaSizesOrCount (bool sizes, bool download_size = false);
+      YCPValue TargetInitInternal(const YCPString& root, bool rebuild_rpmdb);
+
+      bool aliasExists(const std::string &alias, const std::list<zypp::RepoInfo> &reps) const;
+
+      zypp::Product::constPtr FindBaseProduct(const std::string &alias) const;
+
+      zypp::RepoManager CreateRepoManager();
 
       void SetCurrentDU();
 
@@ -116,10 +166,42 @@ class PkgModuleFunctions : public Y2Namespace
       void CallSourceReportInit();
       void CallSourceReportDestroy();
 
+      void CallInitDownload(const std::string &task);
+      void CallDestDownload();
+      void RefreshWithCallbacks(const zypp::RepoInfo &repo,
+	const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc(),
+	zypp::RepoManager::RawMetadataRefreshPolicy refresh = zypp::RepoManager::RefreshIfNeeded);
+      zypp::repo::RepoType ProbeWithCallbacks(const zypp::Url &url);
+      void ScanProductsWithCallBacks(const zypp::Url &url);
+      void CallRefreshStarted();
+      void CallRefreshDone();
+      YCPValue SourceProvideDirectoryInternal(const YCPInteger& id, const YCPInteger& mid,
+	const YCPString& d, const YCPBoolean &optional,
+	const YCPBoolean &recursive, bool check_signatures);
+
+      YCPValue SourceLoadImpl(PkgProgress &progress);
+      YCPValue SourceStartManagerImpl(const YCPBoolean& enable, PkgProgress &progress);
+
       // After all, APPL_HIGH might be more appropriate, because we suggest
       // the user what he should do and if it does not work, it's his job to
       // fix it (using USER). --ma
       static const zypp::ResStatus::TransactByValue whoWantsIt;	// #156875
+
+      // convert MountPointSet to YCP Map
+      YCPMap MPS2YCPMap(const zypp::DiskUsageCounter::MountPointSet &mps);
+
+      YCPMap PoolQuery2YCPMap(const zypp::PoolQuery &pool_query);
+
+      zypp::Url shortenUrl(const zypp::Url &url);
+
+      // convert Exception to string represenatation
+      std::string ExceptionAsString(const zypp::Exception &e);
+
+      YCPValue searchPackage(const YCPString &package, bool installed);
+
+      bool CreateBaseProductSymlink();
+
+      YCPMap Resolvable2YCPMap(const zypp::PoolItem &item, const std::string &req_kind, bool dependencies);
 
     private:
 
@@ -131,14 +213,29 @@ class PkgModuleFunctions : public Y2Namespace
 
       PkgError _last_error;
 
-      /**
-       * Logging helper:
-       * call zypp::SourceManager::sourceManager()->findSource
-       * and in case of exception, log error and setLastError AND RETHROW
-       */
-      zypp::Source_Ref logFindSource (zypp::SourceManager::SourceId id);
+      ServiceManager service_manager;
 
-    public:
+      zypp::Product::constPtr base_product;
+
+      std::vector<zypp::filesystem::TmpDir> tmp_dirs;
+
+	RepoId createManagedSource(const zypp::Url & url_r,
+	    const zypp::Pathname & path_r, const std::string& type,
+	    const std::string &alias_r, PkgProgress &progress, const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc());
+
+      /**
+       * provides SourceProvideFile and SourceProvideFileCommon
+       */
+      YCPValue SourceProvideFileCommon(const YCPInteger &id, const YCPInteger &mid,
+		const YCPString& f, const bool optional, const bool check_signatures,
+		const bool digested);
+
+      // Compat helpers
+      YCPValue SourceCreateExCode11(const YCPString& media, const YCPString& pd, bool base, const YCPString& source_type, bool scan_only);
+      YCPValue SourceProvideDirectory(const YCPInteger& id, const YCPInteger& mid, const YCPString& d, const YCPBoolean &optional, const YCPBoolean &recursive);
+
+public:
+
 	// general
 	/* TYPEINFO: void() */
 	YCPValue InstSysMode ();
@@ -304,25 +401,25 @@ class PkgModuleFunctions : public Y2Namespace
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackResolvableReport( const YCPString& func );
 	/* TYPEINFO: void(string) */
-	YCPValue CallbackImportGpgKey( const YCPString& func );	
+	YCPValue CallbackImportGpgKey( const YCPString& func );
 	/* TYPEINFO: void(string) */
 	YCPValue CallbackAcceptNonTrustedGpgKey( const YCPString& args );
 	/* TYPEINFO: void(string) */
-	YCPValue CallbackAcceptUnknownGpgKey( const YCPString& func );	
+	YCPValue CallbackAcceptUnknownGpgKey( const YCPString& func );
 	/* TYPEINFO: void(string) */
-	YCPValue CallbackAcceptUnsignedFile( const YCPString& func );	
+	YCPValue CallbackAcceptUnsignedFile( const YCPString& func );
 	/* TYPEINFO: void(string) */
-	YCPValue CallbackAcceptVerificationFailed( const YCPString& func );	
+	YCPValue CallbackAcceptVerificationFailed( const YCPString& func );
 	/* TYPEINFO: void(string) */
         YCPValue CallbackAcceptWrongDigest( const YCPString& func);
 	/* TYPEINFO: void(string) */
         YCPValue CallbackAcceptUnknownDigest( const YCPString& func);
 	/* TYPEINFO: void(string) */
-	YCPValue CallbackTrustedKeyAdded( const YCPString& func );	
+	YCPValue CallbackTrustedKeyAdded( const YCPString& func );
 	/* TYPEINFO: void(string) */
-	YCPValue CallbackTrustedKeyRemoved( const YCPString& func );	
+	YCPValue CallbackTrustedKeyRemoved( const YCPString& func );
 	/* TYPEINFO: void(string) */
-	YCPValue CallbackAcceptFileWithoutChecksum( const YCPString& func );	
+	YCPValue CallbackAcceptFileWithoutChecksum( const YCPString& func );
 
 	// source related
 	/* TYPEINFO: boolean(boolean)*/
@@ -608,6 +705,19 @@ class PkgModuleFunctions : public Y2Namespace
 
         YCPValue ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies);
 	YCPValue ResolvableSetPatches(const YCPSymbol& kind_r, bool preselect);
+
+      /**
+       * Logging helper:
+       * search for a repository and in case of exception, log error
+       * and setLastError AND RETHROW
+       */
+	YRepo_Ptr logFindRepository(RepoId id);
+        RepoId logFindAlias(const std::string &alias) const;
+
+        RepoId LastReportedRepo() const;
+	int LastReportedMedium() const;
+	void SetReportedSource(RepoId repo, int medium);
+
 
 	/**
 	 * Constructor.
