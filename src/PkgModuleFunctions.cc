@@ -553,6 +553,25 @@ PkgModuleFunctions::Init ()
     return YCPBoolean(true);
 }
 
+PkgModuleFunctions::RepoId
+PkgModuleFunctions::LastReportedRepo() const
+{
+    return last_reported_repo;
+}
+
+int
+PkgModuleFunctions::LastReportedMedium() const
+{
+    return last_reported_mediumnr;
+}
+
+void
+PkgModuleFunctions::SetReportedSource(PkgModuleFunctions::RepoId repo, int medium)
+{
+    last_reported_repo = repo;
+    last_reported_mediumnr = medium;
+}
+
 
 /** ------------------------
  * Convert InstSrcDescr to product info YCPMap:
