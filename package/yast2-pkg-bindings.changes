@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Nov 29 12:46:21 UTC 2013 - dmacvicar@suse.de
+
+- undefined symbol: _ZNK18PkgModuleFunctions16LastReportedRepoEv
+  (bnc#853654)
+- 2.13.1001
+
+-------------------------------------------------------------------
 Wed Sep  7 18:49:14 CEST 2011 - ma@suse.de
 
 - Bump version to indicate SUSE Manager release
