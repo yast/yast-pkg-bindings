@@ -2,16 +2,20 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "/usr/share/xml/docbook/schema/dtd/4.2/docbookx.dtd"[
 
-<!ENTITY PkgModuleCallbacks    SYSTEM "Callbacks.xml">
-<!ENTITY PkgModule    SYSTEM "PkgModule.xml">
-<!ENTITY PkgModuleError    SYSTEM "PkgModuleError.xml">
 <!ENTITY PkgModuleFunctions    SYSTEM "PkgModuleFunctions.xml">
-<!ENTITY PkgModuleFunctionsPackage    SYSTEM "Package.xml">
-<!ENTITY PkgModuleFunctionsPatch    SYSTEM "Patch.xml">
-<!ENTITY PkgModuleFunctionsResolvable    SYSTEM "Resolvable.xml">
+<!ENTITY PkgModuleFunctionsKeyring      SYSTEM "Keyring.xml">
+<!ENTITY PkgModuleFunctionsPackage      SYSTEM "Package.xml">
+<!ENTITY PkgModuleFunctionsPatch        SYSTEM "Patch.xml">
+<!ENTITY PkgModuleFunctionsResolvable   SYSTEM "Resolvable.xml">
 <!ENTITY PkgModuleFunctionsSelection    SYSTEM "Selection.xml">
-<!ENTITY PkgModuleFunctionsSource    SYSTEM "Source.xml">
-<!ENTITY PkgModuleFunctionsTarget    SYSTEM "Target.xml">
+<!ENTITY PkgModuleFunctionsSource_Create        SYSTEM "Source_Create.xml">
+<!ENTITY PkgModuleFunctionsSource_Download      SYSTEM "Source_Download.xml">
+<!ENTITY PkgModuleFunctionsSource_Get   SYSTEM "Source_Get.xml">
+<!ENTITY PkgModuleFunctionsSource_Installation  SYSTEM "Source_Installation.xml">
+<!ENTITY PkgModuleFunctionsSource_Load  SYSTEM "Source_Load.xml">
+<!ENTITY PkgModuleFunctionsSource_Save  SYSTEM "Source_Save.xml">
+<!ENTITY PkgModuleFunctionsSource_Set   SYSTEM "Source_Set.xml">
+<!ENTITY PkgModuleFunctionsTarget       SYSTEM "Target.xml">
 <!ENTITY pkgbindingssection    SYSTEM "pkg-bindings-section.xml">
 ]>
 <book>
@@ -42,13 +46,18 @@
         &pkgbindingssection;
     </chapter>
 
-    &PkgModuleFunctionsSource;
     &PkgModuleFunctions;
-    &PkgModuleFunctionsSelection;
+    &PkgModuleFunctionsKeyring;
     &PkgModuleFunctionsPackage;
-    &PkgModuleFunctionsResolvable;
-    &PkgModuleFunctionsTarget;
     &PkgModuleFunctionsPatch;
-    &PkgModuleCallbacks;
-
+    &PkgModuleFunctionsResolvable;
+    &PkgModuleFunctionsSelection;
+    &PkgModuleFunctionsSource_Create;
+    &PkgModuleFunctionsSource_Download;
+    &PkgModuleFunctionsSource_Get;
+    &PkgModuleFunctionsSource_Installation;
+    &PkgModuleFunctionsSource_Load;
+    &PkgModuleFunctionsSource_Save;
+    &PkgModuleFunctionsSource_Set;
+    &PkgModuleFunctionsTarget;
 </book>
