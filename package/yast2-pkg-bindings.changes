@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Dec 18 08:27:46 UTC 2013 - lslezak@suse.cz
+
+- eliminate deprecated zypp::DiskUsage class (bnc#852943)
+  (by mlandres)
+- 3.1.2
+
+-------------------------------------------------------------------
 Mon Sep 30 14:18:10 UTC 2013 - lslezak@suse.cz
 
 - do not use *.spec.in template, use *.spec file with RPM macros
