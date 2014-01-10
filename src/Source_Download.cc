@@ -98,8 +98,8 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 		zypp::OnMediaLocation mloc(media_path, mid->value());
 		mloc.setOptional(optional);
 
-		// create the tmpdir in <_download_area>/var/tmp
-		zypp::filesystem::TmpDir tmpdir(_download_area / zypp::filesystem::TmpDir::defaultLocation());
+		// create the tmpdir in <_download_area>
+		zypp::filesystem::TmpDir tmpdir(download_area_path());
 
 		// keep a reference to the tmpdir so the directory is not deleted at the and of the block		
 		tmp_dirs.push_back(tmpdir);
@@ -344,10 +344,10 @@ PkgFunctions::SourceProvideDirectoryInternal(const YCPInteger& id, const YCPInte
 		zypp::Fetcher f;
 		f.reset();
 		zypp::OnMediaLocation mloc(d->value(), mid->value());
-		// create the tmpdir in <_root>/var/tmp
-		zypp::filesystem::TmpDir tmpdir(_download_area / zypp::filesystem::TmpDir::defaultLocation() );
+		// create the tmpdir in <_download_area>
+		zypp::filesystem::TmpDir tmpdir(download_area_path());
 
-		// keep the reference to the tmpdir so the directory is not deleted at the and of the block		
+		// keep the reference to the tmpdir so the directory is not deleted at the and of the block
 		tmp_dirs.push_back(tmpdir);
 		path = tmpdir.path();
 		f.setOptions(zypp::Fetcher::AutoAddIndexes);
@@ -466,4 +466,10 @@ PkgFunctions::SourceForceRefreshNow (const YCPInteger& id)
 {
     // force refresh
     return SourceRefreshHelper(id, true);
+}
+
+zypp::Pathname PkgFunctions::download_area_path()
+{
+    // create the tmpdir in the default location if _download_area is empty
+    return _download_area.empty() ? zypp::filesystem::TmpDir::defaultLocation() : _download_area;
 }

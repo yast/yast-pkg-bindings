@@ -131,6 +131,9 @@ class PkgFunctions
       // set new target directory
       bool SetTarget(const std::string &root);
 
+      // configured or default download area
+      zypp::Pathname download_area_path();
+
       // helper - is the network running?
       bool NetworkDetected();
 
