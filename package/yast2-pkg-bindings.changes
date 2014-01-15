@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Jan 15 11:50:30 UTC 2014 - lslezak@suse.cz
+
+- fixed package disk usage computation (bnc#852943)
+- 2.17.59.1
+
+-------------------------------------------------------------------
 Wed Dec 12 11:29:20 CET 2012 - jsuchome@suse.cz
 
 - showing patch contents (packages with their versions) as part
