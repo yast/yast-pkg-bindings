@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Jan 15 11:50:30 UTC 2014 - lslezak@suse.cz
+
+- fixed package disk usage computation (bnc#852943)
+- 2.17.58.1
+
+-------------------------------------------------------------------
 Thu Mar  8 08:16:23 UTC 2012 - lslezak@suse.cz
 
 - added Pkg::ResolvableUpdate() to avoid downgrading resolvables
