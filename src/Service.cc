@@ -26,6 +26,7 @@
 */
 
 #include "PkgFunctions.h"
+#include "PkgProgress.h"
 #include "log.h"
 
 #include <ycp/YCPValue.h>
@@ -372,9 +373,11 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
 	    return YCPBoolean(false);
 	}
 
+        const std::string alias_str(alias->value());
+
 	zypp::RepoManager* repomanager = CreateRepoManager();
 
-	if (!service_manager.RefreshService(alias->value(), *repomanager))
+	if (!service_manager.RefreshService(alias_str, *repomanager))
 	{
 	    return YCPBoolean(false);
 	}
@@ -402,6 +405,31 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
 		}
 	    }
 	}
+
+        // check whether there are new added repositories and load them
+        std::list<zypp::RepoInfo> reps = repomanager->knownRepositories();
+        for (std::list<zypp::RepoInfo>::iterator it = reps.begin();
+            it != reps.end(); ++it)
+        {
+          if (it->service() == alias_str && !logFindAlias(it->alias()))
+            continue;
+
+          y2milestone("Service added a new repository: %s", it->alias().c_str());
+          YRepo_Ptr new_repo = new YRepo(*it);
+          repos.push_back(new_repo);
+
+          if (it->enabled())
+          {
+            y2milestone("Refreshing service: %s", it->alias().c_str());
+            // refresh and load resolvables
+            PkgProgress pkgprogress(_callbackHandler);
+            zypp::ProgressData progress(100);
+            progress.sendTo(pkgprogress.Receiver());
+            zypp::CombinedProgressData subprogrcv_ref(progress, 20);
+
+            LoadResolvablesFrom(new_repo, subprogrcv_ref);
+          }
+        }
 
 	return YCPBoolean(true);
     }
