@@ -35,6 +35,7 @@
 #include <ycp/YCPList.h>
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPVoid.h>
+#include <zypp/RepoInfo.h>
 
 
 /**
@@ -406,11 +407,13 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
 	    }
 	}
 
+        y2milestone("Checking for added repositories...");
         // check whether there are new added repositories and load them
         std::list<zypp::RepoInfo> reps = repomanager->knownRepositories();
         for (std::list<zypp::RepoInfo>::iterator it = reps.begin();
             it != reps.end(); ++it)
         {
+          y2debug("Checking repo '%s' from service '%s'", it->alias().c_str(), it->service().c_str());
           if (it->service() == alias_str && !logFindAlias(it->alias()))
             continue;
 
@@ -421,7 +424,10 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
           if (it->enabled())
           {
             y2milestone("Refreshing service: %s", it->alias().c_str());
-            // refresh and load resolvables
+            // refresh the last added repository
+            SourceRefreshNow(repos.size() - 1);
+
+            // load resolvables
             PkgProgress pkgprogress(_callbackHandler);
             zypp::ProgressData progress(100);
             progress.sendTo(pkgprogress.Receiver());
