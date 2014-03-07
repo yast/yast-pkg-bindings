@@ -17,7 +17,7 @@
 
 
 Name:           yast2-pkg-bindings
-Version:        3.1.5
+Version:        3.1.6
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -30,12 +30,9 @@ BuildRequires:  docbook-xsl-stylesheets
 BuildRequires:  gcc-c++
 BuildRequires:  libtool
 BuildRequires:  libxslt
-BuildRequires:  libzypp-devel >= 14.2.1
+BuildRequires:  libzypp-devel >= 14.12.0
 BuildRequires:  yast2-core-devel
 BuildRequires:  yast2-devtools >= 3.1.10
-
-# new GPG callbacks
-Requires:	libzypp >= 14.2.1
 
 Summary:	YaST2 - Package Manager Access
 
