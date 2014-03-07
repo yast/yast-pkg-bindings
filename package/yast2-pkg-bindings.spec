@@ -34,9 +34,6 @@ BuildRequires:  libzypp-devel >= 14.12.0
 BuildRequires:  yast2-core-devel
 BuildRequires:  yast2-devtools >= 3.1.10
 
-# new GPG callbacks
-Requires:	libzypp >= 14.2.1
-
 Summary:	YaST2 - Package Manager Access
 
 %description
