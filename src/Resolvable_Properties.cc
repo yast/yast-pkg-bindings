@@ -74,6 +74,8 @@
         + "category"
         + "display_name"
         + "short_name"
+        + "eol" (optional) -> integer: Unix time when the product reaches EndOfLife,
+                (i.e. is out of support)
         + "update_urls"
         + "flags"
         + "extra_urls"
@@ -317,6 +319,12 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 	{
 	    info->add(YCPString("short_name"), YCPString(product_summary));
 	}
+
+        zypp::Date eol = product->endOfLife();
+        if (eol > 0)
+        {
+          info->add(YCPString("eol"), YCPInteger(eol));
+        }
 
 	YCPList updateUrls(asYCPList(product->updateUrls()));
 	info->add(YCPString("update_urls"), updateUrls);

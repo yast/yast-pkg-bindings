@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Mar  7 09:16:05 UTC 2014 - lslezak@suse.cz
+
+- add "eol" flag to product data to report "End Of Life" product
+  date (FATE#316172)
+- 3.1.6
+
+-------------------------------------------------------------------
 Fri Feb 14 14:42:13 UTC 2014 - lslezak@suse.cz
 
 - Pkg::ServiceRefresh() - download metadata for added repositories
