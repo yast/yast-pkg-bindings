@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Apr  2 15:11:58 UTC 2014 - lslezak@suse.cz
+
+- properly initialize "autorefresh_skipped" attribute (leaving it
+  uninitialized might have strange effects sometimes)
+- 3.1.7
+
+-------------------------------------------------------------------
 Fri Mar  7 09:16:05 UTC 2014 - lslezak@suse.cz
 
 - add "eol" flag to product data to report "End Of Life" product
