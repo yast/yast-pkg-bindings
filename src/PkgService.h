@@ -40,6 +40,7 @@ class PkgService : public zypp::ServiceInfo
 
 	std::string origAlias() const;
 
+        void setOrigAlias(const std::string& orig_alias);
 
     private:
 

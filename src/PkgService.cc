@@ -54,3 +54,7 @@ std::string PkgService::origAlias() const
     return _old_alias;
 }
 
+void PkgService::setOrigAlias(const std::string& orig_alias)
+{
+    _old_alias = orig_alias;
+}

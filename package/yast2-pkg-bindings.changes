@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Apr 15 14:48:45 UTC 2014 - lslezak@suse.cz
+
+- fixed repeated service save problem (bnc#873198, bnc#873683#c7)
+- 3.1.8
+
+-------------------------------------------------------------------
 Wed Apr  2 15:11:58 UTC 2014 - lslezak@suse.cz
 
 - properly initialize "autorefresh_skipped" attribute (leaving it

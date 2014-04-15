@@ -53,7 +53,7 @@ void ServiceManager::LoadServices(const zypp::RepoManager &repomgr)
     }
 }
 
-void ServiceManager::SaveServices(zypp::RepoManager &repomgr) const
+void ServiceManager::SaveServices(zypp::RepoManager &repomgr)
 {
     for_ (it, _known_services.begin(), _known_services.end())
     {
@@ -75,9 +75,9 @@ void ServiceManager::SaveServices(zypp::RepoManager &repomgr) const
     }
 }
 
-bool ServiceManager::SaveService(const std::string &alias, zypp::RepoManager &repomgr) const
+bool ServiceManager::SaveService(const std::string &alias, zypp::RepoManager &repomgr)
 {
-    PkgServices::const_iterator serv_it = _known_services.find(alias);
+    PkgServices::iterator serv_it = _known_services.find(alias);
 
     if (serv_it == _known_services.end())
     {
@@ -287,7 +287,7 @@ ServiceManager::Services::size_type ServiceManager::size() const
     return _known_services.size();
 }
 
-void ServiceManager::SavePkgService(const PkgService &s_known, zypp::RepoManager &repomgr) const
+void ServiceManager::SavePkgService(PkgService &s_known, zypp::RepoManager &repomgr) const
 {
     const std::string alias(s_known.alias());
     const zypp::ServiceInfo s_stored = repomgr.getService(alias);
@@ -305,6 +305,8 @@ void ServiceManager::SavePkgService(const PkgService &s_known, zypp::RepoManager
         y2milestone("Adding new service %s", alias.c_str());
         // add the service
         repomgr.addService(s_known);
+        // set the old alias to properly save it next time
+        s_known.setOrigAlias(alias);
     }
     else
     {
