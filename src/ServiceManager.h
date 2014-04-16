@@ -42,9 +42,9 @@ class ServiceManager
 
 	void LoadServices(const zypp::RepoManager &repomgr);
 
-	void SaveServices(zypp::RepoManager &repomgr) const;
+	void SaveServices(zypp::RepoManager &repomgr);
 
-	bool SaveService(const std::string &alias, zypp::RepoManager &repomgr) const;
+	bool SaveService(const std::string &alias, zypp::RepoManager &repomgr);
 
 	bool AddService(const std::string &alias, const std::string &url);
 
@@ -70,7 +70,7 @@ class ServiceManager
     private:
 
 	// internal helper method
-	void SavePkgService(const PkgService &s_known, zypp::RepoManager &repomgr) const;
+	void SavePkgService(PkgService &s_known, zypp::RepoManager &repomgr) const;
 
 	// current alias -> PkgService for convenient search by alias
 	typedef std::map<std::string, PkgService> PkgServices;
