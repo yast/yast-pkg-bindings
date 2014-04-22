@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Apr 22 12:40:55 UTC 2014 - lslezak@suse.cz
+
+- remeber the base product NVRA (instead of the zypp product
+  reference which might be invalidated) to properly create the
+  /etc/products.d/baseproduct symlink (bnc#873885)
+- 3.1.9
+
+-------------------------------------------------------------------
 Tue Apr 15 14:48:45 UTC 2014 - lslezak@suse.cz
 
 - fixed repeated service save problem (bnc#873198, bnc#873683#c7)

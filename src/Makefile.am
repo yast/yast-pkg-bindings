@@ -53,6 +53,7 @@ libpy2Pkg_la_SOURCES =				\
 	ServiceManager.cc ServiceManager.h	\
 	Service.cc				\
 	Network.cc				\
+	BaseProduct.h BaseProduct.cc		\
 	HelpTexts.h i18n.h log.h
 
 

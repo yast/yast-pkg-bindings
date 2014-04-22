@@ -374,9 +374,10 @@ PkgFunctions::SourceDelete (const YCPInteger& id)
 	repo->setDeleted();
 
 	// removing the base product repository?
-	if (base_product && base_product->repoInfo().alias() == repo_alias)
+	if (base_product && base_product->repo_alias == repo_alias)
 	{
 	    y2warning("Resetting the base product, the base product repository has been removed");
+            delete base_product;
 	    base_product = NULL;
 	}
     }

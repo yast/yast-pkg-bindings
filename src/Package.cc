@@ -2643,6 +2643,53 @@ PkgFunctions::PkgDU(const YCPString& package)
     return MPS2YCPMap( ducounter.disk_usage( pkg ) );
 }
 
+
+zypp::Product::constPtr PkgFunctions::FindInstalledBaseProduct()
+{
+    // access to the Pool of Selectables
+    zypp::ResPoolProxy selectablePool(zypp::ResPool::instance().proxy());
+
+    // iterate over zypp::Products
+    for_(product_it, selectablePool.byKindBegin<zypp::Product>(),
+        selectablePool.byKindEnd<zypp::Product>())
+    {
+	// search an installed product
+	for_(installed_product_it, (*product_it)->installedBegin(),
+            (*product_it)->installedEnd())
+	{
+	    // get the resolvable
+	    zypp::ResObject::constPtr res = *installed_product_it;
+
+	    // check if NVRA matches the base product
+            if (res && res->name() == base_product->name &&
+                res->edition() == base_product->edition &&
+                res->arch() == base_product->arch)
+
+	    {
+		zypp::Product::constPtr product =
+                    boost::dynamic_pointer_cast<const zypp::Product>(res);
+
+		if (product)
+		{
+                    y2milestone("Found installed base product: %s-%s-%s (%s)",
+                        product->name().c_str(),
+                        product->edition().asString().c_str(),
+                        product->arch().asString().c_str(),
+                        product->summary().c_str()
+                    );
+
+		    return product;
+		}
+	    }
+	}
+    }
+
+    // matching installed product was not found
+    y2error("Cannot find the installed base product");
+
+    return NULL;
+}
+
 // helper function - create a symbolic link to the created base product (by SourceCreateBase() function)
 // returns 'true' on success
 // see http://en.opensuse.org/Product_Management/Code11/installed
@@ -2653,7 +2700,10 @@ bool PkgFunctions::CreateBaseProductSymlink()
 	y2milestone("Creating symlink for the base product...");
 
 	// get the package
-	zypp::sat::Solvable refsolvable = base_product->referencePackage();
+        zypp::Product::constPtr installed_product = FindInstalledBaseProduct();
+        if (!installed_product) return false;
+
+        zypp::sat::Solvable refsolvable = installed_product->referencePackage();
 
 	if (refsolvable != zypp::sat::Solvable::noSolvable)
 	{
