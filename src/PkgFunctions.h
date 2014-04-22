@@ -161,6 +161,8 @@ class PkgFunctions
     
       bool aliasExists(const std::string &alias, const std::list<zypp::RepoInfo> &reps) const;
 
+      // remember the base product attributes for finding it later in
+      // the installed system
       void RememberBaseProduct(const std::string &alias);
 
       zypp::RepoManager* CreateRepoManager();
@@ -261,7 +263,7 @@ class PkgFunctions
       // helper for installing/removing/upgrading a resolvable
       bool ResolvableUpdateInstallOrDelete(const YCPString& name_r, const YCPSymbol& kind_r, ResolvableAction action);
 
-      // helper for finding the installed base product
+      // it finds the resolvable using attributes saved earlier by RememberBaseProduct
       zypp::Product::constPtr FindInstalledBaseProduct();
 
     public:

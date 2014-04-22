@@ -10,7 +10,7 @@
  */
 
 #ifndef BASEPRODUCT_H
-#define	BASEPRODUCT_H
+#define BASEPRODUCT_H
 
 #include <string>
 #include <zypp/Edition.h>
