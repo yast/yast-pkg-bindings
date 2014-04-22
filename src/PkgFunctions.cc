@@ -141,6 +141,7 @@ PkgFunctions::~PkgFunctions ()
 
     if (base_product)
     {
+        delete base_product;
 	base_product = NULL;
     }
 

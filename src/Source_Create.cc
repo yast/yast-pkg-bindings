@@ -674,7 +674,14 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
 		if (base && !base_product)
 		{
 		    y2milestone("Searching a base product...");
-		    base_product = FindBaseProduct(repo->repoInfo().alias());
+		    zypp::Product::constPtr zypp_product = FindBaseProduct(repo->repoInfo().alias());
+
+                    base_product = new BaseProduct(
+		        zypp_product->name(),
+		        zypp_product->edition(),
+		        zypp_product->arch(),
+                        repo->repoInfo().alias()
+                    );
 		}
 	    }
 	    catch ( const zypp::Exception& excpt)
@@ -709,7 +716,14 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
 	    if (base && !base_product)
 	    {
 		y2milestone("Searching the base product...");
-		base_product = FindBaseProduct(repo->repoInfo().alias());
+                zypp::Product::constPtr zypp_product = FindBaseProduct(repo->repoInfo().alias());
+
+                base_product = new BaseProduct(
+                    zypp_product->name(),
+                    zypp_product->edition(),
+                    zypp_product->arch(),
+                    repo->repoInfo().alias()
+                );
 	    }
 	}
     }

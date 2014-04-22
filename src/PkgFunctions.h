@@ -55,6 +55,7 @@ class YCPReference;
 #include <i18n.h>
 
 #include "ServiceManager.h"
+#include "BaseProduct.h"
 
 #include "PkgError.h"
 class PkgProgress;
@@ -224,7 +225,7 @@ class PkgFunctions
 
       ServiceManager service_manager;
 
-      zypp::Product::constPtr base_product;
+      BaseProduct* base_product;
 
       std::vector<zypp::filesystem::TmpDir> tmp_dirs;
 
@@ -259,6 +260,9 @@ class PkgFunctions
 
       // helper for installing/removing/upgrading a resolvable
       bool ResolvableUpdateInstallOrDelete(const YCPString& name_r, const YCPSymbol& kind_r, ResolvableAction action);
+
+      // helper for finding the installed base product
+      zypp::Product::constPtr FindInstalledBaseProduct();
 
     public:
 	// general
