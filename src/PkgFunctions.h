@@ -161,7 +161,7 @@ class PkgFunctions
     
       bool aliasExists(const std::string &alias, const std::list<zypp::RepoInfo> &reps) const;
 
-      zypp::Product::constPtr FindBaseProduct(const std::string &alias) const;
+      void RememberBaseProduct(const std::string &alias);
 
       zypp::RepoManager* CreateRepoManager();
 

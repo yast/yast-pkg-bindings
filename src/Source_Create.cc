@@ -674,14 +674,7 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
 		if (base && !base_product)
 		{
 		    y2milestone("Searching a base product...");
-		    zypp::Product::constPtr zypp_product = FindBaseProduct(repo->repoInfo().alias());
-
-                    base_product = new BaseProduct(
-		        zypp_product->name(),
-		        zypp_product->edition(),
-		        zypp_product->arch(),
-                        repo->repoInfo().alias()
-                    );
+                    RememberBaseProduct(repo->repoInfo().alias());
 		}
 	    }
 	    catch ( const zypp::Exception& excpt)
@@ -716,14 +709,7 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
 	    if (base && !base_product)
 	    {
 		y2milestone("Searching the base product...");
-                zypp::Product::constPtr zypp_product = FindBaseProduct(repo->repoInfo().alias());
-
-                base_product = new BaseProduct(
-                    zypp_product->name(),
-                    zypp_product->edition(),
-                    zypp_product->arch(),
-                    repo->repoInfo().alias()
-                );
+                RememberBaseProduct(repo->repoInfo().alias());
 	    }
 	}
     }
@@ -886,10 +872,8 @@ YCPValue PkgFunctions::RepositoryScan(const YCPString& url)
     return ret;
 }
 
-zypp::Product::constPtr PkgFunctions::FindBaseProduct(const std::string &alias) const
+void PkgFunctions::RememberBaseProduct(const std::string &alias)
 {
-    zypp::Product::constPtr product = NULL;
-
     // access to the Pool of Selectables
     zypp::ResPoolProxy selectablePool(zypp::ResPool::instance().proxy());
 
@@ -905,35 +889,28 @@ zypp::Product::constPtr PkgFunctions::FindBaseProduct(const std::string &alias) 
 	    // check the repository
 	    if (res && res->repoInfo().alias() == alias)
 	    {
-		product = boost::dynamic_pointer_cast<const zypp::Product>(res);
+		zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(res);
 
 		if (product)
 		{
-		    break;
+                    y2milestone("Found base product: %s-%s-%s (%s)",
+                        product->name().c_str(),
+                        product->edition().asString().c_str(),
+                        product->arch().asString().c_str(),
+                        product->summary().c_str()
+                    );
+
+                    base_product = new BaseProduct(
+                        product->name(),
+                        product->edition(),
+                        product->arch(),
+                        alias
+                    );
 		}
 	    }
-	}
-
-	if (product)
-	{
-	    break;
 	}
     }
 
     // no product in the pool
-    if (!product)
-    {
-	y2error("No base product has been found");
-    }
-    else
-    {
-	y2milestone("Found base product: %s %s (%s-%s)",
-	    product->summary().c_str(),
-	    product->edition().asString().c_str(),
-	    product->name().c_str(),
-	    product->edition().asString().c_str()
-	);
-    }
-
-    return product;
+    y2error("No base product has been found");
 }
