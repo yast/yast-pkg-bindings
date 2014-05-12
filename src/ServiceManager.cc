@@ -297,10 +297,10 @@ void ServiceManager::SavePkgService(PkgService &s_known, zypp::RepoManager &repo
 
     std::string orig_alias(s_known.origAlias());
 
-    y2internal("orig_alias: %s", orig_alias.c_str());
+    y2debug("orig_alias: %s", orig_alias.c_str());
 
-    // the old alias is empty for new services
-    if (orig_alias.empty())
+    // already saved?
+    if (s_stored == zypp::ServiceInfo::noService)
     {
         y2milestone("Adding new service %s", alias.c_str());
         // add the service
