@@ -145,7 +145,7 @@ bool ServiceManager::AddService(const std::string &alias, const std::string &url
     }
 
     PkgServices::iterator serv_it = _known_services.find(alias);
-    std::string orig_alias;
+    std::string orig_alias = alias;
 
     if (serv_it != _known_services.end())
     {
