@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue May 27 13:18:29 UTC 2014 - lslezak@suse.cz
+
+- move package cache to target system (copy RPMs to /mnt instead of
+  inst-sys (RAM-disk) during installation to avoid freezing the
+  installer when installing big packages with small RAM)
+  (bnc#877859)
+- 3.1.12
+
+-------------------------------------------------------------------
 Tue May 20 06:22:19 UTC 2014 - jreidinger@suse.com
 
 - another fix for repeated service save problem (bnc#876134)

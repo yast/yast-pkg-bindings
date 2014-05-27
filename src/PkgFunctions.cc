@@ -459,6 +459,26 @@ bool PkgFunctions::RepoManagerUpdateTarget(const std::string& root)
         repo_manager = new_repo_manager;
     }
 
+    // update package cache path for loaded repositories when changing the target
+    if (new_target)
+    {
+        zypp::RepoManagerOptions repo_options(root);
+        zypp::Pathname packages_prefix = repo_options.repoPackagesCachePath;
+
+        zypp::ResPool pool = zypp_ptr()->pool();
+        for_(it, pool.knownRepositoriesBegin(), pool.knownRepositoriesEnd())
+        {
+            zypp::RepoInfo repo = it->info();
+            repo.setPackagesPath(packages_prefix / repo.escaped_alias());
+
+            y2milestone("Setting package cache for repository %s: %s",
+                repo.alias().c_str(),
+                repo.packagesPath().asString().c_str());
+
+            it->setInfo(repo);
+        }
+    }
+
     return new_target;
 }
 
