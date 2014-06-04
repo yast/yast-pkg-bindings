@@ -906,6 +906,8 @@ void PkgFunctions::RememberBaseProduct(const std::string &alias)
                         product->arch(),
                         alias
                     );
+
+                    return;
 		}
 	    }
 	}

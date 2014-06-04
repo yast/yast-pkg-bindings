@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Jun  4 07:15:20 UTC 2014 - lslezak@suse.cz
+
+- do not log false warning message about missing base product
+  when it is actually found (bnc#876677#c14)
+- 3.1.13
+
+-------------------------------------------------------------------
 Tue May 27 13:18:29 UTC 2014 - lslezak@suse.cz
 
 - move package cache to target system (copy RPMs to /mnt instead of
