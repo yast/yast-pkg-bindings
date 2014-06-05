@@ -44,7 +44,7 @@
 #include <unistd.h>
 
 // textdomain
-#include <libintl.h>                                                                                                                                           
+#include <libintl.h>
 /*
   Textdomain "pkg-bindings"
 */
@@ -295,7 +295,7 @@ YCPValue PkgFunctions::ZConfig()
 
     const char* dmode;
     zypp::DownloadMode dm = zconfig.commit_downloadMode();
-    
+
     if (dm == zypp::DownloadDefault) dmode = "default";
     else if (dm == zypp::DownloadInAdvance) dmode = "download_in_advance";
     else if (dm == zypp::DownloadAsNeeded) dmode = "download_as_needed";
@@ -348,7 +348,7 @@ YCPValue PkgFunctions::ZConfig()
         rpm_flags->add(YCPString("-U"));
 
     ret->add(YCPString("rpm_install_flags"), rpm_flags);
-    
+
     ret->add(YCPString("history_log_file"), YCPString(zconfig.historyLogFile().asString()));
 
     ret->add(YCPString("credentials_global_dir"), YCPString(zconfig.credentialsGlobalDir().asString()));
@@ -428,17 +428,28 @@ YCPValue PkgFunctions::SetZConfig(const YCPMap &cfg)
     return YCPBoolean(true);
 }
 
-bool PkgFunctions::RepoManagerUpdateTarget(const std::string& root)
+bool PkgFunctions::RepoManagerUpdateTarget(const std::string& root, const YCPMap& options)
 {
     bool new_target = _target_root != root;
 
     // a repository manager is present and the target has been changed
-    if (repo_manager && new_target)
+    // or there are options to set
+    if ((repo_manager && new_target) || options.size() > 0)
     {
-        y2milestone("Updating RepoManager target from %s to %s", _target_root.c_str(), root.c_str());
+        y2milestone("Updating RepoManager (target changed from %s to %s)", _target_root.c_str(), root.c_str());
+
+        zypp::RepoManagerOptions repo_manager_options(root);
+
+        y2debug("repomanager options size: %zd", options.size());
+        if(!options->value(YCPString("target_distro")).isNull() && options->value(YCPString("target_distro"))->isString())
+        {
+            // override the target distribution autodetection
+            y2milestone("Using target_distro: %s", options->value(YCPString("target_distro"))->asString()->value().c_str());
+            repo_manager_options.servicesTargetDistro = options->value(YCPString("target_distro"))->asString()->value();
+        }
 
         // repository manager options cannot be replaced, a new repository manager is needed
-        zypp::RepoManager* new_repo_manager = new zypp::RepoManager(zypp::RepoManagerOptions(root));
+        zypp::RepoManager* new_repo_manager = new zypp::RepoManager(repo_manager_options);
 
         // register the known repositories
         if (repos.empty() && service_manager.empty())
@@ -455,7 +466,7 @@ bool PkgFunctions::RepoManagerUpdateTarget(const std::string& root)
         }
 
         // replace the old repository manager
-        delete repo_manager;
+        if (repo_manager) delete repo_manager;
         repo_manager = new_repo_manager;
     }
 
@@ -482,9 +493,9 @@ bool PkgFunctions::RepoManagerUpdateTarget(const std::string& root)
     return new_target;
 }
 
-bool PkgFunctions::SetTarget(const std::string &root)
+bool PkgFunctions::SetTarget(const std::string &root, const YCPMap& options)
 {
-    bool new_target = RepoManagerUpdateTarget(root);
+    bool new_target = RepoManagerUpdateTarget(root, options);
     _target_root = root;
 
     return new_target;

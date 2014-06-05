@@ -31,10 +31,11 @@
 #include <string>
 #include <vector>
 
+#include <ycp/YCPMap.h>
+
 class YCPBoolean;
 class YCPValue;
 class YCPList;
-class YCPMap;
 class YCPSymbol;
 class YCPString;
 class YCPInteger;
@@ -127,10 +128,10 @@ class PkgFunctions
 
       // helper for updating repository manager after changing the target root
       // return true if the target root has been changed
-      bool RepoManagerUpdateTarget(const std::string& root);
+      bool RepoManagerUpdateTarget(const std::string& root, const YCPMap& options = YCPMap());
 
       // set new target directory
-      bool SetTarget(const std::string &root);
+      bool SetTarget(const std::string &root, const YCPMap& options = YCPMap());
 
       // configured or default download area
       zypp::Pathname download_area_path();
@@ -555,6 +556,8 @@ class PkgFunctions
 	YCPValue TargetRebuildInit(const YCPString& root);
         /* TYPEINFO: boolean(string)*/
         YCPValue TargetInitialize (const YCPString& root);
+        /* TYPEINFO: boolean(string, map<any,any>)*/
+        YCPValue TargetInitializeOptions (const YCPString& root, const YCPMap& options);
         /* TYPEINFO: boolean()*/
         YCPValue TargetLoad ();
 	/* TYPEINFO: boolean()*/

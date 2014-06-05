@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Jun  5 18:37:51 UTC 2014 - lslezak@suse.cz
+
+- added Pkg::TargetInitializeOptions(), allows overriding the
+  target distribution autodetection (bnc#881320)
+- 3.1.14
+
+-------------------------------------------------------------------
 Wed Jun  4 07:15:20 UTC 2014 - lslezak@suse.cz
 
 - do not log false warning message about missing base product
