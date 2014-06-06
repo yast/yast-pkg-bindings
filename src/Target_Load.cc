@@ -91,7 +91,7 @@ PkgFunctions::TargetInitInternal(const YCPString& root, bool rebuild_rpmdb)
 	y2error("TargetInit has failed: %s", excpt.msg().c_str() );
         return YCPError(excpt.msg().c_str(), YCPBoolean(false));
     }
-    
+
     // locks are optional, might not be present on the target
     zypp::Pathname lock_file(_target_root + zypp::ZConfig::instance().locksFile());
     try
@@ -106,7 +106,7 @@ PkgFunctions::TargetInitInternal(const YCPString& root, bool rebuild_rpmdb)
     }
 
     pkgprogress.Done();
-    
+
     return YCPBoolean(true);
 }
 
@@ -147,12 +147,29 @@ PkgFunctions::TargetRebuildInit(const YCPString& root)
 YCPValue
 PkgFunctions::TargetInitialize (const YCPString& root)
 {
+  return TargetInitializeOptions(root, YCPMap());
+}
+
+/** ------------------------
+ *
+ * @builtin TargetInitializeOptions
+ * @short Initialize Target, read the keys, set the repomanager options
+ * @param string root Root Directory
+ * @param map options for RepoManager
+ *   supproted keys:
+ *   "target_distro": <string> - override the target distribution autodetection,
+ *     example values: "sle-11-x86_84", "sle-12-x86_84"
+ * @return boolean
+ */
+YCPValue
+PkgFunctions::TargetInitializeOptions (const YCPString& root, const YCPMap& options)
+{
     const std::string r = root->value();
 
     try
     {
         zypp_ptr()->initializeTarget(r);
-        SetTarget(r);
+        SetTarget(r, options);
     }
     catch (zypp::Exception & excpt)
     {
@@ -160,7 +177,7 @@ PkgFunctions::TargetInitialize (const YCPString& root)
         y2error("TargetInit has failed: %s", excpt.msg().c_str() );
         return YCPError(excpt.msg().c_str(), YCPBoolean(false));
     }
-    
+
     return YCPBoolean(true);
 }
 
@@ -199,7 +216,7 @@ PkgFunctions::TargetLoad ()
     }
 
     pkgprogress.Done();
-    
+
     return YCPBoolean(true);
 }
 
@@ -216,7 +233,7 @@ PkgFunctions::TargetFinish ()
     try
     {
 	zypp_ptr()->finishTarget();
-    
+
 	zypp::Pathname lock_file(_target_root + zypp::ZConfig::instance().locksFile());
 	zypp::Locks::instance().save(lock_file);
     }
