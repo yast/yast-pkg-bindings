@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Jun 10 09:40:33 UTC 2014 - lslezak@suse.cz
+
+- fixed ServiceRefresh to not add duplicated repositories (that
+  confuses package installation progress during installation)
+  (bnc#865037)
+- 3.1.15
+
+-------------------------------------------------------------------
 Thu Jun  5 18:37:51 UTC 2014 - lslezak@suse.cz
 
 - added Pkg::TargetInitializeOptions(), allows overriding the

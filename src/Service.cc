@@ -414,7 +414,8 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
             it != reps.end(); ++it)
         {
           y2debug("Checking repo '%s' from service '%s'", it->alias().c_str(), it->service().c_str());
-          if (it->service() == alias_str && !logFindAlias(it->alias()))
+          // skip repositories from other services or already loaded repositories
+          if (it->service() != alias_str || logFindAlias(it->alias()) > 0)
             continue;
 
           y2milestone("Service added a new repository: %s", it->alias().c_str());
@@ -423,7 +424,7 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
 
           if (it->enabled())
           {
-            y2milestone("Refreshing service: %s", it->alias().c_str());
+            y2milestone("Refreshing repository: %s", it->alias().c_str());
             // refresh the last added repository
             SourceRefreshNow(repos.size() - 1);
 
