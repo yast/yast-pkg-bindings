@@ -18,6 +18,7 @@
  * ------------------------------------------------------------------------------
  */
 
+#include <ostream>
 
 #include "log.h"
 #include "ServiceManager.h"
