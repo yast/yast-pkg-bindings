@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Aug 19 06:58:42 UTC 2014 - lslezak@suse.cz
+
+- fixed passing an invalid repository ID in GPG key import callback
+  (bnc#891389)
+- 3.1.16
+
+-------------------------------------------------------------------
 Tue Jun 10 09:40:33 UTC 2014 - lslezak@suse.cz
 
 - fixed ServiceRefresh to not add duplicated repositories (that

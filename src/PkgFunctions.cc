@@ -63,6 +63,7 @@ PkgFunctions::PkgFunctions () :
     , zypp_pointer(NULL)
     , repo_manager(NULL)
     , autorefresh_skipped(false)
+    , current_repo(-1LL)
     , commit_policy(NULL)
     ,_callbackHandler( *new CallbackHandler(*this) )
     , base_product(NULL)

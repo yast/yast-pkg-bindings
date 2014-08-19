@@ -110,6 +110,8 @@ class PkgFunctions
 	// ID type
 	typedef long long RepoId;
 
+        RepoId current_repo_id() const { return current_repo; }
+
     private: // source related
     
       // all known installation sources
@@ -120,6 +122,9 @@ class PkgFunctions
     
       // flag for skipping autorefresh
       volatile bool autorefresh_skipped;
+
+      // flag
+      RepoId current_repo;
 
       RepoId last_reported_repo;
       int last_reported_mediumnr;

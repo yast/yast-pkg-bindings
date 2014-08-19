@@ -76,6 +76,9 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 	mid->value()
     );
 
+    // remember the current repo (needed at GPG key import)
+    current_repo = id->value();
+
     zypp::filesystem::Pathname path; // FIXME use ManagedMedia
     if (found)
     {
@@ -135,6 +138,8 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 	    }
 	}
     }
+
+    current_repo = -1LL;
 
     // set the original probing value
     _silent_probing = _silent_probing_old;
