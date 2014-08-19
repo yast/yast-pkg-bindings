@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Aug 19 07:39:01 UTC 2014 - lslezak@suse.cz
+
+- explicitly include <ostream> to avoid possible compile failures
+  (bnc#891676)
+- 3.1.17
+
+-------------------------------------------------------------------
 Tue Aug 19 06:58:42 UTC 2014 - lslezak@suse.cz
 
 - fixed passing an invalid repository ID in GPG key import callback

@@ -25,6 +25,8 @@
    Namespace:   Pkg
 */
 
+#include <ostream>
+
 #include "PkgFunctions.h"
 #include "log.h"
 #include <y2util/Y2SLog.h>

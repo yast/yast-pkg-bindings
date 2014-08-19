@@ -26,6 +26,8 @@
 */
 
 
+#include <ostream>
+
 #include "PkgFunctions.h"
 #include "log.h"
 
