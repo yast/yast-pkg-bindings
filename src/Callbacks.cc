@@ -1649,7 +1649,7 @@ namespace ZyppRecipients {
 		GPGMap gpgmap(key);
 
 		callback.addMap(gpgmap.getMap());
-		long long srcid = _pkg_ref.logFindAlias(context.repoInfo().alias());
+		PkgFunctions::RepoId srcid = context.empty() ? _pkg_ref.current_repo_id() : _pkg_ref.logFindAlias(context.repoInfo().alias());
 		callback.addInt(srcid);
 
 		bool res = callback.evaluateBool();
