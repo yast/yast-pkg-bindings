@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Sep  9 11:08:56 UTC 2014 - lslezak@suse.cz
+
+- do not hide libzypp exceptions in Pkg::ResolvableProperties()
+  call, it makes debugging more difficult, return nil in that case
+  (bnc#895418)
+- 3.1.18
+
+-------------------------------------------------------------------
 Tue Aug 19 07:39:01 UTC 2014 - lslezak@suse.cz
 
 - explicitly include <ostream> to avoid possible compile failures

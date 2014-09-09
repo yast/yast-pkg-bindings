@@ -659,36 +659,49 @@ PkgFunctions::ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kin
 
 	    if (nm.empty() || nm == s->name())
 	    {
-		if (!s->installedEmpty())
-		{
-		    // iterate over all installed packages
-		    for_(inst_it, s->installedBegin(), s->installedEnd())
-		    {
-			// check version if required
-			if (vers.empty() || vers == inst_it->resolvable()->edition().asString())
-			{
-			    ret->add(Resolvable2YCPMap(*inst_it, req_kind, dependencies));
-			}
-		    }
-		}
+                try
+                {
+                    if (!s->installedEmpty())
+                    {
+                        // iterate over all installed packages
+                        for_(inst_it, s->installedBegin(), s->installedEnd())
+                        {
+                            // check version if required
+                            if (vers.empty() || vers == inst_it->resolvable()->edition().asString())
+                            {
+                                ret->add(Resolvable2YCPMap(*inst_it, req_kind, dependencies));
+                            }
+                        }
+                    }
 
-		if (!s->availableEmpty())
-		{
-		    // iterate over all available packages
-		    for_(avail_it, s->availableBegin(), s->availableEnd())
-		    {
-			// check version if required
-			if (vers.empty() || vers == avail_it->resolvable()->edition().asString())
-			{
-			    ret->add(Resolvable2YCPMap(*avail_it, req_kind, dependencies));
-			}
-		    }
-		}
-	    }
+                    if (!s->availableEmpty())
+                    {
+                        // iterate over all available packages
+                        for_(avail_it, s->availableBegin(), s->availableEnd())
+                        {
+                            // check version if required
+                            if (vers.empty() || vers == avail_it->resolvable()->edition().asString())
+                            {
+                                ret->add(Resolvable2YCPMap(*avail_it, req_kind, dependencies));
+                            }
+                        }
+                    }
+                }
+                catch(const zypp::Exception &expt)
+                {
+                    y2error("ResolvableProperties for \"%s\" failed: %s",
+                        s->name().c_str(), expt.asString().c_str());
+                    _last_error.setLastError(ExceptionAsString(expt));
+                    return YCPVoid();
+                }
+            }
 	}
     }
-    catch (...)
+    catch(const zypp::Exception &expt)
     {
+        y2error("ResolvableProperties failed: %s", expt.asString().c_str());
+        _last_error.setLastError(ExceptionAsString(expt));
+        return YCPVoid();
     }
 
     return ret;
