@@ -317,8 +317,12 @@ PkgFunctions::TargetInitDU (const YCPList& dirlist)
     {
 	zypp_ptr()->setPartitions(mount_points);
     }
-    catch (...)
+    catch(const zypp::Exception &excpt)
     {
+        y2error("Setting disk usage failed: %s", excpt.asString().c_str());
+        _last_error.setLastError(ExceptionAsString(excpt));
+        // TODO FIXME: change return type to boolean to allow error reporting
+        return YCPVoid();
     }
 
     return YCPVoid();
@@ -367,12 +371,13 @@ PkgFunctions::TargetGetDU ()
 
 	dirmap = MPS2YCPMap(mps);
     }
-    catch (...)
+    catch(const zypp::Exception &excpt)
     {
+        y2error("Reading disk usage failed: %s", excpt.asString().c_str());
+        _last_error.setLastError(ExceptionAsString(excpt));
+        return YCPVoid();
     }
 
     return dirmap;
 }
-
-
 
