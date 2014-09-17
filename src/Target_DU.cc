@@ -191,7 +191,12 @@ YCPMap PkgFunctions::MPS2YCPMap(const zypp::DiskUsageCounter::MountPointSet &mps
  * parameter: [ $["name":"directory",
  *                "free":int_free,
  *		  "used":int_used,
- *		  "readonly":bool] ]
+ *		  "filesystem":string (file system type ("ext4", "btrfs", ...), optional),
+ *		  "readonly":bool (read only file system flag , optional),
+ *		  "growonly":bool (grow only flag, set true if the fs can only grow,
+ *                     e.g. the old files will still take the space at package upgrage
+ *                     because they are part of a snapshot)
+ *            ] ]
  *
  * </code>
  * @param list<map> param
@@ -215,10 +220,10 @@ PkgFunctions::TargetInitDU (const YCPList& dirlist)
 	bool good = true;
 	YCPMap partmap;
 	std::string dname;
-	long long bsize = 4096LL;
+	std::string filesystem;
 	long long dfree = 0LL;
 	long long dused = 0LL;
-	bool readonly = false;
+        zypp::DiskUsageCounter::MountPoint::HintFlags flags = zypp::DiskUsageCounter::MountPoint::NoHint;
 
 	if (dirlist->value(i)->isMap())
 	{
@@ -267,11 +272,28 @@ PkgFunctions::TargetInitDU (const YCPList& dirlist)
 
 	if (good
 	    && !partmap->value(YCPString("readonly")).isNull()
-	    && partmap->value(YCPString("readonly"))->isBoolean())
+	    && partmap->value(YCPString("readonly"))->isBoolean()
+            && partmap->value(YCPString("readonly"))->asBoolean()->value())
 	{
-	    readonly = partmap->value(YCPString("readonly"))->asBoolean()->value();
+            y2milestone("Setting read only flag");
+            flags = flags | zypp::DiskUsageCounter::MountPoint::Hint_readonly;
 	}
-	// else: optional arg, using default
+
+	if (good
+	    && !partmap->value(YCPString("growonly")).isNull()
+	    && partmap->value(YCPString("growonly"))->isBoolean()
+            && partmap->value(YCPString("growonly"))->asBoolean()->value())
+	{
+            y2milestone("Setting grow only flag");
+            flags = flags | zypp::DiskUsageCounter::MountPoint::Hint_growonly;
+	}
+
+	if (good
+	    && !partmap->value(YCPString("filesystem")).isNull()
+	    && partmap->value(YCPString("filesystem"))->isString())
+	{
+	    filesystem = partmap->value(YCPString("filesystem"))->asString()->value();
+	}
 
 	if (!good)
 	{
@@ -281,10 +303,18 @@ PkgFunctions::TargetInitDU (const YCPList& dirlist)
 
 	y2milestone("Adding %s", dname.c_str());
 
-	long long dirsize = dfree + dused;
+	long long totalsize = dfree + dused;
 
-	// pkg_size is 0
-	zypp::DiskUsageCounter::MountPoint mpoint(dname, bsize, dirsize, dused, 0LL, readonly);
+        // use 4kiB blocks (libzypp default is 0 meaning "do not care",
+        // 4kiB is the usual block size on the most systems so this should result
+        // in more precise disk usage counting)
+        long long blocksize = 4096LL;
+        // initialize current package usage to zero, this will be overwritten
+        // when counting the actual disk usage
+        long long pkg_size = 0LL;
+	zypp::DiskUsageCounter::MountPoint mpoint(dname, filesystem, blocksize,
+                totalsize, dused, pkg_size, flags);
+
 	mount_points.insert(mpoint);
     }
 
@@ -292,8 +322,12 @@ PkgFunctions::TargetInitDU (const YCPList& dirlist)
     {
 	zypp_ptr()->setPartitions(mount_points);
     }
-    catch (...)
+    catch(const zypp::Exception &excpt)
     {
+        y2error("Setting disk usage failed: %s", excpt.asString().c_str());
+        _last_error.setLastError(ExceptionAsString(excpt));
+        // TODO FIXME: change return type to boolean to allow error reporting
+        return YCPVoid();
     }
 
     return YCPVoid();
@@ -342,12 +376,13 @@ PkgFunctions::TargetGetDU ()
 
 	dirmap = MPS2YCPMap(mps);
     }
-    catch (...)
+    catch(const zypp::Exception &excpt)
     {
+        y2error("Reading disk usage failed: %s", excpt.asString().c_str());
+        _last_error.setLastError(ExceptionAsString(excpt));
+        return YCPVoid();
     }
 
     return dirmap;
 }
-
-
 
