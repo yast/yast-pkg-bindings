@@ -305,9 +305,14 @@ PkgFunctions::TargetInitDU (const YCPList& dirlist)
 
 	long long totalsize = dfree + dused;
 
-        long long bsize = 4096LL;
+        // use 4kiB blocks (libzypp default is 0 meaning "do not care",
+        // 4kiB is the usual block size on the most systems so this should result
+        // in more precise disk usage counting)
+        long long blocksize = 4096LL;
+        // initialize current package usage to zero, this will be overwritten
+        // when counting the actual disk usage
         long long pkg_size = 0LL;
-	zypp::DiskUsageCounter::MountPoint mpoint(dname, filesystem, bsize,
+	zypp::DiskUsageCounter::MountPoint mpoint(dname, filesystem, blocksize,
                 totalsize, dused, pkg_size, flags);
 
 	mount_points.insert(mpoint);
