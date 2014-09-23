@@ -897,6 +897,8 @@ PkgFunctions::PkgProp(const zypp::PoolItem &item)
 
     data->add( YCPString("status"), YCPSymbol(status));
 
+    data->add(YCPString("onsystem_by_user"), YCPBoolean(item.satSolvable().onSystemByUser()));
+
     data->add( YCPString("location"), YCPString( pkg->location().filename().basename() ) );
     data->add( YCPString("path"), YCPString( pkg->location().filename().asString() ) );
 

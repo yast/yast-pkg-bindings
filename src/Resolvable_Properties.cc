@@ -217,8 +217,6 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 	stat = "available";
     }
 
-    info->add(YCPString("onsystem_by_user"), YCPBoolean(item.satSolvable().onSystemByUser()));
-
     info->add(YCPString("transact_by"), YCPSymbol(TransactToString(status.getTransactByValue())));
 
     info->add(YCPString("status"), YCPSymbol(stat));
