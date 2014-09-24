@@ -957,34 +957,20 @@ PkgFunctions::PkgPropertiesAll (const YCPString& p)
 
     if (!pkgname.empty())
     {
-	try
-	{
-	    // access to the Pool of Selectables
-	    zypp::ResPoolProxy selectablePool(zypp::ResPool::instance().proxy());
-
-	    for_(it, selectablePool.byKindBegin<zypp::Package>(),
-		selectablePool.byKindEnd<zypp::Package>())
+        zypp::ui::Selectable::Ptr s = zypp::ui::Selectable::get(pkgname);
+        if (s)
+        {
+	    // iterate over installed packages
+	    for_(inst_it, s->installedBegin(), s->installedEnd())
 	    {
-		zypp::ui::Selectable::Ptr s = (*it);
-
-		if (s)
-		{
-		    // iterate over installed packages
-		    for_(inst_it, s->installedBegin(), s->installedEnd())
-		    {
-			data->add(PkgProp(*inst_it));
-		    }
-
-		    // iterate over available packages
-		    for_(avail_it, s->availableBegin(), s->availableEnd())
-		    {
-			data->add(PkgProp(*avail_it));
-		    }
-		}
+		data->add(PkgProp(*inst_it));
 	    }
-	}
-	catch (...)
-	{
+
+	    // iterate over available packages
+	    for_(avail_it, s->availableBegin(), s->availableEnd())
+	    {
+		data->add(PkgProp(*avail_it));
+	    }
 	}
     }
 
