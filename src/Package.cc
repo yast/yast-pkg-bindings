@@ -921,7 +921,7 @@ PkgFunctions::PkgProp(const zypp::PoolItem &item)
  *   ]
  * </code>
  * @param package name
- * @return map
+ * @return $["medianr":integer, "arch":string, "srcid":integer, "status":symbol, "on_system_by_user":boolean, "location":string, "path":string]
  * @usage Pkg::PkgProperties (string package) -> map
  */
 
