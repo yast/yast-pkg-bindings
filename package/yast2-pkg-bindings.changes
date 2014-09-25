@@ -1,7 +1,8 @@
 -------------------------------------------------------------------
 Wed Sep 24 18:16:22 CEST 2014 - schubi@suse.de
 
-- Added onsystem_by_user flag in Pkg.PkgProperties.
+- Added onsystem_by_user flag in Pkg.PkgProperties and
+  Pkg.ResolvableProperties
 - Fixed PkgPropertiesAll. It returns only package information about
   the package which is defined in the parameters. In former versions
   the given package name has not been regarded and the properties

@@ -910,18 +910,20 @@ PkgFunctions::PkgProp(const zypp::PoolItem &item)
  * @builtin PkgProperties
  * @short Return information about a package
  * @description
- * Return Data about package location, source and which
- *  media contains the package
+ * Return Data about package location, source, which
+ *  media contains the package and who has installed.
  *
  * <code>
- * $["srcid"    : YCPInteger,
- *   "location" : YCPString
- *   "medianr"  : YCPInteger
- *   "arch"     : YCPString
- *   ]
+ * $["medianr"          :integer
+ *   "arch"             :string
+ *   "srcid"            :integer
+ *   "status"           :symbol
+ *   "on_system_by_user":boolean
+ *   "location"         :string
+ *   "path"             :string
+ * ]
  * </code>
  * @param package name
- * @return $["medianr":integer, "arch":string, "srcid":integer, "status":symbol, "on_system_by_user":boolean, "location":string, "path":string]
  * @usage Pkg::PkgProperties (string package) -> map
  */
 
