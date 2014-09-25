@@ -1,9 +1,11 @@
 -------------------------------------------------------------------
 Wed Sep 24 18:16:22 CEST 2014 - schubi@suse.de
 
-- Added onsystem_by_user flag in PkgProp.
+- Added onsystem_by_user flag in Pkg.PkgProperties.
 - Fixed PkgPropertiesAll. It returns only package information about
-  the package which is defined in the parameters.
+  the package which is defined in the parameters. In former versions
+  the given package name has not been regarded and the properties
+  of ALL packages have been returned, which has been wrong.
   (needed for bnc#897404)
 - 3.1.20
 
