@@ -897,6 +897,8 @@ PkgFunctions::PkgProp(const zypp::PoolItem &item)
 
     data->add( YCPString("status"), YCPSymbol(status));
 
+    data->add(YCPString("on_system_by_user"), YCPBoolean(item.satSolvable().onSystemByUser()));
+
     data->add( YCPString("location"), YCPString( pkg->location().filename().basename() ) );
     data->add( YCPString("path"), YCPString( pkg->location().filename().asString() ) );
 
@@ -908,18 +910,20 @@ PkgFunctions::PkgProp(const zypp::PoolItem &item)
  * @builtin PkgProperties
  * @short Return information about a package
  * @description
- * Return Data about package location, source and which
- *  media contains the package
+ * Return Data about package location, source, which
+ *  media contains the package and who has installed.
  *
  * <code>
- * $["srcid"    : YCPInteger,
- *   "location" : YCPString
- *   "medianr"  : YCPInteger
- *   "arch"     : YCPString
- *   ]
+ * $["medianr"          :integer
+ *   "arch"             :string
+ *   "srcid"            :integer
+ *   "status"           :symbol
+ *   "on_system_by_user":boolean
+ *   "location"         :string
+ *   "path"             :string
+ * ]
  * </code>
  * @param package name
- * @return map
  * @usage Pkg::PkgProperties (string package) -> map
  */
 
@@ -955,34 +959,20 @@ PkgFunctions::PkgPropertiesAll (const YCPString& p)
 
     if (!pkgname.empty())
     {
-	try
-	{
-	    // access to the Pool of Selectables
-	    zypp::ResPoolProxy selectablePool(zypp::ResPool::instance().proxy());
-
-	    for_(it, selectablePool.byKindBegin<zypp::Package>(),
-		selectablePool.byKindEnd<zypp::Package>())
+        zypp::ui::Selectable::Ptr s = zypp::ui::Selectable::get(pkgname);
+        if (s)
+        {
+	    // iterate over installed packages
+	    for_(inst_it, s->installedBegin(), s->installedEnd())
 	    {
-		zypp::ui::Selectable::Ptr s = (*it);
-
-		if (s)
-		{
-		    // iterate over installed packages
-		    for_(inst_it, s->installedBegin(), s->installedEnd())
-		    {
-			data->add(PkgProp(*inst_it));
-		    }
-
-		    // iterate over available packages
-		    for_(avail_it, s->availableBegin(), s->availableEnd())
-		    {
-			data->add(PkgProp(*avail_it));
-		    }
-		}
+		data->add(PkgProp(*inst_it));
 	    }
-	}
-	catch (...)
-	{
+
+	    // iterate over available packages
+	    for_(avail_it, s->availableBegin(), s->availableEnd())
+	    {
+		data->add(PkgProp(*avail_it));
+	    }
 	}
     }
 
