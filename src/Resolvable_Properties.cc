@@ -60,13 +60,13 @@
    @param kind_r kind of resolvable, can be `product, `patch, `package, `pattern or `language
    @param version version of the resolvable, if empty all versions are returned
 
-   @return list<map<string,any>> list of $[ "name":string, "version":string, "arch":string, "source":integer, "status":symbol, "locked":boolean, "onsystem_by_user":boolean ] maps
+   @return list<map<string,any>> list of $[ "name":string, "version":string, "arch":string, "source":integer, "status":symbol, "locked":boolean, "on_system_by_user":boolean ] maps
    status is `installed, `removed, `selected or `available, source is source ID or -1 if the resolvable is installed in the target
    if status is `available and locked is true then the object is set to taboo,
    if status is `installed and locked is true then the object locked
    if status is `selected or `removed there is extra key "transact_by" : symbol, where symbol is `user (the highest level),
        `app_high (selected by Yast), `app_low and `solver (the lowest level)
-   onsystem_by_user shows if the resolvable has been installed by user(USER,APPL_HIGH,APPL_LOW) or due solved dependencies. This information comes from
+   on_system_by_user shows if the resolvable has been installed by user(USER,APPL_HIGH,APPL_LOW) or due solved dependencies. This information comes from
      the solver which cannot distinguis between the state USER,APPL_HIGH and APPL_LOW.
 
      Additionally to keys returned for all resolvables, there also some
@@ -221,7 +221,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 
     info->add(YCPString("transact_by"), YCPSymbol(TransactToString(status.getTransactByValue())));
 
-    info->add(YCPString("onsystem_by_user"), YCPBoolean(item.satSolvable().onSystemByUser()));
+    info->add(YCPString("on_system_by_user"), YCPBoolean(item.satSolvable().onSystemByUser()));
 
     info->add(YCPString("status"), YCPSymbol(stat));
 
