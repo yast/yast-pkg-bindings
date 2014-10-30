@@ -1,0 +1,17 @@
+language: cpp
+compiler:
+    - gcc
+before_install:
+    - curl http://download.opensuse.org/repositories/YaST:/Head:/Travis/xUbuntu_12.04/Release.key | sudo apt-key add -
+    - echo "deb http://download.opensuse.org/repositories/YaST:/Head:/Travis/xUbuntu_12.04/ ./" | sudo tee -a /etc/apt/sources.list
+    - sudo apt-get update -q
+    - sudo apt-get install --no-install-recommends -y yast2-core-dev libzypp-dev yast2-devtools doxygen yast2-testsuite g++-4.8
+    # use gcc-4.8 (needed by libzypp) instead of gcc-4.6 default
+    - export CC=gcc-4.8
+    - export CXX=g++-4.8
+script:
+    - make -f Makefile.cvs
+    - make -j 4
+    - make check
+    - sudo make install
+
