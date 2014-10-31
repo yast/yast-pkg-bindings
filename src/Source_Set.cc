@@ -241,15 +241,14 @@ PkgFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
         if (repo->repoInfo().baseUrlsSize() > 1)
         {
             // store current urls
-            std::set<zypp::Url> baseUrls (repo->repoInfo().baseUrlsBegin(), repo->repoInfo().baseUrlsEnd());
-            
+	    const zypp::RepoInfo::url_set & baseUrls(( repo->repoInfo().baseUrls() ));
+
             // reset url list and store the new one there
             repo->repoInfo().setBaseUrl(zypp::Url(u->value()));
 
             // add the rest of base urls
-            for (std::set<zypp::Url>::const_iterator i = baseUrls.begin();
-                    i != baseUrls.end(); ++i)
-                repo->repoInfo().addBaseUrl(*i);
+            for ( const auto & url : baseUrls )
+                repo->repoInfo().addBaseUrl(url);
         }
         else
             repo->repoInfo().setBaseUrl(zypp::Url(u->value()));
