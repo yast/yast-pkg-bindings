@@ -2,7 +2,7 @@
 Thu Dec 11 09:17:04 UTC 2014 - lslezak@suse.cz
 
 - add "eol" flag to product data to report "End Of Life" product
-  date (FATE#316172)
+  date (FATE#300591)
 - 2.17.60
 
 -------------------------------------------------------------------

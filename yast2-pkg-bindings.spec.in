@@ -3,6 +3,7 @@
 @HEADER@
 Group:	System/YaST
 BuildRequires:	blocxx-devel docbook-xsl-stylesheets doxygen gcc-c++ libgcrypt-devel libxcrypt-devel libxslt perl-XML-Writer sgml-skel yast2-core-devel yast2-devtools
+# FIXME: require libzypp version providing Product::endOfLife()
 BuildRequires: libzypp-devel >= 9.37.4
 
 Requires:	libzypp >= 9.37.4
