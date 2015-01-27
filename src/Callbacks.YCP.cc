@@ -102,12 +102,8 @@
 	ENUM_OUT( StartDeltaApply );
 	ENUM_OUT( ProgressDeltaApply );
 	ENUM_OUT( ProblemDeltaApply );
-	ENUM_OUT( StartPatchDownload );
-	ENUM_OUT( ProgressPatchDownload );
-	ENUM_OUT( ProblemPatchDownload );
 	ENUM_OUT( FinishDeltaDownload );
 	ENUM_OUT( FinishDeltaApply );
-	ENUM_OUT( FinishPatchDownload );
 	ENUM_OUT( MediaChange );
 	ENUM_OUT( SourceChange );
 	ENUM_OUT( ResolvableReport );

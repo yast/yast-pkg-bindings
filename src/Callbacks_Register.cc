@@ -303,32 +303,32 @@ YCPValue PkgFunctions::CallbackProblemDeltaApply( const YCPValue& args ) {
 
 /**
  * @builtin CallbackStartPatchDownload
- * @short Register callback function
+ * @short Register callback function (legacy, not used anymore)
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string filename, integer download_size)</code>. If the download size is unknown download_size is 0. The callback function is evaluated when a patch download has been started.
  * @return void
  */
 YCPValue PkgFunctions::CallbackStartPatchDownload( const YCPValue& args ) {
-  return SET_YCP_CB( CB_StartPatchDownload, args);
+  return YCPVoid();
 }
 
 /**
  * @builtin CallbackProgressPatchDownload
- * @short Register callback function
+ * @short Register callback function (legacy, not used anymore)
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(integer value)</code>. The callback function is evaluated when more than 5% of the patch size has been downloaded since the last evaluation. If the handler returns false the download is aborted.
  * @return void
  */
 YCPValue PkgFunctions::CallbackProgressPatchDownload( const YCPValue& args ) {
-  return SET_YCP_CB( CB_ProgressPatchDownload, args);
+  return YCPVoid();
 }
 
 /**
  * @builtin CallbackProblemPatchDownload
- * @short Register callback function
+ * @short Register callback function (legacy, not used anymore)
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string description)</code>. The callback function should inform user that a problem has occurred during download of the patch.
  * @return void
  */
 YCPValue PkgFunctions::CallbackProblemPatchDownload( const YCPValue& args ) {
-  return SET_YCP_CB( CB_ProblemPatchDownload, args);
+  return YCPVoid();
 }
 
 
@@ -356,13 +356,13 @@ YCPValue PkgFunctions::CallbackFinishDeltaApply( const YCPValue& args)
 
 /**
  * @builtin CallbackFinishPatchDownload
- * @short Register callback function
+ * @short Register callback function (legacy, not used anymore)
  * @param string args Name of the callback handler function. Required callback prototype is <code>void()</code>. The callback function is evaluated when the patch download has been finished.
  * @return void
  */
 YCPValue PkgFunctions::CallbackFinishPatchDownload( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_FinishPatchDownload, args);
+    return YCPVoid();
 }
 
 

@@ -704,64 +704,6 @@ namespace ZyppRecipients {
 		callback.evaluate();
 	    }
 	}
-
-
-	// Download patch rpm:
-	// - path below url reported on start()
-	// - expected download size (0 if unknown)
-	// - download is interruptable
-	virtual void startPatchDownload( const zypp::Pathname & filename, const zypp::ByteCount & downloadsize )
-	{
-	    // reset the counter
-	    last_reported_patch_download = 0;
-	    last_reported_patch_download_time = time(NULL);
-
-	    CB callback( ycpcb( YCPCallbacks::CB_StartPatchDownload ) );
-	    if (callback._set) {
-		callback.addStr( filename.asString() );
-		callback.addInt( downloadsize );
-
-		callback.evaluate();
-	    }
-	}
-
-	virtual bool progressPatchDownload( int value )
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPatchDownload) );
-	    time_t current_time = time(NULL);
-	    if (callback._set && (value - last_reported_patch_download >= 5 || last_reported_patch_download - value >= 5 || value == 100 || current_time - last_reported_patch_download_time >= callback_timeout))
-	    {
-		last_reported_patch_download = value;
-		last_reported_patch_download_time = current_time;
-		callback.addInt( value );
-
-		return callback.evaluateBool();
-	    }
-
-	    return zypp::repo::DownloadResolvableReport::progressPatchDownload(value);
-	}
-
-	virtual void problemPatchDownload( const std::string &description )
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_ProblemPatchDownload ) );
-
-	    if (callback._set) {
-		callback.addStr( description );
-
-		callback.evaluate();
-	    }
-	}
-
-	virtual void finishPatchDownload()
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_FinishPatchDownload ) );
-
-	    if (callback._set)
-	    {
-		callback.evaluate();
-	    }
-	}
-
     };
 
     ///////////////////////////////////////////////////////////////////

@@ -78,8 +78,7 @@ class PkgFunctions::CallbackHandler::YCPCallbacks
       CB_StartSourceRefresh, CB_ErrorSourceRefresh, CB_DoneSourceRefresh, CB_ProgressSourceRefresh,
       CB_StartDeltaDownload, CB_ProgressDeltaDownload, CB_ProblemDeltaDownload,
       CB_StartDeltaApply, CB_ProgressDeltaApply, CB_ProblemDeltaApply,
-      CB_StartPatchDownload, CB_ProgressPatchDownload, CB_ProblemPatchDownload,
-      CB_FinishDeltaDownload, CB_FinishDeltaApply, CB_FinishPatchDownload,
+      CB_FinishDeltaDownload, CB_FinishDeltaApply,
       CB_StartDownload, CB_ProgressDownload, CB_DoneDownload, CB_InitDownload, CB_DestDownload,
 
       CB_SourceProbeStart, CB_SourceProbeFailed, CB_SourceProbeSucceeded, CB_SourceProbeEnd, CB_SourceProbeProgress, CB_SourceProbeError, 
