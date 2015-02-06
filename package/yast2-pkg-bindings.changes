@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Feb  6 11:12:30 UTC 2015 - lslezak@suse.cz
+
+- Pkg::RepositoryAdd: use alias from URL query parameter if present
+  (bnc#892431)
+- 2.17.59.2
+
+-------------------------------------------------------------------
 Wed Jan 15 11:50:30 UTC 2014 - lslezak@suse.cz
 
 - fixed package disk usage computation (bnc#852943)
