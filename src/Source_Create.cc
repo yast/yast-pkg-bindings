@@ -327,6 +327,7 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
 YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
 {
     zypp::RepoInfo repo;
+    std::string alias;
 
     // turn on the repo by default
     repo.setEnabled(true);
@@ -373,6 +374,7 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
 		if (!name.empty())
 		{
 		    repo.setName(name);
+                    alias = name;
 		    url = url_new;
 		}
 
@@ -399,8 +401,6 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
 	y2error("Missing \"base_urls\" key in the map");
 	return YCPVoid();
     }
-
-    std::string alias;
 
     if (!params->value( YCPString("alias") ).isNull() && params->value(YCPString("alias"))->isString())
     {

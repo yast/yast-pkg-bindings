@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Feb  6 11:12:30 UTC 2015 - lslezak@suse.cz
+
+- Pkg::RepositoryAdd: use alias from URL query parameter if present
+  (bnc#892431)
+- 3.1.21
+
+-------------------------------------------------------------------
 Wed Sep 24 18:16:22 CEST 2014 - schubi@suse.de
 
 - Added onsystem_by_user flag in Pkg.PkgProperties and
