@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Feb  6 11:12:30 UTC 2015 - lslezak@suse.cz
+
+- Pkg::RepositoryAdd: use alias from URL query parameter if present
+  (bnc#892431)
+- 2.17.61
+
+-------------------------------------------------------------------
 Tue Jan  6 12:10:02 UTC 2015 - lslezak@suse.cz
 
 - add "eol" flag to product data to report "End Of Life" product
