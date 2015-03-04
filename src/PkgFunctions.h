@@ -320,18 +320,10 @@ class PkgFunctions
 	YCPValue CallbackProgressDeltaApply( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(string)) */
 	YCPValue CallbackProblemDeltaApply( const YCPValue& /*nil*/ args);
-	/* TYPEINFO: void(void(string,integer)) */
-	YCPValue CallbackStartPatchDownload( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(integer)) */
-	YCPValue CallbackProgressPatchDownload( const YCPValue& /*nil*/ args);
-	/* TYPEINFO: void(void(string)) */
-	YCPValue CallbackProblemPatchDownload( const YCPValue& /*nil*/ args);
-	/* TYPEINFO: void(void()) */
 	YCPValue CallbackFinishDeltaDownload( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
 	YCPValue CallbackFinishDeltaApply( const YCPValue& /*nil*/ args);
-	/* TYPEINFO: void(void()) */
-	YCPValue CallbackFinishPatchDownload( const YCPValue& /*nil*/ args);
 
 	/* TYPEINFO: void(void(string,string)) */
 	YCPValue CallbackStartDownload (const YCPValue& /*nil*/ args);

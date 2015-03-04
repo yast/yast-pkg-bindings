@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Mar  4 15:33:21 UTC 2015 - lslezak@suse.cz
+
+- removed obsolete patch callbacks
+- 3.1.22
+
+-------------------------------------------------------------------
 Fri Feb  6 11:12:30 UTC 2015 - lslezak@suse.cz
 
 - Pkg::RepositoryAdd: use alias from URL query parameter if present
