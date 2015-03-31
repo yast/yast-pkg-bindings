@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue Mar 31 11:39:34 UTC 2015 - lslezak@suse.cz
+
+- Pkg::ResolvableProperties(): "version" value contains a full
+  edition (in form "[epoch:]version[-release]"), additionaly return
+  also "version_epoch", "version_version" and "version_release"
+  with the parts of the edition (needed for FATE#318505)
+- 3.1.23
+
+-------------------------------------------------------------------
 Wed Mar  4 15:33:21 UTC 2015 - lslezak@suse.cz
 
 - removed obsolete patch callbacks

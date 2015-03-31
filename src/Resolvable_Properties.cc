@@ -60,7 +60,9 @@
    @param kind_r kind of resolvable, can be `product, `patch, `package, `pattern or `language
    @param version version of the resolvable, if empty all versions are returned
 
-   @return list<map<string,any>> list of $[ "name":string, "version":string, "arch":string, "source":integer, "status":symbol, "locked":boolean, "on_system_by_user":boolean ] maps
+   @return list<map<string,any>> list of $[ "name":string, "version":string,
+   "version_epoch":integer (nil if not defined), "version_version":string, "version_release":string,
+   "arch":string, "source":integer, "status":symbol, "locked":boolean, "on_system_by_user":boolean ] maps
    status is `installed, `removed, `selected or `available, source is source ID or -1 if the resolvable is installed in the target
    if status is `available and locked is true then the object is set to taboo,
    if status is `installed and locked is true then the object locked
@@ -69,9 +71,12 @@
    on_system_by_user shows if the resolvable has been installed by user(USER,APPL_HIGH,APPL_LOW) or due solved dependencies. This information comes from
      the solver which cannot distinguis between the state USER,APPL_HIGH and APPL_LOW.
 
+     "version" value contains edition with all components in form "[epoch:]version[-release]",
+     "version_epoch", "version_version" and "version_release" values contain the parts of the edition.
+
      Additionally to keys returned for all resolvables, there also some
      resolvable-specific ones:
-     
+
      `product keys:
         + "category"
         + "display_name"
@@ -127,7 +132,7 @@
         + "code"
         + "packages"
         + "requested"
-     
+
      If dependencies are requested, this keys are additionally used:
         + "provides"
         + "prerequires"
@@ -184,7 +189,17 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
     YCPMap info;
 
     info->add(YCPString("name"), YCPString(item->name()));
+    // complete edition: [epoch:]version[-release]
     info->add(YCPString("version"), YCPString(item->edition().asString()));
+
+    // parts of the edition
+    if (item->edition().epoch() == zypp::Edition::noepoch)
+        info->add(YCPString("version_epoch"), YCPVoid());
+    else
+        info->add(YCPString("version_epoch"), YCPInteger(item->edition().epoch()));
+    info->add(YCPString("version_version"), YCPString(item->edition().version()));
+    info->add(YCPString("version_release"), YCPString(item->edition().release()));
+
     info->add(YCPString("arch"), YCPString(item->arch().asString()));
     info->add(YCPString("description"), YCPString(item->description()));
 
