@@ -81,7 +81,9 @@ class PkgFunctions::CallbackHandler::YCPCallbacks
       CB_FinishDeltaDownload, CB_FinishDeltaApply,
       CB_StartDownload, CB_ProgressDownload, CB_DoneDownload, CB_InitDownload, CB_DestDownload,
 
-      CB_SourceProbeStart, CB_SourceProbeFailed, CB_SourceProbeSucceeded, CB_SourceProbeEnd, CB_SourceProbeProgress, CB_SourceProbeError, 
+      CB_FileConflictStart,  CB_FileConflictProgress,  CB_FileConflictReport, CB_FileConflictFinish,
+
+      CB_SourceProbeStart, CB_SourceProbeFailed, CB_SourceProbeSucceeded, CB_SourceProbeEnd, CB_SourceProbeProgress, CB_SourceProbeError,
       CB_SourceReportStart, CB_SourceReportProgress, CB_SourceReportError, CB_SourceReportEnd, CB_SourceReportInit, CB_SourceReportDestroy,
 
       CB_ScriptStart, CB_ScriptProgress, CB_ScriptProblem, CB_ScriptFinish,

@@ -121,6 +121,10 @@
         ENUM_OUT( ProcessNextStage );
         ENUM_OUT( ProcessProgress );
         ENUM_OUT( ProcessFinished );
+        ENUM_OUT( FileConflictStart );
+        ENUM_OUT( FileConflictProgress );
+        ENUM_OUT( FileConflictReport );
+        ENUM_OUT( FileConflictFinish );
 #undef ENUM_OUT
 	// no default! let compiler warn missing values
       }

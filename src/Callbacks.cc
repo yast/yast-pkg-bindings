@@ -38,6 +38,7 @@
 #include "zypp/PublicKey.h"
 #include "zypp/Digest.h"
 #include "zypp/base/String.h"
+#include "zypp/sat/FileConflicts.h"
 
 #include <ctime>
 
@@ -1697,6 +1698,87 @@ namespace ZyppRecipients {
 	}
     };
 
+    ///////////////////////////////////////////////////////////////////
+    // File conflict callbacks
+    ///////////////////////////////////////////////////////////////////
+    struct FileConflictReceive : public Recipient,
+            public zypp::callback::ReceiveReport<zypp::target::FindFileConflictstReport>
+    {
+      FileConflictReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+      virtual void reportbegin() {
+          CB callback( ycpcb( YCPCallbacks::CB_FileConflictStart) );
+
+          if (callback._set) {
+              callback.evaluate();
+          }
+      }
+
+      virtual bool start( const zypp::ProgressData & progress_r ) {
+          return report_progress(progress_r);
+      }
+
+      virtual bool progress( const zypp::ProgressData & progress_r,
+          const zypp::sat::Queue & noFilelist_r ) {
+          return report_progress(progress_r);
+      }
+
+      virtual bool result( const zypp::ProgressData & progress_r,
+        const zypp::sat::Queue & noFilelist_r,
+        const zypp::sat::FileConflicts & conflicts_r ) {
+          CB callback( ycpcb( YCPCallbacks::CB_FileConflictReport) );
+
+          if (callback._set) {
+
+              YCPList excluded_packages;
+              for_(iter, noFilelist_r.begin(), noFilelist_r.end())
+              {
+                  // convert solvable ID to a Package
+                  zypp::Package::Ptr pkg(zypp::make<zypp::Package>(zypp::sat::Solvable(*iter)));
+                  if (pkg) {
+                      excluded_packages->add(YCPString(pkg->name() + "-" +
+                        pkg->edition().asString() + "-" + pkg->arch().asString()));
+                  }
+              }
+
+              YCPList conflicts;
+              for_(iter, conflicts_r.begin(), conflicts_r.end())
+              {
+                  conflicts->add(YCPString(iter->asUserString()));
+              }
+
+              callback.addList(excluded_packages);
+              callback.addList(conflicts);
+
+              return callback.evaluateBool();
+          }
+
+          // continue
+          return true;
+      }
+
+      virtual void reportend() {
+          CB callback( ycpcb( YCPCallbacks::CB_FileConflictFinish) );
+
+          if (callback._set) {
+              callback.evaluate();
+          }
+      }
+
+      private:
+
+      bool report_progress(const zypp::ProgressData & progress_r) {
+          CB callback( ycpcb( YCPCallbacks::CB_FileConflictProgress) );
+
+          if (callback._set) {
+              callback.addInt(progress_r.reportValue());
+              return callback.evaluateBool();
+          }
+
+          // continue
+          return true;
+      }
+    };
 
 ///////////////////////////////////////////////////////////////////
 }; // namespace ZyppRecipients
@@ -1721,6 +1803,7 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
     ZyppRecipients::InstallPkgReceive _installPkgReceive;
     ZyppRecipients::RemovePkgReceive  _removePkgReceive;
     ZyppRecipients::DownloadResolvableReceive _providePkgReceive;
+    ZyppRecipients::FileConflictReceive _fileConflictReceive;
 
     // media callback
     ZyppRecipients::MediaChangeReceive   _mediaChangeReceive;
@@ -1758,6 +1841,7 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
       , _installPkgReceive( *this, pkg )
       , _removePkgReceive( *this )
       , _providePkgReceive( *this, pkg )
+      , _fileConflictReceive( *this )
       , _mediaChangeReceive( *this )
       , _downloadProgressReceive( *this )
       , _scriptExecReceive( *this )
@@ -1777,6 +1861,7 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 	_installPkgReceive.connect();
 	_removePkgReceive.connect();
 	_providePkgReceive.connect();
+        _fileConflictReceive.connect();
 	_mediaChangeReceive.connect();
 	_downloadProgressReceive.connect();
 	_scriptExecReceive.connect();
@@ -1799,6 +1884,7 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 	_installPkgReceive.disconnect();
 	_removePkgReceive.disconnect();
 	_providePkgReceive.disconnect();
+        _fileConflictReceive.disconnect();
 	_mediaChangeReceive.disconnect();
 	_downloadProgressReceive.disconnect();
 	_scriptExecReceive.disconnect();

@@ -388,6 +388,15 @@ class PkgFunctions
 	/* TYPEINFO: void(void()) */
 	YCPValue CallbackDoneRefresh( const YCPValue& /*nil*/ args );
 
+        /* TYPEINFO: void(void()) */
+	YCPValue CallbackFileConflictStart( const YCPValue& args );
+        /* TYPEINFO: void(boolean(integer)) */
+	YCPValue CallbackFileConflictProgress( const YCPValue& args );
+        /* TYPEINFO: void(boolean(list<string>,list<string>)) */
+	YCPValue CallbackFileConflictReport( const YCPValue& args );
+        /* TYPEINFO: void(void()) */
+	YCPValue CallbackFileConflictFinish( const YCPValue& args );
+
 	// Script (patch installation) callbacks
 	/* TYPEINFO: void(void(string,string,string,string)) */
 	YCPValue CallbackScriptStart( const YCPValue& /*nil*/ args );
