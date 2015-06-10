@@ -1704,80 +1704,89 @@ namespace ZyppRecipients {
     struct FileConflictReceive : public Recipient,
             public zypp::callback::ReceiveReport<zypp::target::FindFileConflictstReport>
     {
-      FileConflictReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+        FileConflictReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-      virtual void reportbegin() {
-          CB callback( ycpcb( YCPCallbacks::CB_FileConflictStart) );
+        virtual void reportbegin()
+        {
+            CB callback( ycpcb( YCPCallbacks::CB_FileConflictStart) );
 
-          if (callback._set) {
-              callback.evaluate();
-          }
-      }
+            if (callback._set)
+            {
+                callback.evaluate();
+            }
+        }
 
-      virtual bool start( const zypp::ProgressData & progress_r ) {
-          return report_progress(progress_r);
-      }
+        virtual bool start( const zypp::ProgressData & progress_r )
+        {
+            return report_progress(progress_r);
+        }
 
-      virtual bool progress( const zypp::ProgressData & progress_r,
-          const zypp::sat::Queue & noFilelist_r ) {
-          return report_progress(progress_r);
-      }
+        virtual bool progress( const zypp::ProgressData & progress_r,
+            const zypp::sat::Queue & noFilelist_r )
+        {
+            return report_progress(progress_r);
+        }
 
-      virtual bool result( const zypp::ProgressData & progress_r,
-        const zypp::sat::Queue & noFilelist_r,
-        const zypp::sat::FileConflicts & conflicts_r ) {
-          CB callback( ycpcb( YCPCallbacks::CB_FileConflictReport) );
+        virtual bool result( const zypp::ProgressData & progress_r,
+            const zypp::sat::Queue & noFilelist_r,
+            const zypp::sat::FileConflicts & conflicts_r )
+        {
+            CB callback( ycpcb( YCPCallbacks::CB_FileConflictReport) );
 
-          if (callback._set) {
+            if (!callback._set)
+            {
+                // continue
+                return true;
+            }
 
-              YCPList excluded_packages;
-              for_(iter, noFilelist_r.begin(), noFilelist_r.end())
-              {
-                  // convert solvable ID to a Package
-                  zypp::Package::Ptr pkg(zypp::make<zypp::Package>(zypp::sat::Solvable(*iter)));
-                  if (pkg) {
-                      excluded_packages->add(YCPString(pkg->name() + "-" +
-                        pkg->edition().asString() + "-" + pkg->arch().asString()));
-                  }
-              }
+            YCPList excluded_packages;
+            for_(iter, noFilelist_r.begin(), noFilelist_r.end())
+            {
+                // convert solvable ID to a Package
+                zypp::Package::Ptr pkg(zypp::make<zypp::Package>(zypp::sat::Solvable(*iter)));
+                if (pkg) {
+                    excluded_packages->add(YCPString(pkg->name() + "-" +
+                    pkg->edition().asString() + "-" + pkg->arch().asString()));
+                }
+            }
 
-              YCPList conflicts;
-              for_(iter, conflicts_r.begin(), conflicts_r.end())
-              {
-                  conflicts->add(YCPString(iter->asUserString()));
-              }
+            YCPList conflicts;
+            for_(iter, conflicts_r.begin(), conflicts_r.end())
+            {
+                conflicts->add(YCPString(iter->asUserString()));
+            }
 
-              callback.addList(excluded_packages);
-              callback.addList(conflicts);
+            callback.addList(excluded_packages);
+            callback.addList(conflicts);
 
-              return callback.evaluateBool();
-          }
+            return callback.evaluateBool();
+        }
 
-          // continue
-          return true;
-      }
+        virtual void reportend()
+        {
+            CB callback( ycpcb( YCPCallbacks::CB_FileConflictFinish) );
 
-      virtual void reportend() {
-          CB callback( ycpcb( YCPCallbacks::CB_FileConflictFinish) );
+            if (callback._set)
+            {
+                callback.evaluate();
+            }
+        }
 
-          if (callback._set) {
-              callback.evaluate();
-          }
-      }
+    private:
 
-      private:
+        bool report_progress(const zypp::ProgressData & progress_r)
+        {
+            CB callback( ycpcb( YCPCallbacks::CB_FileConflictProgress) );
 
-      bool report_progress(const zypp::ProgressData & progress_r) {
-          CB callback( ycpcb( YCPCallbacks::CB_FileConflictProgress) );
+            // continue
+            if (!callback._set)
+            {
+                return true;
+            }
 
-          if (callback._set) {
-              callback.addInt(progress_r.reportValue());
-              return callback.evaluateBool();
-          }
-
-          // continue
-          return true;
-      }
+            callback.addInt(progress_r.reportValue());
+            return callback.evaluateBool();
+        }
     };
 
 ///////////////////////////////////////////////////////////////////
