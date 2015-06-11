@@ -664,4 +664,56 @@ YCPValue PkgFunctions::CallbackDoneRefresh( const YCPValue& args )
     return SET_YCP_CB( CB_DoneSourceRefresh, args);
 }
 
+/**
+ * @builtin CallbackFileConflictStart
+ * @short Register a callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>void()</code>.
+ * The callback function is evaluated when file conflict solving is started.
+ * @return void
+ */
+YCPValue PkgFunctions::CallbackFileConflictStart( const YCPValue& args )
+{
+    return SET_YCP_CB( CB_FileConflictStart, args);
+}
+
+/**
+ * @builtin CallbackFileConflictProgress
+ * @short Register a callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>bool(integer percent)</code>.
+ * The returned boolean indicates whether to continue (true) or abort (false).
+ * The callback function is evaluated when file conflict solving is in progress.
+ * @return void
+ */
+YCPValue PkgFunctions::CallbackFileConflictProgress( const YCPValue& args )
+{
+    return SET_YCP_CB( CB_FileConflictProgress, args);
+}
+
+/**
+ * @builtin CallbackFileConflictProgress
+ * @short Register a callback function
+ * @param string args Name of the callback handler function. Required callback
+ * prototype is <code>bool(list&lt;string&gt; excluded_packages, list&lt;string&gt; conflicts)</code>.
+ * The returned boolean indicates whether to continue (true) or abort (false).
+ * The callback function is evaluated when file conflict solving result is available.
+ * @return void
+ */
+YCPValue PkgFunctions::CallbackFileConflictReport( const YCPValue& args )
+{
+    return SET_YCP_CB( CB_FileConflictReport, args);
+}
+
+/**
+ * @builtin CallbackFileConflictFinish
+ * @short Register a callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>void()</code>.
+ * The callback function is evaluated when file conflict solving is finished.
+ * @return void
+ */
+YCPValue PkgFunctions::CallbackFileConflictFinish( const YCPValue& args )
+{
+    return SET_YCP_CB( CB_FileConflictFinish, args);
+}
+
+
 #undef SET_YCP_CB

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Jun 10 15:09:51 UTC 2015 - lslezak@suse.cz
+
+- added support for the file conflicts callbacks (bnc#923590)
+- 3.1.24
+
+-------------------------------------------------------------------
 Tue Mar 31 11:39:34 UTC 2015 - lslezak@suse.cz
 
 - Pkg::ResolvableProperties(): "version" value contains a full
