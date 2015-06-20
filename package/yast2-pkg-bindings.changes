@@ -1,9 +1,9 @@
 -------------------------------------------------------------------
-
 - Pkg::ResolvableProperties(): "version" value contains a full
   edition (in form "[epoch:]version[-release]"), additionaly return
   also "version_epoch", "version_version" and "version_release"
   with the parts of the edition (needed for FATE#318505)
+- fixed saving removed services (needed for FATE#315161)
 
 -------------------------------------------------------------------
 Fri Oct  9 11:37:14 UTC 2015 - igonzalezsosa@suse.com
