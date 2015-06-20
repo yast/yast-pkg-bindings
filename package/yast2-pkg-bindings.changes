@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jun 19 09:23:22 UTC 2015 - lslezak@suse.cz
+
+- fixed saving removed services (needed for FATE#315161)
+- 3.1.20.1
+
+-------------------------------------------------------------------
 Wed Sep 24 18:16:22 CEST 2014 - schubi@suse.de
 
 - Added onsystem_by_user flag in Pkg.PkgProperties and
