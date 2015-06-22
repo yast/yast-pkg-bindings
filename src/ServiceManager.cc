@@ -24,6 +24,7 @@
 #include "ServiceManager.h"
 
 #include <zypp/RepoManager.h>
+#include <zypp/PathInfo.h>
 #include <y2util/Y2SLog.h>
 
 ServiceManager::ServiceManager() : _services_loaded(false)
@@ -56,23 +57,32 @@ void ServiceManager::LoadServices(const zypp::RepoManager &repomgr)
 
 void ServiceManager::SaveServices(zypp::RepoManager &repomgr)
 {
-    for_ (it, _known_services.begin(), _known_services.end())
+    for (PkgServices::iterator it = _known_services.begin(); it != _known_services.end();)
     {
-	// delete
-	if (it->second.isDeleted())
-	{
-	    std::string alias(it->second.alias());
-	    y2milestone("Removing service %s", alias.c_str());
-	    repomgr.removeService(alias);
-	}
+        if (it->second.isDeleted())
+        {
+            std::string alias(it->second.alias());
+
+            zypp::ServiceInfo info = repomgr.getService(alias);
+            // check if the service file exists to avoid raising an exception
+            if (zypp::PathInfo(info.filepath()).isExist())
+            {
+                y2milestone("Removing service %s", alias.c_str());
+                repomgr.removeService(alias);
+            }
+
+            // erase the removed service, not needed anymore after the final removal
+            _known_services.erase(it++);
+        }
+        else
+        {
+          ++it;
+        }
     }
 
     for_ (it, _known_services.begin(), _known_services.end())
     {
-	if (!it->second.isDeleted())
-	{
-	    SavePkgService(it->second, repomgr);
-	}
+        SavePkgService(it->second, repomgr);
     }
 }
 

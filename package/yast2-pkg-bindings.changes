@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jun 19 09:23:22 UTC 2015 - lslezak@suse.cz
+
+- fixed saving removed services (needed for FATE#315161)
+- 3.1.25
+
+-------------------------------------------------------------------
 Wed Jun 10 15:09:51 UTC 2015 - lslezak@suse.cz
 
 - added support for the file conflicts callbacks (bnc#923590)
