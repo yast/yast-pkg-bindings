@@ -1785,6 +1785,8 @@ void SaveProblemList(const zypp::ResolverProblemList &problems, const std::strin
    @builtin SetSolverFlags
    @short Set solver flags (options)
    @param map params solver options, currently accepted options are:
+   "allowVendorChange" : boolean or nil, (allow (true) or forbid (false)
+      vendor change, nil = set the default value from zypp.conf file)
    "ignoreAlreadyRecommended" : boolean, (do not select recommended packages for already installed packages)
    "onlyRequires" : boolean, (do not select recommended packages, recommended language packages, modalias packages...)
    "reset" : boolean - if set to true then the solver is reset (all added extra requires/conflicts added by user are removed, fixsystem mode is disabled, additional data about solver run are cleared)
@@ -1793,8 +1795,35 @@ void SaveProblemList(const zypp::ResolverProblemList &problems, const std::strin
 
 YCPValue PkgFunctions::SetSolverFlags(const YCPMap& params)
 {
+    if (params.isNull())
+    {
+        return YCPBoolean(true);
+    }
+
+    const YCPString vendor_key("allowVendorChange");
+    if (!params->value(vendor_key).isNull())
+    {
+        // check for nil value
+        if (params->value(vendor_key)->isVoid())
+        {
+            y2milestone("Resetting the vendor change flag to the default value");
+            // reset to default
+            zypp_ptr()->resolver()->setDefaultAllowVendorChange();
+
+            bool allowed = zypp_ptr()->resolver()->allowVendorChange();
+            y2milestone("Vendor change is now %s", allowed ? "enabled" : "disabled");
+        }
+        else if (params->value(vendor_key)->isBoolean())
+        {
+            bool allow_change = params->value(vendor_key)->asBoolean()->value();
+
+            y2milestone("Vendor change set to %s", allow_change ? "enabled" : "disabled");
+            zypp_ptr()->resolver()->setAllowVendorChange(allow_change);
+        }
+    }
+
     const YCPString reset_key("reset");
-    if (!params.isNull() && !params->value(reset_key).isNull() && params->value(reset_key)->isBoolean())
+    if (!params->value(reset_key).isNull() && params->value(reset_key)->isBoolean())
     {
 	bool reset = params->value(reset_key)->asBoolean()->value();
 
@@ -1808,7 +1837,7 @@ YCPValue PkgFunctions::SetSolverFlags(const YCPMap& params)
     }
 
     const YCPString ignore_key("ignoreAlreadyRecommended");
-    if (!params.isNull() && !params->value(ignore_key).isNull() && params->value(ignore_key)->isBoolean())
+    if (!params->value(ignore_key).isNull() && params->value(ignore_key)->isBoolean())
     {
 	bool ignoreAlreadyRecommended = params->value(ignore_key)->asBoolean()->value();
 	y2milestone("Setting solver flag ignoreAlreadyRecommended: %d", ignoreAlreadyRecommended);
@@ -1816,7 +1845,7 @@ YCPValue PkgFunctions::SetSolverFlags(const YCPMap& params)
     }
 
     const YCPString requires_key("onlyRequires");
-    if (!params.isNull() && !params->value(requires_key).isNull() && params->value(requires_key)->isBoolean())
+    if (!params->value(requires_key).isNull() && params->value(requires_key)->isBoolean())
     {
 	bool onlyRequires = params->value(requires_key)->asBoolean()->value();
 	y2milestone("Setting solver flag onlyRequires: %d", onlyRequires);
@@ -1837,6 +1866,7 @@ YCPValue PkgFunctions::GetSolverFlags()
 
     ret->add(YCPString("onlyRequires"), YCPBoolean(zypp_ptr()->resolver()->onlyRequires()));
     ret->add(YCPString("ignoreAlreadyRecommended"), YCPBoolean(zypp_ptr()->resolver()->ignoreAlreadyRecommended()));
+    ret->add(YCPString("allowVendorChange"), YCPBoolean(zypp_ptr()->resolver()->allowVendorChange()));
 
     return ret;
 }

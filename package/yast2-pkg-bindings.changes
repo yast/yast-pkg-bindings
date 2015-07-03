@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Jul  2 18:21:06 UTC 2015 - lslezak@suse.cz
+
+- added "allowVendorChange" option to Pkg.SetSolverFlags() to
+  allow configuring the vendor change flag (FATE#319138)
+- 3.1.26
+
+-------------------------------------------------------------------
 Fri Jun 19 09:23:22 UTC 2015 - lslezak@suse.cz
 
 - fixed saving removed services (needed for FATE#315161)
