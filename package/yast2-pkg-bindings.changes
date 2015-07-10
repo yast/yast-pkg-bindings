@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Jul 10 09:03:39 UTC 2015 - lslezak@suse.cz
+
+- Pkg.SetSolverFlags(): added DUP mode solver settings, these are
+  different that the "normal" mode settings (FATE319128)
+- 3.1.27
+
+-------------------------------------------------------------------
 Thu Jul  2 18:21:06 UTC 2015 - lslezak@suse.cz
 
 - added "allowVendorChange" option to Pkg.SetSolverFlags() to
