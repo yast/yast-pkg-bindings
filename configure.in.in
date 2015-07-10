@@ -10,6 +10,22 @@
 
 PKG_CHECK_MODULES([ZYPP], [libzypp])
 
+ZYPP_VERSION=`pkg-config --print-errors --modversion libzypp`
+if test -z "$ZYPP_VERSION"; then
+  ZYPP_VERSION="0.0.0"
+fi
+
+ZYPP_VERSION_MAJOR=`echo $ZYPP_VERSION | cut -d. -f1`
+ZYPP_VERSION_MINOR=`echo $ZYPP_VERSION | cut -d. -f2`
+ZYPP_VERSION_PATCH=`echo $ZYPP_VERSION | cut -d. -f3`
+
+AH_TEMPLATE([HAVE_ZYPP_DUP_FLAGS], [Define if libzypp provides solver flags for DUP mode])
+if test \
+  \( "$ZYPP_VERSION_MAJOR" -eq 15 -a "$ZYPP_VERSION_MINOR" -ge 9 \) -o \
+  "$ZYPP_VERSION_MAJOR" -ge 16; then
+  AC_DEFINE([HAVE_ZYPP_DUP_FLAGS], 1)
+fi
+
 AX_CHECK_DOCBOOK
 ## and generate the output
 @YAST2-OUTPUT@
