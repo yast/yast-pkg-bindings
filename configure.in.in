@@ -21,8 +21,8 @@ ZYPP_VERSION_PATCH=`echo $ZYPP_VERSION | cut -d. -f3`
 
 AH_TEMPLATE([HAVE_ZYPP_DUP_FLAGS], [Define if libzypp provides solver flags for DUP mode])
 if test \
-  \( "$ZYPP_VERSION_MAJOR" -eq 15 -a "$ZYPP_VERSION_MINOR" -ge 9 \) -o \
-  "$ZYPP_VERSION_MAJOR" -ge 16; then
+  \( "$ZYPP_VERSION_MAJOR" -eq 14 -a "$ZYPP_VERSION_MINOR" -ge 40 \) -o \
+  "$ZYPP_VERSION_MAJOR" -ge 15; then
   AC_DEFINE([HAVE_ZYPP_DUP_FLAGS], 1)
 fi
 
