@@ -29,7 +29,7 @@ BuildRequires:  docbook-xsl-stylesheets
 BuildRequires:  gcc-c++
 BuildRequires:  libtool
 BuildRequires:  libxslt
-BuildRequires:  libzypp-devel >= 14.39.0
+BuildRequires:  libzypp-devel >= 14.40.0
 BuildRequires:  yast2-core-devel
 BuildRequires:  yast2-devtools >= 3.1.10
 
