@@ -119,7 +119,7 @@ PkgFunctions::PkgQueryProvides( const YCPString& tag )
 	zypp::PoolItem provider = zypp::ResPool::instance().find(*iter);
 
 	// cast to Package object
-	zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(provider.resolvable());
+	zypp::Package::constPtr package = zypp::asKind<zypp::Package>(provider.resolvable());
 
 	if (!package)
 	{
@@ -312,7 +312,7 @@ PkgFunctions::PkgMediaSizesOrCount (bool sizes, bool download_size)
     {
         if ((*it)->fate() == zypp::ui::Selectable::TO_INSTALL)
 	{
-	    zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>((*it)->candidateObj().resolvable());
+	    zypp::Package::constPtr pkg = zypp::asKind<zypp::Package>((*it)->candidateObj().resolvable());
 
 	    if (!pkg)
 		continue;
@@ -731,7 +731,7 @@ static zypp::Package::constPtr find_package(const string &name)
 
     if (s)
     {
-	return zypp::dynamic_pointer_cast<const zypp::Package>(s->theObj().resolvable());
+	return zypp::asKind<zypp::Package>(s->theObj().resolvable());
     }
 
     return NULL;
@@ -870,7 +870,7 @@ PkgFunctions::PkgProp(const zypp::PoolItem &item)
 {
     YCPMap data;
 
-    zypp::Package::constPtr pkg = zypp::dynamic_pointer_cast<const zypp::Package>(item.resolvable());
+    zypp::Package::constPtr pkg = zypp::asKind<zypp::Package>(item.resolvable());
 
     if (pkg == NULL) {
 	y2error("NULL pkg");
@@ -1040,7 +1040,7 @@ PkgFunctions::PkgPath (const YCPString& p)
 // a helper function
 YCPList _create_filelist(const zypp::PoolItem &pi)
 {
-    zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(pi.resolvable());
+    zypp::Package::constPtr package = zypp::asKind<zypp::Package>(pi.resolvable());
 
     YCPList ret;
 
@@ -1281,7 +1281,7 @@ PkgFunctions::IsManualSelection ()
 static void
 pkg2list (YCPList &list, const zypp::PoolItem &item, bool names_only)
 {
-    zypp::Package::constPtr pkg = zypp::dynamic_pointer_cast<const zypp::Package>(item.resolvable());
+    zypp::Package::constPtr pkg = zypp::asKind<zypp::Package>(item.resolvable());
 
     if (!pkg)
     {
@@ -2625,7 +2625,7 @@ YCPString PkgFunctions::PkgGetLicenseToConfirm( const YCPString & package )
 
 	    if (s && s->toInstall() && !s->hasLicenceConfirmed())
 	    {
-		zypp::Package::constPtr package = zypp::dynamic_pointer_cast<const zypp::Package>(s->candidateObj().resolvable());
+		zypp::Package::constPtr package = zypp::asKind<zypp::Package>(s->candidateObj().resolvable());
 		if (package)
 		{
 		    return YCPString(package->licenseToConfirm());
@@ -2758,8 +2758,7 @@ zypp::Product::constPtr PkgFunctions::FindInstalledBaseProduct()
                 res->arch() == base_product->arch)
 
 	    {
-		zypp::Product::constPtr product =
-                    boost::dynamic_pointer_cast<const zypp::Product>(res);
+		zypp::Product::constPtr product = res->asKind<zypp::Product>();
 
 		if (product)
 		{

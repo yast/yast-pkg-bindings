@@ -264,7 +264,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
     // package specific info
     if( req_kind == "package" )
     {
-	zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(item.resolvable());
+	zypp::Package::constPtr pkg = zypp::asKind<zypp::Package>(item.resolvable());
 	if ( pkg )
 	{
 	    std::string tmp = pkg->location().filename().asString();
@@ -285,7 +285,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
     }
     else if( req_kind == "srcpackage" )
     {
-	zypp::SrcPackage::constPtr pkg = boost::dynamic_pointer_cast<const zypp::SrcPackage>(item.resolvable());
+	zypp::SrcPackage::constPtr pkg = zypp::asKind<zypp::SrcPackage>(item.resolvable());
 	if (pkg)
 	{
 	    std::string tmp(pkg->location().filename().asString());
@@ -309,7 +309,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
     }
     // product specific info
     else if( req_kind == "product" ) {
-	zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(item.resolvable());
+	zypp::Product::constPtr product = zypp::asKind<zypp::Product>(item.resolvable());
 	if ( !product )
 	{
 	    y2error("product %s is not a product", item->name().c_str() );
@@ -510,7 +510,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
     }
     // pattern specific info
     else if ( req_kind == "pattern" ) {
-	zypp::Pattern::constPtr pattern = boost::dynamic_pointer_cast<const zypp::Pattern>(item.resolvable());
+	zypp::Pattern::constPtr pattern = zypp::asKind<zypp::Pattern>(item.resolvable());
 	info->add(YCPString("category"), YCPString(pattern->category()));
 	info->add(YCPString("user_visible"), YCPBoolean(pattern->userVisible()));
 	info->add(YCPString("default"), YCPBoolean(pattern->isDefault()));
@@ -521,7 +521,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
     // patch specific info
     else if ( req_kind == "patch" )
     {
-	zypp::Patch::constPtr patch_ptr = boost::dynamic_pointer_cast<const zypp::Patch>(item.resolvable());
+	zypp::Patch::constPtr patch_ptr = zypp::asKind<zypp::Patch>(item.resolvable());
 
 	info->add(YCPString("interactive"), YCPBoolean(patch_ptr->interactive()));
 	info->add(YCPString("reboot_needed"), YCPBoolean(patch_ptr->rebootSuggested()));

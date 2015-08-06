@@ -99,7 +99,7 @@ PkgFunctions::ResolvableSetPatches (const YCPSymbol& kind_r, bool preselect)
 
 	    if (s && s->isNeeded() && !s->isUnwanted())
 	    {
-		zypp::Patch::constPtr patch = zypp::dynamic_pointer_cast<const zypp::Patch>
+		zypp::Patch::constPtr patch = zypp::asKind<zypp::Patch>
 		    (s->candidateObj().resolvable());
 
 		// dont auto-install optional patches
