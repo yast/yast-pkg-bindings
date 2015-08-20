@@ -390,6 +390,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 	// registration data
 	info->add(YCPString("register_target"), YCPString(product->registerTarget()));
 	info->add(YCPString("register_release"), YCPString(product->registerRelease()));
+	info->add(YCPString("product_line"), YCPString(product->productLine()));
 
 	// Live CD, FTP Edition...
 	info->add(YCPString("flavor"), YCPString(product->flavor()));
