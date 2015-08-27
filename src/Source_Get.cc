@@ -109,6 +109,7 @@ PkgFunctions::SourceGetCurrent (const YCPBoolean& enabled)
  * "product_dir": YCPString,
  * "type"	: YCPString,
  * "url"	: YCPString (without password, but see SourceURL),
+ * "raw_url"	: YCPString (without password, but see SourceURL, raw URL without variable replacement),
  * "alias"	: YCPString,
  * "name"	: YCPString,
  * "service"	: YCPString, (service to which the repo belongs, empty if there is no service assigned)
@@ -138,9 +139,10 @@ PkgFunctions::SourceGeneralData (const YCPInteger& id)
     data->add( YCPString("product_dir"),	YCPString(repo->repoInfo().path().asString()));
 
     // check if there is an URL
-    if (repo->repoInfo().baseUrlsBegin() != repo->repoInfo().baseUrlsEnd())
+    if (!repo->repoInfo().baseUrlsEmpty())
     {
-	data->add( YCPString("url"),		YCPString(repo->repoInfo().baseUrlsBegin()->asString()));
+        data->add( YCPString("url"),		YCPString(repo->repoInfo().url().asString()));
+        data->add( YCPString("raw_url"),	YCPString(repo->repoInfo().rawUrl().asString()));
     }
 
     data->add( YCPString("alias"),		YCPString(repo->repoInfo().alias()));

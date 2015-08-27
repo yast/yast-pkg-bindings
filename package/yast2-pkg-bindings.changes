@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Aug 27 11:39:14 UTC 2015 - lslezak@suse.cz
+
+- Pkg::SourceGeneralData() - return also the raw URL (without
+  expanding the variables), needed for bsc#941563
+
+-------------------------------------------------------------------
 Thu Aug 20 15:58:00 UTC 2015 - lslezak@suse.cz
 
 - return the "product_line" product attribute, needed for reading
