@@ -889,7 +889,7 @@ void PkgFunctions::RememberBaseProduct(const std::string &alias)
 	    // check the repository
 	    if (res && res->repoInfo().alias() == alias)
 	    {
-		zypp::Product::constPtr product = boost::dynamic_pointer_cast<const zypp::Product>(res);
+		zypp::Product::constPtr product = zypp::asKind<zypp::Product>(res);
 
 		if (product)
 		{

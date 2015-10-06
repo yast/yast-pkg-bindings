@@ -283,7 +283,7 @@ PkgFunctions::SourceMediaData (const YCPInteger& id)
 		aval_it != (*it)->availableEnd();
 		++aval_it)
 	    {
-		zypp::Package::constPtr pkg = boost::dynamic_pointer_cast<const zypp::Package>(aval_it->resolvable());
+		zypp::Package::constPtr pkg = zypp::asKind<zypp::Package>(aval_it->resolvable());
 
 		if (pkg && pkg->repoInfo().alias() == alias)
 		{
@@ -380,7 +380,7 @@ PkgFunctions::SourceProductData (const YCPInteger& src_id)
 		aval_it != (*it)->availableEnd();
 		++aval_it)
 	    {
-		zypp::Product::constPtr prod = boost::dynamic_pointer_cast<const zypp::Product>(aval_it->resolvable());
+		zypp::Product::constPtr prod = zypp::asKind<zypp::Product>(aval_it->resolvable());
 		if (prod && prod->repoInfo().alias() == alias)
 		{
 		    product = prod;
