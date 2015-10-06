@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct  5 14:00:31 UTC 2015 - ancor@suse.com
+
+- Added Pkg::SourceRawURL() and Pkg:ExpandedUrl() to deal with
+  repositories including repo variables (bnc#944505)
+- 3.1.30
+
+-------------------------------------------------------------------
 Thu Aug 27 11:39:14 UTC 2015 - lslezak@suse.cz
 
 - Pkg::SourceGeneralData() - return also the raw URL (without

@@ -109,7 +109,7 @@ PkgFunctions::SourceGetCurrent (const YCPBoolean& enabled)
  * "product_dir": YCPString,
  * "type"	: YCPString,
  * "url"	: YCPString (without password, but see SourceURL),
- * "raw_url"	: YCPString (without password, but see SourceURL, raw URL without variable replacement),
+ * "raw_url"	: YCPString (without password, but see SourceRawURL, raw URL without variable replacement),
  * "alias"	: YCPString,
  * "name"	: YCPString,
  * "service"	: YCPString, (service to which the repo belongs, empty if there is no service assigned)
@@ -185,62 +185,22 @@ PkgFunctions::SourceGeneralData (const YCPInteger& id)
 YCPValue
 PkgFunctions::SourceURL (const YCPInteger& id)
 {
-
-    const YRepo_Ptr repo = logFindRepository(id->value());
-    if (!repo)
-        return YCPVoid();
-
-    zypp::Url url;
-
-    if (repo->repoInfo().baseUrlsBegin() != repo->repoInfo().baseUrlsEnd())
-    {
-        // #186842
-        url = *(repo->repoInfo().baseUrlsBegin());
-
-	// add authentication data if exist
-	zypp::media::CredentialManager cm;
-
-	zypp::media::AuthData_Ptr auth = cm.getCred(url);
-
-	if (auth)
-	{
-	    y2milestone("Authentication data found, adding to URL...");
-
-	    if (auth->valid())
-	    {
-		if (!auth->username().empty())
-		{
-		    y2debug("Adding username...");
-		    url.setUsername(auth->username());
-		}
-
-		if (!auth->password().empty())
-		{
-		    y2debug("Adding password...");
-		    url.setPassword(auth->password());
-		}
-	    }
-	    else
-	    {
-		y2warning("Invalid authentication data, returning URL without username and password");
-	    }
-
-	    // does the url contain credentials query?
-	    zypp::url::ParamMap params = url.getQueryStringMap();
-	    zypp::url::ParamMap::iterator map_it = params.find("credentials");
-
-	    if (map_it != params.end())
-	    {
-		y2milestone("Removing credentials query from URL");
-		params.erase(map_it);
-		url.setQueryStringMap(params);
-	    }
-	}
-
-    }
-
-    return YCPString(url.asCompleteString());
+    return GetSourceUrl(id, false);
 }
+
+/******************************************************************************
+ * @builtin SourceRawURL
+ *
+ * @short Get full source raw URL (no variable replacement), including password
+ * @param integer SrcId Specifies the InstSrc to query.
+ * @return string or nil on failure
+ **/
+YCPValue
+PkgFunctions::SourceRawURL (const YCPInteger& id)
+{
+    return GetSourceUrl(id, true);
+}
+
 
 /****************************************************************************************
  * @builtin SourceMediaData
@@ -466,3 +426,69 @@ PkgFunctions::SourceEditGet ()
     return ret;
 }
 
+// Adds authentication data to the URL if it exists
+void
+PkgFunctions::AddAuthData (zypp::Url url) {
+    zypp::media::CredentialManager cm;
+
+	zypp::media::AuthData_Ptr auth = cm.getCred(url);
+
+	if (auth)
+	{
+	    y2milestone("Authentication data found, adding to URL...");
+
+	    if (auth->valid())
+	    {
+		if (!auth->username().empty())
+		{
+		    y2debug("Adding username...");
+		    url.setUsername(auth->username());
+		}
+
+		if (!auth->password().empty())
+		{
+		    y2debug("Adding password...");
+		    url.setPassword(auth->password());
+		}
+	    }
+	    else
+	    {
+		y2warning("Invalid authentication data, returning URL without username and password");
+	    }
+
+	    // does the url contain credentials query?
+	    zypp::url::ParamMap params = url.getQueryStringMap();
+	    zypp::url::ParamMap::iterator map_it = params.find("credentials");
+
+	    if (map_it != params.end())
+	    {
+		y2milestone("Removing credentials query from URL");
+		params.erase(map_it);
+		url.setQueryStringMap(params);
+	    }
+	}
+}
+
+// Helper with common code to SourceURL and SourceRawUrl
+YCPValue
+PkgFunctions::GetSourceUrl (const YCPInteger& id, bool raw)
+{
+    const YRepo_Ptr repo = logFindRepository(id->value());
+    if (!repo)
+        return YCPVoid();
+
+    zypp::Url url;
+
+    if (!repo->repoInfo().baseUrlsEmpty())
+    {
+        if (raw) {
+            url = repo->repoInfo().rawUrl();
+        } else {
+            // #186842
+            url = repo->repoInfo().url();
+        }
+        AddAuthData(url);
+    }
+
+    return YCPString(url.asCompleteString());
+}

@@ -272,6 +272,11 @@ class PkgFunctions
       // it finds the resolvable using attributes saved earlier by RememberBaseProduct
       zypp::Product::constPtr FindInstalledBaseProduct();
 
+      // adds authentication data to a URL
+      void AddAuthData(zypp::Url url);
+      // helper with common code to SourceURL and SourceRawUrl
+      YCPValue GetSourceUrl(const YCPInteger& id, bool raw);
+
     public:
 	// general
 	/* TYPEINFO: void(string) */
@@ -292,6 +297,8 @@ class PkgFunctions
 	YCPValue LastErrorDetails ();
 	/* TYPEINFO: boolean() */
 	YCPValue Connect ();
+	/* TYPEINFO: string(string)*/
+	YCPValue ExpandedUrl (const YCPString&);
 
 	// callbacks
 	/* TYPEINFO: void(void(string,integer,boolean)) */
@@ -479,7 +486,6 @@ class PkgFunctions
 	/* TYPEINFO: void(void()) */
 	YCPValue CallbackProcessDone( const YCPValue& /*nil*/ args );	
 
-
 	// source related
 	/* TYPEINFO: boolean(boolean)*/
         YCPValue SourceStartManager (const YCPBoolean&);
@@ -506,6 +512,8 @@ class PkgFunctions
 	YCPValue SourceGeneralData (const YCPInteger&);
 	/* TYPEINFO: string(integer)*/
 	YCPValue SourceURL (const YCPInteger&);
+	/* TYPEINFO: string(integer)*/
+	YCPValue SourceRawURL (const YCPInteger&);
 	/* TYPEINFO: map<string,any>(integer)*/
 	YCPValue SourceMediaData (const YCPInteger&);
 	/* TYPEINFO: map<string,any>(integer)*/
