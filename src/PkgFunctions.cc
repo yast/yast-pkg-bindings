@@ -501,3 +501,21 @@ bool PkgFunctions::SetTarget(const std::string &root, const YCPMap& options)
 
     return new_target;
 }
+
+/**
+ * @builtin ExpandedUrl
+ * @short expands the repo variables in the given zypper URL
+ * @return string copy of url with the variables expanded to the current value
+ */
+YCPValue PkgFunctions::ExpandedUrl(const YCPString &url)
+{
+    if (url.isNull())
+    {
+        y2error("URL is nil");
+        return YCPVoid();
+    }
+
+    zypp::RepoVariablesReplacedUrl replacedUrl;
+    replacedUrl.raw() = zypp::Url(url->asString()->value());
+    return YCPString(replacedUrl.transformed().asString());
+}
