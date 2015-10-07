@@ -712,18 +712,23 @@ namespace ZyppRecipients {
     {
       typedef zypp::target::rpm::RpmDb RpmDb;
       CB callback( ycpcb( YCPCallbacks::CB_PkgGpgCheck ) );
+      YCPMap data;
 
       if (callback._set) {
         // Package
         const zypp::Package::constPtr & package_r = userData_r.get<zypp::Package::constPtr>("Package");
-        callback.addStr(userData_r.get<std::string>("Package", package_r->name()));
+        YCPString package = userData_r.get<std::string>("Package", package_r->name());
+        data->add(YCPString("Package"), package);
 
         // Localpath
         zypp::Pathname localpath = userData_r.get<zypp::Pathname>("Localpath");
-        callback.addStr(localpath.asString());
+        data->add(YCPString("Localpath"), YCPString(localpath.asString()));
 
         // Result
-        callback.addInt(userData_r.get<RpmDb::CheckPackageResult>("CheckPackageResult"));
+        YCPInteger checkPackageResult = userData_r.get<RpmDb::CheckPackageResult>("CheckPackageResult");
+        data->add(YCPString("CheckPackageResult"), checkPackageResult);
+
+        callback.addMap(data);
 
         std::string ret = callback.evaluateStr();
 
