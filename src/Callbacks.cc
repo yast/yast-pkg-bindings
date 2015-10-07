@@ -39,6 +39,8 @@
 #include "zypp/Digest.h"
 #include "zypp/base/String.h"
 #include "zypp/sat/FileConflicts.h"
+#include "zypp/UserData.h"
+#include "zypp/target/rpm/RpmDb.h"
 
 #include <ctime>
 
@@ -705,6 +707,39 @@ namespace ZyppRecipients {
 		callback.evaluate();
 	    }
 	}
+
+    virtual void pkgGpgCheck(const UserData & userData_r = UserData() )
+    {
+      typedef zypp::target::rpm::RpmDb RpmDb;
+      CB callback( ycpcb( YCPCallbacks::CB_PkgGpgCheck ) );
+
+      if (callback._set) {
+        // Package
+        const zypp::Package::constPtr & package_r = userData_r.get<zypp::Package::constPtr>("Package");
+        callback.addStr(userData_r.get<std::string>("Package", package_r->name()));
+
+        // Localpath
+        zypp::Pathname localpath = userData_r.get<zypp::Pathname>("Localpath");
+        callback.addStr(localpath.asString());
+
+        // Result
+        callback.addInt(userData_r.get<RpmDb::CheckPackageResult>("CheckPackageResult"));
+
+        std::string ret = callback.evaluateStr();
+
+        if (ret == "A") { // "A" = Abort
+          userData_r.set("Action", zypp::repo::DownloadResolvableReport::ABORT);
+        }
+
+        if (ret == "I") { // "I" = Ignore
+          userData_r.set("Action", zypp::repo::DownloadResolvableReport::IGNORE);
+        }
+
+        if (ret == "R") { // "R" = Retry
+          userData_r.set("Action", zypp::repo::DownloadResolvableReport::RETRY);
+        }
+      }
+    }
     };
 
     ///////////////////////////////////////////////////////////////////

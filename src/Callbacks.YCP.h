@@ -78,7 +78,7 @@ class PkgFunctions::CallbackHandler::YCPCallbacks
       CB_StartSourceRefresh, CB_ErrorSourceRefresh, CB_DoneSourceRefresh, CB_ProgressSourceRefresh,
       CB_StartDeltaDownload, CB_ProgressDeltaDownload, CB_ProblemDeltaDownload,
       CB_StartDeltaApply, CB_ProgressDeltaApply, CB_ProblemDeltaApply,
-      CB_FinishDeltaDownload, CB_FinishDeltaApply,
+      CB_FinishDeltaDownload, CB_FinishDeltaApply, CB_PkgGpgCheck,
       CB_StartDownload, CB_ProgressDownload, CB_DoneDownload, CB_InitDownload, CB_DestDownload,
 
       CB_FileConflictStart,  CB_FileConflictProgress,  CB_FileConflictReport, CB_FileConflictFinish,

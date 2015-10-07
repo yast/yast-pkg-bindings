@@ -78,7 +78,7 @@ YCPValue PkgFunctions::CallbackImportGpgKey( const YCPValue& args ) {
 /**
  * @builtin CallbackAcceptUnknownGpgKey
  * @short Register callback function
- * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, string keyid)</code>. The callback function should ask user whether the unknown key can be accepted, returned true value means to accept the key. 
+ * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(string filename, string keyid)</code>. The callback function should ask user whether the unknown key can be accepted, returned true value means to accept the key.
  * @return void
  */
 YCPValue PkgFunctions::CallbackAcceptUnknownGpgKey( const YCPValue& args ) {
@@ -321,6 +321,17 @@ YCPValue PkgFunctions::CallbackFinishDeltaDownload( const YCPValue& args)
 YCPValue PkgFunctions::CallbackFinishDeltaApply( const YCPValue& args)
 {
     return SET_YCP_CB( CB_FinishDeltaApply, args);
+}
+
+/**
+ * @builtin CallbackPkgGpgCheck
+ * @short Register callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>void()</code>. The callback function is evaluated when the delta download has been applied.
+ * @return void
+ */
+YCPValue PkgFunctions::CallbackPkgGpgCheck( const YCPValue& args)
+{
+    return SET_YCP_CB( CB_PkgGpgCheck, args);
 }
 
 /**

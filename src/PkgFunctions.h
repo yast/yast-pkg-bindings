@@ -83,7 +83,7 @@ class PkgFunctions
 
 	zypp::Pathname _target_root;
 	bool _target_loaded;
-	
+
 	zypp::ZYpp::Ptr zypp_pointer;
 
         // use a single RepoManager instance to avoid "unused" metadata cleanup
@@ -96,7 +96,7 @@ class PkgFunctions
 
 	zypp::Pathname _download_area;
 
-	/** 
+	/**
 	 * ZYPP
 	 */
 	zypp::ZYpp::Ptr zypp_ptr();
@@ -113,13 +113,13 @@ class PkgFunctions
         RepoId current_repo_id() const { return current_repo; }
 
     private: // source related
-    
+
       // all known installation sources
       RepoCont repos;
 
       // table for converting libzypp source type to Yast type (for backward compatibility)
       std::map<std::string, std::string> type_conversion_table;
-    
+
       // flag for skipping autorefresh
       volatile bool autorefresh_skipped;
 
@@ -164,7 +164,7 @@ class PkgFunctions
       YCPValue PkgProp(const zypp::PoolItem &item);
       YCPValue PkgMediaSizesOrCount (bool sizes, bool download_size = false);
       YCPValue TargetInitInternal(const YCPString& root, bool rebuild_rpmdb);
-    
+
       bool aliasExists(const std::string &alias, const std::list<zypp::RepoInfo> &reps) const;
 
       // remember the base product attributes for finding it later in
@@ -243,7 +243,7 @@ class PkgFunctions
        * and setLastError AND RETHROW
        */
 	YRepo_Ptr logFindRepository(RepoId id);
-	
+
 	RepoId createManagedSource(const zypp::Url & url_r,
 	    const zypp::Pathname & path_r, const std::string& type,
 	    const std::string &alias_r, PkgProgress &progress, const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc());
@@ -257,7 +257,7 @@ class PkgFunctions
 
       // a helper function to add or remove an upgrade repository
       YCPValue AddRemoveUpgradeRepo(const YCPInteger &repo, bool add);
-      
+
       // action for a resolvable
       enum ResolvableAction
       {
@@ -329,6 +329,8 @@ class PkgFunctions
 	YCPValue CallbackProblemDeltaApply( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(integer)) */
 	YCPValue CallbackFinishDeltaDownload( const YCPValue& /*nil*/ args);
+	/* TYPEINFO: void(boolean(integer)) */
+	YCPValue CallbackPkgGpgCheck( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
 	YCPValue CallbackFinishDeltaApply( const YCPValue& /*nil*/ args);
 
@@ -458,33 +460,33 @@ class PkgFunctions
 	YCPValue CallbackResolvableReport( const YCPValue& /*nil*/ args );
 
 	/* TYPEINFO: void(boolean(map<string,any>,integer)) */
-	YCPValue CallbackImportGpgKey( const YCPValue& /*nil*/ args );	
+	YCPValue CallbackImportGpgKey( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(boolean(string,string,integer)) */
-	YCPValue CallbackAcceptUnknownGpgKey( const YCPValue& /*nil*/ args );	
+	YCPValue CallbackAcceptUnknownGpgKey( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(boolean(string,integer)) */
-	YCPValue CallbackAcceptUnsignedFile( const YCPValue& /*nil*/ args );	
+	YCPValue CallbackAcceptUnsignedFile( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(boolean(string,map<string,any>,integer)) */
-	YCPValue CallbackAcceptVerificationFailed( const YCPValue& /*nil*/ args );	
+	YCPValue CallbackAcceptVerificationFailed( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(boolean(string,string,string)) */
         YCPValue CallbackAcceptWrongDigest( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(string,string)) */
         YCPValue CallbackAcceptUnknownDigest( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void(map<string,any>)) */
-	YCPValue CallbackTrustedKeyAdded( const YCPValue& /*nil*/ args );	
+	YCPValue CallbackTrustedKeyAdded( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(void(map<string,any>)) */
-	YCPValue CallbackTrustedKeyRemoved( const YCPValue& /*nil*/ args );	
+	YCPValue CallbackTrustedKeyRemoved( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(boolean(string)) */
-	YCPValue CallbackAcceptFileWithoutChecksum( const YCPValue& /*nil*/ args );	
+	YCPValue CallbackAcceptFileWithoutChecksum( const YCPValue& /*nil*/ args );
 
 
 	/* TYPEINFO: void(void(string,list<string>,string)) */
-	YCPValue CallbackProcessStart( const YCPValue& /*nil*/ args );	
+	YCPValue CallbackProcessStart( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(boolean(integer)) */
-	YCPValue CallbackProcessProgress( const YCPValue& /*nil*/ args );	
+	YCPValue CallbackProcessProgress( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackProcessNextStage( const YCPValue& /*nil*/ args );	
+	YCPValue CallbackProcessNextStage( const YCPValue& /*nil*/ args );
 	/* TYPEINFO: void(void()) */
-	YCPValue CallbackProcessDone( const YCPValue& /*nil*/ args );	
+	YCPValue CallbackProcessDone( const YCPValue& /*nil*/ args );
 
 	// source related
 	/* TYPEINFO: boolean(boolean)*/
@@ -808,7 +810,7 @@ class PkgFunctions
 	 * Constructor.
 	 */
 	PkgFunctions ();
-      
+
 	/**
 	 * Destructor.
 	 */
