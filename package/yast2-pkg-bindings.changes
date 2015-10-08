@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct  8 21:07:44 UTC 2015 - igonzalezsosa@suse.com
+
+- Add pkgGpgCheck callback (bsc#948608)
+- 3.1.31
+
+-------------------------------------------------------------------
 Mon Oct  5 14:00:31 UTC 2015 - ancor@suse.com
 
 - Added Pkg::SourceRawURL() and Pkg:ExpandedUrl() to deal with
