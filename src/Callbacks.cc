@@ -720,6 +720,10 @@ namespace ZyppRecipients {
         YCPString package = userData_r.get<std::string>("Package", package_r->name());
         data->add(YCPString("Package"), package);
 
+        const zypp::RepoInfo repo = package_r->repoInfo();
+        const std::string url = repo.rawUrl().asString();
+        data->add(YCPString("RepoMediaUrl"), YCPString(url));
+
         // Localpath
         zypp::Pathname localpath = userData_r.get<zypp::Pathname>("Localpath");
         data->add(YCPString("Localpath"), YCPString(localpath.asString()));
