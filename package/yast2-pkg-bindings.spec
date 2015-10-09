@@ -17,7 +17,7 @@
 
 
 Name:           yast2-pkg-bindings
-Version:        3.1.20
+Version:        3.1.20.1
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -30,7 +30,7 @@ BuildRequires:  docbook-xsl-stylesheets
 BuildRequires:  gcc-c++
 BuildRequires:  libtool
 BuildRequires:  libxslt
-BuildRequires:  libzypp-devel >= 14.29.0
+BuildRequires:  libzypp-devel >= 14.39.0
 BuildRequires:  yast2-core-devel
 BuildRequires:  yast2-devtools >= 3.1.10
 
