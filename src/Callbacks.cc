@@ -708,6 +708,19 @@ namespace ZyppRecipients {
 	    }
 	}
 
+    ///////////////////////////////////////////////////////////////////
+    // pkgGpgCheck callback
+    //
+    // A map containing the following information will be sent:
+    //
+    // * CheckPackageResult: Check result code.
+    // * Package: Package's name.
+    // * Localpath: Path to RPM file.
+    // * RepoMediaUrl: Repository URL
+    //
+    // It will set userData_r "Action" key according to value returned
+    // by callback.
+    ///////////////////////////////////////////////////////////////////
     virtual void pkgGpgCheck(const UserData & userData_r = UserData() )
     {
       typedef zypp::target::rpm::RpmDb RpmDb;
