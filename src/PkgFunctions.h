@@ -328,6 +328,8 @@ class PkgFunctions
 	YCPValue CallbackProblemPatchDownload( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
 	YCPValue CallbackFinishDeltaDownload( const YCPValue& /*nil*/ args);
+	/* TYPEINFO: void(boolean(integer)) */
+	YCPValue CallbackPkgGpgCheck( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */
 	YCPValue CallbackFinishDeltaApply( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(void()) */

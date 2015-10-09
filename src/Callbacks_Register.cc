@@ -355,6 +355,17 @@ YCPValue PkgFunctions::CallbackFinishDeltaApply( const YCPValue& args)
 }
 
 /**
+ * @builtin CallbackPkgGpgCheck
+ * @short Register callback function
+ * @param string args Name of the callback handler function. Required callback prototype is <code>void()</code>. The callback function is evaluated when a package GPG signature is checked.
+ * @return void
+ */
+YCPValue PkgFunctions::CallbackPkgGpgCheck( const YCPValue& args)
+{
+    return SET_YCP_CB( CB_PkgGpgCheck, args);
+}
+
+/**
  * @builtin CallbackFinishPatchDownload
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>void()</code>. The callback function is evaluated when the patch download has been finished.
