@@ -39,6 +39,8 @@
 #include "zypp/Digest.h"
 #include "zypp/base/String.h"
 #include "zypp/sat/FileConflicts.h"
+#include "zypp/UserData.h"
+#include "zypp/target/rpm/RpmDb.h"
 
 #include <ctime>
 
@@ -705,6 +707,61 @@ namespace ZyppRecipients {
 		callback.evaluate();
 	    }
 	}
+
+    ///////////////////////////////////////////////////////////////////
+    // pkgGpgCheck callback
+    //
+    // A map containing the following information will be sent:
+    //
+    // * CheckPackageResult: Check result code.
+    // * Package: Package's name.
+    // * Localpath: Path to RPM file.
+    // * RepoMediaUrl: Repository URL
+    //
+    // It will set userData_r "Action" key according to value returned
+    // by callback.
+    ///////////////////////////////////////////////////////////////////
+    virtual void pkgGpgCheck(const UserData & userData_r = UserData() )
+    {
+      typedef zypp::target::rpm::RpmDb RpmDb;
+      CB callback( ycpcb( YCPCallbacks::CB_PkgGpgCheck ) );
+      YCPMap data;
+
+      if (callback._set) {
+        // Package
+        const zypp::Package::constPtr & package_r = userData_r.get<zypp::Package::constPtr>("Package");
+        YCPString package = userData_r.get<std::string>("Package", package_r->name());
+        data->add(YCPString("Package"), package);
+
+        const zypp::RepoInfo repo = package_r->repoInfo();
+        const std::string url = repo.rawUrl().asString();
+        data->add(YCPString("RepoMediaUrl"), YCPString(url));
+
+        // Localpath
+        zypp::Pathname localpath = userData_r.get<zypp::Pathname>("Localpath");
+        data->add(YCPString("Localpath"), YCPString(localpath.asString()));
+
+        // Result
+        YCPInteger checkPackageResult = userData_r.get<RpmDb::CheckPackageResult>("CheckPackageResult");
+        data->add(YCPString("CheckPackageResult"), checkPackageResult);
+
+        callback.addMap(data);
+
+        std::string ret = callback.evaluateStr();
+
+        if (ret == "A") { // "A" = Abort
+          userData_r.set("Action", zypp::repo::DownloadResolvableReport::ABORT);
+        }
+
+        if (ret == "I") { // "I" = Ignore
+          userData_r.set("Action", zypp::repo::DownloadResolvableReport::IGNORE);
+        }
+
+        if (ret == "R") { // "R" = Retry
+          userData_r.set("Action", zypp::repo::DownloadResolvableReport::RETRY);
+        }
+      }
+    }
     };
 
     ///////////////////////////////////////////////////////////////////
