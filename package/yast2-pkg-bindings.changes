@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Oct  9 11:37:14 UTC 2015 - igonzalezsosa@suse.com
+
+- Add pkgGpgCheck callback (bsc#948608)
+- 3.1.20.1
+
+-------------------------------------------------------------------
 Wed Sep 24 18:16:22 CEST 2014 - schubi@suse.de
 
 - Added onsystem_by_user flag in Pkg.PkgProperties and
