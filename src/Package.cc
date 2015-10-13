@@ -57,6 +57,10 @@ extern "C"
 #include <errno.h>
 }
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 /*
   Textdomain "pkg-bindings"
 */
@@ -1781,10 +1785,50 @@ void SaveProblemList(const zypp::ResolverProblemList &problems, const std::strin
     }
 }
 
+// pointers to a member function are quite tricky,
+// see https://isocpp.org/wiki/faq/pointers-to-members
+void set_solver_flag(zypp::Resolver_Ptr solver, const char *name, const YCPMap &params,
+    bool (zypp::Resolver::*get_ptr)() const, void (zypp::Resolver::*set_ptr)(bool),
+    void (zypp::Resolver::*reset_ptr)())
+{
+    YCPValue value(params->value(YCPString(name)));
+
+    if (!value.isNull())
+    {
+        // check for nil value
+        if (value->isVoid())
+        {
+            y2milestone("Resetting the '%s' flag to the default value", name);
+            // reset to default
+            ((*solver).*reset_ptr)();
+
+            // get the current value
+            bool value = ((*solver).*get_ptr)();
+            y2milestone("Solver flag '%s' is now %s", name, value ? "enabled" : "disabled");
+        }
+        else if (value->isBoolean())
+        {
+            bool new_value = value->asBoolean()->value();
+
+            y2milestone("Setting solver flag '%s' to %s", name, new_value ? "enabled" : "disabled");
+            // set the new value
+            ((*solver).*set_ptr)(new_value);
+        }
+    }
+}
+
 /**
    @builtin SetSolverFlags
    @short Set solver flags (options)
    @param map params solver options, currently accepted options are:
+   "dupAllowVendorChange" : boolean or nil, allow to change vendor of installed
+      solvable in the DUP mode (Pkg::PkgUpdateAll()), nil sets the default
+   "dupAllowArchChange"   : boolean or nil, allow to change architecture of
+      installed solvables in the DUP mode (nil sets the default)
+   "dupAllowNameChange"   : boolean or nil, allow to downgrade installed
+      solvable in the DUP mode (nil sets the default)
+   "dupAllowDowngrade"    : boolean or nil, allow to change name of installed
+      solvable in the DUP mode (nil sets the default)
    "ignoreAlreadyRecommended" : boolean, (do not select recommended packages for already installed packages)
    "onlyRequires" : boolean, (do not select recommended packages, recommended language packages, modalias packages...)
    "reset" : boolean - if set to true then the solver is reset (all added extra requires/conflicts added by user are removed, fixsystem mode is disabled, additional data about solver run are cleared)
@@ -1793,35 +1837,75 @@ void SaveProblemList(const zypp::ResolverProblemList &problems, const std::strin
 
 YCPValue PkgFunctions::SetSolverFlags(const YCPMap& params)
 {
-    const YCPString reset_key("reset");
-    if (!params.isNull() && !params->value(reset_key).isNull() && params->value(reset_key)->isBoolean())
+    if (params.isNull())
     {
-	bool reset = params->value(reset_key)->asBoolean()->value();
+        return YCPBoolean(true);
+    }
+
+    zypp::Resolver_Ptr solver = zypp_ptr()->resolver();
+    const YCPValue reset_value(params->value(YCPString("reset")));
+
+    if (!reset_value.isNull() && reset_value->isBoolean())
+    {
+	bool reset = reset_value->asBoolean()->value();
 
 	if (reset)
 	{
 	    y2milestone("Resetting the solver");
-	    zypp_ptr()->resolver()->reset();
+	    solver->reset();
 	    // reset also the dist upgrade flag (set by PkgUpdateAll())
-	    zypp_ptr()->resolver()->setUpgradeMode(false);
+	    solver->setUpgradeMode(false);
 	}
     }
 
-    const YCPString ignore_key("ignoreAlreadyRecommended");
-    if (!params.isNull() && !params->value(ignore_key).isNull() && params->value(ignore_key)->isBoolean())
+    // there is no "reset to default" function, the set_solver_flag() wrapper
+    // cannot be used here :-(
+    const YCPValue ignore_value(params->value(YCPString("ignoreAlreadyRecommended")));
+    if (!ignore_value.isNull() && ignore_value->isBoolean())
     {
-	bool ignoreAlreadyRecommended = params->value(ignore_key)->asBoolean()->value();
+	bool ignoreAlreadyRecommended = ignore_value->asBoolean()->value();
 	y2milestone("Setting solver flag ignoreAlreadyRecommended: %d", ignoreAlreadyRecommended);
-	zypp_ptr()->resolver()->setIgnoreAlreadyRecommended(ignoreAlreadyRecommended);
+	solver->setIgnoreAlreadyRecommended(ignoreAlreadyRecommended);
     }
 
-    const YCPString requires_key("onlyRequires");
-    if (!params.isNull() && !params->value(requires_key).isNull() && params->value(requires_key)->isBoolean())
-    {
-	bool onlyRequires = params->value(requires_key)->asBoolean()->value();
-	y2milestone("Setting solver flag onlyRequires: %d", onlyRequires);
-	zypp_ptr()->resolver()->setOnlyRequires(onlyRequires);
-    }
+    set_solver_flag(solver, "allowVendorChange", params,
+        &zypp::Resolver::allowVendorChange,
+        &zypp::Resolver::setAllowVendorChange,
+        &zypp::Resolver::setDefaultAllowVendorChange);
+
+    set_solver_flag(solver, "onlyRequires", params,
+        &zypp::Resolver::onlyRequires,
+        &zypp::Resolver::setOnlyRequires,
+        &zypp::Resolver::resetOnlyRequires);
+
+// conditional compilation to not fail with a bit older libzypp
+#ifdef HAVE_ZYPP_DUP_FLAGS
+    /* set DUP flags (the libzypp default for all values is 'true') */
+
+    set_solver_flag(solver, "dupAllowArchChange", params,
+        &zypp::Resolver::dupAllowArchChange,
+        &zypp::Resolver::dupSetAllowArchChange,
+        &zypp::Resolver::dupSetDefaultAllowArchChange);
+
+    set_solver_flag(solver, "dupAllowDowngrade", params,
+        &zypp::Resolver::dupAllowDowngrade,
+        &zypp::Resolver::dupSetAllowDowngrade,
+        &zypp::Resolver::dupSetDefaultAllowDowngrade);
+
+    set_solver_flag(solver, "dupAllowNameChange", params,
+        &zypp::Resolver::dupAllowNameChange,
+        &zypp::Resolver::dupSetAllowNameChange,
+        &zypp::Resolver::dupSetDefaultAllowNameChange);
+
+    set_solver_flag(solver, "dupAllowVendorChange", params,
+        &zypp::Resolver::dupAllowVendorChange,
+        &zypp::Resolver::dupSetAllowVendorChange,
+        &zypp::Resolver::dupSetDefaultAllowVendorChange);
+#else
+#warning "Pkg::SetSolverFlags: The solver flags for DUP mode are not supported!"
+    // just a warning, this new functionality is not critical...
+    y2warning("Pkg::SetSolverFlags: The solver flags for DUP mode are not supported!");
+#endif
 
     return YCPBoolean(true);
 }
@@ -1829,14 +1913,29 @@ YCPValue PkgFunctions::SetSolverFlags(const YCPMap& params)
 /**
    @builtin GetSolverFlags
    @short Get the current solver flags (options)
-   @return map<string,any> current options see @see SetSolverFlags, "reset" flag is write only
+   @return map<string,any> the current solver settings see @see SetSolverFlags,
+     the "reset" key is missing
 */
 YCPValue PkgFunctions::GetSolverFlags()
 {
     YCPMap ret;
+    zypp::Resolver_Ptr solver = zypp_ptr()->resolver();
 
-    ret->add(YCPString("onlyRequires"), YCPBoolean(zypp_ptr()->resolver()->onlyRequires()));
-    ret->add(YCPString("ignoreAlreadyRecommended"), YCPBoolean(zypp_ptr()->resolver()->ignoreAlreadyRecommended()));
+    ret->add(YCPString("onlyRequires"), YCPBoolean(solver->onlyRequires()));
+    ret->add(YCPString("ignoreAlreadyRecommended"), YCPBoolean(solver->ignoreAlreadyRecommended()));
+
+// conditional compilation to not fail with a bit older libzypp
+#ifdef HAVE_ZYPP_DUP_FLAGS
+    // DUP mode flags
+    ret->add(YCPString("dupAllowDowngrade"), YCPBoolean(solver->dupAllowDowngrade()));
+    ret->add(YCPString("dupAllowNameChange"), YCPBoolean(solver->dupAllowNameChange()));
+    ret->add(YCPString("dupAllowArchChange"), YCPBoolean(solver->dupAllowArchChange()));
+    ret->add(YCPString("dupAllowVendorChange"), YCPBoolean(solver->dupAllowVendorChange()));
+#else
+#warning "Pkg::GetSolverFlags: The solver flags for DUP mode are not supported!"
+    // just a warning, this new functionality is not critical...
+    y2warning("Pkg::GetSolverFlags: The solver flags for DUP mode are not supported!");
+#endif
 
     return ret;
 }
