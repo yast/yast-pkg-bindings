@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Oct 22 15:00:10 UTC 2015 - lslezak@suse.cz
+
+- Added Pkg::SourceRawURL() and Pkg:ExpandedUrl() to deal with
+  repositories including repo variables (bnc#944505) [by Ancor]
+- 3.1.20.3
+
+-------------------------------------------------------------------
 Tue Oct 13 07:31:35 UTC 2015 - lslezak@suse.cz
 
 - Pkg::ResolvableProperties(): "version" value contains a full
