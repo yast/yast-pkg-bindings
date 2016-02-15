@@ -2053,7 +2053,7 @@ namespace
     {}
 
     OldStyleCommitResult( const zypp::ZYppCommitResult & result_r )
-    : _result( 0 )
+    : _result( 0 ), _updateMessages(result_r.updateMessages())
     {
       const zypp::ZYppCommitResult::TransactionStepList & steps( result_r.transactionStepList() );
       for_( step, steps.begin(), steps.end() )
@@ -2106,6 +2106,11 @@ namespace
      * list of kind:source resolvables remaining (due to wrong media)
      **/
     PoolItemList _srcremaining;
+
+    /**
+     * update notifications
+     **/
+    zypp::UpdateNotifications _updateMessages;
   };
   ///////////////////////////////////////////////////////////////////
 } // namespace
@@ -2185,6 +2190,31 @@ YCPValue PkgFunctions::CommitHelper(const zypp::ZYppCommitPolicy *policy)
     }
     ret->add(srclist);
 
+  /* Retrieve installation/update messages from libzypp */
+  YCPList msglist;
+  for (zypp::UpdateNotifications::const_iterator it = result._updateMessages.begin(); it != result._updateMessages.end(); ++it)
+  {
+    std::string messagePath = zypp::Pathname::assertprefix(_target_root, it->file()).asString();
+    std::ifstream in(messagePath, std::ios::in);
+    if (in) { /* If the file exists, read the content */
+      YCPMap msg;
+      std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+      /* Package name */
+      msg->add(YCPString("solvable"), YCPString(it->solvable().name()));
+      /* Where the message can be found after installation */
+      msg->add(YCPString("installationPath"), YCPString(it->file().asString()));
+      /* Where the message can be found currently (during installation differs from installationPath) */
+      msg->add(YCPString("currentPath"), YCPString(messagePath));
+      /* Message content */
+      msg->add(YCPString("text"), YCPString(text));
+      msglist->add(msg);
+      in.close();
+    } else { /* If the file does not exist (unexpected), log the error */
+      y2error("Message file couldn't be found: %s", messagePath.c_str());
+    }
+  }
+  ret->add(msglist);
+
     return ret;
 }
 
@@ -2241,7 +2271,7 @@ YCPValue PkgFunctions::CommitPolicy()
    if medianr > 0, only packages from this media are installed
 
    @param integer medianr Media Number
-   @return list [ int successful, list failed, list remaining, list srcremaining ]
+   @return list [ int successful, list failed, list remaining, list srcremaining, list update_messages ]
    The 'successful' value will be negative, if installation was aborted !
 
 */
@@ -2279,7 +2309,7 @@ PkgFunctions::PkgCommit (const YCPInteger& media)
  *   the default is $["download_mode":`default, "medium_nr":0 (all media),
  *      "dry_run":false, "exclude_docs":false, "no_signature":false],
  *
- *  @return list [ int successful, list failed, list remaining, list srcremaining ]
+ *  @return list [ int successful, list failed, list remaining, list srcremaining, list update_messages ]
  * The 'successful' value will be negative, if installation was aborted !
 */
 /* TYPEINFO: list<any>(integer)*/
