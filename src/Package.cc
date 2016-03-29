@@ -23,6 +23,7 @@
 
 #include "PkgFunctions.h"
 #include "log.h"
+#include "Callbacks.YCP.h"
 
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
@@ -45,6 +46,8 @@
 #include <zypp/base/Regex.h>
 
 #include <zypp/sat/WhatProvides.h>
+#include <zypp/ZYppFactory.h>
+#include <zypp/repo/PackageProvider.h>
 
 #include <fstream>
 #include <sstream>
@@ -2942,3 +2945,58 @@ YCPValue PkgFunctions::CreateSolverTestCase(const YCPString &dir)
     return YCPBoolean(success);
 }
 
+/**
+ * Get a package object from a given repository
+ *
+ * @param YCPInteger   repo_id Repository ID (alias)
+ * @param YCPString    name    Package name
+ * @return zypp::Package::constPtr
+ */
+zypp::Package::constPtr PkgFunctions::packageFromRepo(const YCPInteger & repo_id, const YCPString & name) {
+  zypp::ResPool pool(zypp::getZYpp()->pool());
+  YRepo_Ptr repo = logFindRepository(repo_id->value());
+
+  /* maybe we should use std::find_if */
+  for_(it, pool.byIdentBegin<zypp::Package>(name->value()), pool.byIdentEnd<zypp::Package>(name->value())) {
+    if (repo->repoInfo().alias() == (*it)->repository().alias()) {
+      return zypp::asKind<zypp::Package>((*it).resolvable());
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Provide a package using the \c zypp::repo::PackageProvuder class
+ *
+ * @param YCPInteger   repo_id Repository ID (alias)
+ * @param YCPString    name    Package name
+ * @param YCPReference func_r  Callback to be executed when the package is retrieved. It
+ *                             receives the path to the local file as an argument.
+ *                             The package will be deleted automatically, so this callback
+ *                             offers the oportunity to work with the file.
+ * @return YCPValue    If the package was found, it uses the value from the callback.
+                       If it wasn't found, it returns false.
+ */
+YCPValue PkgFunctions::ProvidePackage(const YCPInteger & repo_id, const YCPString & name, const YCPReference & func_r) {
+
+  zypp::Package::constPtr package = packageFromRepo(repo_id, name);
+
+  if (package != NULL) {
+    zypp::repo::RepoMediaAccess access;
+    zypp::repo::PackageProviderPolicy packageProviderPolicy;
+    zypp::repo::DeltaCandidates deltas;
+    zypp::repo::PackageProvider pkgProvider(access, package, deltas, packageProviderPolicy);
+    zypp::ManagedFile file(pkgProvider.providePackage());
+    YCPString file_path(file.value().asString());
+    /* Callback execution */
+    SymbolEntryPtr ptr_sentry = func_r->entry();
+    Y2Namespace* ns = const_cast<Y2Namespace*> (ptr_sentry->nameSpace());
+    Y2Function* function_call = ns->createFunctionCall(ptr_sentry->name(),
+						       ptr_sentry->type());
+    function_call->appendParameter(file_path);
+
+    return function_call->evaluateCall();
+  } else {
+    return YCPBoolean(false);
+  }
+}
