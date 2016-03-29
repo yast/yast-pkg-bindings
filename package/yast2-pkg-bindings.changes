@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Mar 29 12:32:18 UTC 2016 - igonzalezsosa@suse.com
+
+- Add a PkgProvidePackage to retrieve a package using
+  PackageProvider (fate#319716).
+- 3.1.33
+
+-------------------------------------------------------------------
 Mon Feb 15 10:49:39 UTC 2016 - igonzalezsosa@suse.com
 
 - Expose update notifications through PkgFunctions::CommitHelper
