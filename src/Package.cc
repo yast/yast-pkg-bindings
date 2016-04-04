@@ -2955,6 +2955,7 @@ YCPValue PkgFunctions::CreateSolverTestCase(const YCPString &dir)
 zypp::Package::constPtr PkgFunctions::packageFromRepo(const YCPInteger & repo_id, const YCPString & name) {
   zypp::ResPool pool(zypp::getZYpp()->pool());
   YRepo_Ptr repo = logFindRepository(repo_id->value());
+  if (!repo) return NULL;
 
   /* maybe we should use std::find_if */
   for_(it, pool.byIdentBegin<zypp::Package>(name->value()), pool.byIdentEnd<zypp::Package>(name->value())) {
