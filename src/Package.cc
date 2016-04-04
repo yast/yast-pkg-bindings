@@ -2971,14 +2971,11 @@ zypp::Package::constPtr PkgFunctions::packageFromRepo(const YCPInteger & repo_id
  *
  * @param YCPInteger   repo_id Repository ID (alias)
  * @param YCPString    name    Package name
- * @param YCPReference func_r  Callback to be executed when the package is retrieved. It
- *                             receives the path to the local file as an argument.
- *                             The package will be deleted automatically, so this callback
- *                             offers the oportunity to work with the file.
- * @return YCPValue    If the package was found, it uses the value from the callback.
-                       If it wasn't found, it returns false.
+ * @param YCPString    path    Path to save the file.
+ * @return YCPValue    If the package was found, it returns true;
+ *                     if it wasn't found, it returns false.
  */
-YCPValue PkgFunctions::ProvidePackage(const YCPInteger & repo_id, const YCPString & name, const YCPReference & func_r) {
+YCPValue PkgFunctions::ProvidePackage(const YCPInteger & repo_id, const YCPString & name, const YCPString & path) {
 
   zypp::Package::constPtr package = packageFromRepo(repo_id, name);
   if (package == NULL) return YCPBoolean(false);
@@ -2988,13 +2985,9 @@ YCPValue PkgFunctions::ProvidePackage(const YCPInteger & repo_id, const YCPStrin
   zypp::repo::DeltaCandidates deltas;
   zypp::repo::PackageProvider pkgProvider(access, package, deltas, packageProviderPolicy);
   zypp::ManagedFile file(pkgProvider.providePackage());
-  YCPString file_path(file.value().asString());
-  /* Callback execution */
-  SymbolEntryPtr ptr_sentry = func_r->entry();
-  Y2Namespace* ns = const_cast<Y2Namespace*> (ptr_sentry->nameSpace());
-  Y2Function* function_call = ns->createFunctionCall(ptr_sentry->name(),
-                 ptr_sentry->type());
-  function_call->appendParameter(file_path);
-
-  return function_call->evaluateCall();
+  /* Copy the managed file to the given path */
+  std::ifstream src(file.value().asString(), std::ios::binary);
+  std::ofstream dest(path->value(), std::ios::binary);
+  dest << src.rdbuf();
+  return YCPBoolean(true);
 }

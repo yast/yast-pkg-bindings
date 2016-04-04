@@ -679,8 +679,8 @@ class PkgFunctions
 	YCPValue PkgReset ();
 	/* TYPEINFO: boolean()*/
 	YCPValue PkgApplReset ();
-        /* TYPEINFO: string(integer,string,reference) */
-	YCPValue ProvidePackage(const YCPInteger & repo_id, const YCPString & name, const YCPReference &func_r);
+        /* TYPEINFO: string(integer,string,string) */
+	YCPValue ProvidePackage(const YCPInteger & repo_id, const YCPString & name, const YCPString & path);
 	/* TYPEINFO: map<string,any>()*/
 	YCPValue GetSolverFlags();
 	/* TYPEINFO: boolean(map<string,any>)*/
