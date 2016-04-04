@@ -2966,7 +2966,7 @@ zypp::Package::constPtr PkgFunctions::packageFromRepo(const YCPInteger & repo_id
 }
 
 /**
- * Provide a package using the \c zypp::repo::PackageProvuder class
+ * Provide a package using the \c zypp::repo::PackageProvider class
  *
  * @param YCPInteger   repo_id Repository ID (alias)
  * @param YCPString    name    Package name
@@ -2980,23 +2980,20 @@ zypp::Package::constPtr PkgFunctions::packageFromRepo(const YCPInteger & repo_id
 YCPValue PkgFunctions::ProvidePackage(const YCPInteger & repo_id, const YCPString & name, const YCPReference & func_r) {
 
   zypp::Package::constPtr package = packageFromRepo(repo_id, name);
+  if (package == NULL) return YCPBoolean(false);
 
-  if (package != NULL) {
-    zypp::repo::RepoMediaAccess access;
-    zypp::repo::PackageProviderPolicy packageProviderPolicy;
-    zypp::repo::DeltaCandidates deltas;
-    zypp::repo::PackageProvider pkgProvider(access, package, deltas, packageProviderPolicy);
-    zypp::ManagedFile file(pkgProvider.providePackage());
-    YCPString file_path(file.value().asString());
-    /* Callback execution */
-    SymbolEntryPtr ptr_sentry = func_r->entry();
-    Y2Namespace* ns = const_cast<Y2Namespace*> (ptr_sentry->nameSpace());
-    Y2Function* function_call = ns->createFunctionCall(ptr_sentry->name(),
-						       ptr_sentry->type());
-    function_call->appendParameter(file_path);
+  zypp::repo::RepoMediaAccess access;
+  zypp::repo::PackageProviderPolicy packageProviderPolicy;
+  zypp::repo::DeltaCandidates deltas;
+  zypp::repo::PackageProvider pkgProvider(access, package, deltas, packageProviderPolicy);
+  zypp::ManagedFile file(pkgProvider.providePackage());
+  YCPString file_path(file.value().asString());
+  /* Callback execution */
+  SymbolEntryPtr ptr_sentry = func_r->entry();
+  Y2Namespace* ns = const_cast<Y2Namespace*> (ptr_sentry->nameSpace());
+  Y2Function* function_call = ns->createFunctionCall(ptr_sentry->name(),
+                 ptr_sentry->type());
+  function_call->appendParameter(file_path);
 
-    return function_call->evaluateCall();
-  } else {
-    return YCPBoolean(false);
-  }
+  return function_call->evaluateCall();
 }
