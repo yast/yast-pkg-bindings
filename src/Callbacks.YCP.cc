@@ -104,6 +104,7 @@
 	ENUM_OUT( ProblemDeltaApply );
 	ENUM_OUT( FinishDeltaDownload );
 	ENUM_OUT( FinishDeltaApply );
+	ENUM_OUT( PkgGpgCheck );
 	ENUM_OUT( MediaChange );
 	ENUM_OUT( SourceChange );
 	ENUM_OUT( ResolvableReport );
