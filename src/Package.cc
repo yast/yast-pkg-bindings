@@ -2984,10 +2984,19 @@ YCPValue PkgFunctions::ProvidePackage(const YCPInteger & repo_id, const YCPStrin
   zypp::repo::PackageProviderPolicy packageProviderPolicy;
   zypp::repo::DeltaCandidates deltas;
   zypp::repo::PackageProvider pkgProvider(access, package, deltas, packageProviderPolicy);
-  zypp::ManagedFile file(pkgProvider.providePackage());
-  /* Copy the managed file to the given path */
-  std::ifstream src(file.value().asString(), std::ios::binary);
-  std::ofstream dest(path->value(), std::ios::binary);
-  dest << src.rdbuf();
+
+  try {
+    /* Retrieve the package */
+    zypp::ManagedFile file(pkgProvider.providePackage());
+    /* Copy the managed file to the given path */
+    std::ifstream src(file.value().asString(), std::ios::binary);
+    std::ofstream dest(path->value(), std::ios::binary);
+    dest << src.rdbuf();
+  }
+  catch (...) {
+    y2error("Package %s could not be downloaded", name->value().c_str());
+    return YCPBoolean(false);
+  }
+
   return YCPBoolean(true);
 }
