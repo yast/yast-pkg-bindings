@@ -221,6 +221,8 @@ class PkgFunctions
       // CommitPolicy used for commit
       zypp::ZYppCommitPolicy *commit_policy;
 
+      // getPackageFromRepo used for PkgFunctions::ProvidePackage
+      zypp::Package::constPtr packageFromRepo(const YCPInteger & repo_id, const YCPString & name);
     private:
 
       /**
@@ -677,6 +679,8 @@ class PkgFunctions
 	YCPValue PkgReset ();
 	/* TYPEINFO: boolean()*/
 	YCPValue PkgApplReset ();
+        /* TYPEINFO: boolean(integer,string,string) */
+	YCPValue ProvidePackage(const YCPInteger & repo_id, const YCPString & name, const YCPString & path);
 	/* TYPEINFO: map<string,any>()*/
 	YCPValue GetSolverFlags();
 	/* TYPEINFO: boolean(map<string,any>)*/

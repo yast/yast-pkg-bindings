@@ -23,6 +23,7 @@
 
 #include "PkgFunctions.h"
 #include "log.h"
+#include "Callbacks.YCP.h"
 
 #include <ycp/YCPVoid.h>
 #include <ycp/YCPBoolean.h>
@@ -45,6 +46,8 @@
 #include <zypp/base/Regex.h>
 
 #include <zypp/sat/WhatProvides.h>
+#include <zypp/ZYppFactory.h>
+#include <zypp/repo/PackageProvider.h>
 
 #include <fstream>
 #include <sstream>
@@ -2942,3 +2945,58 @@ YCPValue PkgFunctions::CreateSolverTestCase(const YCPString &dir)
     return YCPBoolean(success);
 }
 
+/**
+ * Get a package object from a given repository
+ *
+ * @param YCPInteger   repo_id Repository ID (alias)
+ * @param YCPString    name    Package name
+ * @return zypp::Package::constPtr
+ */
+zypp::Package::constPtr PkgFunctions::packageFromRepo(const YCPInteger & repo_id, const YCPString & name) {
+  zypp::ResPool pool(zypp::getZYpp()->pool());
+  YRepo_Ptr repo = logFindRepository(repo_id->value());
+  if (!repo) return NULL;
+
+  /* maybe we should use std::find_if */
+  for_(it, pool.byIdentBegin<zypp::Package>(name->value()), pool.byIdentEnd<zypp::Package>(name->value())) {
+    if (repo->repoInfo().alias() == (*it)->repository().alias()) {
+      return zypp::asKind<zypp::Package>((*it).resolvable());
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Provide a package using the \c zypp::repo::PackageProvider class
+ *
+ * @param YCPInteger   repo_id Repository ID (alias)
+ * @param YCPString    name    Package name
+ * @param YCPString    path    Path to save the file.
+ * @return YCPValue    If the package was found, it returns true;
+ *                     if it wasn't found, it returns false.
+ */
+YCPValue PkgFunctions::ProvidePackage(const YCPInteger & repo_id, const YCPString & name, const YCPString & path) {
+
+  zypp::Package::constPtr package = packageFromRepo(repo_id, name);
+  if (package == NULL) return YCPBoolean(false);
+
+  zypp::repo::RepoMediaAccess access;
+  zypp::repo::PackageProviderPolicy packageProviderPolicy;
+  zypp::repo::DeltaCandidates deltas;
+  zypp::repo::PackageProvider pkgProvider(access, package, deltas, packageProviderPolicy);
+
+  try {
+    /* Retrieve the package */
+    zypp::ManagedFile file(pkgProvider.providePackage());
+    /* Copy the managed file to the given path */
+    std::ifstream src(file.value().asString(), std::ios::binary);
+    std::ofstream dest(path->value(), std::ios::binary);
+    dest << src.rdbuf();
+  }
+  catch (...) {
+    y2error("Package %s could not be downloaded", name->value().c_str());
+    return YCPBoolean(false);
+  }
+
+  return YCPBoolean(true);
+}
