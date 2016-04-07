@@ -130,6 +130,7 @@ class PkgFunctions
       int last_reported_mediumnr;
 
       YCPValue SourceRefreshHelper(const YCPInteger &id, bool forced = false);
+      YCPValue ServiceRefreshHelper(const YCPString &alias, bool forced = false);
 
       // helper for updating repository manager after changing the target root
       // return true if the target root has been changed
@@ -790,6 +791,8 @@ class PkgFunctions
 	YCPValue ServiceSet(const YCPString&, const YCPMap&);
 	/* TYPEINFO: boolean(string)*/
 	YCPValue ServiceRefresh(const YCPString&);
+	/* TYPEINFO: boolean(string)*/
+	YCPValue ServiceForceRefresh(const YCPString&);
 	/* TYPEINFO: string(string)*/
 	YCPValue ServiceURL(const YCPString &alias);
 	/* TYPEINFO: string(string)*/
