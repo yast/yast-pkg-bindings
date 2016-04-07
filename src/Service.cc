@@ -359,12 +359,14 @@ YCPValue PkgFunctions::ServiceSet(const YCPString &old_alias, const YCPMap &serv
 }
 
 /**
-   @builtin ServiceRefresh
-   @short Refresh the service, the service must already be saved on the system!
+   @builtin ServiceRefreshHelper
+   @short Helper call for refreshing services
    @param alias alias of the service to refresh
+   @param force force refresh even if TTL is not reached
+
    @return boolean false if failed
 */
-YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
+YCPValue PkgFunctions::ServiceRefreshHelper(const YCPString &alias, bool force)
 {
     try
     {
@@ -378,7 +380,7 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
 
 	zypp::RepoManager* repomanager = CreateRepoManager();
 
-	if (!service_manager.RefreshService(alias_str, *repomanager))
+	if (!service_manager.RefreshService(alias_str, *repomanager, force))
 	{
 	    return YCPBoolean(false);
 	}
@@ -446,6 +448,28 @@ YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
     }
 
     return YCPBoolean(false);
+}
+
+/**
+   @builtin ServiceRefresh
+   @short Refresh the service, the service must already be saved on the system!
+   @param alias alias of the service to refresh
+   @return boolean false if failed
+*/
+YCPValue PkgFunctions::ServiceRefresh(const YCPString &alias)
+{
+   return ServiceRefreshHelper(alias, false);
+}
+
+/**
+   @builtin ServiceForceRefresh
+   @short Service forced refresh, the service must already be saved on the system!
+   @param alias alias of the service to refresh
+   @return boolean false if failed
+*/
+YCPValue PkgFunctions::ServiceForceRefresh(const YCPString &alias)
+{
+   return ServiceRefreshHelper(alias, true);
 }
 
 /**

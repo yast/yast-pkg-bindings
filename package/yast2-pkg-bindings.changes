@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Apr  6 15:51:40 CEST 2016 - schubi@suse.de
+
+- Added new call: ServiceForceRefresh
+  (bnc#967828)
+- 3.1.34
+
+-------------------------------------------------------------------
 Tue Mar 29 12:32:18 UTC 2016 - igonzalezsosa@suse.com
 
 - Add a Pkg::ProvidePackage to retrieve a package using
