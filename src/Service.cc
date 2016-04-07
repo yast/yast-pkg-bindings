@@ -362,6 +362,8 @@ YCPValue PkgFunctions::ServiceSet(const YCPString &old_alias, const YCPMap &serv
    @builtin ServiceRefreshHelper
    @short Helper call for refreshing services
    @param alias alias of the service to refresh
+   @param force force refresh even if TTL is not reached
+
    @return boolean false if failed
 */
 YCPValue PkgFunctions::ServiceRefreshHelper(const YCPString &alias, bool force)
