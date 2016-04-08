@@ -107,7 +107,7 @@ bool ServiceManager::SaveService(const std::string &alias, zypp::RepoManager &re
     return true;
 }
 
-bool ServiceManager::RefreshService(const std::string &alias, zypp::RepoManager &repomgr)
+bool ServiceManager::RefreshService(const std::string &alias, zypp::RepoManager &repomgr, bool force)
 {
     PkgServices::iterator serv_it = _known_services.find(alias);
 
@@ -117,7 +117,14 @@ bool ServiceManager::RefreshService(const std::string &alias, zypp::RepoManager 
 	return false;
     }
 
-    repomgr.refreshService(serv_it->second);
+    if (force)
+    {
+        repomgr.refreshService(serv_it->second, zypp::RepoManager::RefreshService_forceRefresh);
+    }
+    else
+    {
+        repomgr.refreshService(serv_it->second);
+    }
 
     // load the service from disk
     PkgService new_service(repomgr.getService(alias), alias);
