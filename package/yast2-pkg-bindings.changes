@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Oct  7 07:32:19 UTC 2016 - lslezak@suse.cz
+
+- Added Pkg.UrlSchemeIs*() methods for classifying the URL scheme
+  to avoid duplication of the libzypp code in YaST (bsc#948982)
+- 3.2.0
+
+-------------------------------------------------------------------
 Wed Apr  6 15:51:40 CEST 2016 - schubi@suse.de
 
 - Added new call: ServiceForceRefresh
