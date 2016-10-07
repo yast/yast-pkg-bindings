@@ -810,6 +810,18 @@ class PkgFunctions
 	/* TYPEINFO: boolean(map<string,any>)*/
 	YCPValue SetZConfig(const YCPMap &cfg);
 
+    // URL related functions
+    /* TYPEINFO: list<string>() */
+    YCPValue UrlKnownSchemes();
+    /* TYPEINFO: boolean(string) */
+    YCPValue UrlSchemeIsRemote(const YCPString &url_scheme);
+    /* TYPEINFO: boolean(string) */
+    YCPValue UrlSchemeIsLocal(const YCPString &url_scheme);
+    /* TYPEINFO: boolean(string) */
+    YCPValue UrlSchemeIsVolatile(const YCPString &url_scheme);
+    /* TYPEINFO: boolean(string) */
+    YCPValue UrlSchemeIsDownloading(const YCPString &url_scheme);
+
         YCPValue ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies);
 	YCPValue ResolvableSetPatches(const YCPSymbol& kind_r, bool preselect);
 
