@@ -103,6 +103,40 @@ PkgFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
 }
 
 /****************************************************************************************
+ * @builtin SourceSetPriority
+ *
+ * @short Set the repository priority
+ * @description
+ * It updates also the priority of the loaded packages in the pool.
+ * @param integer id the repository
+ * @param integer priority the new priority (usually 1-200, the default is 99,
+ *    lower number means higher priority!)
+ * @return boolean true on success
+ **/
+YCPValue
+PkgFunctions::SourceSetPriority(const YCPInteger& id, const YCPInteger& priority)
+{
+    YRepo_Ptr repo = logFindRepository(id->value());
+    if (!repo) return YCPBoolean(false);
+
+    repo->repoInfo().setPriority(priority->value());
+
+    // apply the priority also on the loaded packages in the pool (bsc#498266),
+    zypp::Repository r(zypp::sat::Pool::instance().reposFind(repo->repoInfo().alias()));
+
+    // it might not be loaded in the pool
+    if (r != zypp::Repository::noRepository)
+    {
+        // keep the other attributes unchanged to avoid side effects
+        zypp::RepoInfo ri(r.info());
+        ri.setPriority(priority->value());
+        r.setInfo(ri);
+    }
+
+    return YCPBoolean(true);
+}
+
+/****************************************************************************************
  * @builtin SourceSetAutorefresh
  *
  * @short Set whether this source should automaticaly refresh it's
