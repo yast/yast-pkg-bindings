@@ -539,6 +539,8 @@ class PkgFunctions
 	YCPValue SourceCacheCopyTo (const YCPString&);
 	/* TYPEINFO: boolean(integer,boolean)*/
         YCPValue SourceSetEnabled (const YCPInteger&, const YCPBoolean&);
+    /* TYPEINFO: boolean(integer,integer) */
+    YCPValue SourceSetPriority(const YCPInteger& id, const YCPInteger& priority);
 	/* TYPEINFO: boolean(integer,boolean)*/
         YCPValue SourceSetAutorefresh (const YCPInteger&, const YCPBoolean&);
 	/* TYPEINFO: boolean(integer)*/
