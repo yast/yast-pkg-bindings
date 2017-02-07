@@ -32,6 +32,7 @@
 #include <zypp/Product.h>
 #include <zypp/Repository.h>
 #include <zypp/media/CredentialManager.h>
+#include <zypp/TriBool.h>
 
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPMap.h>
@@ -115,6 +116,7 @@ PkgFunctions::SourceGetCurrent (const YCPBoolean& enabled)
  * "service"	: YCPString, (service to which the repo belongs, empty if there is no service assigned)
  * "keeppackages" : YCPBoolean,
  * "is_update_repo" : YCPBoolean, (true if this is an update repo - this requires loaded objects in pool otherwise the flag is not returned! The value is stored in repo metadata, not in .repo file!)
+ * "valid_repo_signature" : YCPBoolean or YCPVoid (boolean: whether the repo metadata are signed and valid, nil: unsigned metadata)
  * ];
  *
  * </code>
@@ -162,6 +164,12 @@ PkgFunctions::SourceGeneralData (const YCPInteger& id)
     data->add( YCPString("service"),	YCPString(repo->repoInfo().service()));
 
     data->add( YCPString("keeppackages"),	YCPBoolean(repo->repoInfo().keepPackages()));
+
+    // handle tribool, return nil for the indeterminate state
+    if (zypp::indeterminate(repo->repoInfo().validRepoSignature()))
+        data->add(YCPString("valid_repo_signature"), YCPVoid());
+    else
+        data->add(YCPString("valid_repo_signature"), (YCPBoolean(repo->repoInfo().validRepoSignature())));
 
     // add Repository data
     zypp::Repository repository(zypp::ResPool::instance().reposFind(repo->repoInfo().alias()));
