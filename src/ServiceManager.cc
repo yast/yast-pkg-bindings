@@ -309,11 +309,18 @@ void ServiceManager::SavePkgService(PkgService &s_known, zypp::RepoManager &repo
 {
     const std::string alias(s_known.alias());
     const zypp::ServiceInfo s_stored = repomgr.getService(alias);
+    const std::string orig_alias(s_known.origAlias());
+
+    // plugin services cannot be saved, they are provided by a script
+    // https://doc.opensuse.org/projects/libzypp/SLE12SP1/zypp-services.html
+    if (s_stored.type() == zypp::repo::ServiceType::PLUGIN)
+    {
+        y2milestone("Not saving a plugin service: %s", orig_alias.c_str());
+        return;
+    }
 
     DBG << "Known Service: " << s_known << std::endl;
     DBG << "Stored Service: " << s_stored << std::endl;
-
-    std::string orig_alias(s_known.origAlias());
 
     y2debug("orig_alias: %s", orig_alias.c_str());
 
