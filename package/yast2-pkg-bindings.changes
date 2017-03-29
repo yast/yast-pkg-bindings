@@ -2,7 +2,7 @@
 Fri Jan 27 15:55:34 UTC 2017 - lslezak@suse.cz
 
 - Fixed failure when trying to save a plugin service (bsc#1021117)
-- 3.1.34.1
+- 3.1.35
 
 -------------------------------------------------------------------
 Wed Apr  6 15:51:40 CEST 2016 - schubi@suse.de
