@@ -167,7 +167,11 @@ YCPValue PkgFunctions::ServiceSave(const YCPString &alias)
    @builtin ServiceGet
    @short Get detailed properties of a service
    @param alias alias of the service
-   @return map Service data in map $[ "alias":string, "name":string, "url":string, "autorefresh":boolean, "enabled":boolean, "file":string, "repos_to_disable" : list<string>, "repos_to_enable" : list<string> ]. "file" is name of the file from which the service has been read, it is empty if the service has not been saved yet
+   @return map Service data in map $[ "alias":string, "name":string, "url":string,
+   "autorefresh":boolean, "enabled":boolean, "file":string, "type":string,
+   "repos_to_disable" : list<string>, "repos_to_enable" : list<string> ]. "file"
+   is name of the file from which the service has been read, it is empty if the
+   service has not been saved yet
 */
 YCPValue PkgFunctions::ServiceGet(const YCPString &alias)
 {
@@ -186,6 +190,7 @@ YCPValue PkgFunctions::ServiceGet(const YCPString &alias)
     ret->add(YCPString("autorefresh"), YCPBoolean(s.autorefresh()));
     ret->add(YCPString("enabled"), YCPBoolean(s.enabled()));
     ret->add(YCPString("file"), YCPString(s.filepath().asString()));
+    ret->add(YCPString("type"), YCPString(s.type().asString()));
 
     if (s.reposToDisableSize() > 0)
     {
