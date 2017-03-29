@@ -116,7 +116,7 @@ PkgFunctions::SourceGetCurrent (const YCPBoolean& enabled)
  * "service"	: YCPString, (service to which the repo belongs, empty if there is no service assigned)
  * "keeppackages" : YCPBoolean,
  * "is_update_repo" : YCPBoolean, (true if this is an update repo - this requires loaded objects in pool otherwise the flag is not returned! The value is stored in repo metadata, not in .repo file!)
- * "valid_repo_signature" : YCPBoolean or YCPVoid (boolean: whether the repo metadata are signed and valid, nil: unsigned metadata)
+ * "valid_repo_signature" : YCPBoolean or YCPVoid (boolean: nil=unsigned, false=bad signature, true=good signature)
  * ];
  *
  * </code>

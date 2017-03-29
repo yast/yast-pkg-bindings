@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Mar 29 15:29:51 UTC 2017 - lslezak@suse.cz
+
+- Return the repository signature flag status in the
+  Pkg.SourceGeneralData call (might be used for bsc#1009127)
+
+-------------------------------------------------------------------
 Wed Oct 12 16:24:12 UTC 2016 - lslezak@suse.cz
 
 - Added Pkg.SourceSetPriority() to allow changing the priority
