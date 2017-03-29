@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Mar 29 16:35:24 UTC 2017 - lslezak@suse.cz
+
+- Fixed failure when trying to save a plugin service (bsc#1021117)
+
+-------------------------------------------------------------------
 Wed Mar 29 15:29:51 UTC 2017 - lslezak@suse.cz
 
 - Return the repository signature flag status in the
