@@ -34,6 +34,12 @@ BuildRequires:  libzypp-devel >= 14.29.0
 BuildRequires:  yast2-core-devel
 BuildRequires:  yast2-devtools >= 3.1.10
 
+# FIXME make it optional
+BuildRequires:  rubygem(%{rb_default_ruby_abi}:ruby-lint)
+# FIXME this is even worse,
+# probably a separate spec or dependency tree is needed
+BuildRequires:  yast2-ruby-bindings
+
 Summary:	YaST2 - Package Manager Access
 
 %description
@@ -53,9 +59,37 @@ echo "src" > SUBDIRS
 
 rm -rf %{buildroot}/%{yast_plugindir}/libpy2Pkg.la
 
+export Y2DIR=%{buildroot}/%{yast_plugindir}/..
+export RLCONST=Yast::Pkg
+export RLDIR=$RPM_BUILD_ROOT/%{_libdir}/ruby/vendor_ruby/%{rb_ver}/ruby-lint/definitions/rpms/%{name}
+mkdir -p $RLDIR
+ruby -r ruby-lint -r ruby-lint/definition_generator \
+  -I $RPM_BUILD_ROOT/%{_libdir}/ruby/vendor_ruby/%{rb_ver} \
+  -I $RPM_BUILD_ROOT/%{_libdir}/ruby/vendor_ruby/%{rb_ver}/%{rb_arch} \
+  -r yast -e 'Yast.import("Pkg")' \
+  -e 'RubyLint::DefinitionGenerator.new(ENV["RLCONST"], ENV["RLDIR"]).generate'
+
+# fixup https://github.com/YorickPeterse/ruby-lint/issues/190
+sed -i -e '/define_(/d' $RLDIR/*.rb
+
+# now lint yourself with the help of the definitions just created
+ruby -e '
+File.open("ruby-lint.yml", "w") do |f|
+  f.puts "presenter: emacs"
+  f.puts "requires:"
+  Dir.glob(ENV["RLDIR"] + "/*.rb").each do |r|
+    f.puts "  - #{r}"
+  end
+end
+'
+# the pipe also masks exit codes
+ruby-lint . | tee $RLDIR/report.log
+echo -n "Total ruby-lint reports: "
+wc -l $RLDIR/report.log
 
 %files
 %defattr(-,root,root)
 %{yast_plugindir}/libpy2Pkg.so.*
 %{yast_plugindir}/libpy2Pkg.so
 %doc %{yast_docdir}
+%{_libdir}/ruby/vendor_ruby/%{rb_ver}/ruby-lint/definitions/rpms/%{name}
