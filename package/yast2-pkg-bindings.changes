@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Jun  2 08:42:12 UTC 2017 - igonzalezsosa@suse.com
+
+- Fix pkgGpgCheck callback crashing when reporting SrcPackages
+  (bsc#1037210) (by mlandres)
+- 3.2.3
+
+-------------------------------------------------------------------
 Wed Mar 29 16:35:24 UTC 2017 - lslezak@suse.cz
 
 - Fixed failure when trying to save a plugin service (bsc#1021117)
