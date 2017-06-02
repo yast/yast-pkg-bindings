@@ -728,12 +728,16 @@ namespace ZyppRecipients {
       YCPMap data;
 
       if (callback._set) {
-        // Package
-        const zypp::Package::constPtr & package_r = userData_r.get<zypp::Package::constPtr>("Package");
-        YCPString package = userData_r.get<std::string>("Package", package_r->name());
+        // Package or SrcPackage (ResObject is common base class)
+	zypp::ResObject::constPtr resobject_r;
+	if ( userData_r.hasvalue( "ResObject" ) )
+	  resobject_r = userData_r.get<zypp::ResObject::constPtr>( "ResObject" );
+	else // legacy callback sending "zypp::Package::constPtr "Package"
+	  resobject_r = userData_r.get<zypp::Package::constPtr>("Package");
+        YCPString package = resobject_r->name();
         data->add(YCPString("Package"), package);
 
-        const zypp::RepoInfo repo = package_r->repoInfo();
+        const zypp::RepoInfo repo = resobject_r->repoInfo();
         const std::string url = repo.rawUrl().asString();
         data->add(YCPString("RepoMediaUrl"), YCPString(url));
 
