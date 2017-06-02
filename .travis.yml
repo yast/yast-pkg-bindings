@@ -6,7 +6,7 @@ before_install:
     - export CC=gcc-4.8
     - export CXX=g++-4.8
     - wget https://raw.githubusercontent.com/yast/yast-devtools/master/travis-tools/travis_setup.sh
-    - sh ./travis_setup.sh -p "yast2-core-dev libzypp-dev yast2-devtools doxygen yast2-testsuite g++-4.8"
+    - sh ./travis_setup.sh -p "yast2-core-dev libzypp-dev yast2-devtools doxygen yast2-testsuite g++-4.8 gettext"
 script:
     - make -f Makefile.cvs
     - make -j 4
