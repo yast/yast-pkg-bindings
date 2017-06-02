@@ -17,7 +17,7 @@
 
 
 Name:           yast2-pkg-bindings
-Version:        3.1.31.2
+Version:        3.1.31.3
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
