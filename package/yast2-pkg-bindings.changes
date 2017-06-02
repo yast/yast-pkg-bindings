@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Jun  2 08:42:12 UTC 2017 - igonzalezsosa@suse.com
+
+- Fix pkgGpgCheck callback crashing when reporting SrcPackages
+  (bsc#1037210) (by mlandres)
+- 3.1.20.4
+
+-------------------------------------------------------------------
 Thu Oct 22 15:00:10 UTC 2015 - lslezak@suse.cz
 
 - Added Pkg::SourceRawURL() and Pkg:ExpandedUrl() to deal with
