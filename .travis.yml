@@ -1,15 +1,14 @@
-language: cpp
-compiler:
-    - gcc
-before_install:
-    # use gcc-4.8 (needed by libzypp) instead of gcc-4.6 default
-    - export CC=gcc-4.8
-    - export CXX=g++-4.8
-    - wget https://raw.githubusercontent.com/yast/yast-devtools/master/travis-tools/travis_setup.sh
-    - sh ./travis_setup.sh -p "yast2-core-dev libzypp-dev yast2-devtools doxygen yast2-testsuite g++-4.8 gettext"
-script:
-    - make -f Makefile.cvs
-    - make -j 4
-    - make check
-    - sudo make install
+sudo: required
+language: bash
+services:
+  - docker
 
+before_install:
+  - docker build -t yast-pkg-bindings-image .
+  # list the installed packages (just for easier debugging)
+  - docker run --rm -it yast-pkg-bindings-image rpm -qa | sort
+
+script:
+  # the "yast-travis-ruby" script is included in the base yastdevel/ruby image
+  # see https://github.com/yast/docker-yast-ruby/blob/master/yast-travis-ruby
+  - docker run -it -e TRAVIS=1 -e TRAVIS_JOB_ID="$TRAVIS_JOB_ID" yast-pkg-bindings-image yast-travis-cpp
