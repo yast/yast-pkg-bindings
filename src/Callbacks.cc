@@ -1464,14 +1464,7 @@ namespace ZyppRecipients {
 	    if (callback._set)
 	    {
 		callback.addInt(_pkg_ref.logFindAlias(repo.alias()));
-
-		std::string url;
-		if (repo.baseUrlsBegin() != repo.baseUrlsEnd())
-		{
-		    url = repo.baseUrlsBegin()->asString();
-		}
-
-		callback.addStr(url);
+		callback.addStr(repo.url().asString());
 		callback.addStr(task.name());
 
 		callback.evaluate();
@@ -1528,14 +1521,7 @@ namespace ZyppRecipients {
 	    {
 		// search Yast source ID
 		callback.addInt(_pkg_ref.logFindAlias(source.info().alias()));
-
-		std::string url;
-		if (source.info().baseUrlsBegin() != source.info().baseUrlsEnd())
-		{
-		    url = source.info().baseUrlsBegin()->asString();
-		}
-
-		callback.addStr(url);
+		callback.addStr(source.info().url().asString());
 		callback.addSymbol(SrcReportErrorAsString(error));
 		callback.addStr(description);
 
@@ -1564,14 +1550,7 @@ namespace ZyppRecipients {
 	    {
 		// search Yast source ID
 		callback.addInt(_pkg_ref.logFindAlias(source.info().alias()));
-
-		std::string url;
-		if (source.info().baseUrlsBegin() != source.info().baseUrlsEnd())
-		{
-		    url = source.info().baseUrlsBegin()->asString();
-		}
-		callback.addStr(url);
-
+		callback.addStr(source.info().url().asString());
 		callback.addStr(task);
 		callback.addSymbol(SrcReportErrorAsString(error));
 		callback.addStr(reason);

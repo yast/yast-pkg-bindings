@@ -267,8 +267,14 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 			// do not autorefresh remote repositories when the network is not running
 			if (!network_is_running)
 			{
-			    zypp::Url url = *((*it)->repoInfo().baseUrlsBegin());
-			    
+                if ((*it)->repoInfo().baseUrlsEmpty())
+                {
+                    y2warning("No URL defined, skipping repository '%s'", (*it)->repoInfo().alias().c_str());
+                    continue;
+                }
+
+			    zypp::Url url = (*it)->repoInfo().url();
+
 			    if (remoteRepo(url))
 			    {
 				y2warning("No network connection, skipping autorefresh of remote repository %s (%s)",
@@ -286,11 +292,17 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 				refresh_started_called = true;
 			    }
 
-			    zypp::RepoManager::RefreshCheckStatus ref_stat = repomanager->checkIfToRefreshMetadata((*it)->repoInfo(), *((*it)->repoInfo().baseUrlsBegin()));
+                if ((*it)->repoInfo().baseUrlsEmpty())
+                {
+                    y2milestone("Skipping repository '%s' - URL not defined", (*it)->repoInfo().alias().c_str());
+                    continue;
+                }
+
+			    zypp::RepoManager::RefreshCheckStatus ref_stat = repomanager->checkIfToRefreshMetadata((*it)->repoInfo(), (*it)->repoInfo().url());
 
 			    if (ref_stat != zypp::RepoManager::REFRESH_NEEDED)
 			    {
-				y2internal("Skipping repository '%s' - refresh is not needed", (*it)->repoInfo().alias().c_str());
+				y2milestone("Skipping repository '%s' - refresh is not needed", (*it)->repoInfo().alias().c_str());
 				continue;
 			    }
 
@@ -478,7 +490,7 @@ PkgFunctions::SourceStartManager (const YCPBoolean& enable)
 	stages.push_back(_("Refresh Sources"));
 	stages.push_back(_("Rebuild Cache"));
 	stages.push_back(_("Load Data"));
-    
+
 	// 3 steps per repository (download, cache rebuild, load resolvables)
 	pkgprogress.Start(_("Loading the Package Manager..."), stages, _(HelpTexts::load_resolvables));
     }
