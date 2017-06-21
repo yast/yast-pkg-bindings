@@ -230,11 +230,7 @@ PkgFunctions::PkgMediaNames ()
 		    y2warning("Name of repository '%lld' is empty, using URL", index);
 
 		    // use URL as the product name
-		    std::string name;
-		    if ((*repoit)->repoInfo().baseUrlsBegin() != (*repoit)->repoInfo().baseUrlsEnd())
-		    {
-			name = (*repoit)->repoInfo().baseUrlsBegin()->asString();
-		    }
+		    std::string name((*repoit)->repoInfo().url().asString());
 
 		    // use alias if url is unknown
 		    if (name.empty())

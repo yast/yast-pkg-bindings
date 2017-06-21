@@ -283,9 +283,9 @@ PkgFunctions::SourceMediaData (const YCPInteger& id)
     y2warning("Pkg::SourceMediaData() doesn't return \"media_id\" and \"media_vendor\" values anymore.");
 
     // SourceMediaData returns URLs without password
-    if (repo->repoInfo().baseUrlsBegin() != repo->repoInfo().baseUrlsEnd())
+    if (!repo->repoInfo().baseUrlsEmpty())
     {
-	data->add( YCPString("url"),	YCPString(repo->repoInfo().baseUrlsBegin()->asString()));
+	data->add( YCPString("url"),	YCPString(repo->repoInfo().url().asString()));
 
 	// add all base URLs
 	YCPList base_urls;

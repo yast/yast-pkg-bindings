@@ -302,7 +302,7 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
 
     y2milestone("Added source '%s': '%s', enabled: %s, autorefresh: %s",
 	repo.alias().c_str(),
-	repo.baseUrlsBegin()->asString().c_str(),
+	repo.url().asString().c_str(),
 	repo.enabled() ? "true" : "false",
 	repo.autorefresh() ? "true" : "false"
     );

@@ -71,7 +71,7 @@ bool PkgFunctions::LoadResolvablesFrom(YRepo_Ptr repo, const zypp::ProgressData:
     prog.sendTo(progressrcv);
     zypp::CombinedProgressData load_subprogress(prog, 100);
 
-    try 
+    try
     {
 	zypp::RepoManager* repomanager = CreateRepoManager();
 	bool refresh = true;
@@ -84,15 +84,23 @@ bool PkgFunctions::LoadResolvablesFrom(YRepo_Ptr repo, const zypp::ProgressData:
 	    {
 		if (network_check)
 		{
-		    zypp::Url url = *(repoinfo.baseUrlsBegin());
+            if (repoinfo.baseUrlsEmpty())
+            {
+                y2milestone("No URL defined, skipping repository '%s'", repoinfo.alias().c_str());
+                refresh = false;
+            }
+            else
+            {
+                zypp::Url url = repoinfo.url();
 
-		    if (remoteRepo(url) && !NetworkDetected())
-		    {
-			y2warning("No network connection, skipping autorefresh of remote repository %s (%s)",
-			    repoinfo.alias().c_str(), url.asString().c_str());
+                if (remoteRepo(url) && !NetworkDetected())
+                {
+                    y2warning("No network connection, skipping autorefresh of remote repository %s (%s)",
+                    repoinfo.alias().c_str(), url.asString().c_str());
 
-			refresh = false;
-		    }
+                    refresh = false;
+                }
+            }
 		}
 
 		if (refresh)
