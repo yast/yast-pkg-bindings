@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Jun 21 12:16:39 UTC 2017 - lslezak@suse.cz
+
+- Do not crash when the repository URL is not defined (bsc#1043218)
+- 3.2.4
+
+-------------------------------------------------------------------
 Fri Jun  2 08:42:12 UTC 2017 - igonzalezsosa@suse.com
 
 - Fix pkgGpgCheck callback crashing when reporting SrcPackages
