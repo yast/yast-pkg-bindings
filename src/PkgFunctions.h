@@ -732,6 +732,12 @@ class PkgFunctions
 	YCPMap    PkgGetLicensesToConfirm( const YCPList & packages );
 	/* TYPEINFO: string(string)*/
 	YCPBoolean PkgMarkLicenseConfirmed (const YCPString & package);
+	/* TYPEINFO: string(string)*/
+	YCPValue PrdGetLicenseToConfirm (const YCPString& product);
+	/* TYPEINFO: boolean(string)*/
+	YCPBoolean PrdMarkLicenseConfirmed (const YCPString& product);
+	/* TYPEINFO: boolean(string)*/
+	YCPBoolean PrdNeedToAcceptLicense (const YCPString& product);
 
 	/* TYPEINFO: boolean(string)*/
 	YCPBoolean RpmChecksig( const YCPString & filename );
