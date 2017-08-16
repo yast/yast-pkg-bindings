@@ -2764,7 +2764,7 @@ PkgFunctions::PrdGetLicenseToConfirm(const YCPString& product)
    @param string name of a product
    @return boolean true if the license was confirmed.
  */
-YCPBoolean
+YCPValue
 PkgFunctions::PrdMarkLicenseConfirmed(const YCPString& product)
 {
   using zypp::ui::Selectable;
@@ -2792,7 +2792,7 @@ PkgFunctions::PrdMarkLicenseConfirmed(const YCPString& product)
    @param string name of a product
    @return boolean true if the license needs to be accepted.
  */
-YCPBoolean
+YCPValue
 PkgFunctions::PrdNeedToAcceptLicense(const YCPString& product)
 {
   using zypp::ui::Selectable;
