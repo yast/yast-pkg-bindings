@@ -2802,7 +2802,7 @@ PkgFunctions::PrdNeedToAcceptLicense(const YCPString& product)
   if (!selectable)
   {
     y2warning("Product '%s' not found", productName.c_str());
-    return YCPBoolean(false);
+    return YCPVoid();
   }
 
   return YCPBoolean(selectable->candidateObj().needToAcceptLicense());
