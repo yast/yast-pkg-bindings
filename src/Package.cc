@@ -2774,11 +2774,10 @@ PkgFunctions::PrdMarkLicenseConfirmed(const YCPString& product)
   if (!selectable)
   {
     y2warning("Product '%s' not found", productName.c_str());
-    return YCPBoolean(false);
+    return YCPVoid();
   }
 
   if (!selectable->hasLicenceConfirmed()) {
-    y2warning("DEBUG: setLicenceConfirmed");
     selectable->setLicenceConfirmed();
     return YCPBoolean(true);
   } else {
