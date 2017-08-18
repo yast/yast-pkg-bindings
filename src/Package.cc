@@ -2728,6 +2728,87 @@ YCPBoolean PkgFunctions::PkgMarkLicenseConfirmed (const YCPString & package)
     return YCPBoolean( false );
 }
 
+/**
+   @builtin PrdGetLicenseToConfirm
+
+   @short Return the product's license to confirm
+   @param string name of a product
+   @return string license to confirm. It returns the empty string if the license was already
+                  confirmed.
+ */
+YCPValue
+PkgFunctions::PrdGetLicenseToConfirm(const YCPString& product)
+{
+  using zypp::ui::Selectable;
+  std::string productName(product->value());
+  Selectable::Ptr selectable = Selectable::get( zypp::ResKind::product, productName );
+
+  if (!selectable)
+  {
+    y2warning("Product '%s' not found", productName.c_str());
+    return YCPVoid();
+  }
+
+  if (!selectable->hasLicenceConfirmed())
+  {
+    return YCPString(selectable->candidateObj().licenseToConfirm());
+  } else {
+    return YCPString("");
+  }
+}
+
+/**
+   @builtin PrdMarkLicenseConfirmed
+
+   @short Mark a product's license as confirmed
+   @param string name of a product
+   @return boolean true if the license was confirmed.
+ */
+YCPValue
+PkgFunctions::PrdMarkLicenseConfirmed(const YCPString& product)
+{
+  using zypp::ui::Selectable;
+  std::string productName(product->value());
+  Selectable::Ptr selectable = Selectable::get( zypp::ResKind::product, productName );
+
+  if (!selectable)
+  {
+    y2warning("Product '%s' not found", productName.c_str());
+    return YCPVoid();
+  }
+
+  if (!selectable->hasLicenceConfirmed()) {
+    selectable->setLicenceConfirmed();
+    return YCPBoolean(true);
+  } else {
+    return YCPBoolean(false);
+  }
+}
+
+/**
+   @builtin PrdNeedToAcceptLicense
+
+   @short Determines whether a product license needs to be accepted
+   @param string name of a product
+   @return boolean true if the license needs to be accepted.
+ */
+YCPValue
+PkgFunctions::PrdNeedToAcceptLicense(const YCPString& product)
+{
+  using zypp::ui::Selectable;
+  std::string productName(product->value());
+  Selectable::Ptr selectable = Selectable::get( zypp::ResKind::product, productName );
+
+  if (!selectable)
+  {
+    y2warning("Product '%s' not found", productName.c_str());
+    return YCPVoid();
+  }
+
+  return YCPBoolean(selectable->candidateObj().needToAcceptLicense());
+}
+
+
 /****************************************************************************************
  * @builtin RpmChecksig
  * @short Check signature of RPM
