@@ -738,6 +738,8 @@ class PkgFunctions
 	YCPValue PrdMarkLicenseConfirmed (const YCPString& product);
 	/* TYPEINFO: boolean(string)*/
 	YCPValue PrdNeedToAcceptLicense (const YCPString& product);
+	/* TYPEINFO: boolean(string)*/
+	YCPValue PrdHasLicenseConfirmed(const YCPString& product);
 
 	/* TYPEINFO: boolean(string)*/
 	YCPBoolean RpmChecksig( const YCPString & filename );

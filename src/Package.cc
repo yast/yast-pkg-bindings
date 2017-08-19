@@ -736,6 +736,20 @@ static zypp::Package::constPtr find_package(const string &name)
     return NULL;
 }
 
+static zypp::ui::Selectable::Ptr find_selectable_product(const string &name)
+{
+  if (name.empty())
+    return NULL;
+
+  using zypp::ui::Selectable;
+  Selectable::Ptr selectable = Selectable::get( zypp::ResKind::product, name );
+
+  if (!selectable)
+    y2warning("Product '%s' not found", name.c_str());
+
+  return selectable;
+}
+
 /**
    @builtin PkgSummary
 
@@ -2733,8 +2747,7 @@ YCPBoolean PkgFunctions::PkgMarkLicenseConfirmed (const YCPString & package)
 
    @short Return the product's license to confirm
    @param string name of a product
-   @return string license to confirm. It returns the empty string if the license was already
-                  confirmed.
+   @return string license to confirm
  */
 YCPValue
 PkgFunctions::PrdGetLicenseToConfirm(const YCPString& product)
@@ -2749,12 +2762,7 @@ PkgFunctions::PrdGetLicenseToConfirm(const YCPString& product)
     return YCPVoid();
   }
 
-  if (!selectable->hasLicenceConfirmed())
-  {
-    return YCPString(selectable->candidateObj().licenseToConfirm());
-  } else {
-    return YCPString("");
-  }
+  return YCPString(selectable->candidateObj().licenseToConfirm());
 }
 
 /**
@@ -2762,7 +2770,7 @@ PkgFunctions::PrdGetLicenseToConfirm(const YCPString& product)
 
    @short Mark a product's license as confirmed
    @param string name of a product
-   @return boolean true if the license was confirmed.
+   @return boolean true if the license was confirmed
  */
 YCPValue
 PkgFunctions::PrdMarkLicenseConfirmed(const YCPString& product)
@@ -2795,6 +2803,26 @@ PkgFunctions::PrdMarkLicenseConfirmed(const YCPString& product)
 YCPValue
 PkgFunctions::PrdNeedToAcceptLicense(const YCPString& product)
 {
+  zypp::ui::Selectable::Ptr selectable = find_selectable_product(product->value());
+
+  if (!selectable)
+  {
+    return YCPVoid();
+  }
+
+  return YCPBoolean(selectable->candidateObj().needToAcceptLicense());
+}
+
+/**
+   @builtin PrdHasLicenseConfirmed
+
+   @short Product license to confirm
+   @param string name of a product
+   @return boolean true if the license is confirmed
+ */
+YCPValue
+PkgFunctions::PrdHasLicenseConfirmed(const YCPString& product)
+{
   using zypp::ui::Selectable;
   std::string productName(product->value());
   Selectable::Ptr selectable = Selectable::get( zypp::ResKind::product, productName );
@@ -2805,7 +2833,7 @@ PkgFunctions::PrdNeedToAcceptLicense(const YCPString& product)
     return YCPVoid();
   }
 
-  return YCPBoolean(selectable->candidateObj().needToAcceptLicense());
+  return YCPBoolean(selectable->hasLicenceConfirmed());
 }
 
 
