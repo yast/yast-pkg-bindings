@@ -2773,15 +2773,10 @@ PkgFunctions::PrdGetLicenseToConfirm(const YCPString& product, const YCPString& 
 YCPValue
 PkgFunctions::PrdMarkLicenseConfirmed(const YCPString& product)
 {
-  using zypp::ui::Selectable;
-  std::string productName(product->value());
-  Selectable::Ptr selectable = Selectable::get( zypp::ResKind::product, productName );
+  zypp::ui::Selectable::Ptr selectable = find_selectable_product(product->value());
 
   if (!selectable)
-  {
-    y2warning("Product '%s' not found", productName.c_str());
     return YCPVoid();
-  }
 
   if (!selectable->hasLicenceConfirmed()) {
     selectable->setLicenceConfirmed();
@@ -2804,9 +2799,7 @@ PkgFunctions::PrdNeedToAcceptLicense(const YCPString& product)
   zypp::ui::Selectable::Ptr selectable = find_selectable_product(product->value());
 
   if (!selectable)
-  {
     return YCPVoid();
-  }
 
   return YCPBoolean(selectable->candidateObj().needToAcceptLicense());
 }
@@ -2821,15 +2814,10 @@ PkgFunctions::PrdNeedToAcceptLicense(const YCPString& product)
 YCPValue
 PkgFunctions::PrdHasLicenseConfirmed(const YCPString& product)
 {
-  using zypp::ui::Selectable;
-  std::string productName(product->value());
-  Selectable::Ptr selectable = Selectable::get( zypp::ResKind::product, productName );
+  zypp::ui::Selectable::Ptr selectable = find_selectable_product(product->value());
 
   if (!selectable)
-  {
-    y2warning("Product '%s' not found", productName.c_str());
     return YCPVoid();
-  }
 
   return YCPBoolean(selectable->hasLicenceConfirmed());
 }
