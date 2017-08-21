@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Mon Aug 21 07:35:43 UTC 2017 - igonzalezsosa@suse.com
+
+- Add a Pkg.PrdHasLicenseConfirmed (FATE#322276)
+- Pkg.PrdGetLicenseToConfirm always returns the license, no matter
+  whether is confirmed or not
+- Add a second argument to Pkg.PrdGetLicenseToConfirm in order
+  get the license translated to the given language
+- 3.3.1
+
+-------------------------------------------------------------------
 Wed Aug 16 11:20:16 UTC 2017 - igonzalezsosa@suse.com
 
 - Add functions to handle product licenses (FATE#322276)
