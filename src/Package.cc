@@ -48,6 +48,7 @@
 #include <zypp/sat/WhatProvides.h>
 #include <zypp/ZYppFactory.h>
 #include <zypp/repo/PackageProvider.h>
+#include <zypp/Locale.h>
 
 #include <fstream>
 #include <sstream>
@@ -2747,22 +2748,19 @@ YCPBoolean PkgFunctions::PkgMarkLicenseConfirmed (const YCPString & package)
 
    @short Return the product's license to confirm
    @param string name of a product
+   @param string locale code (for instance, "en_US.UTF-8")
    @return string license to confirm
  */
 YCPValue
-PkgFunctions::PrdGetLicenseToConfirm(const YCPString& product)
+PkgFunctions::PrdGetLicenseToConfirm(const YCPString& product, const YCPString& localeCode)
 {
-  using zypp::ui::Selectable;
-  std::string productName(product->value());
-  Selectable::Ptr selectable = Selectable::get( zypp::ResKind::product, productName );
+  zypp::ui::Selectable::Ptr selectable = find_selectable_product(product->value());
+  zypp::Locale locale(localeCode->value());
 
   if (!selectable)
-  {
-    y2warning("Product '%s' not found", productName.c_str());
     return YCPVoid();
-  }
 
-  return YCPString(selectable->candidateObj().licenseToConfirm());
+  return YCPString(selectable->candidateObj().licenseToConfirm(locale));
 }
 
 /**
