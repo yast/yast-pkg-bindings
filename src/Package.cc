@@ -2787,6 +2787,29 @@ PkgFunctions::PrdMarkLicenseConfirmed(const YCPString& product)
 }
 
 /**
+   @builtin PrdUnmarkLicenseConfirmed
+
+   @short Unmark a product's license so it is not confirmed anymore
+   @param string name of a product
+   @return boolean true if the license was unconfirmed
+ */
+YCPValue
+PkgFunctions::PrdMarkLicenseUnconfirmed(const YCPString& product)
+{
+  zypp::ui::Selectable::Ptr selectable = find_selectable_product(product->value());
+
+  if (!selectable)
+    return YCPVoid();
+
+  if (selectable->hasLicenceConfirmed()) {
+    selectable->setLicenceConfirmed(false);
+    return YCPBoolean(true);
+  } else {
+    return YCPBoolean(false);
+  }
+}
+
+/**
    @builtin PrdNeedToAcceptLicense
 
    @short Determines whether a product license needs to be accepted
