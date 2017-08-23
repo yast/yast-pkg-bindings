@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Aug 23 14:24:20 UTC 2017 - igonzalezsosa@suse.com
+
+- Rename PrdMarkLicenseUnconfirmed to PrdMarkLicenseNotConfirmed
+  (FATE#322276)
+- 3.3.2
+
+-------------------------------------------------------------------
 Mon Aug 21 07:35:43 UTC 2017 - igonzalezsosa@suse.com
 
 - Add a Pkg.PrdHasLicenseConfirmed and

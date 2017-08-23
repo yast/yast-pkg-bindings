@@ -2794,7 +2794,7 @@ PkgFunctions::PrdMarkLicenseConfirmed(const YCPString& product)
    @return boolean true if the license was unconfirmed
  */
 YCPValue
-PkgFunctions::PrdMarkLicenseUnconfirmed(const YCPString& product)
+PkgFunctions::PrdMarkLicenseNotConfirmed(const YCPString& product)
 {
   zypp::ui::Selectable::Ptr selectable = find_selectable_product(product->value());
 
