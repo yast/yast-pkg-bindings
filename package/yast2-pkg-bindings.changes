@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Sep 22 07:24:54 UTC 2017 - lslezak@suse.cz
+
+- Keep enabled recommended packages for the next solver runs
+  when doing distribution upgrade (bsc#1059065)
+- 4.0.0
+
+-------------------------------------------------------------------
 Wed Aug 23 14:24:20 UTC 2017 - igonzalezsosa@suse.com
 
 - Rename PrdMarkLicenseUnconfirmed to PrdMarkLicenseNotConfirmed

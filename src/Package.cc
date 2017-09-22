@@ -1470,18 +1470,17 @@ PkgFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_on
 
 /**
  * @builtin PkgUpdateAll
- * @param map<string,any> update_options Options for the solver. All parameters are optional,
- *	if a parameter is missing the default value from the package manager (libzypp) is used.
- *	Currently supported options: <tt>NONE</tt>
+ * @param map<string,any> update_options obsolete, not used anymore
  *
  * @short Update installed packages
  * @description
  * Perform a distribution upgrade. This function solves
  * dependencies.
  *
- * Symbols and integer values returned: <tt>NONE</tt>
+ * Note: Changes the recommended packages solver flag, enables installing
+ * the recommended packages even for the following solver runs.
  *
- * @return map<symbol,integer> summary of the update
+ * @return map<symbol,integer> obsolete, empty map now
  */
 
 YCPValue
@@ -1513,28 +1512,19 @@ PkgFunctions::PkgUpdateAll (const YCPMap& options)
 	y2error("'keep_installed_patches' flag is obsoleted and should not be used, check the code!");
     }
 
-
-    YCPMap data;
-
     try
     {
-	// store the current ignoreAlreadyRecommended flag
-	bool ignore_recommended_bak = zypp_ptr()->resolver()->ignoreAlreadyRecommended();
 	// in full distupgrade enable recommended packages - zypper compatibility
 	y2milestone("Setting ignoreAlreadyRecommended to false");
 	zypp_ptr()->resolver()->setIgnoreAlreadyRecommended(false);
 
 	// solve upgrade, get statistics
 	zypp_ptr()->resolver()->doUpgrade();
-
-	// set the original flag
-	y2milestone("Reverting ignoreAlreadyRecommended to: %s", ignore_recommended_bak ? "true" : "false");
-	zypp_ptr()->resolver()->setIgnoreAlreadyRecommended(ignore_recommended_bak);
     }
     catch (...)
     {}
 
-    return data;
+    return YCPMap();
 }
 
 
