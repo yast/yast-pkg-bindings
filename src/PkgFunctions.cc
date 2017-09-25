@@ -39,6 +39,7 @@
 #include <ycp/YCPList.h>
 
 #include <zypp/ZYppFactory.h>
+#include <zypp/Edition.h>
 
 // sleep
 #include <unistd.h>
@@ -518,4 +519,19 @@ YCPValue PkgFunctions::ExpandedUrl(const YCPString &url)
     zypp::RepoVariablesReplacedUrl replacedUrl;
     replacedUrl.raw() = zypp::Url(url->asString()->value());
     return YCPString(replacedUrl.transformed().asString());
+}
+
+/**
+ * @builtin CompareVersions
+ * @short compares rpm version strings ([epoch:]version[-release])
+ * @param ver1 First version to compare
+ * @param ver2 Second version to compare
+ * @return -1 if ver1 is older; 0 if they are equal; 1 if ver2 is older
+ * @see https://github.com/openSUSE/zypper/blob/42fe3245f32d99ebb2bf643add2964de08fac0de/src/Zypper.cc#L5294
+ */
+YCPInteger PkgFunctions::CompareVersions(const YCPString& ver1, const YCPString& ver2) {
+    zypp::Edition lhs(ver1->asString()->value());
+    zypp::Edition rhs(ver2->asString()->value());
+
+    return lhs.compare(rhs);
 }
