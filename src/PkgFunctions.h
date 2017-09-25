@@ -837,6 +837,9 @@ class PkgFunctions
         YCPValue ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies);
 	YCPValue ResolvableSetPatches(const YCPSymbol& kind_r, bool preselect);
 
+  /* TYPEINFO: int(string, string) */
+  YCPInteger CompareVersions(const YCPString& ver1, const YCPString& ver2);
+
 	/**
 	 * Constructor.
 	 */
