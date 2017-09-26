@@ -8,4 +8,5 @@ before_install:
 script:
   # the "yast-travis-cpp" script is included in the base yastdevel/cpp image
   # see https://github.com/yast/docker-yast-cpp/blob/master/yast-travis-cpp
-  - docker run -it yast-pkg-bindings-image yast-travis-cpp
+  # run additional smoke tests to check the basic functionality
+  - docker run -it yast-pkg-bindings-image bash -c "yast-travis-cpp && ./smoke_test_prepare.sh && ./smoke_test_run.rb"
