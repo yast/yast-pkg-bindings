@@ -732,6 +732,16 @@ class PkgFunctions
 	YCPMap    PkgGetLicensesToConfirm( const YCPList & packages );
 	/* TYPEINFO: string(string)*/
 	YCPBoolean PkgMarkLicenseConfirmed (const YCPString & package);
+	/* TYPEINFO: string(string)*/
+	YCPValue PrdGetLicenseToConfirm (const YCPString& product, const YCPString& localeCode);
+	/* TYPEINFO: boolean(string)*/
+	YCPValue PrdMarkLicenseConfirmed (const YCPString& product);
+	/* TYPEINFO: boolean(string)*/
+	YCPValue PrdMarkLicenseNotConfirmed(const YCPString& product);
+	/* TYPEINFO: boolean(string)*/
+	YCPValue PrdNeedToAcceptLicense (const YCPString& product);
+	/* TYPEINFO: boolean(string)*/
+	YCPValue PrdHasLicenseConfirmed(const YCPString& product);
 
 	/* TYPEINFO: boolean(string)*/
 	YCPBoolean RpmChecksig( const YCPString & filename );
@@ -826,6 +836,9 @@ class PkgFunctions
 
         YCPValue ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies);
 	YCPValue ResolvableSetPatches(const YCPSymbol& kind_r, bool preselect);
+
+  /* TYPEINFO: integer(string, string) */
+  YCPInteger CompareVersions(const YCPString& ver1, const YCPString& ver2);
 
 	/**
 	 * Constructor.

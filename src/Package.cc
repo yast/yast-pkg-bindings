@@ -48,6 +48,7 @@
 #include <zypp/sat/WhatProvides.h>
 #include <zypp/ZYppFactory.h>
 #include <zypp/repo/PackageProvider.h>
+#include <zypp/Locale.h>
 
 #include <fstream>
 #include <sstream>
@@ -734,6 +735,20 @@ static zypp::Package::constPtr find_package(const string &name)
     }
 
     return NULL;
+}
+
+static zypp::ui::Selectable::Ptr find_selectable_product(const string &name)
+{
+  if (name.empty())
+    return NULL;
+
+  using zypp::ui::Selectable;
+  Selectable::Ptr selectable = Selectable::get( zypp::ResKind::product, name );
+
+  if (!selectable)
+    y2warning("Product '%s' not found", name.c_str());
+
+  return selectable;
 }
 
 /**
@@ -1455,18 +1470,17 @@ PkgFunctions::GetPackages(const YCPSymbol& y_which, const YCPBoolean& y_names_on
 
 /**
  * @builtin PkgUpdateAll
- * @param map<string,any> update_options Options for the solver. All parameters are optional,
- *	if a parameter is missing the default value from the package manager (libzypp) is used.
- *	Currently supported options: <tt>NONE</tt>
+ * @param map<string,any> update_options obsolete, not used anymore
  *
  * @short Update installed packages
  * @description
  * Perform a distribution upgrade. This function solves
  * dependencies.
  *
- * Symbols and integer values returned: <tt>NONE</tt>
+ * Note: Changes the recommended packages solver flag, enables installing
+ * the recommended packages even for the following solver runs.
  *
- * @return map<symbol,integer> summary of the update
+ * @return map<symbol,integer> obsolete, empty map now
  */
 
 YCPValue
@@ -1498,28 +1512,19 @@ PkgFunctions::PkgUpdateAll (const YCPMap& options)
 	y2error("'keep_installed_patches' flag is obsoleted and should not be used, check the code!");
     }
 
-
-    YCPMap data;
-
     try
     {
-	// store the current ignoreAlreadyRecommended flag
-	bool ignore_recommended_bak = zypp_ptr()->resolver()->ignoreAlreadyRecommended();
 	// in full distupgrade enable recommended packages - zypper compatibility
 	y2milestone("Setting ignoreAlreadyRecommended to false");
 	zypp_ptr()->resolver()->setIgnoreAlreadyRecommended(false);
 
 	// solve upgrade, get statistics
 	zypp_ptr()->resolver()->doUpgrade();
-
-	// set the original flag
-	y2milestone("Reverting ignoreAlreadyRecommended to: %s", ignore_recommended_bak ? "true" : "false");
-	zypp_ptr()->resolver()->setIgnoreAlreadyRecommended(ignore_recommended_bak);
     }
     catch (...)
     {}
 
-    return data;
+    return YCPMap();
 }
 
 
@@ -2727,6 +2732,109 @@ YCPBoolean PkgFunctions::PkgMarkLicenseConfirmed (const YCPString & package)
 
     return YCPBoolean( false );
 }
+
+/**
+   @builtin PrdGetLicenseToConfirm
+
+   @short Return the product's license to confirm
+   @param string name of a product
+   @param string locale code (for instance, "en_US.UTF-8")
+   @return string license to confirm
+ */
+YCPValue
+PkgFunctions::PrdGetLicenseToConfirm(const YCPString& product, const YCPString& localeCode)
+{
+  zypp::ui::Selectable::Ptr selectable = find_selectable_product(product->value());
+  zypp::Locale locale(localeCode->value());
+
+  if (!selectable)
+    return YCPVoid();
+
+  return YCPString(selectable->candidateObj().licenseToConfirm(locale));
+}
+
+/**
+   @builtin PrdMarkLicenseConfirmed
+
+   @short Mark a product's license as confirmed
+   @param string name of a product
+   @return boolean true if the license was confirmed
+ */
+YCPValue
+PkgFunctions::PrdMarkLicenseConfirmed(const YCPString& product)
+{
+  zypp::ui::Selectable::Ptr selectable = find_selectable_product(product->value());
+
+  if (!selectable)
+    return YCPVoid();
+
+  if (!selectable->hasLicenceConfirmed()) {
+    selectable->setLicenceConfirmed();
+    return YCPBoolean(true);
+  } else {
+    return YCPBoolean(false);
+  }
+}
+
+/**
+   @builtin PrdUnmarkLicenseConfirmed
+
+   @short Unmark a product's license so it is not confirmed anymore
+   @param string name of a product
+   @return boolean true if the license was unconfirmed
+ */
+YCPValue
+PkgFunctions::PrdMarkLicenseNotConfirmed(const YCPString& product)
+{
+  zypp::ui::Selectable::Ptr selectable = find_selectable_product(product->value());
+
+  if (!selectable)
+    return YCPVoid();
+
+  if (selectable->hasLicenceConfirmed()) {
+    selectable->setLicenceConfirmed(false);
+    return YCPBoolean(true);
+  } else {
+    return YCPBoolean(false);
+  }
+}
+
+/**
+   @builtin PrdNeedToAcceptLicense
+
+   @short Determines whether a product license needs to be accepted
+   @param string name of a product
+   @return boolean true if the license needs to be accepted.
+ */
+YCPValue
+PkgFunctions::PrdNeedToAcceptLicense(const YCPString& product)
+{
+  zypp::ui::Selectable::Ptr selectable = find_selectable_product(product->value());
+
+  if (!selectable)
+    return YCPVoid();
+
+  return YCPBoolean(selectable->candidateObj().needToAcceptLicense());
+}
+
+/**
+   @builtin PrdHasLicenseConfirmed
+
+   @short Product license to confirm
+   @param string name of a product
+   @return boolean true if the license is confirmed
+ */
+YCPValue
+PkgFunctions::PrdHasLicenseConfirmed(const YCPString& product)
+{
+  zypp::ui::Selectable::Ptr selectable = find_selectable_product(product->value());
+
+  if (!selectable)
+    return YCPVoid();
+
+  return YCPBoolean(selectable->hasLicenceConfirmed());
+}
+
 
 /****************************************************************************************
  * @builtin RpmChecksig
