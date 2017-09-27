@@ -9,6 +9,7 @@ def builtins
     puts "processing #{source_path}"
     lines.each do |l|
       case l
+      # TODO: add also detection of params and also return type, so generated header is proper one
       when /@builtin/
         puts "found #{l}"
         builtin = l[/@builtin\s+(.*\S)\s*$/, 1]
@@ -40,7 +41,7 @@ File.open(path, "w") do |file|
   file.puts "  class Pkg {"
   file.puts "  public:"
   builtins.sort.each do |builtin|
-    file.puts "void #{builtin}();" # TODO add params
+    file.puts "void #{builtin}();" # TODO: add params
   end
   file.puts "  }"
   file.puts "}"

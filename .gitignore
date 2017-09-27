@@ -26,3 +26,7 @@ Makefile.am.common
 tmp.*
 *.log
 *.m4
+
+/autodocs
+doc/index.md
+doc/yast.h
