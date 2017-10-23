@@ -189,15 +189,21 @@
 	const _cbdata_t::const_iterator tmp1 = _cbdata.find(id_r);
 
 	if (tmp1 == _cbdata.end())
+	{
+	    y2debug ("Callback %s not found", cbName(id_r).c_str());
 	    return NULL;
+	}
+	if (tmp1->second.empty())
+	{
+	    y2debug ("Callback %s is empty", cbName(id_r).c_str());
+	    return NULL;
+	}
 
 	const YCPReference func(tmp1->second.top());
 
 	if (func.isNull() || ! func->isReference())
 	{
-	    // TODO
-//	    ycp2error ("Unexpected function pointer: %s"
-//		, ptr.isNull () ? "NULL" : ptr->toString ().c_str ());
+	    y2debug ("Callback %s is not a func reference", cbName(id_r).c_str());
 	    return NULL;
 	}
 
