@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 23 11:57:37 UTC 2017 - mvidner@suse.com
+
+- Do not crash after a callback is set, unset, then called
+  (bsc#1063459)
+- 4.0.2
+
+-------------------------------------------------------------------
 Mon Sep 25 10:30:05 UTC 2017 - igonzalezsosa@suse.com
 
 - Add a CompareVersions function (related to fate#323273)
