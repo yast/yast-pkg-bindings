@@ -433,7 +433,12 @@ YCPValue PkgFunctions::ServiceRefreshHelper(const YCPString &alias, bool force)
           {
             y2milestone("Refreshing repository: %s", it->alias().c_str());
             // refresh the last added repository
-            SourceRefreshNow(repos.size() - 1);
+
+            YCPValue refreshed = SourceRefreshNow(repos.size() - 1);
+            // return false on refresh failure
+            if (!refreshed.isNull() && refreshed->isBoolean()
+                && !refreshed->asBoolean()->value())
+                return refreshed;
 
             // load resolvables
             PkgProgress pkgprogress(_callbackHandler);
@@ -441,7 +446,9 @@ YCPValue PkgFunctions::ServiceRefreshHelper(const YCPString &alias, bool force)
             progress.sendTo(pkgprogress.Receiver());
             zypp::CombinedProgressData subprogrcv_ref(progress, 20);
 
-            LoadResolvablesFrom(new_repo, subprogrcv_ref);
+            bool loaded = LoadResolvablesFrom(new_repo, subprogrcv_ref);
+            // return false on resolvable load failure
+            if (!loaded) return YCPBoolean(false);
           }
         }
 

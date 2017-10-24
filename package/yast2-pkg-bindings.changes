@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Oct 24 14:51:16 UTC 2017 - lslezak@suse.cz
+
+- Report error when repository refresh fails during a service
+  refresh (bsc#1064210)
+- 4.0.3
+
+-------------------------------------------------------------------
 Mon Oct 23 11:57:37 UTC 2017 - mvidner@suse.com
 
 - Do not crash after a callback is set, unset, then called
