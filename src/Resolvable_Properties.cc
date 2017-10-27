@@ -92,6 +92,8 @@
         + "smolt_urls"
 	+ "register_target"
 	+ "register_release"
+	+ "register_flavor" -> string: kind of the product (module/extension/...)
+        or empty string if not defined
 	+ "flavor"
         + "replaces"
           + "name"
@@ -390,6 +392,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, const std::st
 	// registration data
 	info->add(YCPString("register_target"), YCPString(product->registerTarget()));
 	info->add(YCPString("register_release"), YCPString(product->registerRelease()));
+	info->add(YCPString("register_flavor"), YCPString(product->registerFlavor()));
 	info->add(YCPString("product_line"), YCPString(product->productLine()));
 
 	// Live CD, FTP Edition...

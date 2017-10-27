@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Oct 27 14:40:23 UTC 2017 - lslezak@suse.cz
+
+- Pkg.ResolvableProperties: return the "register_flavor" product
+  property (related to bsc#896224)
+- 4.0.4
+
+-------------------------------------------------------------------
 Tue Oct 24 14:51:16 UTC 2017 - lslezak@suse.cz
 
 - Report error when repository refresh fails during a service
