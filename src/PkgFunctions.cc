@@ -517,5 +517,6 @@ YCPValue PkgFunctions::ExpandedUrl(const YCPString &url)
 
     zypp::RepoVariablesReplacedUrl replacedUrl;
     replacedUrl.raw() = zypp::Url(url->asString()->value());
-    return YCPString(replacedUrl.transformed().asString());
+    // return full URL including the password if present
+    return YCPString(replacedUrl.transformed().asCompleteString());
 }
