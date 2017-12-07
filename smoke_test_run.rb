@@ -71,5 +71,14 @@ raise "Pkg.ResolvableProperties failed!" unless packages
 raise "No package found!" if packages.empty?
 puts "OK (found #{packages.size} packages)"
 
+# make sure no URL part is lost by Pkg.ExpandedUrl call (bsc#1067007)
+puts "Checking Pkg.ExpandedUrl..."
+url = "https://user:pwd@example.com/path?opt=value"
+expanded_url = Yast::Pkg.ExpandedUrl(url)
+if url != expanded_url
+  raise "Unexpected result: #{expanded_url.inspect}, expected #{url.inspect}"
+end
+puts "OK"
+
 # scan y2log for errors
 check_y2log
