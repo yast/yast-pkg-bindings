@@ -34,6 +34,7 @@
 #include <ycp/YCPMap.h>
 
 #include <ycp/Type.h>
+#include <y2util/Y2SLog.h>
 
 #include <zypp/base/Algorithm.h>
 #include <zypp/ResFilters.h>
@@ -118,6 +119,8 @@ PkgFunctions::PkgQueryProvides( const YCPString& tag )
     zypp::Capability cap(name, zypp::ResKind::package);
     zypp::sat::WhatProvides possibleProviders(cap);
 
+    y2milestone("Searching packages providing: %s", name.c_str());
+
     for_(iter, possibleProviders.begin(), possibleProviders.end())
     {
 	zypp::PoolItem provider = zypp::ResPool::instance().find(*iter);
@@ -132,6 +135,8 @@ PkgFunctions::PkgQueryProvides( const YCPString& tag )
 	}
 
 	std::string pkgname = package->name();
+
+        MIL << "Found package: " << package << std::endl;
 
 	// get instance status
 	bool installed = provider.status().staysInstalled();
