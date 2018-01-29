@@ -56,6 +56,22 @@
    @description
    return list of resolvables of selected kind with required name
 
+   **Warning**
+
+   Calling `ResolvableProperties("", :package, "")` variant is memory expansive
+   esp. when there are repositories with too many packages (e.g. the OpenSUSE
+   OSS repository contains ~40,000 packages).
+
+   If you need only packages in a specific state then use `GetPackages()` call
+   instead. If you need more details about the packages then read the details only
+   for that packages using `ResolvableProperties(package_name, :package, "")`.
+   In some cases it is also possible to use the `IsAnyResolvable` call.
+
+   The other resolvable types (e.g. :pattern or :product) do not cause memory
+   problems as there are usually just few items of this type.
+
+   See bsc#106768.
+
    @param name name of the resolvable, if empty returns all resolvables of the kind
    @param kind_r kind of resolvable, can be `product, `patch, `package, `pattern or `language
    @param version version of the resolvable, if empty all versions are returned
