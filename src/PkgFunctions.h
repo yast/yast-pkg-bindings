@@ -279,6 +279,8 @@ class PkgFunctions
       void AddAuthData(zypp::Url url);
       // helper with common code to SourceURL and SourceRawUrl
       YCPValue GetSourceUrl(const YCPInteger& id, bool raw);
+      // helper - convert transaction_by to string
+      std::string TransactToString(zypp::ResStatus::TransactByValue trans);
 
     public:
 	// general

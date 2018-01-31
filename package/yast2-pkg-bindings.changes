@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Jan 31 12:51:57 UTC 2018 - lslezak@suse.cz
+
+- Added "transact_by" key to the PkgPropertiesAll call
+  (improvement for bsc#1077882)
+- 4.0.7
+
+-------------------------------------------------------------------
 Wed Jan 24 11:52:55 UTC 2018 - lslezak@suse.cz
 
 - Log more details in PkgQueryProvides call
