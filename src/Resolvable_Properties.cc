@@ -187,7 +187,7 @@ PkgFunctions::ResolvableDependencies(const YCPString& name, const YCPSymbol& kin
     return ResolvablePropertiesEx (name, kind_r, version, true);
 }
 
-std::string TransactToString(zypp::ResStatus::TransactByValue trans)
+std::string PkgFunctions::TransactToString(zypp::ResStatus::TransactByValue trans)
 {
     std::string ret;
 
