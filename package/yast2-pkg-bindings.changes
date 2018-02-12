@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Feb 12 15:30:32 UTC 2018 - igonzalezsosa@suse.com
+
+- Add a PrdLicenseLocales function to get the list available
+  license translations for a given product (related to
+  FATE#322276).
+- 4.0.8
+
+-------------------------------------------------------------------
 Wed Jan 31 12:51:57 UTC 2018 - lslezak@suse.cz
 
 - Added "transact_by" key to the PkgPropertiesAll call
