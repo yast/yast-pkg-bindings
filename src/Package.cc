@@ -50,6 +50,7 @@
 #include <zypp/ZYppFactory.h>
 #include <zypp/repo/PackageProvider.h>
 #include <zypp/Locale.h>
+#include <zypp/RepoInfo.h>
 
 #include <fstream>
 #include <sstream>
@@ -2841,6 +2842,31 @@ PkgFunctions::PrdHasLicenseConfirmed(const YCPString& product)
   return YCPBoolean(selectable->hasLicenceConfirmed());
 }
 
+YCPValue
+PkgFunctions::PrdLicenseLocales(const YCPString& product)
+{
+  zypp::ui::Selectable::Ptr selectable = find_selectable_product(product->value());
+  YCPList langycplist;
+
+  if (!selectable)
+    return YCPVoid();
+
+  const zypp::RepoInfo & repoinfo(selectable->candidateObj().repoInfo());
+  zypp::LocaleSet lset;
+
+  if (repoinfo.hasLicense(product->value())) {
+    lset = repoinfo.getLicenseLocales(product->value());
+  } else if (repoinfo.hasLicense()) {
+    lset = repoinfo.getLicenseLocales();
+  } else
+    return YCPVoid();
+
+  for (zypp::LocaleSet::const_iterator it = lset.begin(); it != lset.end(); ++it)
+  {
+    langycplist->add(YCPString(it->code()));
+  }
+  return langycplist;
+}
 
 /****************************************************************************************
  * @builtin RpmChecksig
