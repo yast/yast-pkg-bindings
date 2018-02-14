@@ -744,7 +744,7 @@ class PkgFunctions
 	YCPValue PrdNeedToAcceptLicense (const YCPString& product);
 	/* TYPEINFO: boolean(string)*/
 	YCPValue PrdHasLicenseConfirmed(const YCPString& product);
-	/* TYPEINFO: string(string)*/
+	/* TYPEINFO: list<string>(string)*/
 	YCPValue PrdLicenseLocales(const YCPString& product);
 
 	/* TYPEINFO: boolean(string)*/

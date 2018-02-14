@@ -2842,6 +2842,13 @@ PkgFunctions::PrdHasLicenseConfirmed(const YCPString& product)
   return YCPBoolean(selectable->hasLicenceConfirmed());
 }
 
+/**
+ * @builtin PrdLicenseLocales
+ *
+ * @short List of available translations
+ * @param string name of a product
+ * @return YCPValue list of available translations or YCPVoid if the product is not found.
+ */
 YCPValue
 PkgFunctions::PrdLicenseLocales(const YCPString& product)
 {
@@ -2859,7 +2866,7 @@ PkgFunctions::PrdLicenseLocales(const YCPString& product)
   } else if (repoinfo.hasLicense()) {
     lset = repoinfo.getLicenseLocales();
   } else
-    return YCPVoid();
+    return langycplist;
 
   for (zypp::LocaleSet::const_iterator it = lset.begin(); it != lset.end(); ++it)
   {
