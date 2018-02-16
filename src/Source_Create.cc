@@ -575,11 +575,12 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
   PkgProgress pkgprogress(_callbackHandler);
   std::list<std::string> stages;
 
-  // display the scan stage only when needed
-  if (scan)
-  {
-    stages.push_back(_("Search Available Products"));
-  }
+//  // display the scan stage only when needed
+//  if (scan)
+//  {
+  // always scan products - to set the repo alias
+  stages.push_back(_("Search Available Products"));
+//  }
 
   if (source_type->value().empty())
   {
@@ -692,9 +693,31 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
     zypp::CombinedProgressData subprogrcv_create(prg, 80);
     zypp::CombinedProgressData subprogrcv_load(prg, 20);
 
+    zypp::MediaProductSet products;
+    std::string alias = "";
+
+    try {
+	ScanProductsWithCallBacks(url);
+	products = available_products;
+        for( zypp::MediaProductSet::const_iterator it = products.begin();
+	    it != products.end() ; ++it )
+        {
+	    if(it->_dir == pn)
+	    {
+	        alias = it->_name;
+		zypp::str::replaceAll(alias, " ", "-");
+	    }
+	}
+    }
+    catch ( const zypp::Exception& excpt)
+    {
+	// only warning, we still can use the repo from specified dir with generated alias
+	y2warning( "Cannot read the product list from the media" );
+    }
+
     try
     {
-	RepoId new_id = createManagedSource(url, pn, type, "", pkgprogress, subprogrcv_create);
+	RepoId new_id = createManagedSource(url, pn, type, alias, pkgprogress, subprogrcv_create);
 	new_repos.push_back(new_id);
 
 	if (!scan_only)
