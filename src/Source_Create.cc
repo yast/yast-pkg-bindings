@@ -575,12 +575,8 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
   PkgProgress pkgprogress(_callbackHandler);
   std::list<std::string> stages;
 
-//  // display the scan stage only when needed
-//  if (scan)
-//  {
   // always scan products - to set the repo alias
   stages.push_back(_("Search Available Products"));
-//  }
 
   if (source_type->value().empty())
   {
