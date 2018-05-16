@@ -117,13 +117,23 @@ bool ServiceManager::RefreshService(const std::string &alias, zypp::RepoManager 
 	return false;
     }
 
-    if (force)
+    try
     {
-        repomgr.refreshService(serv_it->second, zypp::RepoManager::RefreshService_forceRefresh);
+        if (force)
+        {
+            repomgr.refreshService(serv_it->second, zypp::RepoManager::RefreshService_forceRefresh);
+        }
+        else
+        {
+            repomgr.refreshService(serv_it->second);
+        }
     }
-    else
+    // this is rather a notification from libzypp, not a real exception
+    catch (const zypp::repo::ServicePluginInformalException& excpt)
     {
-        repomgr.refreshService(serv_it->second);
+        y2milestone("Plugin service '%s' (%s) could not be refreshed, skipping it...",
+            alias.c_str(), serv_it->second.url().asString().c_str());
+        return true;
     }
 
     // load the service from disk
