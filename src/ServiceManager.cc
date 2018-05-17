@@ -128,7 +128,8 @@ bool ServiceManager::RefreshService(const std::string &alias, zypp::RepoManager 
             repomgr.refreshService(serv_it->second);
         }
     }
-    // this is rather a notification from libzypp, not a real exception
+    // this is rather a notification from libzypp, not a real exception, see bsc#1086768 and
+    // https://github.com/openSUSE/libzypp/blob/921b2ababb4973b3c99a869529d279b803aab046/zypp/RepoManager.cc#L2090-L2093
     catch (const zypp::repo::ServicePluginInformalException& excpt)
     {
         y2milestone("Plugin service '%s' (%s) could not be refreshed, skipping it...",
