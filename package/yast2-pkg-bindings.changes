@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Wed May 16 16:07:27 UTC 2018 - lslezak@suse.cz
+
+- Ignore notification exception for failed plugin services,
+  avoid errors when refreshing the zypp-plugin-spacewalk service
+  on a system not managed by spacewalk (SUSE Manager)
+  (bsc#1086768)
+- 4.0.10
+
+-------------------------------------------------------------------
 Fri Feb 16 08:01:39 UTC 2018 - jsrain@suse.cz
 
 - always scan media for products to allow media identification
