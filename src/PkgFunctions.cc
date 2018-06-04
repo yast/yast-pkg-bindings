@@ -435,8 +435,8 @@ bool PkgFunctions::RepoManagerUpdateTarget(const std::string& root, const YCPMap
     bool new_target = _target_root != root;
 
     // a repository manager is present and the target has been changed
-    // or there are options to set
-    if ((repo_manager && new_target) || options.size() > 0)
+    // or the repo manager options changed
+    if ((repo_manager && new_target) || options.compare(repo_options) != YO_EQUAL)
     {
         y2milestone("Updating RepoManager (target changed from %s to %s)", _target_root.c_str(), root.c_str());
 
@@ -470,6 +470,9 @@ bool PkgFunctions::RepoManagerUpdateTarget(const std::string& root, const YCPMap
         // replace the old repository manager
         if (repo_manager) delete repo_manager;
         repo_manager = new_repo_manager;
+
+        // remember the repo options for the next time
+        repo_options = options;
     }
 
     // update package cache path for loaded repositories when changing the target
