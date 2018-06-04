@@ -240,6 +240,8 @@ class PkgFunctions
 
       std::vector<zypp::filesystem::TmpDir> tmp_dirs;
 
+      YCPMap repo_options;
+
       /**
        * Logging helper:
        * search for a repository and in case of exception, log error
