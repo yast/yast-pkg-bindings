@@ -324,7 +324,7 @@ void ServiceManager::SavePkgService(PkgService &s_known, zypp::RepoManager &repo
 
     // plugin services cannot be saved, they are provided by a script
     // https://doc.opensuse.org/projects/libzypp/SLE12SP1/zypp-services.html
-    if (s_stored.type() == zypp::repo::ServiceType::PLUGIN)
+    if (s_known.type() == zypp::repo::ServiceType::PLUGIN)
     {
         y2milestone("Not saving a plugin service: %s", orig_alias.c_str());
         return;
