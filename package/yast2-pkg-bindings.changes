@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Jul  4 12:55:04 CEST 2018 - schubi@suse.de
+
+- SavePkgService: Checking if the service file still exists before
+  updating it. Otherwise add the service instead of updating it.
+  (bsc#1097756)
+- 4.0.13
+
+-------------------------------------------------------------------
 Tue Jun 19 13:12:21 UTC 2018 - lslezak@suse.cz
 
 - Do not save plugin service to the target system, it is defined
