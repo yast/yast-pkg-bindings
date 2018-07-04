@@ -336,7 +336,9 @@ void ServiceManager::SavePkgService(PkgService &s_known, zypp::RepoManager &repo
     y2debug("orig_alias: %s", orig_alias.c_str());
 
     // already saved?
-    if (s_stored == zypp::ServiceInfo::noService)
+    // Checking if the service file still exists at all.
+    if (s_stored == zypp::ServiceInfo::noService ||
+        !zypp::PathInfo(s_stored.filepath()).isExist())
     {
         y2milestone("Adding new service %s", alias.c_str());
         // add the service
