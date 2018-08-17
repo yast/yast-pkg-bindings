@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Aug 17 15:36:16 CEST 2018 - schubi@suse.de
+
+- Changed licence to GPL-2.0-only.
+
+-------------------------------------------------------------------
 Wed Jul  4 12:55:04 CEST 2018 - schubi@suse.de
 
 - SavePkgService: Checking if the service file still exists before
