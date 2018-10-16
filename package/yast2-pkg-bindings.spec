@@ -59,3 +59,4 @@ rm -rf %{buildroot}/%{yast_plugindir}/libpy2Pkg.la
 %{yast_plugindir}/libpy2Pkg.so.*
 %{yast_plugindir}/libpy2Pkg.so
 %doc %{yast_docdir}
+%license COPYING
