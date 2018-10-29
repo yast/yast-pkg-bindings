@@ -575,8 +575,6 @@ class PkgFunctions
 	// target related
 	/* TYPEINFO: boolean(string,boolean)*/
 	YCPValue TargetInit (const YCPString& root, const YCPBoolean& unused);
-	/* TYPEINFO: boolean(string)*/
-	YCPValue TargetRebuildInit(const YCPString& root);
         /* TYPEINFO: boolean(string)*/
         YCPValue TargetInitialize (const YCPString& root);
         /* TYPEINFO: boolean(string, map<any,any>)*/
@@ -593,8 +591,6 @@ class PkgFunctions
 	YCPInteger TargetUsed (const YCPString&);
 	/* TYPEINFO: integer(string)*/
 	YCPInteger TargetAvailable (const YCPString&);
-	/* TYPEINFO: integer(string)*/
-	YCPInteger TargetBlockSize (const YCPString&);
 	/* TYPEINFO: boolean(string)*/
 	YCPBoolean TargetInstall (const YCPString&);
 	/* TYPEINFO: boolean(string)*/

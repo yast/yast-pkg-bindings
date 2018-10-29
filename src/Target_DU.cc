@@ -117,24 +117,6 @@ PkgFunctions::TargetAvailable(const YCPString& dir)
     return YCPInteger (avail);
 }
 
-/** ------------------------
- *
- * @builtin TargetBlockSize
- *
- * @short Return block size of partition at directory
- * @param string directory
- * @return integer
- *
- */
-YCPInteger
-PkgFunctions::TargetBlockSize (const YCPString& dir)
-{
-    long long used, size, bsize, avail;
-    get_disk_stats (dir->value().c_str(), &used, &size, &bsize, &avail);
-
-    return YCPInteger (bsize);
-}
-
 // helper funtion
 // initialize the disk usage counter with the current values from the system
 void PkgFunctions::SetCurrentDU()

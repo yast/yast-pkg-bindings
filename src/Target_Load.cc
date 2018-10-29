@@ -126,19 +126,6 @@ PkgFunctions::TargetInit (const YCPString& root, const YCPBoolean & /*unused_and
 
 /** ------------------------
  *
- * @builtin TargetRebuildInit
- * @short Similar to TargetInit, but the RPM DB is rebuilt ('rpm --rebuilddb') before reading it
- * @param string root Root Directory
- * @return boolean
- */
-YCPValue
-PkgFunctions::TargetRebuildInit(const YCPString& root)
-{
-    return TargetInitInternal(root, true);
-}
-
-/** ------------------------
- *
  * @builtin TargetInitialize
  * @short Initialize Target, read the keys.
  * @param string root Root Directory
