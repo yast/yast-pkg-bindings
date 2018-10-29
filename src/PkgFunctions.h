@@ -605,8 +605,6 @@ class PkgFunctions
 	YCPValue TargetInitDU (const YCPList&);
 	/* TYPEINFO: map<string,list<integer>>()*/
 	YCPValue TargetGetDU ();
-	/* TYPEINFO: boolean(string)*/
-	YCPBoolean TargetFileHasOwner (const YCPString&);
 	/* TYPEINFO: boolean(string,symbol)*/
 	YCPBoolean TargetStoreRemove(const YCPString& root, const YCPSymbol& kind_r);
 

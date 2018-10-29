@@ -158,29 +158,6 @@ PkgFunctions::TargetRebuildDB ()
 
 
 /**
-   @builtin TargetFileHasOwner
-
-   @short returns true if the file is owned by a package
-   @param string filepath
-   @return boolean
-*/
-
-YCPBoolean
-PkgFunctions::TargetFileHasOwner (const YCPString& filepath)
-{
-    try
-    {
-	return YCPBoolean (!zypp_ptr()->target()->whoOwnsFile(filepath->value()).empty());
-    }
-    catch (...)
-    {
-    }
-
-    return YCPBoolean(false);
-}
-
-
-/**
    @builtin TargetStoreRemove
 
    @short remove all resolvables from the DB in the target system (removes only metadata in the package manager!)
