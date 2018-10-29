@@ -206,8 +206,6 @@ class PkgFunctions
       // convert MountPointSet to YCP Map
       YCPMap MPS2YCPMap(const zypp::DiskUsageCounter::MountPointSet &mps);
 
-      YCPMap PoolQuery2YCPMap(const zypp::PoolQuery &pool_query);
-
       zypp::Url shortenUrl(const zypp::Url &url);
 
       // convert Exception to string represenatation
@@ -713,13 +711,6 @@ class PkgFunctions
 	YCPValue GetUpgradeRepos();
 	/* TYPEINFO: boolean(integer)*/
 	YCPValue RemoveUpgradeRepo(const YCPInteger &repo);
-
-	/* TYPEINFO: boolean(map<string,any>)*/
-	YCPValue AddLock(const YCPMap &lock);
-	/* TYPEINFO: list<map<string,any>>()*/
-	YCPValue GetLocks();
-	/* TYPEINFO: boolean(integer)*/
-	YCPValue RemoveLock(const YCPInteger &lock_idx);
 
 	/* TYPEINFO: list<list<integer>>()*/
 	YCPValue PkgMediaSizes ();

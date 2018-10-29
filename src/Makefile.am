@@ -32,7 +32,7 @@ libpy2Pkg_la_SOURCES =				\
 	Resolvable_Patches.cc			\
 	Resolvable_Properties.cc		\
 	Target.cc Target_DU.cc Target_Load.cc	\
-	Locale.cc Locks.cc			\
+	Locale.cc 				\
 	Source_Callbacks.cc			\
 	Source_Create.cc			\
 	Source_Download.cc			\
