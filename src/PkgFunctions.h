@@ -755,10 +755,6 @@ class PkgFunctions
 	// architecture related
 	/* TYPEINFO: string()*/
 	YCPValue GetArchitecture();
-	/* TYPEINFO: boolean(string)*/
-	YCPValue SetArchitecture(const YCPString &architecture);
-	/* TYPEINFO: string()*/
-	YCPValue SystemArchitecture();
 
 	/* TYPEINFO: boolean(string,symbol)*/
         YCPValue ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r );
