@@ -1,4 +1,18 @@
 -------------------------------------------------------------------
+Mon Oct 29 16:53:20 UTC 2018 - jreidinger@suse.com
+
+- Drop no longer used methods:
+-- SetArchitecture and SystemArchitecture as only user Product
+   Creator is dropped
+-- AddLock, GetLocks, RemoveLock as it was needed only once for
+   specific architecture that is no longer supported
+-- TargetRebuildInit as recreating rpm database is no longer used
+   during upgrade
+-- TargetFileHasOwner as old workaround for upgrade no longer
+   needed
+-- TargetBlockSize as it is not longer needed to count disk usage
+
+-------------------------------------------------------------------
 Tue Oct 16 15:03:37 CEST 2018 - schubi@suse.de
 
 - Added license file to spec.

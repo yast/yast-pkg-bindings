@@ -31,7 +31,6 @@
 #include <string>
 
 #include <ycp/YCPString.h>
-#include <ycp/YCPBoolean.h>
 
 #include <zypp/ZConfig.h>
 
@@ -50,49 +49,3 @@ PkgFunctions::GetArchitecture()
     y2milestone("Current system architecture: %s", arch.c_str());
     return YCPString(arch);
 }
-
-/**
- * @builtin SetArchitecture
- * @short 
- * @description Change the architecture. The package manager (libzypp)
- * does not expect that the system architecture will change at runtime.
- * It should be set as soon as possible before using other commands.
- * @param string architecture the new architecture, e.g. "i386", "ppc", "s390x"...
- * @return boolean true on success
- */
-YCPValue
-PkgFunctions::SetArchitecture(const YCPString &architecture)
-{
-    std::string arch(architecture->value());
-
-    try
-    {
-	y2warning("Switching architecture to: %s", arch.c_str());
-	zypp::Arch new_arch(arch);
-	zypp::ZConfig::instance().setSystemArchitecture(new_arch);
-    }
-    catch (const zypp::Exception& excpt)
-    {
-	y2error("Switching to architecture %s failed: %s", arch.c_str(), excpt.asString().c_str());
-	_last_error.setLastError(ExceptionAsString(excpt));
-	return YCPBoolean(false);
-    }
-
-    return YCPBoolean(true);
-}
-
-/**
- * @builtin SystemArchitecture
- * @short
- * @description
- * @return string default system architecture for the system
- */
-YCPValue
-PkgFunctions::SystemArchitecture()
-{
-    std::string def_arch(zypp::ZConfig::defaultSystemArchitecture().asString());
-    y2milestone("Default system architecture: %s", def_arch.c_str());
-
-    return YCPString(def_arch);
-}
-

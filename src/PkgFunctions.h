@@ -206,8 +206,6 @@ class PkgFunctions
       // convert MountPointSet to YCP Map
       YCPMap MPS2YCPMap(const zypp::DiskUsageCounter::MountPointSet &mps);
 
-      YCPMap PoolQuery2YCPMap(const zypp::PoolQuery &pool_query);
-
       zypp::Url shortenUrl(const zypp::Url &url);
 
       // convert Exception to string represenatation
@@ -577,8 +575,6 @@ class PkgFunctions
 	// target related
 	/* TYPEINFO: boolean(string,boolean)*/
 	YCPValue TargetInit (const YCPString& root, const YCPBoolean& unused);
-	/* TYPEINFO: boolean(string)*/
-	YCPValue TargetRebuildInit(const YCPString& root);
         /* TYPEINFO: boolean(string)*/
         YCPValue TargetInitialize (const YCPString& root);
         /* TYPEINFO: boolean(string, map<any,any>)*/
@@ -595,8 +591,6 @@ class PkgFunctions
 	YCPInteger TargetUsed (const YCPString&);
 	/* TYPEINFO: integer(string)*/
 	YCPInteger TargetAvailable (const YCPString&);
-	/* TYPEINFO: integer(string)*/
-	YCPInteger TargetBlockSize (const YCPString&);
 	/* TYPEINFO: boolean(string)*/
 	YCPBoolean TargetInstall (const YCPString&);
 	/* TYPEINFO: boolean(string)*/
@@ -607,8 +601,6 @@ class PkgFunctions
 	YCPValue TargetInitDU (const YCPList&);
 	/* TYPEINFO: map<string,list<integer>>()*/
 	YCPValue TargetGetDU ();
-	/* TYPEINFO: boolean(string)*/
-	YCPBoolean TargetFileHasOwner (const YCPString&);
 	/* TYPEINFO: boolean(string,symbol)*/
 	YCPBoolean TargetStoreRemove(const YCPString& root, const YCPSymbol& kind_r);
 
@@ -714,13 +706,6 @@ class PkgFunctions
 	/* TYPEINFO: boolean(integer)*/
 	YCPValue RemoveUpgradeRepo(const YCPInteger &repo);
 
-	/* TYPEINFO: boolean(map<string,any>)*/
-	YCPValue AddLock(const YCPMap &lock);
-	/* TYPEINFO: list<map<string,any>>()*/
-	YCPValue GetLocks();
-	/* TYPEINFO: boolean(integer)*/
-	YCPValue RemoveLock(const YCPInteger &lock_idx);
-
 	/* TYPEINFO: list<list<integer>>()*/
 	YCPValue PkgMediaSizes ();
 	/* TYPEINFO: list<list<integer>>()*/
@@ -755,10 +740,6 @@ class PkgFunctions
 	// architecture related
 	/* TYPEINFO: string()*/
 	YCPValue GetArchitecture();
-	/* TYPEINFO: boolean(string)*/
-	YCPValue SetArchitecture(const YCPString &architecture);
-	/* TYPEINFO: string()*/
-	YCPValue SystemArchitecture();
 
 	/* TYPEINFO: boolean(string,symbol)*/
         YCPValue ResolvableInstall( const YCPString& name_r, const YCPSymbol& kind_r );
