@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Oct 31 11:41:54 UTC 2018 - jreidinger@suse.com
+
+- Fix probing repository with URL including variable (bsc#1090193)
+- 4.1.0
+
+-------------------------------------------------------------------
 Mon Oct 29 16:53:20 UTC 2018 - jreidinger@suse.com
 
 - Drop no longer used methods:
