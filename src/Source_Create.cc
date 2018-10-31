@@ -757,7 +757,7 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
       {
 	    ids->add(YCPInteger(*it));
       }
-    
+
       return ids;
   }
 }
@@ -776,7 +776,7 @@ YCPValue PkgFunctions::RepositoryProbe(const YCPString& url, const YCPString& pr
 
     try
     {
-	zypp::Url probe_url(url->value());
+	zypp::Url probe_url(ExpandedUrl(url)->asString()->value());
 	y2milestone("Probing repository type: '%s'...", probe_url.asString().c_str());
 
 	// add the product directory
