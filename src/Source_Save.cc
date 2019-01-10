@@ -277,6 +277,13 @@ PkgFunctions::SourceFinishAll ()
 
 	// release all services
 	service_manager.Reset();
+
+	if (repo_manager)
+	{
+		y2milestone("Releasing the repo manager...");
+		delete repo_manager;
+		repo_manager = nullptr;
+	}
     }
     catch (zypp::Exception & excpt)
     {
