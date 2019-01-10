@@ -287,6 +287,13 @@ PkgFunctions::SourceFinishAll ()
 
     y2milestone("All sources and services have been unregistered");
 
+    if (repo_manager)
+    {
+      y2milestone("Releasing the repo manager...");
+      delete repo_manager;
+      repo_manager = nullptr;
+    }
+
     return YCPBoolean(true);
 }
 
