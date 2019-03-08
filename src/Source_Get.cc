@@ -166,10 +166,11 @@ PkgFunctions::SourceGeneralData (const YCPInteger& id)
     data->add( YCPString("keeppackages"),	YCPBoolean(repo->repoInfo().keepPackages()));
 
     // handle tribool, return nil for the indeterminate state
-    if (zypp::indeterminate(repo->repoInfo().validRepoSignature()))
+    zypp::TriBool vrs = repo->repoInfo().validRepoSignature();
+    if (zypp::indeterminate(vrs))
         data->add(YCPString("valid_repo_signature"), YCPVoid());
     else
-        data->add(YCPString("valid_repo_signature"), (YCPBoolean(repo->repoInfo().validRepoSignature())));
+        data->add(YCPString("valid_repo_signature"), YCPBoolean((bool)vrs));
 
     // add Repository data
     zypp::Repository repository(zypp::ResPool::instance().reposFind(repo->repoInfo().alias()));
