@@ -215,11 +215,25 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 {
     YCPMap info;
 
-	if (all || attrs->contains(YCPSymbol("name")))
-    	info->add(YCPString("name"), YCPString(item->name()));
+// define some helper macros
+#define ADD_STRING(X, V) \
+	if (all || attrs->contains(YCPSymbol(X))) \
+		info->add(YCPString(X), YCPString(V));
+#define ADD_BOOLEAN(X, V) \
+	if (all || attrs->contains(YCPSymbol(X))) \
+		info->add(YCPString(X), YCPBoolean(V));
+#define ADD_INTEGER(X, V) \
+	if (all || attrs->contains(YCPSymbol(X))) \
+		info->add(YCPString(X), YCPInteger(V));
+#define ADD_SYMBOL(X, V) \
+	if (all || attrs->contains(YCPSymbol(X))) \
+		info->add(YCPSymbol(X), YCPSymbol(V));
+
+	ADD_STRING("name", item->name());
     // complete edition: [epoch:]version[-release]
-	if (all || attrs->contains(YCPSymbol("version")))
-	    info->add(YCPString("version"), YCPString(item->edition().asString()));
+	ADD_STRING("version", item->edition().asString());
+	ADD_STRING("version_version", item->edition().version());
+	ADD_STRING("version_release", item->edition().release());
 
     // parts of the edition
 	if (all || attrs->contains(YCPSymbol("version_epoch")))
@@ -230,15 +244,8 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 			info->add(YCPString("version_epoch"), YCPInteger(item->edition().epoch()));
 	}
 
-	if (all || attrs->contains(YCPSymbol("version_version")))
-    	info->add(YCPString("version_version"), YCPString(item->edition().version()));
-	if (all || attrs->contains(YCPSymbol("version_release")))
- 		info->add(YCPString("version_release"), YCPString(item->edition().release()));
-
-	if (all || attrs->contains(YCPSymbol("arch")))
-    	info->add(YCPString("arch"), YCPString(item->arch().asString()));
-	if (all || attrs->contains(YCPSymbol("description")))
-    	info->add(YCPString("description"), YCPString(item->description()));
+	ADD_STRING("arch", item->arch().asString());
+	ADD_STRING("description", item->description());
 
     std::string resolvable_summary = item->summary();
 	if ((all && !resolvable_summary.empty()) || attrs->contains(YCPSymbol("summary")))
@@ -264,17 +271,12 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 	if (all || attrs->contains(YCPSymbol("transact_by")))
     	info->add(YCPString("transact_by"), YCPSymbol(TransactToString(status.getTransactByValue())));
 
-	if (all || attrs->contains(YCPSymbol("on_system_by_user")))
-	    info->add(YCPString("on_system_by_user"), YCPBoolean(item.satSolvable().onSystemByUser()));
-
-
+	ADD_BOOLEAN("on_system_by_user", item.satSolvable().onSystemByUser());
     // is the resolvable locked? (Locked or Taboo in the UI)
-	if (all || attrs->contains(YCPSymbol("locked")))
-    	info->add(YCPString("locked"), YCPBoolean(status.isLocked()));
+	ADD_BOOLEAN("locked", status.isLocked());
 
     // source
-	if (all || attrs->contains(YCPSymbol("source")))
-    	info->add(YCPString("source"), YCPInteger(logFindAlias(item->repoInfo().alias())));
+	ADD_INTEGER("source", logFindAlias(item->repoInfo().alias()));
 
     // add license info if it is defined
     std::string license = item->licenseToConfirm();
