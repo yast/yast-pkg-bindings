@@ -216,18 +216,24 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
     YCPMap info;
 
 // define some helper macros
-#define ADD_STRING(X, V) \
-	if (all || attrs->contains(YCPSymbol(X))) \
-		info->add(YCPString(X), YCPString(V));
-#define ADD_BOOLEAN(X, V) \
-	if (all || attrs->contains(YCPSymbol(X))) \
-		info->add(YCPString(X), YCPBoolean(V));
-#define ADD_INTEGER(X, V) \
-	if (all || attrs->contains(YCPSymbol(X))) \
-		info->add(YCPString(X), YCPInteger(V));
-#define ADD_SYMBOL(X, V) \
-	if (all || attrs->contains(YCPSymbol(X))) \
-		info->add(YCPSymbol(X), YCPSymbol(V));
+#define ADD_STRING(K, V) \
+	if (all || attrs->contains(YCPSymbol(K))) \
+		info->add(YCPString(K), YCPString(V));
+#define ADD_BOOLEAN(K, V) \
+	if (all || attrs->contains(YCPSymbol(K))) \
+		info->add(YCPString(K), YCPBoolean(V));
+#define ADD_INTEGER(K, V) \
+	if (all || attrs->contains(YCPSymbol(K))) \
+		info->add(YCPString(K), YCPInteger(V));
+#define ADD_SYMBOL(K, V) \
+	if (all || attrs->contains(YCPSymbol(K))) \
+		info->add(YCPString(K), YCPSymbol(V));
+#define ADD_NOT_EMPTY_LIST(K, V) \
+		if ((all && !(V).isEmpty()) || attrs->contains(YCPSymbol(K))) \
+			info->add(YCPString(K), V);
+#define ADD_NOT_EMPTY_STRING(K, V) \
+		if ((all && !(V).empty()) || attrs->contains(YCPSymbol(K))) \
+			info->add(YCPString(K), YCPString(V));
 
 	ADD_STRING("name", item->name());
     // complete edition: [epoch:]version[-release]
@@ -248,8 +254,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 	ADD_STRING("description", item->description());
 
     std::string resolvable_summary = item->summary();
-	if ((all && !resolvable_summary.empty()) || attrs->contains(YCPSymbol("summary")))
-		info->add(YCPString("summary"), YCPString(resolvable_summary));
+	ADD_NOT_EMPTY_STRING("summary", resolvable_summary);
 
     zypp::ResStatus status = item.status();
 
@@ -268,13 +273,10 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 	    info->add(YCPString("status"), YCPSymbol(stat));
 	}
 
-	if (all || attrs->contains(YCPSymbol("transact_by")))
-    	info->add(YCPString("transact_by"), YCPSymbol(TransactToString(status.getTransactByValue())));
-
+	ADD_SYMBOL("transact_by", TransactToString(status.getTransactByValue()));
 	ADD_BOOLEAN("on_system_by_user", item.satSolvable().onSystemByUser());
     // is the resolvable locked? (Locked or Taboo in the UI)
 	ADD_BOOLEAN("locked", status.isLocked());
-
     // source
 	ADD_INTEGER("source", logFindAlias(item->repoInfo().alias()));
 
@@ -286,75 +288,56 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 		info->add(YCPString("license"), YCPString(license));
 	}
 
-	if (all || attrs->contains(YCPSymbol("download_size")))
-    	info->add(YCPString("download_size"), YCPInteger(item->downloadSize()));
-	if (all || attrs->contains(YCPSymbol("inst_size")))
-    	info->add(YCPString("inst_size"), YCPInteger(item->installSize()));
-
-	if (all || attrs->contains(YCPSymbol("medium_nr")))
-    	info->add(YCPString("medium_nr"), YCPInteger(item->mediaNr()));
-	if (all || attrs->contains(YCPSymbol("vendor")))
-    	info->add(YCPString("vendor"), YCPString(item->vendor()));
-
+	ADD_INTEGER("download_size", item->downloadSize());
+	ADD_INTEGER("inst_size", item->installSize());
+	ADD_INTEGER("medium_nr", item->mediaNr());
+	ADD_STRING("vendor", item->vendor());
 
     // package specific info
 	zypp::Package::constPtr pkg = zypp::asKind<zypp::Package>(item.resolvable());
 	if (pkg)
 	{
-	    if (all || attrs->contains(YCPSymbol("kind")))
-			info->add(YCPString("kind"), YCPSymbol("package"));
+		ADD_SYMBOL("kind", "package");
 
 		std::string path = pkg->location().filename().asString();
-	    if ((all && !path.empty()) || attrs->contains(YCPSymbol("path")))
-			info->add(YCPString("path"), YCPString(path));
+		ADD_NOT_EMPTY_STRING("path", path);
 
 		std::string location = pkg->location().filename().basename();
-	    if ((all && !location.empty()) || attrs->contains(YCPSymbol("location")))
-			info->add(YCPString("location"), YCPString(location));
+		ADD_NOT_EMPTY_STRING("location", location);
 	}
 
 	zypp::SrcPackage::constPtr src_pkg = zypp::asKind<zypp::SrcPackage>(item.resolvable());
 	if (src_pkg)
 	{
-	    if (all || attrs->contains(YCPSymbol("kind")))
-			info->add(YCPString("kind"), YCPSymbol("srcpackage"));
+		ADD_SYMBOL("kind", "srcpackage");
 
 		std::string path = src_pkg->location().filename().asString();
-	    if ((all && !path.empty()) || attrs->contains(YCPSymbol("path")))
-			info->add(YCPString("path"), YCPString(path));
+		ADD_NOT_EMPTY_STRING("path", path);
 
 		std::string location = src_pkg->location().filename().basename();
-	    if ((all && !location.empty()) || attrs->contains(YCPSymbol("location")))
-			info->add(YCPString("location"), YCPString(location));
+		ADD_NOT_EMPTY_STRING("location", location);
 
-		if (all || attrs->contains(YCPSymbol("src_type")))
-			info->add(YCPString("src_type"), YCPString(src_pkg->sourcePkgType()));
+		ADD_STRING("src_type", src_pkg->sourcePkgType());
 	}
 
 	zypp::Product::constPtr product = zypp::asKind<zypp::Product>(item.resolvable());
 	if ( product )
 	{
-	    if (all || attrs->contains(YCPSymbol("kind")))
-			info->add(YCPString("kind"), YCPSymbol("product"));
+		ADD_SYMBOL("kind", "product");
 
 		std::string category(product->isTargetDistribution() ? "base" : "addon");
 
-		if (all || attrs->contains(YCPSymbol("category")))
-			info->add(YCPString("category"), YCPString(category));
-		if (all || attrs->contains(YCPSymbol("type")))
-			info->add(YCPString("type"), YCPString(category));
-		if (all || attrs->contains(YCPSymbol("relnotes_url")))
-			info->add(YCPString("relnotes_url"), YCPString(product->releaseNotesUrls().first().asString()));
+		ADD_STRING("category", category);
+		ADD_STRING("type", category);
+		ADD_STRING("relnotes_url", product->releaseNotesUrls().first().asString());
 
 		std::string product_summary = product->summary();
-		if (all || attrs->contains(YCPSymbol("display_name")))
-			info->add(YCPString("display_name"), YCPString(product_summary));
+		ADD_STRING("display_name", product_summary);
 
 		if (all || attrs->contains(YCPSymbol("short_name")))
 		{
 			std::string product_shortname = product->shortName();
-			if (!product_shortname.empty())
-				info->add(YCPString("short_name"), YCPString(product_shortname));
+			ADD_NOT_EMPTY_STRING("short_name", product_shortname)
 			else if (!product_summary.empty())
 				// use summary for the short name if it's defined
 				info->add(YCPString("short_name"), YCPString(product_summary));
@@ -372,48 +355,35 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 		if (all || attrs->contains(YCPSymbol("flags")))
 		{
 			YCPList flags;
-			std::list<std::string> pflags = product->flags();
-			for (std::list<std::string>::const_iterator flag_it = pflags.begin();
-				flag_it != pflags.end(); ++flag_it)
-			{
-				flags->add(YCPString(*flag_it));
-			}
+
+			for (auto const &flag : product->flags())
+				flags->add(YCPString(flag));
+
 			info->add(YCPString("flags"), flags);
 		}
 
 		YCPList extraUrls( asYCPList(product->extraUrls()) );
-		if ((all && !extraUrls.isEmpty()) || attrs->contains(YCPSymbol("extra_urls")))
-			info->add(YCPString("extra_urls"), extraUrls);
+		ADD_NOT_EMPTY_LIST("extra_urls", extraUrls);
 
 		YCPList optionalUrls( asYCPList(product->optionalUrls()) );
-		if ((all && !optionalUrls.isEmpty()) || attrs->contains(YCPSymbol("optional_urls")))
-			info->add(YCPString("optional_urls"), optionalUrls);
+		ADD_NOT_EMPTY_LIST("optional_urls", optionalUrls);
 
 		YCPList registerUrls( asYCPList(product->registerUrls()) );
-		if ((all && !registerUrls.isEmpty()) || attrs->contains(YCPSymbol("register_urls")))
-			info->add(YCPString("register_urls"), registerUrls);
+		ADD_NOT_EMPTY_LIST("register_urls", registerUrls);
 
 		YCPList smoltUrls( asYCPList(product->smoltUrls()));
-		if ((all && !smoltUrls.isEmpty()) || attrs->contains(YCPSymbol("smolt_urls")))
-			info->add(YCPString("smolt_urls"), smoltUrls);
+		ADD_NOT_EMPTY_LIST("smolt_urls", smoltUrls);
 
 		YCPList relNotesUrls(asYCPList(product->releaseNotesUrls()));
-		if ((all && !relNotesUrls.isEmpty()) || attrs->contains(YCPSymbol("relnotes_urls")))
-			info->add(YCPString("relnotes_urls"), relNotesUrls);
+		ADD_NOT_EMPTY_LIST("relnotes_urls", relNotesUrls);
 
 		// registration data
-		if (all || attrs->contains(YCPSymbol("register_target")))
-			info->add(YCPString("register_target"), YCPString(product->registerTarget()));
-		if (all || attrs->contains(YCPSymbol("register_release")))
-			info->add(YCPString("register_release"), YCPString(product->registerRelease()));
-		if (all || attrs->contains(YCPSymbol("register_flavor")))
-			info->add(YCPString("register_flavor"), YCPString(product->registerFlavor()));
-		if (all || attrs->contains(YCPSymbol("product_line")))
-			info->add(YCPString("product_line"), YCPString(product->productLine()));
-
+		ADD_STRING("register_target", product->registerTarget());
+		ADD_STRING("register_release", product->registerRelease());
+		ADD_STRING("register_flavor", product->registerFlavor());
+		ADD_STRING("product_line", product->productLine());
 		// Live CD, FTP Edition...
-		if (all || attrs->contains(YCPSymbol("flavor")))
-			info->add(YCPString("flavor"), YCPString(product->flavor()));
+		ADD_STRING("flavor", product->flavor());
 
 		// get the installed Products it would replace.
 		zypp::Product::ReplacedProducts replaced(product->replacedProducts());
@@ -422,11 +392,8 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 			YCPList rep_prods;
 
 			// add the products to the list
-			for_( it, replaced.begin(), replaced.end() )
+			for (auto const &replacedProduct : replaced)
 			{
-				// The current replaced Product.
-				zypp::Product::constPtr replacedProduct(*it);
-
 				if (!replacedProduct) continue;
 
 				YCPMap rprod;
@@ -436,12 +403,10 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 				rprod->add(YCPString("description"), YCPString(replacedProduct->description()));
 
 				std::string product_summary = replacedProduct->summary();
-				if (product_summary.size() > 0)
-					rprod->add(YCPString("display_name"), YCPString(product_summary));
+				ADD_NOT_EMPTY_STRING("display_name", product_summary);
 
 				std::string product_shortname = replacedProduct->shortName();
-				if (product_shortname.size() > 0)
-					rprod->add(YCPString("short_name"), YCPString(product_shortname));
+				ADD_NOT_EMPTY_STRING("short_name", product_shortname)
 				// use summary for the short name if it's defined
 				else if (product_summary.size() > 0)
 					rprod->add(YCPString("short_name"), YCPString(product_summary));
@@ -461,10 +426,8 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 
 			YCPList upgrade_list;
 
-			for_( upit, productFileData.upgrades().begin(), productFileData.upgrades().end() )
+			for (const auto &upgrade : productFileData.upgrades())
 			{
-				const zypp::parser::ProductFileData::Upgrade & upgrade( *upit );
-
 				YCPMap upgrades;
 				upgrades->add(YCPString("name"), YCPString(upgrade.name()));
 				upgrades->add(YCPString("summary"), YCPString(upgrade.summary()));
@@ -500,9 +463,9 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 					const zypp::str::regex product_file_regex("^/etc/products\\.d/(.*\\.prod)$");
 
 					// find the product file
-					for_(iter, files.begin(), files.end())
+					for(const auto &f : files)
 					{
-						if (zypp::str::regex_match(*iter, what, product_file_regex))
+						if (zypp::str::regex_match(f, what, product_file_regex))
 						{
 							product_file = what[1];
 							break;
@@ -519,58 +482,42 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 			else
 				y2milestone("Found product file %s", product_file.c_str());
 
-			if ((all && !product_file.empty()) || attrs->contains(YCPSymbol("product_file")))			
-				info->add(YCPString("product_file"), YCPString(product_file));
+			ADD_NOT_EMPTY_STRING("product_file", product_file);
 		}
 	}
 
     // pattern specific info
 	zypp::Pattern::constPtr pattern = zypp::asKind<zypp::Pattern>(item.resolvable());
     if (pattern) {
-	    if (all || attrs->contains(YCPSymbol("kind")))
-			info->add(YCPString("kind"), YCPSymbol("pattern"));
+		ADD_SYMBOL("kind", "pattern");
 
-		if (all || attrs->contains(YCPSymbol("category")))
-			info->add(YCPString("category"), YCPString(pattern->category()));
-		if (all || attrs->contains(YCPSymbol("user_visible")))
-			info->add(YCPString("user_visible"), YCPBoolean(pattern->userVisible()));
-		if (all || attrs->contains(YCPSymbol("default")))
-			info->add(YCPString("default"), YCPBoolean(pattern->isDefault()));
-		if (all || attrs->contains(YCPSymbol("icon")))
-			info->add(YCPString("icon"), YCPString(pattern->icon().asString()));
-		if (all || attrs->contains(YCPSymbol("script")))
-			info->add(YCPString("script"), YCPString(pattern->script().asString()));
-		if (all || attrs->contains(YCPSymbol("order")))
-			info->add(YCPString("order"), YCPString(pattern->order()));
+		ADD_STRING("category", pattern->category());
+		ADD_BOOLEAN("user_visible", pattern->userVisible());
+
+		ADD_BOOLEAN("default", pattern->isDefault());
+		ADD_STRING("icon", pattern->icon().asString());
+		ADD_STRING("script", pattern->script().asString());
+		ADD_STRING("order", pattern->order());
     }
 
     // patch specific info
 	zypp::Patch::constPtr patch_ptr = zypp::asKind<zypp::Patch>(item.resolvable());
 	if (patch_ptr)
 	{
-	    if (all || attrs->contains(YCPSymbol("kind")))
-			info->add(YCPString("kind"), YCPSymbol("patch"));
+		ADD_SYMBOL("kind", "patch");
 
-		if (all || attrs->contains(YCPSymbol("interactive")))
-			info->add(YCPString("interactive"), YCPBoolean(patch_ptr->interactive()));
-		if (all || attrs->contains(YCPSymbol("reboot_needed")))
-			info->add(YCPString("reboot_needed"), YCPBoolean(patch_ptr->rebootSuggested()));
-		if (all || attrs->contains(YCPSymbol("relogin_needed")))
-			info->add(YCPString("relogin_needed"), YCPBoolean(patch_ptr->reloginSuggested()));
-		if (all || attrs->contains(YCPSymbol("affects_pkg_manager")))
-			info->add(YCPString("affects_pkg_manager"), YCPBoolean(patch_ptr->restartSuggested()));
-		if (all || attrs->contains(YCPSymbol("is_needed")))
-			info->add(YCPString("is_needed"), YCPBoolean(item.isBroken()));
+		ADD_BOOLEAN("interactive", patch_ptr->interactive());
+		ADD_BOOLEAN("reboot_needed", patch_ptr->rebootSuggested());
+		ADD_BOOLEAN("relogin_needed", patch_ptr->reloginSuggested());
+		ADD_BOOLEAN("affects_pkg_manager", patch_ptr->restartSuggested());
+		ADD_BOOLEAN("is_needed", item.isBroken());
 
         // names and versions of packages, contained in the patch
 		if (all || attrs->contains(YCPSymbol("contents")))
 		{
 			YCPMap contents;
-			zypp::Patch::Contents c( patch_ptr->contents() );
-			for_( it, c.begin(), c.end() )
-			{
-				contents->add (YCPString (it->name()), YCPString (it->edition().c_str()));
-			}
+			for (const auto &res : patch_ptr->contents())
+				contents->add (YCPString (res.name()), YCPString (res.edition().c_str()));
 			info->add(YCPString("contents"), contents);
 		}
     }
@@ -578,29 +525,23 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
     // dependency info
     if (deps || attrs->contains(YCPSymbol("dependencies")))
     {
-		std::set<std::string> _kinds;
-		_kinds.insert("provides");
-		_kinds.insert("prerequires");
-		_kinds.insert("requires");
-		_kinds.insert("conflicts");
-		_kinds.insert("obsoletes");
-		_kinds.insert("recommends");
-		_kinds.insert("suggests");
-		_kinds.insert("enhances");
-		_kinds.insert("supplements");
+		std::set<std::string> _kinds = {
+			"provides", "prerequires", "requires", "conflicts", "obsoletes",
+			"recommends", "suggests", "enhances", "supplements"
+		};
+
 		YCPList ycpdeps;
 		YCPList rawdeps;
-		for (std::set<std::string>::const_iterator kind_it = _kinds.begin();
-			kind_it != _kinds.end(); ++kind_it)
+		for (const auto &kind : _kinds)
 		{
-            zypp::Dep depkind(*kind_it);
+            zypp::Dep depkind(kind);
             zypp::Capabilities deps = item.resolvable()->dep(depkind);
 
             // add raw dependencies
-            for_(it, deps.begin(), deps.end())
+			for (const auto &d : deps)
             {
                 YCPMap rawdep;
-                rawdep->add(YCPString(*kind_it), YCPString(it->asString()));
+                rawdep->add(YCPString(kind), YCPString(d.asString()));
                 rawdeps->add(rawdep);
             }
 
@@ -616,7 +557,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
                     YCPMap ycpdep;
                     ycpdep->add (YCPString ("res_kind"), YCPString (d->kind().asString()));
                     ycpdep->add (YCPString ("name"), YCPString (d->name()));
-                    ycpdep->add (YCPString ("dep_kind"), YCPString (*kind_it));
+                    ycpdep->add (YCPString ("dep_kind"), YCPString (kind));
 
                     if (!ycpdeps.contains(ycpdep))
                         ycpdeps->add (ycpdep);
