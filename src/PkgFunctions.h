@@ -215,7 +215,7 @@ class PkgFunctions
 
       bool CreateBaseProductSymlink();
 
-      YCPMap Resolvable2YCPMap(const zypp::PoolItem &item, const std::string &req_kind, bool dependencies);
+      YCPMap Resolvable2YCPMap(const zypp::PoolItem &item, bool all, bool deps, const YCPList &attrs);
 
       // CommitPolicy used for commit
       zypp::ZYppCommitPolicy *commit_policy;
@@ -766,6 +766,11 @@ class PkgFunctions
 	/* TYPEINFO: boolean(symbol,symbol)*/
 	YCPValue IsAnyResolvable(const YCPSymbol& kind_r, const YCPSymbol& status);
 
+	/* TYPEINFO: list<map<string,any> >(map<symbol,any>, list<symbol>) */
+	YCPValue Resolvables(const YCPMap& filter, const YCPList& attrs);
+	/* TYPEINFO: boolean(map<symbol,any>) */
+	YCPValue AnyResolvable(const YCPMap& filter);
+
 	// keyring related
 	/* TYPEINFO: boolean(string,boolean)*/
 	YCPValue ImportGPGKey(const YCPString& filename, const YCPBoolean& trusted);
@@ -821,7 +826,7 @@ class PkgFunctions
     /* TYPEINFO: boolean(string) */
     YCPValue UrlSchemeIsDownloading(const YCPString &url_scheme);
 
-        YCPValue ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool dependencies);
+	YCPValue ResolvablePropertiesEx(const YCPString& name, const YCPSymbol& kind_r, const YCPString& version, bool all, bool deps, const YCPList &attrs);
 	YCPValue ResolvableSetPatches(const YCPSymbol& kind_r, bool preselect);
 
   /* TYPEINFO: integer(string, string) */

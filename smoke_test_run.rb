@@ -16,7 +16,7 @@ Yast.import "Pkg"
 # to y2log without affecting the return value :-(
 def check_y2log
   y2log = File.read(log_file).split("\n")
-  
+
   # keep only errors and higher
   y2log.select! { |l| l =~ /^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} <[3-5]>/ }
 
@@ -28,7 +28,7 @@ def check_y2log
   # ignore "Can't openfile '/var/lib/zypp/LastDistributionFlavor' for writing"
   # (when running as non-root)
   y2log.reject! { |l| l =~ /\/var\/lib\/zypp\/LastDistributionFlavor/ }
-  
+
   if !y2log.empty?
     puts "Found errors in #{log_file}:"
     puts y2log
@@ -78,6 +78,32 @@ expanded_url = Yast::Pkg.ExpandedUrl(url)
 if url != expanded_url
   raise "Unexpected result: #{expanded_url.inspect}, expected #{url.inspect}"
 end
+puts "OK"
+
+# Check all packages - this expects at least one package is available/installed
+puts "Checking Pkg.Resolvabless..."
+resolvables = Yast::Pkg.Resolvables({kind: :package}, [])
+raise "Pkg.Resolvables failed!" unless resolvables
+raise "No package found!" if resolvables.empty?
+# compare with the old Pkg.ResolvableProperties call
+raise "Different number of packages found!" if packages.size != resolvables.size
+puts "OK (found #{resolvables.size} packages)"
+
+patterns = Yast::Pkg.Resolvables({kind: :pattern}, [:name])
+raise "Pkg.Resolvables failed!" unless patterns
+raise "No pattern found!" if patterns.empty?
+raise "Pattern devel_yast not found" unless patterns.include?("name" => "devel_yast")
+puts "OK (found #{patterns.size} patterns)"
+
+installed_products = Yast::Pkg.Resolvables({kind: :product, status: :installed}, [:name, :display_name])
+available_products = Yast::Pkg.Resolvables({kind: :product, status: :available}, [:name, :display_name])
+selected_products = Yast::Pkg.Resolvables({kind: :product, status: :selected}, [:name, :display_name])
+raise "Pkg.Resolvables failed!" unless patterns
+raise "No installed product found!" if installed_products.empty?
+raise "No available product found!" if available_products.empty?
+raise "A selected product found, nothing should be selected now!" unless selected_products.empty?
+puts "Found #{installed_products.size} installed products: #{installed_products.map{|p| p["display_name"]}}"
+puts "Found #{available_products.size} available products: #{available_products.map{|p| p["display_name"]}}"
 puts "OK"
 
 # scan y2log for errors
