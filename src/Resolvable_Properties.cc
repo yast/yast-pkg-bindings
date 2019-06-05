@@ -441,7 +441,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 
 			info->add(YCPString("upgrades"), upgrade_list);
 		}
-		else
+		else if (all || attrs->contains(YCPSymbol("product_package")))
 		{
 			// get the package
 			zypp::sat::Solvable refsolvable = product->referencePackage();
@@ -472,6 +472,8 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 						}
 					}
 				}
+				else if (attrs->contains(YCPSymbol("product_package")))
+					info->add(YCPString("product_package"), YCPString(""));
 	    	}
 		}
 
@@ -523,7 +525,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
     }
 
     // dependency info
-    if (deps || attrs->contains(YCPSymbol("dependencies")))
+    if (deps || attrs->contains(YCPSymbol("dependencies")) || attrs->contains(YCPSymbol("deps")))
     {
 		std::set<std::string> _kinds = {
 			"provides", "prerequires", "requires", "conflicts", "obsoletes",
@@ -545,6 +547,10 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
                 rawdeps->add(rawdep);
             }
 
+			// do not resolve the "provides", that would resolve to the other packages
+			// providing the same symbol, that's useless
+			if (kind == "provides") continue;
+
             zypp::sat::WhatProvides prv(deps);
 
             // resolve dependencies
@@ -565,10 +571,10 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
             }
 		}
 
-		if (ycpdeps.size() > 0)
+		if (!ycpdeps.isEmpty() || attrs->contains(YCPSymbol("dependencies")))
 			info->add (YCPString ("dependencies"), ycpdeps);
 
-		if (rawdeps.size() > 0)
+		if (!rawdeps.isEmpty() || attrs->contains(YCPSymbol("deps")))
 			info->add (YCPString ("deps"), rawdeps);
     }
 
