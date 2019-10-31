@@ -523,7 +523,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
     }
 
     // dependency info
-    if (deps || attrs->contains(YCPSymbol("dependencies")))
+    if (deps || attrs->contains(YCPSymbol("dependencies")) || attrs->contains(YCPSymbol("deps")))
     {
 		std::set<std::string> _kinds = {
 			"provides", "prerequires", "requires", "conflicts", "obsoletes",
