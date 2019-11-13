@@ -453,7 +453,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 
 				if (refpkg)
 				{
-					info->add(YCPString("product_package"), YCPString(refpkg->name()));
+					ADD_STRING("product_package", refpkg->name());
 
 					// get the package files
 					zypp::Package::FileList files( refpkg->filelist() );
@@ -915,15 +915,26 @@ struct ResolvableFilter
 		if (!status_str.empty()) {
 			zypp::ResStatus status = r.status();
 
-			if (!status.isToBeInstalled() && status_str == "selected")
-				return false;
-			if (!status.isToBeUninstalled() && status_str == "removed")
-				return false;
-			if (!(status.isInstalled() || status.isSatisfied()) && status_str == "installed")
-				return false;
-			// otherwise the resolvable has status available
-			if ((status.isToBeInstalled() || status.isInstalled() || status.isSatisfied()) && status_str == "available")
-				return false;
+			if (status_str == "selected")
+			{
+				if (!status.isToBeInstalled()) return false;
+			}
+			else if (status_str == "installed")
+			{
+				if (!(status.staysInstalled() || status.isSatisfied())) return false;
+			}
+			else if (status_str == "available")
+			{
+				if (!status.staysUninstalled()) return false;
+			}
+			else if (status_str == "removed")
+			{
+				if (!status.isToBeUninstalled()) return false;
+			}
+			else
+			{
+				y2warning("Ignoring unknown status: %s", status_str.c_str());
+			}
 		}
 
 		// check who changed the status
@@ -998,8 +1009,5 @@ YCPValue PkgFunctions::Resolvables(const YCPMap& filter, const YCPList& attrs)
 */
 YCPValue PkgFunctions::AnyResolvable(const YCPMap& filter)
 {
-	for (const auto &r : zypp::ResPool::instance().filter(ResolvableFilter(filter, *this)) )
-		return YCPBoolean(true);
-
-	return YCPBoolean(false);
+	return YCPBoolean(!zypp::ResPool::instance().filter(ResolvableFilter(filter, *this)).empty());
 }
