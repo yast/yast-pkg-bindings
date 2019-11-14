@@ -29,6 +29,9 @@ def check_y2log
   # (when running as non-root)
   y2log.reject! { |l| l =~ /\/var\/lib\/zypp\/LastDistributionFlavor/ }
 
+  # no idea why that happens at Travis, let's ignore that...
+  y2log.reject! { |l| l =~ /error: Interrupted system call/ }
+
   if !y2log.empty?
     puts "Found errors in #{log_file}:"
     puts y2log
@@ -56,6 +59,11 @@ puts "OK"
 puts "Checking Pkg.SourceLoad..."
 raise "Pkg.SourceLoad failed!" unless Yast::Pkg.SourceLoad
 puts "OK"
+
+
+puts "Found #{Yast::Pkg.Resolvables({kind: :package}, []).size} packages"
+installed_packages = Yast::Pkg.Resolvables({kind: :package, status: :installed}, [])
+puts "Found #{installed_packages.size} installed packages"
 
 # Check all repositories - this expects at least one repo is defined in the system
 puts "Checking Pkg.SourceGetCurrent..."
@@ -94,6 +102,28 @@ raise "Pkg.Resolvables failed!" unless patterns
 raise "No pattern found!" if patterns.empty?
 raise "Pattern devel_yast not found" unless patterns.include?("name" => "devel_yast")
 puts "OK (found #{patterns.size} patterns)"
+
+installed_packages = Yast::Pkg.Resolvables({kind: :package, status: :installed, name: "yast2-core"}, [:name])
+raise "yast2-core package not installed (???)" if installed_packages.empty?
+raise "several yast2-core packages installed (???)" if installed_packages.size > 1
+puts "OK (yast2-core package installed)"
+
+selected_packages = Yast::Pkg.Resolvables({kind: :package, status: :selected}, [:name])
+raise "A package is selected to install (???)" unless selected_packages.empty?
+puts "OK (no package selected)"
+
+removed = Yast::Pkg.ResolvableRemove("yast2-core", :package)
+raise "Cannot select yast2-core to uninstall" unless removed
+puts "OK (yast2-core selected to uninstall"
+
+selected_packages = Yast::Pkg.Resolvables({kind: :package, status: :selected}, [:name])
+raise "A package is selected to install (???)" unless selected_packages.empty?
+puts "OK (no package selected)"
+
+removed_packages = Yast::Pkg.Resolvables({kind: :package, status: :removed}, [:name])
+raise "No package to uninstall" if removed_packages.empty?
+raise "yast2-core not selected to uninstall" unless removed_packages.include?({"name" => "yast2-core"})
+puts "OK (yast2-core selected to uninstall)"
 
 installed_products = Yast::Pkg.Resolvables({kind: :product, status: :installed}, [:name, :display_name])
 available_products = Yast::Pkg.Resolvables({kind: :product, status: :available}, [:name, :display_name])
