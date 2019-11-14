@@ -925,7 +925,7 @@ struct ResolvableFilter
 			}
 			else if (status_str == "available")
 			{
-				if (!status.staysUninstalled()) return false;
+				if (!(status.staysUninstalled() || !status.isSatisfied())) return false;
 			}
 			else if (status_str == "removed")
 			{
