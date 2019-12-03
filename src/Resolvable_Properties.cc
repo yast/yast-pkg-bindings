@@ -285,6 +285,9 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
     if ((all && !license.empty()) || attrs->contains(YCPSymbol("license_confirmed")))
 	{
 		info->add(YCPString("license_confirmed"), YCPBoolean(item.status().isLicenceConfirmed()));
+	}
+    if ((all && !license.empty()) || attrs->contains(YCPSymbol("license")))
+	{
 		info->add(YCPString("license"), YCPString(license));
 	}
 
