@@ -95,57 +95,6 @@ namespace ZyppRecipients {
 
 
     ///////////////////////////////////////////////////////////////////
-    // ConvertDbCallback
-    ///////////////////////////////////////////////////////////////////
-    struct ConvertDbReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::ConvertDBReport>
-    {
-	ConvertDbReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
-
-	virtual void reportbegin()
-	{
-	    y2milestone("Convert DB Init Callback");
-	}
-
-	virtual void reportend()
-	{
-	    y2milestone("Convert DB Destroy Callback");
-	}
-
-	virtual void start(zypp::Pathname pname) {
-	    CB callback(ycpcb(YCPCallbacks::CB_StartConvertDb));
-	    if (callback._set) {
-		callback.addStr(pname.asString());
-		callback.evaluate();
-	    }
-	}
-
-	virtual bool progress(int value, zypp::Pathname pth)
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_ProgressConvertDb ) );
-	    if (callback._set) {
-		callback.addInt( value );
-		callback.addStr(pth.asString());
-		callback.evaluate();
-	    }
-
-	    // return default value from the parent class
-	    return zypp::target::rpm::ConvertDBReport::progress(value, pth);
-	}
-
-	virtual void finish(zypp::Pathname path, zypp::target::rpm::ConvertDBReport::Error error, const std::string &reason)
-	{
-	    CB callback( ycpcb( YCPCallbacks::CB_StopConvertDb ) );
-	    if (callback._set) {
-		callback.addInt( error );
-		callback.addStr( reason );
-		callback.evaluate();
-	    }
-	}
-    };
-
-
-
-    ///////////////////////////////////////////////////////////////////
     // RebuildDbCallback
     ///////////////////////////////////////////////////////////////////
     struct RebuildDbReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::RebuildDBReport>
@@ -1845,7 +1794,6 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
   private:
 
     // RRM DB callbacks
-    ZyppRecipients::ConvertDbReceive  _convertDbReceive;
     ZyppRecipients::RebuildDbReceive  _rebuildDbReceive;
 
     // package callbacks
@@ -1885,7 +1833,6 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 
     ZyppReceive( const YCPCallbacks & ycpcb_r, PkgFunctions &pkg)
       : RecipientCtl( ycpcb_r )
-      , _convertDbReceive( *this )
       , _rebuildDbReceive( *this )
       , _installPkgReceive( *this, pkg )
       , _removePkgReceive( *this )
@@ -1905,7 +1852,6 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
       , _authReceive( *this )
     {
 	// connect the receivers
-	_convertDbReceive.connect();
 	_rebuildDbReceive.connect();
 	_installPkgReceive.connect();
 	_removePkgReceive.connect();
@@ -1928,7 +1874,6 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
     virtual ~ZyppReceive()
     {
 	// disconnect the receivers
-	_convertDbReceive.disconnect();
 	_rebuildDbReceive.disconnect();
 	_installPkgReceive.disconnect();
 	_removePkgReceive.disconnect();

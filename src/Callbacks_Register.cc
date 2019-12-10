@@ -226,16 +226,19 @@ YCPValue PkgFunctions::CallbackDoneScanDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_DoneScanDb, args );
 }
 
-
+/** Legacy: Unused since Code12 */
 YCPValue PkgFunctions::CallbackStartConvertDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_StartConvertDb, args );
 }
+/** Legacy: Unused since Code12 */
 YCPValue PkgFunctions::CallbackProgressConvertDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_ProgressConvertDb, args );
 }
+/** Legacy: Unused since Code12 */
 YCPValue PkgFunctions::CallbackNotifyConvertDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_NotifyConvertDb, args );
 }
+/** Legacy: Unused since Code12 */
 YCPValue PkgFunctions::CallbackStopConvertDb( const YCPValue& args ) {
   return SET_YCP_CB( CB_StopConvertDb, args );
 }

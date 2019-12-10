@@ -65,7 +65,7 @@ class PkgFunctions::CallbackHandler::YCPCallbacks
      **/
     enum CBid {
       CB_StartRebuildDb, CB_ProgressRebuildDb, CB_NotifyRebuildDb, CB_StopRebuildDb,
-      CB_StartConvertDb, CB_ProgressConvertDb, CB_NotifyConvertDb, CB_StopConvertDb,
+      /* Legacy: Unused since Code12 */ CB_StartConvertDb, CB_ProgressConvertDb, CB_NotifyConvertDb, CB_StopConvertDb,
       CB_StartScanDb, CB_ProgressScanDb, CB_ErrorScanDb, CB_DoneScanDb,
       CB_StartProvide, CB_ProgressProvide, CB_DoneProvide,
       CB_StartPackage, CB_ProgressPackage, CB_DonePackage,
