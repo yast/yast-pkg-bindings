@@ -568,10 +568,10 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
             }
 		}
 
-		if (ycpdeps.size() > 0)
+		if (ycpdeps.size() > 0 || attrs->contains(YCPSymbol("dependencies")))
 			info->add (YCPString ("dependencies"), ycpdeps);
 
-		if (rawdeps.size() > 0)
+		if (rawdeps.size() > 0 || attrs->contains(YCPSymbol("deps")))
 			info->add (YCPString ("deps"), rawdeps);
     }
 
