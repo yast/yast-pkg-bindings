@@ -180,7 +180,7 @@ PkgFunctions::ResolvableProperties(const YCPString& name, const YCPSymbol& kind_
 	return ResolvablePropertiesEx (name, kind_r, version, true, false, YCPList());
 }
 
-/*
+/**
    @builtin ResolvableDependencies
    @description
    return list of resolvables with dependencies
