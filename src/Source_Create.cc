@@ -516,7 +516,7 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
  * @param string url The media to scan.
  * @optarg string product_dir Restrict scan to a certain InstSrc located in media_url/product_dir.
  *
- * @return integer The source_id of the first InstSrc found on the media.
+ * @return integer The source_id of the first InstSrc found on the media or `-1` if scan failed.
  **/
 YCPValue
 PkgFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
@@ -835,7 +835,7 @@ YCPValue PkgFunctions::RepositoryProbe(const YCPString& url, const YCPString& pr
  * @param string url The media to scan.
  * @optarg string product_dir Restrict scan to a certain InstSrc located in media_url/product_dir.
  *
- * @return list<integer> list of SrcIds (integer).
+ * @return list<integer> list of SrcIds (integer) or `-1` if scan failed.
  **/
 YCPValue
 PkgFunctions::SourceScan (const YCPString& media, const YCPString& pd)
