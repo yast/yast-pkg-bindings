@@ -186,7 +186,7 @@ PkgFunctions::PkgQueryProvides( const YCPString& tag )
 
 ///////////////////////////////////////////////////////////////////
 
-/******************************************************************
+/**
 **
 **
 **	FUNCTION NAME : join
@@ -2875,7 +2875,7 @@ PkgFunctions::PrdLicenseLocales(const YCPString& product)
   return langycplist;
 }
 
-/****************************************************************************************
+/**
  * @builtin RpmChecksig
  * @short Check signature of RPM
  * @param string filename

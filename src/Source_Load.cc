@@ -38,7 +38,7 @@
   Textdomain "pkg-bindings"
 */
 
-/****************************************************************************************
+/**
  * @builtin SourceRestore
  *
  * @short Restore the sources from the persistent store
@@ -139,7 +139,7 @@ PkgFunctions::SourceRestore()
     return YCPBoolean(success);
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceLoad
  *
  * @short Load resolvables from the installation sources
@@ -467,7 +467,7 @@ PkgFunctions::SourceLoadImpl(PkgProgress &progress)
 }
 
 
-/****************************************************************************************
+/**
  * @builtin SourceStartManager
  *
  * @short Start the source manager - restore the sources and load the resolvables
@@ -505,7 +505,7 @@ PkgFunctions::SourceStartManager (const YCPBoolean& enable)
     return ret;
 }
 
-/****************************************************************************************
+/**
  * Helper function
  * @short Start the source manager - restore the sources and load the resolvables
  * @description
@@ -535,7 +535,7 @@ PkgFunctions::SourceStartManagerImpl(const YCPBoolean& enable, PkgProgress &prog
     return success;
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceStartCache
  *
  * @short Make sure the InstSrcManager is up, and return the list of SrcIds.

@@ -311,7 +311,7 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
     return repos.size() - 1;
 }
 
-/****************************************************************************************
+/**
  * @builtin RepositoryAdd
  *
  * @short Register a new repository
@@ -501,7 +501,7 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
     return YCPInteger(repos.size() - 1);
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceCreate
  *
  * @short Create a Source
@@ -762,7 +762,7 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
   }
 }
 
-/****************************************************************************************
+/**
  * @builtin RepositoryProbe
  *
  * @short Probe type of the repository
@@ -818,7 +818,7 @@ YCPValue PkgFunctions::RepositoryProbe(const YCPString& url, const YCPString& pr
 }
 
 
-/****************************************************************************************
+/**
  * @builtin SourceScan
  * @short Scan a Source Media
  * @description
@@ -844,7 +844,7 @@ PkgFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     return SourceCreateEx(media, pd, false, YCPString(""), true);
 }
 
-/****************************************************************************************
+/**
  * @builtin RepositoryScan
  *
  * @short Scan available products in the repository

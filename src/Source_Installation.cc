@@ -198,7 +198,7 @@ bool PkgFunctions::CopyToDir(const std::string &source, const std::string &targe
     return true;
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceCacheCopyTo
  *
  * @short Copy cache data of all installation sources to the target
@@ -265,7 +265,7 @@ PkgFunctions::SourceCacheCopyTo (const YCPString& dir)
 
     return YCPBoolean(true);
 }
-/****************************************************************************************
+/**
  * @builtin SourceMoveDownloadArea
  *
  * @short Move download area of CURL-based sources to specified directory
