@@ -219,7 +219,7 @@ YCPValue PkgFunctions::ServiceGet(const YCPString &alias)
     return ret;
 }
 
-/******************************************************************************
+/**
  * @builtin ServiceURL
  *
  * @short Get full service URL (including password!)

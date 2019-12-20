@@ -78,7 +78,7 @@ bool YcpArgLoad::load( const YCPList & args_r )
   return ret;
 }
 
-/******************************************************************
+/**
 **
 **
 **	FUNCTION NAME : operator<<
@@ -107,7 +107,7 @@ ostream & operator<<( ostream & str, const YcpArgLoad & obj )
   return str << " )";
 }
 
-/******************************************************************
+/**
 **
 **
 **	FUNCTION NAME : asString
@@ -140,7 +140,7 @@ string asString( YCPValueType obj )
   return stringutil::form( "YCPValueType(%d)", obj );
 }
 
-/******************************************************************
+/**
 **
 **
 **	FUNCTION NAME : operator<<
@@ -151,7 +151,7 @@ ostream & operator<<( ostream & str, YCPValueType obj )
   return str << asString( obj );
 }
 
-/******************************************************************
+/**
 **
 **
 **	FUNCTION NAME : asString
@@ -184,7 +184,7 @@ std::string asString( const YCPValue & obj )
   return stringutil::form( "YCPValue(%s)", asString( obj->valuetype() ).c_str() );
 }
 
-/******************************************************************
+/**
 **
 **
 **	FUNCTION NAME : operator<<

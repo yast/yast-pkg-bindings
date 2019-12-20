@@ -45,7 +45,7 @@
   Textdomain "pkg-bindings"
 */
 
-/****************************************************************************************
+/**
  * @builtin SourceGetCurrent
  *
  * @short Return the list of all InstSrc Ids.
@@ -96,7 +96,7 @@ PkgFunctions::SourceGetCurrent (const YCPBoolean& enabled)
 // Query individual sources
 /////////////////////////////////////////////////////////////////////////////////////////
 
-/****************************************************************************************
+/**
  * @builtin SourceGeneralData
  *
  * @short Get general data about the source
@@ -184,7 +184,7 @@ PkgFunctions::SourceGeneralData (const YCPInteger& id)
     return data;
 }
 
-/******************************************************************************
+/**
  * @builtin SourceURL
  *
  * @short Get full source URL, including password
@@ -197,7 +197,7 @@ PkgFunctions::SourceURL (const YCPInteger& id)
     return GetSourceUrl(id, false);
 }
 
-/******************************************************************************
+/**
  * @builtin SourceRawURL
  *
  * @short Get full source raw URL (no variable replacement), including password
@@ -211,7 +211,7 @@ PkgFunctions::SourceRawURL (const YCPInteger& id)
 }
 
 
-/****************************************************************************************
+/**
  * @builtin SourceMediaData
  * @short Return media data about the source
  * @description
@@ -300,7 +300,7 @@ PkgFunctions::SourceMediaData (const YCPInteger& id)
   return data;
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceProductData
  * @short Return Product data about the source
  * @param integer SrcId Specifies the InstSrc to query.
@@ -388,7 +388,7 @@ PkgFunctions::SourceProductData (const YCPInteger& src_id)
     return ret;
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceEditGet
  *
  * @short Get state of Sources

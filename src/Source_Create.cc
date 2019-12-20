@@ -311,7 +311,7 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
     return repos.size() - 1;
 }
 
-/****************************************************************************************
+/**
  * @builtin RepositoryAdd
  *
  * @short Register a new repository
@@ -501,7 +501,7 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
     return YCPInteger(repos.size() - 1);
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceCreate
  *
  * @short Create a Source
@@ -516,7 +516,7 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
  * @param string url The media to scan.
  * @optarg string product_dir Restrict scan to a certain InstSrc located in media_url/product_dir.
  *
- * @return integer The source_id of the first InstSrc found on the media.
+ * @return integer The source_id of the first InstSrc found on the media or `-1` if scan failed.
  **/
 YCPValue
 PkgFunctions::SourceCreate (const YCPString& media, const YCPString& pd)
@@ -762,7 +762,7 @@ PkgFunctions::SourceCreateEx (const YCPString& media, const YCPString& pd, bool 
   }
 }
 
-/****************************************************************************************
+/**
  * @builtin RepositoryProbe
  *
  * @short Probe type of the repository
@@ -818,7 +818,7 @@ YCPValue PkgFunctions::RepositoryProbe(const YCPString& url, const YCPString& pr
 }
 
 
-/****************************************************************************************
+/**
  * @builtin SourceScan
  * @short Scan a Source Media
  * @description
@@ -835,7 +835,7 @@ YCPValue PkgFunctions::RepositoryProbe(const YCPString& url, const YCPString& pr
  * @param string url The media to scan.
  * @optarg string product_dir Restrict scan to a certain InstSrc located in media_url/product_dir.
  *
- * @return list<integer> list of SrcIds (integer).
+ * @return list<integer> list of SrcIds (integer) or `-1` if scan failed.
  **/
 YCPValue
 PkgFunctions::SourceScan (const YCPString& media, const YCPString& pd)
@@ -844,7 +844,7 @@ PkgFunctions::SourceScan (const YCPString& media, const YCPString& pd)
     return SourceCreateEx(media, pd, false, YCPString(""), true);
 }
 
-/****************************************************************************************
+/**
  * @builtin RepositoryScan
  *
  * @short Scan available products in the repository

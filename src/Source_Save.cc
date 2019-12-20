@@ -38,7 +38,7 @@
   Textdomain "pkg-bindings"
 */
 
-/****************************************************************************************
+/**
  * @builtin SourceReleaseAll
  *
  * @short Release all medias hold by all sources
@@ -71,7 +71,7 @@ PkgFunctions::SourceReleaseAll ()
     return YCPBoolean(ret);
 }
 
-/******************************************************************************
+/**
  * @builtin SourceSaveAll
  *
  * @short Save all InstSrces.
@@ -237,7 +237,7 @@ PkgFunctions::SourceSaveAll ()
     return YCPBoolean(ret);
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceFinishAll
  *
  * @short Release all instalation sources

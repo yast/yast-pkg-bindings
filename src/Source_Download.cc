@@ -177,7 +177,7 @@ YCPValue PkgFunctions::SourceProvideFileCommon(const YCPInteger &id,
 }
 
 
-/****************************************************************************************
+/**
  * @builtin SourceProvideFile
  *
  * @short Make a file available at the local filesystem
@@ -197,7 +197,7 @@ PkgFunctions::SourceProvideFile (const YCPInteger& id, const YCPInteger& mid, co
     return SourceProvideFileCommon(id, mid, f, false /*optional*/, false /* signed */, true /* digested, doesn't matter in this case*/);
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceProvideOptionalFile
  *
  * @short Make an optional file available at the local filesystem
@@ -218,7 +218,7 @@ PkgFunctions::SourceProvideOptionalFile (const YCPInteger& id, const YCPInteger&
     return SourceProvideFileCommon(id, mid, f, true /*optional*/, false /* signed */, true /* digested, doesn't matter in this case*/);
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceProvideSignedFile
  *
  * @short Make a signed file available at the local filesystem
@@ -246,7 +246,7 @@ PkgFunctions::SourceProvideSignedFile (const YCPInteger& id, const YCPInteger& m
     return SourceProvideFileCommon(id, mid, f, optional->value() /*optional*/, true /* signed */, false /* not digested = signed*/);
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceProvideDigestedFile
  *
  * @short Make a digested file available at the local filesystem
@@ -274,7 +274,7 @@ PkgFunctions::SourceProvideDigestedFile (const YCPInteger& id, const YCPInteger&
     return SourceProvideFileCommon(id, mid, f, optional->value() /*optional*/, true /* signed */, true /* digested */);
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceProvideDirectory
  * @short make a directory available at the local filesystem
  * @description
@@ -296,7 +296,7 @@ PkgFunctions::SourceProvideDirectory(const YCPInteger& id, const YCPInteger& mid
     return SourceProvideDirectoryInternal(id, mid, d, optional, recursive, false);
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceProvideSignedDirectory
  * @short make a directory available at the local filesystem
  * @description
@@ -438,7 +438,7 @@ PkgFunctions::SourceRefreshHelper (const YCPInteger& id, bool forced)
     return YCPBoolean( true );
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceRefreshNow
  * @short Attempt to immediately refresh a Source
  * @description
@@ -456,7 +456,7 @@ PkgFunctions::SourceRefreshNow (const YCPInteger& id)
     return SourceRefreshHelper(id);
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceForceRefreshNow
  * @short Unconditionally refresh a Source
  * @description

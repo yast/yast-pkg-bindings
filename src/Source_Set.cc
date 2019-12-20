@@ -38,7 +38,7 @@
   Textdomain "pkg-bindings"
 */
 
-/****************************************************************************************
+/**
  * @builtin SourceSetEnabled
  *
  * @short Set the default activation state of an InsrSrc.
@@ -102,7 +102,7 @@ PkgFunctions::SourceSetEnabled (const YCPInteger& id, const YCPBoolean& e)
     return YCPBoolean(success);
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceSetPriority
  *
  * @short Set the repository priority
@@ -136,7 +136,7 @@ PkgFunctions::SourceSetPriority(const YCPInteger& id, const YCPInteger& priority
     return YCPBoolean(true);
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceSetAutorefresh
  *
  * @short Set whether this source should automaticaly refresh it's
@@ -158,7 +158,7 @@ PkgFunctions::SourceSetAutorefresh (const YCPInteger& id, const YCPBoolean& e)
     return YCPBoolean( true );
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceEditSet
  *
  * @short Configure properties of installation sources
@@ -253,7 +253,7 @@ PkgFunctions::SourceEditSet (const YCPList& states)
   return YCPBoolean( !error );
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceChangeUrl
  * @short Change Source URL
  * @description
@@ -304,7 +304,7 @@ PkgFunctions::SourceChangeUrl (const YCPInteger& id, const YCPString& u)
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
-/****************************************************************************************
+/**
  * Pkg::SourceRaisePriority (integer SrcId) -> bool
  *
  * Raise priority of source.
@@ -340,7 +340,7 @@ PkgFunctions::SourceRaisePriority (const YCPInteger& id)
     return YCPBoolean(true);
 }
 
-/****************************************************************************************
+/**
  * Pkg::SourceLowerPriority (integer SrcId) -> void
  *
  * Lower priority of source.
@@ -376,7 +376,7 @@ PkgFunctions::SourceLowerPriority (const YCPInteger& id)
     return YCPBoolean(true);
 }
 
-/****************************************************************************************
+/**
  * @builtin SourceDelete
  * @short Delete a Source
  * @description

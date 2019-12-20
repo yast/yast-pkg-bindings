@@ -39,7 +39,7 @@
   Textdomain "pkg-bindings"
 */
 
-/****************************************************************************************
+/**
  * @builtin ImportGPGKey
  * @short Import a GPG key into the keyring
  * @description
@@ -101,7 +101,7 @@ class PublicKeyAdder : public std::unary_function<const zypp::PublicKey &, void>
 	const bool trusted;
 };
 
-/****************************************************************************************
+/**
  * @builtin GPGKeys
  * @short Read the GPG keys in the package manager keyring
  * @description
@@ -138,7 +138,7 @@ YCPValue PkgFunctions::GPGKeys(const YCPBoolean& trusted)
     }
 }
 
-/****************************************************************************************
+/**
  * @builtin DeleteGPGKey
  * @short Remove the GPG key from the package manager keyring
  * @description
@@ -171,7 +171,7 @@ YCPValue PkgFunctions::DeleteGPGKey(const YCPString& key_id, const YCPBoolean& t
     return YCPBoolean(ret);
 }
 
-/****************************************************************************************
+/**
  * @builtin CheckGPGKeyFile
  * @short Check whether the file contains a valid GPG key
  *
