@@ -406,13 +406,17 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 				rprod->add(YCPString("description"), YCPString(replacedProduct->description()));
 
 				std::string product_summary = replacedProduct->summary();
-				ADD_NOT_EMPTY_STRING("display_name", product_summary);
+				if (!product_summary.empty())
+					rprod->add(YCPString("display_name"), YCPString(product_summary));
 
 				std::string product_shortname = replacedProduct->shortName();
-				ADD_NOT_EMPTY_STRING("short_name", product_shortname)
+				if (!product_shortname.empty())
+					rprod->add(YCPString("short_name"), YCPString(product_shortname));
 				// use summary for the short name if it's defined
-				else if (product_summary.size() > 0)
+				else if (!product_summary.empty())
 					rprod->add(YCPString("short_name"), YCPString(product_summary));
+
+				rep_prods->add(rprod);
 			}
 
 			info->add(YCPString("replaces"), rep_prods);
