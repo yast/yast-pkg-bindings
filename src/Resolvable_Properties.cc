@@ -111,6 +111,8 @@
         + "smolt_urls"
 	+ "register_target"
 	+ "register_release"
+	+ "register_flavor" -> string: kind of the product (module/extension/...)
+        or empty string if not defined
 	+ "flavor"
         + "replaces"
           + "name"
@@ -178,7 +180,7 @@ PkgFunctions::ResolvableProperties(const YCPString& name, const YCPSymbol& kind_
 	return ResolvablePropertiesEx (name, kind_r, version, true, false, YCPList());
 }
 
-/*
+/**
    @builtin ResolvableDependencies
    @description
    return list of resolvables with dependencies
@@ -283,6 +285,9 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
     if ((all && !license.empty()) || attrs->contains(YCPSymbol("license_confirmed")))
 	{
 		info->add(YCPString("license_confirmed"), YCPBoolean(item.status().isLicenceConfirmed()));
+	}
+    if ((all && !license.empty()) || attrs->contains(YCPSymbol("license")))
+	{
 		info->add(YCPString("license"), YCPString(license));
 	}
 
@@ -455,7 +460,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 
 				if (refpkg)
 				{
-					info->add(YCPString("product_package"), YCPString(refpkg->name()));
+					ADD_STRING("product_package", refpkg->name());
 
 					// get the package files
 					zypp::Package::FileList files( refpkg->filelist() );
@@ -525,7 +530,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
     }
 
     // dependency info
-    if (deps || attrs->contains(YCPSymbol("dependencies")))
+    if (deps || attrs->contains(YCPSymbol("dependencies")) || attrs->contains(YCPSymbol("deps")))
     {
 		std::set<std::string> _kinds = {
 			"provides", "prerequires", "requires", "conflicts", "obsoletes",
@@ -567,10 +572,10 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
             }
 		}
 
-		if (ycpdeps.size() > 0)
+		if (ycpdeps.size() > 0 || attrs->contains(YCPSymbol("dependencies")))
 			info->add (YCPString ("dependencies"), ycpdeps);
 
-		if (rawdeps.size() > 0)
+		if (rawdeps.size() > 0 || attrs->contains(YCPSymbol("deps")))
 			info->add (YCPString ("deps"), rawdeps);
     }
 
@@ -917,15 +922,26 @@ struct ResolvableFilter
 		if (!status_str.empty()) {
 			zypp::ResStatus status = r.status();
 
-			if (!status.isToBeInstalled() && status_str == "selected")
-				return false;
-			if (!status.isToBeUninstalled() && status_str == "removed")
-				return false;
-			if (!(status.isInstalled() || status.isSatisfied()) && status_str == "installed")
-				return false;
-			// otherwise the resolvable has status available
-			if ((status.isToBeInstalled() || status.isInstalled() || status.isSatisfied()) && status_str == "available")
-				return false;
+			if (status_str == "selected")
+			{
+				if (!status.isToBeInstalled()) return false;
+			}
+			else if (status_str == "installed")
+			{
+				if (!(status.staysInstalled() || status.isSatisfied())) return false;
+			}
+			else if (status_str == "available")
+			{
+				if (!(status.staysUninstalled() || !status.isSatisfied())) return false;
+			}
+			else if (status_str == "removed")
+			{
+				if (!status.isToBeUninstalled()) return false;
+			}
+			else
+			{
+				y2warning("Ignoring unknown status: %s", status_str.c_str());
+			}
 		}
 
 		// check who changed the status
@@ -1000,8 +1016,5 @@ YCPValue PkgFunctions::Resolvables(const YCPMap& filter, const YCPList& attrs)
 */
 YCPValue PkgFunctions::AnyResolvable(const YCPMap& filter)
 {
-	for (const auto &r : zypp::ResPool::instance().filter(ResolvableFilter(filter, *this)) )
-		return YCPBoolean(true);
-
-	return YCPBoolean(false);
+	return YCPBoolean(!zypp::ResPool::instance().filter(ResolvableFilter(filter, *this)).empty());
 }

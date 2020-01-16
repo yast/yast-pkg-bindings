@@ -1,4 +1,18 @@
 -------------------------------------------------------------------
+Thu Jan 16 08:29:24 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
+
+- Backported some more Pkg.Resolvables() fixes from SLE15-SP2:
+  - Include the "deps" resolvable property even when it is empty
+    (bsc#1159120)
+  - Fixed Pkg.Resolvables() to return the license text when requested
+    (bsc#1158247)
+  - Fixed Pkg.Resolvables() to properly filter by status
+    (related to bsc#1132650)
+  - Returning raw packages dependencies while calling
+    <Y2Packager::Resolvable>.deps (bsc#1132650)
+- 3.2.8
+
+-------------------------------------------------------------------
 Mon Jan 13 12:18:43 UTC 2020 - Petr Pavlu <petr.pavlu@suse.com>
 
 - Fix calculation of replaced products in Pkg.Resolvable2YCPMap()
