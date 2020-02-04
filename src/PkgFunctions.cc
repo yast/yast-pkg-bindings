@@ -61,6 +61,7 @@ const zypp::ResStatus::TransactByValue PkgFunctions::whoWantsIt = zypp::ResStatu
 PkgFunctions::PkgFunctions () :
       _target_root( "/" )
     , _target_loaded(false)
+    , _source_loaded(false)
     , zypp_pointer(NULL)
     , repo_manager(NULL)
     , autorefresh_skipped(false)
