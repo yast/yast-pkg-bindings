@@ -112,7 +112,7 @@ PkgFunctions::SourceRestore()
 			}
 		    }
 		}
-				_source_loaded = true;
+		_source_loaded = true;
 	    }
 	    catch (const zypp::Exception& excpt)
 	    {

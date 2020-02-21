@@ -293,8 +293,8 @@ PkgFunctions::SourceFinishAll ()
     }
 
     y2milestone("All sources and services have been unregistered");
-		// reset the source loaded flag
-		_source_loaded = false;
+    // reset the source loaded flag
+    _source_loaded = false;
 
     return YCPBoolean(true);
 }
