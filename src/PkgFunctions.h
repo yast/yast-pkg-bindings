@@ -83,6 +83,7 @@ class PkgFunctions
 
 	zypp::Pathname _target_root;
 	bool _target_loaded;
+	bool _source_loaded;
 
 	zypp::ZYpp::Ptr zypp_pointer;
 

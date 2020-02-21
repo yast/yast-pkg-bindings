@@ -55,9 +55,9 @@ PkgFunctions::SourceRestore()
     // return value
     bool success = true;
 
-    if (repos.size() > 0)
+    if (_source_loaded)
     {
-	y2warning("Number of registered repositories: %zd, skipping repository load!", repos.size());
+	y2warning("Repositories already loaded, skipping repository load!");
 	return YCPBoolean(success);
     }
 
@@ -112,6 +112,7 @@ PkgFunctions::SourceRestore()
 			}
 		    }
 		}
+		_source_loaded = true;
 	    }
 	    catch (const zypp::Exception& excpt)
 	    {
