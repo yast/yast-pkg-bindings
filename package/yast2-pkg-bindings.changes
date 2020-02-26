@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Feb 26 08:50:50 UTC 2020 - Josef Reidinger <jreidinger@suse.com>
+
+- Fix SourceRestore when some service is defined (bsc#1163081)
+- 4.2.7
+
+-------------------------------------------------------------------
 Thu Feb 20 17:02:03 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
 
 - Removed obsolete zypp::target::rpm::ConvertDBReport callbacks,
