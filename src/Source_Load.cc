@@ -112,7 +112,6 @@ PkgFunctions::SourceRestore()
 			}
 		    }
 		}
-		_source_loaded = true;
 	    }
 	    catch (const zypp::Exception& excpt)
 	    {
@@ -128,6 +127,7 @@ PkgFunctions::SourceRestore()
 	{
 	    repos.push_back(new YRepo(*it));
 	}
+        _source_loaded = true;
     }
     catch (const zypp::Exception& excpt)
     {
