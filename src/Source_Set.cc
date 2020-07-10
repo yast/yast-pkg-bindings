@@ -19,7 +19,6 @@
  */
 
 /*
-   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions for changing properties of a repository 
    Namespace:   Pkg
@@ -226,11 +225,19 @@ PkgFunctions::SourceEditSet (const YCPList& states)
 	repo->repoInfo().setAutorefresh( autorefresh );
     }
 
-    if( !descr->value(YCPString("name")).isNull() && descr->value(YCPString("name"))->isString())
+    if( !descr->value(YCPString("raw_name")).isNull() && descr->value(YCPString("raw_name"))->isString())
     {
 	// rename the source
-        y2debug("set name: %s", descr->value(YCPString("name"))->asString()->value().c_str());
-	repo->repoInfo().setName(descr->value(YCPString("name"))->asString()->value());
+	string raw_name = descr->value(YCPString("raw_name"))->asString()->value();
+	y2debug("set name: %s", raw_name.c_str());
+	repo->repoInfo().setName(raw_name);
+    }
+    else if( !descr->value(YCPString("name")).isNull() && descr->value(YCPString("name"))->isString())
+    {
+	// rename the source
+	string name = descr->value(YCPString("name"))->asString()->value();
+	y2debug("set name: %s", name.c_str());
+	repo->repoInfo().setName(name);
     }
 
     if( !descr->value(YCPString("priority")).isNull() && descr->value(YCPString("priority"))->isInteger())
@@ -238,8 +245,8 @@ PkgFunctions::SourceEditSet (const YCPList& states)
 	unsigned int priority = descr->value(YCPString("priority"))->asInteger()->value();
 
 	// set the priority
-	repo->repoInfo().setPriority(priority);
 	y2debug("set priority: %d", priority);
+	repo->repoInfo().setPriority(priority);
     }
 
     if(!descr->value(YCPString("keeppackages")).isNull() && descr->value(YCPString("keeppackages"))->isBoolean())
@@ -423,5 +430,3 @@ PkgFunctions::SourceDelete (const YCPInteger& id)
 
     return YCPBoolean(success);
 }
-
-

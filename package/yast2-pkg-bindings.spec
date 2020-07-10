@@ -17,7 +17,7 @@
 
 
 Name:           yast2-pkg-bindings
-Version:        4.2.7
+Version:        4.2.8
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -52,7 +52,6 @@ echo "src" > SUBDIRS
 %yast_install
 
 rm -rf %{buildroot}/%{yast_plugindir}/libpy2Pkg.la
-
 
 %files
 %defattr(-,root,root)
