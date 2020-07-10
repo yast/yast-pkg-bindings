@@ -19,7 +19,6 @@
  */
 
 /*
-   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions related to repository registration
    Namespace:   Pkg
@@ -320,8 +319,8 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
  * metadata is not downloaded, use Pkg::SourceRefreshNow() for that. The metadata is also loaded
  * automatically when loading the repository content (Pkg::SourceLoad())
  *
- * @param map map with repository parameters: $[ "enabled" : boolean, "autorefresh" : boolean, "name" : string,
- *   "alias" : string, "base_urls" : list<string>, "check_alias" : boolean, "priority" : integer, "prod_dir" : string, "type" : string ] 
+ * @param map map with repository parameters: $[ "enabled" : boolean, "autorefresh" : boolean, "raw_name" : string, "name" : string,
+ *   "alias" : string, "base_urls" : list<string>, "check_alias" : boolean, "priority" : integer, "prod_dir" : string, "type" : string ]
  * @return integer Repository ID or nil on error
  **/
 YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
@@ -443,8 +442,12 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
     repo.setAlias(alias);
 
 
-    // check name parameter
-    if (!params->value( YCPString("name") ).isNull() && params->value(YCPString("name"))->isString())
+    // check raw_name and name parameter
+    if (!params->value( YCPString("raw_name") ).isNull() && params->value(YCPString("raw_name"))->isString())
+    {
+	repo.setName(params->value(YCPString("raw_name"))->asString()->value());
+    }
+    else if (!params->value( YCPString("name") ).isNull() && params->value(YCPString("name"))->isString())
     {
 	repo.setName(params->value(YCPString("name"))->asString()->value());
     }
@@ -531,6 +534,7 @@ PkgFunctions::SourceCreateBase (const YCPString& media, const YCPString& pd)
   // base product, autoprobe source type
   return SourceCreateEx (media, pd, true, YCPString(""));
 }
+
 
 /**
  * @builtin SourceCreateType
