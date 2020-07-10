@@ -79,6 +79,24 @@ raise "Pkg.ResolvableProperties failed!" unless packages
 raise "No package found!" if packages.empty?
 puts "OK (found #{packages.size} packages)"
 
+# make sure a name without variables stays the same
+puts "Checking Pkg.ExpandedName..."
+name = "YaST"
+expanded_name = Yast::Pkg.ExpandedName(name)
+if name != expanded_name
+  raise "Unexpected result: #{expanded_name.inspect}, expected #{name.inspect}"
+end
+puts "OK"
+
+# make sure a name with variables does not stay the same
+puts "Checking Pkg.ExpandedName..."
+name = "YaST $releasever"
+expanded_name = Yast::Pkg.ExpandedName(name)
+if name == expanded_name
+  raise "Unexpected result: #{expanded_name.inspect} is not expanded"
+end
+puts "OK"
+
 # make sure no URL part is lost by Pkg.ExpandedUrl call (bsc#1067007)
 puts "Checking Pkg.ExpandedUrl..."
 url = "https://user:pwd@example.com/path?opt=value"
