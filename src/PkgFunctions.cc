@@ -19,7 +19,6 @@
  */
 
 /*
-   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions related to error handling
    Namespace:   Pkg
@@ -506,6 +505,22 @@ bool PkgFunctions::SetTarget(const std::string &root, const YCPMap& options)
     return new_target;
 }
 
+
+YCPValue
+PkgFunctions::ExpandedName(const YCPString& name) const
+{
+    if (name.isNull())
+    {
+	y2error("name is nil");
+	return YCPVoid();
+    }
+
+    zypp::RepoVariablesReplacedString replaced_name;
+    replaced_name.raw() = name->value();
+    return YCPString(replaced_name.transformed());
+}
+
+
 /**
  * @builtin ExpandedUrl
  * @short expands the repo variables in the given zypper URL
@@ -520,10 +535,11 @@ YCPValue PkgFunctions::ExpandedUrl(const YCPString &url)
     }
 
     zypp::RepoVariablesReplacedUrl replacedUrl;
-    replacedUrl.raw() = zypp::Url(url->asString()->value());
+    replacedUrl.raw() = zypp::Url(url->value());
     // return full URL including the password if present
     return YCPString(replacedUrl.transformed().asCompleteString());
 }
+
 
 /**
  * @builtin CompareVersions

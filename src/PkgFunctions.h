@@ -19,7 +19,6 @@
  */
 
 /*
-   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Handles Pkg::function (list_of_arguments) calls
    Namespace:   Pkg
@@ -302,6 +301,8 @@ class PkgFunctions
 	YCPValue LastErrorDetails ();
 	/* TYPEINFO: boolean() */
 	YCPValue Connect ();
+	/* TYPEINFO: string(string)*/
+	YCPValue ExpandedName(const YCPString&) const;
 	/* TYPEINFO: string(string)*/
 	YCPValue ExpandedUrl (const YCPString&);
 

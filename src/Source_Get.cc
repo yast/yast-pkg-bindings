@@ -19,7 +19,6 @@
  */
 
 /*
-   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Functions for reading repository properties
    Namespace:   Pkg
@@ -113,6 +112,7 @@ PkgFunctions::SourceGetCurrent (const YCPBoolean& enabled)
  * "raw_url"	: YCPString (without password, but see SourceRawURL, raw URL without variable replacement),
  * "alias"	: YCPString,
  * "name"	: YCPString,
+ * "raw_name"	: YCPString (raw name without variable replacement),
  * "service"	: YCPString, (service to which the repo belongs, empty if there is no service assigned)
  * "keeppackages" : YCPBoolean,
  * "is_update_repo" : YCPBoolean, (true if this is an update repo - this requires loaded objects in pool otherwise the flag is not returned! The value is stored in repo metadata, not in .repo file!)
@@ -148,7 +148,9 @@ PkgFunctions::SourceGeneralData (const YCPInteger& id)
     }
 
     data->add( YCPString("alias"),		YCPString(repo->repoInfo().alias()));
+
     data->add( YCPString("name"),		YCPString(repo->repoInfo().name()));
+    data->add( YCPString("raw_name"),		YCPString(repo->repoInfo().rawName()));
 
     YCPList base_urls;
     for( zypp::RepoInfo::urls_const_iterator it = repo->repoInfo().baseUrlsBegin(); it != repo->repoInfo().baseUrlsEnd(); ++it)
@@ -400,6 +402,7 @@ PkgFunctions::SourceProductData (const YCPInteger& src_id)
  * "enabled"	: YCPBoolean,
  * "autorefresh": YCPBoolean,
  * "name"	: YCPString,
+ * "raw_name"	: YCPString,
  * "service"	: YCPString,
  * "keeppackages" : YCPBoolean,
  * ];
@@ -424,6 +427,7 @@ PkgFunctions::SourceEditGet ()
 	    // Note: autorefresh() is tribool
 	    src_map->add(YCPString("autorefresh"), YCPBoolean((*it)->repoInfo().autorefresh()));
 	    src_map->add(YCPString("name"), YCPString((*it)->repoInfo().name()));
+	    src_map->add(YCPString("raw_name"), YCPString((*it)->repoInfo().rawName()));
 	    src_map->add(YCPString("priority"), YCPInteger((*it)->repoInfo().priority()));
 	    src_map->add(YCPString("service"), YCPString((*it)->repoInfo().service()));
 	    src_map->add(YCPString("keeppackages"), YCPBoolean((*it)->repoInfo().keepPackages()));
