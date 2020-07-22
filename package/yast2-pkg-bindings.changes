@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Dec 01 16:02:16 CEST 2020 - aschnell@suse.com
+
+- Expand URL when libzypp expects an expanded URL. Fixes weird zypp
+  repository name generated during installation. (bsc#1173509)
+- 4.2.13
+
+-------------------------------------------------------------------
 Mon Nov  2 12:38:28 CET 2020 - schubi@suse.de
 
 - Removed zypp::IdString conversion from vendor string.

@@ -62,7 +62,7 @@ void PkgFunctions::ScanProductsWithCallBacks(const zypp::Url &url)
     try
     {
 	available_products.clear();
-	zypp::productsInMedia(url, available_products);
+	zypp::productsInMedia(ExpandedUrl(url), available_products);
     }
     catch(...)
     {
