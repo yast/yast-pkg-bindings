@@ -19,7 +19,6 @@
  */
 
 /*
-   File:	$Id$
    Author:	Ladislav Slezák <lslezak@novell.com>
    Summary:     Callbacks functions related to repository registration
    Namespace:   Pkg
@@ -162,7 +161,7 @@ zypp::repo::RepoType PkgFunctions::ProbeWithCallbacks(const zypp::Url &url)
     {
 	// probe type of the repository 
 	zypp::RepoManager* repomanager = CreateRepoManager();
-	repotype = repomanager->probe(url);
+	repotype = repomanager->probe(ExpandedUrl(url));
     }
     catch(...)
     {

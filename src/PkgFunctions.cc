@@ -516,9 +516,15 @@ PkgFunctions::ExpandedName(const YCPString& name) const
 	return YCPVoid();
     }
 
+    return YCPString(ExpandedName(name->value()));
+}
+
+
+string PkgFunctions::ExpandedName(const string& name) const
+{
     zypp::RepoVariablesReplacedString replaced_name;
-    replaced_name.raw() = name->value();
-    return YCPString(replaced_name.transformed());
+    replaced_name.raw() = name;
+    return replaced_name.transformed();
 }
 
 
@@ -535,10 +541,16 @@ YCPValue PkgFunctions::ExpandedUrl(const YCPString &url)
         return YCPVoid();
     }
 
-    zypp::RepoVariablesReplacedUrl replacedUrl;
-    replacedUrl.raw() = zypp::Url(url->value());
     // return full URL including the password if present
-    return YCPString(replacedUrl.transformed().asCompleteString());
+    return YCPString(ExpandedUrl(zypp::Url(url->value())).asCompleteString());
+}
+
+
+zypp::Url PkgFunctions::ExpandedUrl(const zypp::Url& url) const
+{
+    zypp::RepoVariablesReplacedUrl replacedUrl;
+    replacedUrl.raw() = url;
+    return replacedUrl.transformed();
 }
 
 

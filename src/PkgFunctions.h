@@ -850,5 +850,9 @@ class PkgFunctions
 	RepoId LastReportedRepo() const;
 	int LastReportedMedium() const;
 	void SetReportedSource(RepoId repo, int medium);
+
+    string ExpandedName(const string&) const;
+    zypp::Url ExpandedUrl(const zypp::Url&) const;
+
 };
 #endif // PkgFunctions_h
