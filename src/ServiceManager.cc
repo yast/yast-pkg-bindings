@@ -19,6 +19,7 @@
  */
 
 #include <ostream>
+#include <fstream>
 
 #include "log.h"
 #include "ServiceManager.h"
@@ -332,14 +333,21 @@ void ServiceManager::SavePkgService(PkgService &s_known, zypp::RepoManager &repo
 
     DBG << "Known Service: " << s_known << std::endl;
     DBG << "Stored Service: " << s_stored << std::endl;
+    DBG << "orig_alias: " << orig_alias.c_str() << std::endl;
+    zypp::Pathname file_path = s_stored.filepath();
+    DBG << "Service file exists: " << zypp::PathInfo(file_path).isExist() << std::endl;
 
-    y2debug("orig_alias: %s", orig_alias.c_str());
-
-    // already saved?
-    // Checking if the service file still exists at all.
-    if (s_stored == zypp::ServiceInfo::noService ||
-        !zypp::PathInfo(s_stored.filepath()).isExist())
+    // already defined?
+    if (s_stored == zypp::ServiceInfo::noService)
     {
+        // remove the file if it already exists
+        // (a corner case, the libzypp loaded is data out of sync with the disk content)
+        if (zypp::PathInfo(file_path).isExist())
+        {
+            MIL << "removing file " << file_path << std::endl;
+            zypp::filesystem::unlink(file_path);
+        }
+
         y2milestone("Adding new service %s", alias.c_str());
         // add the service
         repomgr.addService(s_known);
@@ -348,6 +356,17 @@ void ServiceManager::SavePkgService(PkgService &s_known, zypp::RepoManager &repo
     }
     else
     {
+        // create the file if it is missing
+        // (a corner case, the libzypp loaded is data out of sync with the disk content)
+        if (!zypp::PathInfo(file_path).isExist())
+        {
+            MIL << "creating file " << file_path << std::endl;
+            std::ofstream srv_stream;
+            srv_stream.open(file_path.asString());
+            s_known.dumpAsIniOn(srv_stream);
+            srv_stream.close();
+        }
+
         y2milestone("Saving service %s", alias.c_str());
         // use the old alias
         repomgr.modifyService(orig_alias, s_known);

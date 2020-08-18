@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Aug 17 07:23:30 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
+
+- Fixed migration from SLE-HPC-12 with activated HPC module to
+  SLE15-SP2 (fixed saving service files) (bsc#1171977)
+- 4.2.9
+
+-------------------------------------------------------------------
 Fri Jul 10 09:24:53 CEST 2020 - aschnell@suse.com
 
 - Extensions to handle raw repository name (bsc#1172477)
