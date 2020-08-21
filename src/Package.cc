@@ -80,8 +80,14 @@ namespace zypp {
 // ------------------------
 /**
  *  @builtin PkgQueryProvides
- *  @short List all package instances providing 'tag'
+ *  @short [OBSOLETE] List all package instances providing 'tag'
  *  @description
+ *
+ *  **Obsolete**
+ *
+ *  This call is obsolete, use `Resolvables()` call instead, it can
+ *  use also the other RPM dependencies and allows using regexps.
+ *
  *  A package instance is itself a list of three items:
  *
  *  - string name: The package name
@@ -114,6 +120,9 @@ namespace zypp {
 YCPList
 PkgFunctions::PkgQueryProvides( const YCPString& tag )
 {
+	y2warning("Pkg::PkgQueryProvides() is obsolete.");
+	y2warning("Use Pkg::Resolvables({provides: ...}, [...]) instead.");
+
     YCPList ret;
     std::string name = tag->value();
 
