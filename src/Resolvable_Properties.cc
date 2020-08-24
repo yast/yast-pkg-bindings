@@ -1095,7 +1095,7 @@ private:
 		 obsoletes_regexp: "^yast2-config-"
 		 supplements_regexp: "^autoyast\\(.*\\)"
 
-	 You can pass several depency filters, in that case the result is logical AND,
+	 You can pass several dependency filters, in that case the result is logical AND,
 	 i.e. all required dependency filters must match.
 */
 YCPValue PkgFunctions::Resolvables(const YCPMap& filter, const YCPList& attrs)
