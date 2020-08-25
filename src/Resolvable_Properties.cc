@@ -1072,10 +1072,11 @@ private:
 
 /**
    @builtin Resolvables
-   @short Is there any resolvable matching the input filter?
+   @short Return resolvables matching the input filter, if the regexp is invalid
+	   (for example by confusing it with a shell pattern), nil is returned.
    @param map filter
    @param list attrs the list of required attributes
-   @return boolean true if a resolvable was found, false otherwise, nil
+   @return list list of found resolvables (maps), nil
 	   if an error occurred (call Pkg.LastError() to get the details)
 
    See the ResolvableProperties() call for the accepted filtering keys
@@ -1120,7 +1121,8 @@ YCPValue PkgFunctions::Resolvables(const YCPMap& filter, const YCPList& attrs)
 
 /**
    @builtin AnyResolvable
-   @short Is there any resolvable matching the input filter?
+   @short Is there any resolvable matching the input filter? If the regexp is invalid
+	   (for example by confusing it with a shell pattern), nil is returned.
    @param map filter
    @return boolean true if a resolvable was found, false otherwise, nil
 	   if an error occurred (call Pkg.LastError() to get the details)
