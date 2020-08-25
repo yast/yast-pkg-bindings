@@ -29,6 +29,8 @@
 #include "log.h"
 #include "ycpTools.h"
 
+#include <set>
+
 #include <ycp/YCPBoolean.h>
 #include <ycp/YCPInteger.h>
 #include <ycp/YCPSymbol.h>
@@ -48,6 +50,7 @@
 #include <zypp/sat/LocaleSupport.h>
 #include <zypp/parser/ProductFileReader.h>
 #include <zypp/base/Regex.h>
+#include <zypp/PoolQuery.h>
 
 /**
    @builtin ResolvableProperties
@@ -806,7 +809,15 @@ struct ResolvableFilter
 	ResolvableFilter(const YCPMap &attributes, const PkgFunctions &pf)
 		: pkg(pf), check_repo(false), check_transact_by(false), check_vendor(false),
 		check_locked(false), check_on_system(false), check_license_confirmed(false),
-		medium_nr(-1)
+		medium_nr(-1),
+		check_provides(false), check_regexp_provides(false),
+		check_obsoletes(false), check_regexp_obsoletes(false),
+		check_conflicts(false), check_regexp_conflicts(false),
+		check_requires(false), check_regexp_requires(false),
+		check_recommends(false), check_regexp_recommends(false),
+		check_suggests(false), check_regexp_suggests(false),
+		check_supplements(false), check_regexp_supplements(false),
+		check_enhances(false), check_regexp_enhances(false)
 	{
 		YCPValue kind_symbol = attributes->value(YCPSymbol("kind"));
 		if (!kind_symbol.isNull() && kind_symbol->isSymbol())
@@ -884,6 +895,33 @@ struct ResolvableFilter
 			check_license_confirmed = true;
 			license_confirmed = license_confirmed_value->asBoolean()->value();
 		}
+
+#define QUERY_DEPS(NAME) \
+		YCPValue value_regexp_##NAME = attributes->value(YCPSymbol(#NAME "_regexp")); \
+		if (!value_regexp_##NAME.isNull() && value_regexp_##NAME->isString()) \
+		{ \
+			check_regexp_##NAME = true; \
+			fill_deps(regexp_##NAME, zypp::sat::SolvAttr::NAME, value_regexp_##NAME->asString()->value(), true); \
+		} \
+		\
+		YCPValue str_##NAME = attributes->value(YCPSymbol(#NAME)); \
+		if (!str_##NAME.isNull() && str_##NAME->isString()) \
+		{ \
+			check_##NAME = true; \
+			fill_deps(NAME, zypp::sat::SolvAttr::NAME, str_##NAME->asString()->value(), false); \
+		}
+
+		QUERY_DEPS(provides)
+		QUERY_DEPS(obsoletes)
+		QUERY_DEPS(conflicts)
+		QUERY_DEPS(requires)
+		QUERY_DEPS(recommends)
+		QUERY_DEPS(suggests)
+		QUERY_DEPS(supplements)
+		QUERY_DEPS(enhances)
+
+#undef QUERY_DEPS
+
 	}
 
 	// The main filtering function, returns true/false for each resolvable in the pool
@@ -960,6 +998,25 @@ struct ResolvableFilter
 		if (medium_nr >= 0 && medium_nr != r->mediaNr())
 			return false;
 
+		// check the matching dependencies
+
+#define CHECK_DEPS(NAME) \
+		if (check_##NAME && NAME.find(zypp::sat::Solvable(r)) == NAME.end()) \
+			return false; \
+		if (check_regexp_##NAME && regexp_##NAME.find(zypp::sat::Solvable(r)) == regexp_##NAME.end()) \
+			return false;
+
+		CHECK_DEPS(provides)
+		CHECK_DEPS(obsoletes)
+		CHECK_DEPS(conflicts)
+		CHECK_DEPS(requires)
+		CHECK_DEPS(recommends)
+		CHECK_DEPS(suggests)
+		CHECK_DEPS(supplements)
+		CHECK_DEPS(enhances)
+
+#undef CHECK_DEPS
+
 		return true;
 	}
 
@@ -981,17 +1038,66 @@ struct ResolvableFilter
 	bool check_on_system, on_system;
 	bool check_license_confirmed, license_confirmed;
 	long long medium_nr;
+
+	// define dependency filters
+#define DEFINE_DEPS(NAME) \
+	bool check_##NAME; \
+	bool check_regexp_##NAME; \
+	std::set<zypp::sat::Solvable> regexp_##NAME; \
+	std::set<zypp::sat::Solvable> NAME;
+
+	DEFINE_DEPS(provides)
+	DEFINE_DEPS(obsoletes)
+	DEFINE_DEPS(conflicts)
+	DEFINE_DEPS(requires)
+	DEFINE_DEPS(recommends)
+	DEFINE_DEPS(suggests)
+	DEFINE_DEPS(supplements)
+	DEFINE_DEPS(enhances)
+
+#undef DEFINE_DEPS
+
+private:
+
+    void fill_deps(std::set<zypp::sat::Solvable> &set, zypp::sat::SolvAttr attr, const std::string &query, bool regexp)
+    {
+        zypp::PoolQuery q;
+        regexp ? q.setMatchRegex() : q.setMatchExact();
+        q.addAttribute(attr, query);
+
+        for (zypp::PoolQuery::const_iterator it = q.begin(), end = q.end(); it != end; ++it)
+            set.insert(*it);
+    }
 };
 
 /**
    @builtin Resolvables
-   @short Is there any resolvable matching the input filter?
+   @short Return resolvables matching the input filter, if the regexp is invalid
+	   (for example by confusing it with a shell pattern), nil is returned.
    @param map filter
    @param list attrs the list of required attributes
-   @return boolean true if a resolvable was found, false otherwise
+   @return list list of found resolvables (maps), nil
+	   if an error occurred (call Pkg.LastError() to get the details)
 
    See the ResolvableProperties() call for the accepted filtering keys
    and returned attributes.
+
+	 Additionally it also accepts RPM depency filters, it is possible to check for all
+	 dependency types: provides, obsoletes, conflicts, requires, recommends,
+	 suggests, supplements and enhances.
+
+	 Pass the dependency name as the key (as a string) and the requested text
+	 as the value. You can add "_regexp" suffix, then the value will be used
+	 as a POSIX extended regular expression.
+
+	 Examples (Ruby Hash):
+		 provides: "pattern()"
+		 provides: "release-notes()"
+		 obsoletes_regexp: "^yast2-config-"
+		 supplements_regexp: "^autoyast\\(.*\\)"
+
+	 You can pass several dependency filters, in that case the result is logical AND,
+	 i.e. all required dependency filters must match.
 */
 YCPValue PkgFunctions::Resolvables(const YCPMap& filter, const YCPList& attrs)
 {
@@ -1000,21 +1106,38 @@ YCPValue PkgFunctions::Resolvables(const YCPMap& filter, const YCPList& attrs)
 
 	YCPList ret;
 
-	for (const auto &r : zypp::ResPool::instance().filter(ResolvableFilter(filter, *this)) )
-		ret->add(Resolvable2YCPMap(r, false, false, attrs));
+	try {
+        for (const auto &r : zypp::ResPool::instance().filter(ResolvableFilter(filter, *this)) )
+            ret->add(Resolvable2YCPMap(r, false, false, attrs));
+	}
+	catch(const zypp::MatchInvalidRegexException &e)
+	{
+		_last_error.setLastError(ExceptionAsString(e));
+		return YCPVoid();
+	}
 
 	return ret;
 }
 
 /**
    @builtin AnyResolvable
-   @short Is there any resolvable matching the input filter?
+   @short Is there any resolvable matching the input filter? If the regexp is invalid
+	   (for example by confusing it with a shell pattern), nil is returned.
    @param map filter
-   @return boolean true if a resolvable was found, false otherwise
+   @return boolean true if a resolvable was found, false otherwise, nil
+	   if an error occurred (call Pkg.LastError() to get the details)
 
    See the ResolvableProperties() call for the accepted filtering keys.
+	 See the Resolvables() call for the details about the dependency filters.
 */
 YCPValue PkgFunctions::AnyResolvable(const YCPMap& filter)
 {
-	return YCPBoolean(!zypp::ResPool::instance().filter(ResolvableFilter(filter, *this)).empty());
+	try {
+		return YCPBoolean(!zypp::ResPool::instance().filter(ResolvableFilter(filter, *this)).empty());
+	}
+	catch(const zypp::MatchInvalidRegexException &e)
+	{
+		_last_error.setLastError(ExceptionAsString(e));
+		return YCPVoid();
+	}
 }

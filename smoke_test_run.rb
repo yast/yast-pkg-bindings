@@ -107,7 +107,7 @@ end
 puts "OK"
 
 # Check all packages - this expects at least one package is available/installed
-puts "Checking Pkg.Resolvabless..."
+puts "Checking Pkg.Resolvables..."
 resolvables = Yast::Pkg.Resolvables({kind: :package}, [])
 raise "Pkg.Resolvables failed!" unless resolvables
 raise "No package found!" if resolvables.empty?
@@ -129,6 +129,18 @@ puts "OK (yast2-core package installed)"
 selected_packages = Yast::Pkg.Resolvables({kind: :package, status: :selected}, [:name])
 raise "A package is selected to install (???)" unless selected_packages.empty?
 puts "OK (no package selected)"
+
+obsolete_packages = Yast::Pkg.Resolvables({kind: :package, obsoletes_regexp: "^yast2-config-"}, [])
+raise "No package with yast2-config obsoletes found" if obsolete_packages.empty?
+puts "OK (found #{obsolete_packages.size} packages with yast2-config-* obsoletes)"
+
+supplement_packages = Yast::Pkg.Resolvables({kind: :package, supplements_regexp: "^autoyast\\(.*\\)"}, [])
+raise "No package with autoyast() supplements found" if supplement_packages.empty?
+puts "OK (found #{supplement_packages.size} packages with autoyast() supplements)"
+
+provide_packages = Yast::Pkg.Resolvables({kind: :package, provides: "y2c_online_update"}, [])
+raise "No package with y2c_online_update provides found" if provide_packages.empty?
+puts "OK (found #{provide_packages.size} packages providing y2c_online_update)"
 
 removed = Yast::Pkg.ResolvableRemove("yast2-core", :package)
 raise "Cannot select yast2-core to uninstall" unless removed
