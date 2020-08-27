@@ -341,7 +341,7 @@ void ServiceManager::SavePkgService(PkgService &s_known, zypp::RepoManager &repo
     if (s_stored == zypp::ServiceInfo::noService)
     {
         // remove the file if it already exists
-        // (a corner case, the libzypp loaded is data out of sync with the disk content)
+        // (a corner case, the libzypp data is out of sync with the disk content)
         if (zypp::PathInfo(file_path).isExist())
         {
             MIL << "removing file " << file_path << std::endl;
@@ -357,7 +357,7 @@ void ServiceManager::SavePkgService(PkgService &s_known, zypp::RepoManager &repo
     else
     {
         // create the file if it is missing
-        // (a corner case, the libzypp loaded is data out of sync with the disk content)
+        // (a corner case, the libzypp data is out of sync with the disk content)
         if (!zypp::PathInfo(file_path).isExist())
         {
             MIL << "creating file " << file_path << std::endl;
