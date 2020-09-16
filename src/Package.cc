@@ -1969,7 +1969,7 @@ YCPValue
 PkgFunctions::SetAdditionalVendors (const YCPList &vendorycplist)
 {
     int i = 0;
-    VendorList vendors;
+    zypp::VendorAttr::VendorList vendors;
     while (i < vendorycplist->size())
     {
 	if (vendorycplist->value(i)->isString())
@@ -1985,7 +1985,7 @@ PkgFunctions::SetAdditionalVendors (const YCPList &vendorycplist)
 
     try
     {
-       VendorAttr::instance().addVendorList(vendors);
+       zypp::VendorAttr::instance().addVendorList(vendors);
     }
     catch(...)
     {
