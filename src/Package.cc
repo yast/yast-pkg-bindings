@@ -1985,9 +1985,7 @@ PkgFunctions::SetAdditionalVendors (const YCPList &vendorycplist)
 
     try
     {
-//       zypp::VendorAttr::instance().addVendorList(vendors.begin, vendors.end);
-  zypp::VendorAttr::noTargetInstance() = VendorAttr(); // suse defaults; no configfiles read
-  zypp::VendorAttr::noTargetInstance().addVendorList( { "suse", "opensuse", "opensuse too" } );
+       zypp::VendorAttr::instance().addVendorList(vendors);
 
     }
     catch(...)
