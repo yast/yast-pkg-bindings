@@ -1995,7 +1995,6 @@ PkgFunctions::SetAdditionalVendors (const YCPList &vendorycplist)
     try
     {
        zypp::VendorAttr::instance().addVendorList(vendors);
-
     }
     catch(...)
     {
