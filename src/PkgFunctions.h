@@ -686,6 +686,8 @@ class PkgFunctions
 	YCPValue GetSolverFlags();
 	/* TYPEINFO: boolean(map<string,any>)*/
 	YCPValue SetSolverFlags(const YCPMap& params);
+	/* TYPEINFO: void(list<string>) */
+	YCPValue SetAdditionalVendors (const YCPList &args);
 	/* TYPEINFO: boolean(boolean)*/
 	YCPBoolean PkgSolve (const YCPBoolean& filter);
 	/* TYPEINFO: boolean(string)*/

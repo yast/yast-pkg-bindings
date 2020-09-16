@@ -51,6 +51,7 @@
 #include <zypp/repo/PackageProvider.h>
 #include <zypp/Locale.h>
 #include <zypp/RepoInfo.h>
+#include <zypp/VendorAttr.h>
 
 #include <fstream>
 #include <sstream>
@@ -1962,6 +1963,46 @@ YCPValue PkgFunctions::GetSolverFlags()
 
     return ret;
 }
+
+/**
+ * @builtin SetAdditionalVendors
+ *
+ * @short set additional vendors which are compatible
+ * @description
+ * Select additional compatible vendors for installation.
+ * @param list<string> List of additional vondor strings
+ * @return void
+ * @usage Pkg::SetAdditionalLocales(["openSUSE","SUSE LLC"]);
+ */
+YCPValue
+PkgFunctions::SetAdditionalVendors (const YCPList &vendorycplist)
+{
+    int i = 0;
+    VendorList vendors;
+    while (i < vendorycplist->size())
+    {
+	if (vendorycplist->value(i)->isString())
+	{
+	  vendors.push_back(vendorycplist->value(i)->asString()->value());
+	}
+	else
+	{
+	    y2error("Pkg::SetAdditionalVendors ([...,%s,...]) not string", vendorycplist->value(i)->toString().c_str());
+	}
+	i++;
+    }
+
+    try
+    {
+       VendorAttr::instance().addVendorList(vendors);
+    }
+    catch(...)
+    {
+    }
+
+    return YCPVoid();
+}
+
 
 
 /**
