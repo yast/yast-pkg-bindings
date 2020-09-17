@@ -1985,7 +1985,14 @@ PkgFunctions::SetAdditionalVendors (const YCPList &vendorycplist)
 
     try
     {
-       zypp::VendorAttr::instance().addVendorList(vendors);
+      if ( zypp::getZYpp()->getTarget() ) {
+	zypp::VendorAttr vendorAttr { zypp::getZYpp()->getTarget()->vendorAttr() };
+	vendorAttr.addVendorList(vendors);
+	zypp::getZYpp()->getTarget()->vendorAttr( std::move(vendorAttr) );
+      }
+      else {
+	zypp::VendorAttr::noTargetInstance().addVendorList(vendors);
+      }
     }
     catch(...)
     {
