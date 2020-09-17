@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Sep 17 11:08:17 CEST 2020 - schubi@suse.de
+
+- Added new call Pkg::SetAdditionalVendors (jsc#SLE-15184).
+- 4.3.1
+
+-------------------------------------------------------------------
 Mon Aug 24 11:53:42 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
 
 - Improved Pkg::Resolvables() call to allow filtering by RPM
