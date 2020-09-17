@@ -16,7 +16,7 @@
 #
 
 Name:           yast2-pkg-bindings-devel-doc
-Version:        4.2.10
+Version:        4.2.11
 Release:        0
 License:        GPL-2.0-only
 Group:          Documentation/HTML
