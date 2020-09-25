@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Sep 25 07:54:14 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
+
+- Fixed migration from SLE-HPC-12 with activated HPC module to
+  SLE15-SP2 (fixed saving service files) (bsc#1171977)
+- 4.3.1
+
+-------------------------------------------------------------------
 Mon Aug 24 11:53:42 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
 
 - Improved Pkg::Resolvables() call to allow filtering by RPM
