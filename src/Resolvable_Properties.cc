@@ -461,6 +461,12 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 
 		if (all || attrs->contains(YCPSymbol("product_package")))
 		{
+			// pre-set the default value (nil) if the attribute is requested
+			if (attrs->contains(YCPSymbol("product_package")))
+			{
+				info->add(YCPString("product_package"), YCPVoid());
+			}
+
 			// get the package
 			zypp::sat::Solvable refsolvable = product->referencePackage();
 
@@ -490,15 +496,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 						}
 					}
 				}
-				else if (attrs->contains(YCPSymbol("product_package")))
-				{
-					info->add(YCPString("product_package"), YCPVoid());
-				}
 	    }
-			else if (attrs->contains(YCPSymbol("product_package")))
-			{
-				info->add(YCPString("product_package"), YCPVoid());
-			}
 		}
 
 		if (all || attrs->contains(YCPSymbol("product_file")))
