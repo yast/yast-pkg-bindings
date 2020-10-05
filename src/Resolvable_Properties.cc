@@ -425,31 +425,45 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 		std::string product_file;
 
 		// add reference file in /etc/products.d
-		if (status.isInstalled() && (all || attrs->contains(YCPSymbol("upgrades"))))
+		if (all || attrs->contains(YCPSymbol("upgrades")))
 		{
-			product_file = (_target_root + "/etc/products.d/" + product->referenceFilename()).asString();
-			y2milestone("Parsing product file %s", product_file.c_str());
-			const zypp::parser::ProductFileData productFileData = zypp::parser::ProductFileReader::scanFile(product_file);
-
-			YCPList upgrade_list;
-
-			for (const auto &upgrade : productFileData.upgrades())
+			if (status.isInstalled())
 			{
-				YCPMap upgrades;
-				upgrades->add(YCPString("name"), YCPString(upgrade.name()));
-				upgrades->add(YCPString("summary"), YCPString(upgrade.summary()));
-				upgrades->add(YCPString("repository"), YCPString(upgrade.repository()));
-				upgrades->add(YCPString("notify"), YCPBoolean(upgrade.notify()));
-				upgrades->add(YCPString("status"), YCPString(upgrade.status()));
-				upgrades->add(YCPString("product"), YCPString(upgrade.product()));
+				product_file = (_target_root + "/etc/products.d/" + product->referenceFilename()).asString();
+				y2milestone("Parsing product file %s", product_file.c_str());
+				const zypp::parser::ProductFileData productFileData = zypp::parser::ProductFileReader::scanFile(product_file);
 
-				upgrade_list->add(upgrades);
+				YCPList upgrade_list;
+
+				for (const auto &upgrade : productFileData.upgrades())
+				{
+					YCPMap upgrades;
+					upgrades->add(YCPString("name"), YCPString(upgrade.name()));
+					upgrades->add(YCPString("summary"), YCPString(upgrade.summary()));
+					upgrades->add(YCPString("repository"), YCPString(upgrade.repository()));
+					upgrades->add(YCPString("notify"), YCPBoolean(upgrade.notify()));
+					upgrades->add(YCPString("status"), YCPString(upgrade.status()));
+					upgrades->add(YCPString("product"), YCPString(upgrade.product()));
+
+					upgrade_list->add(upgrades);
+				}
+
+				info->add(YCPString("upgrades"), upgrade_list);
+			}
+			else if (attrs->contains(YCPSymbol("upgrades")))
+			{
+				info->add(YCPString("upgrades"), YCPVoid());
+			}
+		}
+
+		if (all || attrs->contains(YCPSymbol("product_package")))
+		{
+			// pre-set the default value (nil) if the attribute is requested
+			if (attrs->contains(YCPSymbol("product_package")))
+			{
+				info->add(YCPString("product_package"), YCPVoid());
 			}
 
-			info->add(YCPString("upgrades"), upgrade_list);
-		}
-		else
-		{
 			// get the package
 			zypp::sat::Solvable refsolvable = product->referencePackage();
 
@@ -479,7 +493,7 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 						}
 					}
 				}
-	    	}
+	    }
 		}
 
 		if (all || attrs->contains(YCPSymbol("product_file")))
