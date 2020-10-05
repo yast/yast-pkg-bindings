@@ -6,7 +6,7 @@ Mon Oct  5 07:27:39 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
 - 4.3.2
 
 -------------------------------------------------------------------
-Mon Aug 17 07:23:30 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
+Fri Sep 25 07:54:14 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
 
 - Fixed migration from SLE-HPC-12 with activated HPC module to
   SLE15-SP2 (fixed saving service files) (bsc#1171977)
