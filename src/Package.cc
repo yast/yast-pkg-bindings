@@ -1969,8 +1969,8 @@ YCPValue PkgFunctions::GetSolverFlags()
  *
  * @short set additional vendors which are compatible
  * @description
- * Select additional compatible vendors for installation.
- * @param list<string> List of additional vondor strings
+ * Select additional compatible vendors for upgrade.
+ * @param list<string> List of additional vendor strings
  * @return void
  * @usage Pkg::SetAdditionalLocales(["openSUSE","SUSE LLC"]);
  */
@@ -1994,20 +1994,24 @@ PkgFunctions::SetAdditionalVendors (const YCPList &vendorycplist)
 
     try
     {
-      if ( zypp::getZYpp()->getTarget() ) {
-	zypp::VendorAttr vendorAttr { zypp::getZYpp()->getTarget()->vendorAttr() };
+      if ( zypp_ptr()->getTarget() ) {
+	zypp::VendorAttr vendorAttr { zypp_ptr()->getTarget()->vendorAttr() };
 	vendorAttr.addVendorList(vendors);
-	zypp::getZYpp()->getTarget()->vendorAttr( std::move(vendorAttr) );
+	zypp_ptr()->getTarget()->vendorAttr( std::move(vendorAttr) );
       }
       else {
 	zypp::VendorAttr::noTargetInstance().addVendorList(vendors);
       }
     }
-    catch(...)
+
+    catch (const zypp::Exception& ex)
     {
+	y2error("An error occurred during Pkg::SetAdditionalVendors");
+	_last_error.setLastError(ExceptionAsString(ex));
+        return YCPBoolean(false);
     }
 
-    return YCPVoid();
+    return YCPBoolean(true);
 }
 
 
