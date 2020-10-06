@@ -1,7 +1,14 @@
 -------------------------------------------------------------------
-Thu Sep 26 11:08:17 CEST 2020 - schubi@suse.de
+Mon Oct  5 08:27:39 UTC 2020 - schubi@suse.de
 
 - Added new call Pkg::SetAdditionalVendors (jsc#SLE-15184).
+- 4.3.3
+
+-------------------------------------------------------------------
+Mon Oct  5 07:27:39 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
+
+- Return "nil" when a product package is not defined, missing
+  value might cause a crash (bsc#1175681)
 - 4.3.2
 
 -------------------------------------------------------------------
