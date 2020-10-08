@@ -1,8 +1,8 @@
 -------------------------------------------------------------------
 Thu Sep 17 11:37:48 CEST 2020 - schubi@suse.de
 
-- Added new call Pkg::SetAdditionalVendors (jsc#SLE-15184).
-- 4.3.1
+- Added new call Pkg::SetAdditionalVendors (jsc#SLE-14807).
+- 3.1.2
 
 -------------------------------------------------------------------
 Fri Aug 17 15:33:34 CEST 2018 - schubi@suse.de
