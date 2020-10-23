@@ -51,6 +51,7 @@
 #include <zypp/repo/PackageProvider.h>
 #include <zypp/Locale.h>
 #include <zypp/RepoInfo.h>
+#include <zypp/VendorAttr.h>
 
 #include <fstream>
 #include <sstream>
@@ -1953,6 +1954,57 @@ YCPValue PkgFunctions::GetSolverFlags()
 
     return ret;
 }
+
+/**
+ * @builtin SetAdditionalVendors
+ *
+ * @short set additional vendors which are compatible
+ * @description
+ * Select additional compatible vendors for upgrade.
+ * @param list<string> List of additional vendor strings
+ * @return void
+ * @usage Pkg::SetAdditionalLocales(["openSUSE","SUSE LLC"]);
+ */
+YCPValue
+PkgFunctions::SetAdditionalVendors (const YCPList &vendorycplist)
+{
+    int i = 0;
+    zypp::VendorAttr::VendorList vendors;
+    while (i < vendorycplist->size())
+    {
+	if (vendorycplist->value(i)->isString())
+	{
+	  vendors.push_back((zypp::IdString) vendorycplist->value(i)->asString()->value());
+	}
+	else
+	{
+	    y2error("Pkg::SetAdditionalVendors ([...,%s,...]) not string", vendorycplist->value(i)->toString().c_str());
+	}
+	i++;
+    }
+
+    try
+    {
+      if ( zypp_ptr()->getTarget() ) {
+	zypp::VendorAttr vendorAttr { zypp_ptr()->getTarget()->vendorAttr() };
+	vendorAttr.addVendorList(vendors);
+	zypp_ptr()->getTarget()->vendorAttr( std::move(vendorAttr) );
+      }
+      else {
+	zypp::VendorAttr::noTargetInstance().addVendorList(vendors);
+      }
+    }
+
+    catch (const zypp::Exception& ex)
+    {
+	y2error("An error occurred during Pkg::SetAdditionalVendors");
+	_last_error.setLastError(ExceptionAsString(ex));
+        return YCPBoolean(false);
+    }
+
+    return YCPBoolean(true);
+}
+
 
 
 /**
