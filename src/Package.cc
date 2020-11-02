@@ -1974,7 +1974,7 @@ PkgFunctions::SetAdditionalVendors (const YCPList &vendorycplist)
     {
 	if (vendorycplist->value(i)->isString())
 	{
-	  vendors.push_back((zypp::IdString) vendorycplist->value(i)->asString()->value());
+	  vendors.push_back(vendorycplist->value(i)->asString()->value());
 	}
 	else
 	{
