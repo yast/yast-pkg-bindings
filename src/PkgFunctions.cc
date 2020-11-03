@@ -181,8 +181,18 @@ PkgFunctions::Connect()
     }
     catch(const zypp::ZYppFactoryException &excpt)
     {
-	y2error("Error in Connect: FactoryException: %s", excpt.asString().c_str());
-	_last_error.setLastError(excpt.asString());
+        std::string msg(excpt.asString());
+        y2error("Error in Connect: FactoryException: %s", msg.c_str());
+
+        // running "/usr/bin/ruby.ruby2.5" application is not a good hint for users,
+        // very likely it is another YaST instance already running,
+        // add a hint to the error message from libzypp
+        if (excpt.lockerName().find("ruby") != std::string::npos)
+        {
+            msg += std::string("\n\n") + _("Maybe another YaST application is already running?");
+        }
+
+        _last_error.setLastError(msg);
     }
     catch (const zypp::Exception& excpt)
     {
