@@ -222,10 +222,18 @@ zypp::RepoManager* PkgFunctions::CreateRepoManager()
     if (repo_manager) return repo_manager;
 
     // set path option, use root dir as a prefix for the default directory
-    zypp::RepoManagerOptions repo_options(_target_root);
-    y2milestone("Path to repository files: %s", repo_options.knownReposPath.asString().c_str());
+    zypp::RepoManagerOptions repo_manager_options(_target_root);
+    y2milestone("Path to repository files: %s", repo_manager_options.knownReposPath.asString().c_str());
 
-    repo_manager = new zypp::RepoManager(repo_options);
+    // set the previously configured "target_distro" option (bsc#1176275)
+    if(!repo_options->value(YCPString("target_distro")).isNull() && repo_options->value(YCPString("target_distro"))->isString())
+    {
+        std::string target_distro = repo_options->value(YCPString("target_distro"))->asString()->value();
+        y2milestone("Using target_distro: %s", target_distro.c_str());
+        repo_manager_options.servicesTargetDistro = target_distro;
+    }
+
+    repo_manager = new zypp::RepoManager(repo_manager_options);
     return repo_manager;
 }
 
