@@ -225,7 +225,7 @@ zypp::RepoManager* PkgFunctions::CreateRepoManager()
     zypp::RepoManagerOptions repo_manager_options(_target_root);
     y2milestone("Path to repository files: %s", repo_manager_options.knownReposPath.asString().c_str());
 
-    // set the previously configured "target_distro" option
+    // set the previously configured "target_distro" option (bsc#1176275)
     if(!repo_options->value(YCPString("target_distro")).isNull() && repo_options->value(YCPString("target_distro"))->isString())
     {
         std::string target_distro = repo_options->value(YCPString("target_distro"))->asString()->value();
