@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Jan  4 08:37:18 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
+
+- Set the previous "distro_target" option when restarting the
+  package manager (bsc#1176275), fixes upgrade from SLE12 via SMT
+- 4.2.14
+
+-------------------------------------------------------------------
 Tue Dec 01 16:02:16 CEST 2020 - aschnell@suse.com
 
 - Expand URL when libzypp expects an expanded URL. Fixes weird zypp
