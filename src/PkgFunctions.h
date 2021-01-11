@@ -184,9 +184,10 @@ class PkgFunctions
 
       void CallInitDownload(const std::string &task);
       void CallDestDownload();
+      // use "RefreshForced" by default, otherwise libzypp might download only the index file (bsc#1180203)
       void RefreshWithCallbacks(const zypp::RepoInfo &repo,
 	const zypp::ProgressData::ReceiverFnc & progressrcv = zypp::ProgressData::ReceiverFnc(),
-	zypp::RepoManager::RawMetadataRefreshPolicy refresh = zypp::RepoManager::RefreshIfNeeded);
+	zypp::RepoManager::RawMetadataRefreshPolicy refresh = zypp::RepoManager::RefreshForced);
       zypp::repo::RepoType ProbeWithCallbacks(const zypp::Url &url);
       void ScanProductsWithCallBacks(const zypp::Url &url);
       void CallRefreshStarted();
@@ -208,7 +209,7 @@ class PkgFunctions
 
       zypp::Url shortenUrl(const zypp::Url &url);
 
-      // convert Exception to string represenatation
+      // convert Exception to string representation
       std::string ExceptionAsString(const zypp::Exception &e);
 
       YCPValue searchPackage(const YCPString &package, bool installed);

@@ -417,7 +417,7 @@ PkgFunctions::SourceRefreshHelper (const YCPInteger& id, bool forced)
     {
 	zypp::RepoManager* repomanager = CreateRepoManager();
 	y2milestone("Refreshing metadata '%s'", repo->repoInfo().alias().c_str());
-	RefreshWithCallbacks(repo->repoInfo(), zypp::ProgressData::ReceiverFnc(), forced ? zypp::RepoManager::RefreshForced : zypp::RepoManager::RefreshIfNeeded);
+	RefreshWithCallbacks(repo->repoInfo(), zypp::ProgressData::ReceiverFnc());
 
 	// next stage, increase progress
 	prog_total.incr();
