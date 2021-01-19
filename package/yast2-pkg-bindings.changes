@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Jan 20 09:24:46 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
+
+- Allow filtering resolvables by RPM path, return RPM path
+  for the product packages (related to bsc#1178688, bsc#1176276)
+- 4.2.15
+
+-------------------------------------------------------------------
 Mon Jan  4 08:37:18 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
 
 - Set the previous "distro_target" option when restarting the
