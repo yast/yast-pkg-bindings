@@ -24,8 +24,11 @@ jobs:
     - name: Package Build
       run: yast-ci-cpp
 
+    - name: Install Smoke Test Requirements
+      run: zypper --non-interactive in --no-recommends yast2-ruby-bindings
+
     - name: Smoke Test Preparation
       run: sh smoke_test_prepare.sh
 
     - name: Smoke Test Run
-      run: sh smoke_test_run.rb
+      run: ruby smoke_test_run.rb
