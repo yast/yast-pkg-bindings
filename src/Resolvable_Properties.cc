@@ -496,6 +496,23 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 	    }
 		}
 
+		if (all || attrs->contains(YCPSymbol("path")))
+		{
+			// get the reference package
+			zypp::sat::Solvable refsolvable = product->referencePackage();
+
+			if (refsolvable != zypp::sat::Solvable::noSolvable)
+			{
+				// create a package pointer from the SAT solvable
+				zypp::Package::Ptr refpkg(zypp::make<zypp::Package>(refsolvable));
+
+				if (refpkg)
+				{
+					ADD_STRING("path", refpkg->location().filename().asString());
+				}
+			}
+		}
+
 		if (all || attrs->contains(YCPSymbol("product_file")))
 		{
 			if (product_file.empty())
@@ -840,6 +857,10 @@ struct ResolvableFilter
 			repo = source_value->asInteger()->value();
 		}
 
+		YCPValue path_value = attributes->value(YCPSymbol("path"));
+		if (!path_value.isNull() && path_value->isString())
+			path = path_value->asString()->value();
+
 		YCPValue medium_nr_value = attributes->value(YCPSymbol("medium_nr"));
 		if (!medium_nr_value.isNull() && medium_nr_value->isInteger())
 			medium_nr = medium_nr_value->asInteger()->value();
@@ -912,6 +933,32 @@ struct ResolvableFilter
 		if (!name.empty() && name != r->name())
 			return false;
 
+		// check the path
+		if (!path.empty())
+		{
+			// the path is only available for Packages...
+			zypp::Package::constPtr pkg = zypp::asKind<zypp::Package>(r.resolvable());
+			if (pkg && pkg->location().filename().asString() != path)
+				return false;
+
+			// ... or Products (it's reference Package)
+			zypp::Product::constPtr product = zypp::asKind<zypp::Product>(r.resolvable());
+			if (product)
+			{
+				// get the reference package
+				zypp::sat::Solvable refsolvable = product->referencePackage();
+
+				if (refsolvable != zypp::sat::Solvable::noSolvable)
+				{
+					// create a package pointer from the SAT solvable
+					zypp::Package::Ptr refpkg(zypp::make<zypp::Package>(refsolvable));
+
+					if (refpkg && refpkg->location().filename().asString() != path)
+						return false;
+				}
+			}
+		}
+
 		// check the version
 		if (!version_str.empty() && version_str != r->edition().asString())
 			return false;
@@ -980,7 +1027,7 @@ struct ResolvableFilter
 	// reference to PkgFunctions, we need to call PkgFunctions::logFindAlias()
 	const PkgFunctions &pkg;
 
-	std::string kind, name, status_str, transact_by_str, arch_str, version_str;
+	std::string kind, name, status_str, transact_by_str, arch_str, version_str, path;
 
 	bool check_repo;
 	PkgFunctions::RepoId repo;
