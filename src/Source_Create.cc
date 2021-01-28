@@ -30,6 +30,7 @@
 #include <PkgFunctions.h>
 #include <PkgProgress.h>
 #include "log.h"
+#include <y2util/Y2SLog.h>
 
 #include <HelpTexts.h>
 
@@ -278,7 +279,9 @@ PkgFunctions::createManagedSource( const zypp::Url & url_r,
     // set packages path
     repo.setPackagesPath(repomanager->packagesPath(repo));
 
-    y2milestone("Adding source '%s' (%s, dir: %s)", repo.alias().c_str(), url.asString().c_str(), path_r.asString().c_str());
+    MIL << "Adding repository:" << std::endl;
+    MIL << repo << std::endl;
+
     // note: exceptions should be caught by the calling code
     RefreshWithCallbacks(repo, subprogrcv_ref);
     progress.NextStage();
@@ -497,6 +500,9 @@ YCPValue PkgFunctions::RepositoryAdd(const YCPMap &params)
     repo.setMetadataPath(metadatapath);
 
     repo.setPackagesPath(repomanager->packagesPath(repo));
+
+    MIL << "Adding repository:" << std::endl;
+    MIL << repo << std::endl;
 
     repos.push_back(new YRepo(repo));
 

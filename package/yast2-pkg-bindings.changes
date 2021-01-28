@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Jan 28 12:50:29 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
+
+- Log more details about the newly added repositories
+  (for debugging bsc#1181344)
+- 4.3.8
+
+-------------------------------------------------------------------
 Fri Jan 22 17:21:15 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
 
 - Allow filtering resolvables by RPM path, return RPM path
