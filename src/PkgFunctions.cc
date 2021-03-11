@@ -559,8 +559,19 @@ YCPValue PkgFunctions::ExpandedUrl(const YCPString &url)
         return YCPVoid();
     }
 
+    zypp::Url z_url;
+
+    try
+    {
+      z_url = zypp::Url(url->value());
+    }
+    catch (const zypp::Exception &excpt)
+    {
+      y2error("URL '%s' is not valid: %s", url->value().c_str(), excpt.asString().c_str());
+    }
+
     // return full URL including the password if present
-    return YCPString(ExpandedUrl(zypp::Url(url->value())).asCompleteString());
+    return YCPString(ExpandedUrl(z_url).asCompleteString());
 }
 
 
