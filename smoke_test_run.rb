@@ -118,7 +118,6 @@ puts "OK (found #{resolvables.size} packages)"
 patterns = Yast::Pkg.Resolvables({kind: :pattern}, [:name])
 raise "Pkg.Resolvables failed!" unless patterns
 raise "No pattern found!" if patterns.empty?
-raise "Pattern devel_yast not found" unless patterns.include?("name" => "devel_yast")
 puts "OK (found #{patterns.size} patterns)"
 
 installed_packages = Yast::Pkg.Resolvables({kind: :package, status: :installed, name: "yast2-core"}, [:name])

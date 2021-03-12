@@ -17,7 +17,7 @@
 
 
 Name:           yast2-pkg-bindings
-Version:        4.3.9
+Version:        4.3.10
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -34,6 +34,10 @@ BuildRequires:  libxslt
 BuildRequires:  libzypp-devel >= 17.25.0
 BuildRequires:  yast2-core-devel
 BuildRequires:  yast2-devtools >= 3.1.10
+
+# needed for network detection
+Requires:       iproute2
+Requires:       grep
 
 Summary:	YaST2 - Package Manager Access
 
