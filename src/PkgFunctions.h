@@ -276,8 +276,6 @@ class PkgFunctions
       // it finds the resolvable using attributes saved earlier by RememberBaseProduct
       zypp::Product::constPtr FindInstalledBaseProduct();
 
-      // adds authentication data to a URL
-      void AddAuthData(zypp::Url url);
       // helper with common code to SourceURL and SourceRawUrl
       YCPValue GetSourceUrl(const YCPInteger& id, bool raw);
       // helper - convert transaction_by to string

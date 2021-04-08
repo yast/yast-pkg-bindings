@@ -439,49 +439,6 @@ PkgFunctions::SourceEditGet ()
     return ret;
 }
 
-// Adds authentication data to the URL if it exists
-void
-PkgFunctions::AddAuthData (zypp::Url url) {
-    zypp::media::CredentialManager cm;
-
-	zypp::media::AuthData_Ptr auth = cm.getCred(url);
-
-	if (auth)
-	{
-	    y2milestone("Authentication data found, adding to URL...");
-
-	    if (auth->valid())
-	    {
-		if (!auth->username().empty())
-		{
-		    y2debug("Adding username...");
-		    url.setUsername(auth->username());
-		}
-
-		if (!auth->password().empty())
-		{
-		    y2debug("Adding password...");
-		    url.setPassword(auth->password());
-		}
-	    }
-	    else
-	    {
-		y2warning("Invalid authentication data, returning URL without username and password");
-	    }
-
-	    // does the url contain credentials query?
-	    zypp::url::ParamMap params = url.getQueryStringMap();
-	    zypp::url::ParamMap::iterator map_it = params.find("credentials");
-
-	    if (map_it != params.end())
-	    {
-		y2milestone("Removing credentials query from URL");
-		params.erase(map_it);
-		url.setQueryStringMap(params);
-	    }
-	}
-}
-
 // Helper with common code to SourceURL and SourceRawUrl
 YCPValue
 PkgFunctions::GetSourceUrl (const YCPInteger& id, bool raw)
@@ -500,7 +457,6 @@ PkgFunctions::GetSourceUrl (const YCPInteger& id, bool raw)
             // #186842
             url = repo->repoInfo().url();
         }
-        AddAuthData(url);
     }
 
     return YCPString(url.asCompleteString());
