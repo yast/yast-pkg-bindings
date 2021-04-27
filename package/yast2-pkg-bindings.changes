@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue Apr 27 08:23:29 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
+
+- Pkg.ProvidePackage() - download the latest package version from
+  the repository, this ensures that the installer is updated with
+  the latest packages from the installer updates repository
+  (bsc#1185240)
+- 4.2.16
+
+-------------------------------------------------------------------
 Wed Jan 20 09:24:46 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
 
 - Allow filtering resolvables by RPM path, return RPM path
