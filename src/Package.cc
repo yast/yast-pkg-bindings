@@ -3154,11 +3154,17 @@ zypp::Package::constPtr PkgFunctions::packageFromRepo(const YCPInteger & repo_id
   zypp::Repository repository(zypp::ResPool::instance().reposFind(repo->repoInfo().alias()));
 
   if (repository == zypp::Repository::noRepository)
+  {
+    y2error("Repository %lld not found", repo_id->value());
     return NULL;
+  }
 
   zypp::ui::Selectable::Ptr s = zypp::ui::Selectable::get(name->value());
   if (!s)
+  {
+    y2error("Package %s not found", name->value().c_str());
     return NULL;
+  }
 
   return zypp::asKind<zypp::Package>(s->candidateObjFrom(repository).resolvable());
 }
