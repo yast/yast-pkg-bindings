@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue May  4 13:11:22 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
+
+- Pkg.ProvidePackage() - download the latest package version from
+  the repository, this ensures that the installer is updated with
+  the latest packages from the installer updates repository
+  (bsc#1185240)
+- 3.2.9
+
+-------------------------------------------------------------------
 Thu Jan 16 08:29:24 UTC 2020 - Ladislav Slezák <lslezak@suse.cz>
 
 - Backported some more Pkg.Resolvables() fixes from SLE15-SP2:
