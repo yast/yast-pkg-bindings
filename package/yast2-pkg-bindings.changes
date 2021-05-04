@@ -5,7 +5,7 @@ Tue May  4 11:41:46 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
   the repository, this ensures that the installer is updated with
   the latest packages from the installer updates repository
   (bsc#1185240)
-- 3.2.6
+- 3.2.5.1
 
 -------------------------------------------------------------------
 Thu Dec  7 12:03:48 UTC 2017 - lslezak@suse.cz
