@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue May  4 13:29:07 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
+
+- Pkg.ProvidePackage() - download the latest package version from
+  the repository, this ensures that the installer is updated with
+  the latest packages from the installer updates repository
+  (bsc#1185240)
+- 4.1.4
+
+-------------------------------------------------------------------
 Fri Jul 10 09:24:53 CEST 2020 - aschnell@suse.com
 
 - Extensions to handle raw repository name (bsc#1172477)
