@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue May  4 13:26:24 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
+
+- Pkg.ProvidePackage() - download the latest package version from
+  the repository, this ensures that the installer is updated with
+  the latest packages from the installer updates repository
+  (bsc#1185240)
+- 4.0.14
+
+-------------------------------------------------------------------
 Wed Jul  4 12:55:04 CEST 2018 - schubi@suse.de
 
 - SavePkgService: Checking if the service file still exists before
