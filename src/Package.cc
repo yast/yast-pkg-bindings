@@ -3096,17 +3096,25 @@ YCPValue PkgFunctions::CreateSolverTestCase(const YCPString &dir)
  * @return zypp::Package::constPtr
  */
 zypp::Package::constPtr PkgFunctions::packageFromRepo(const YCPInteger & repo_id, const YCPString & name) {
-  zypp::ResPool pool(zypp::getZYpp()->pool());
   YRepo_Ptr repo = logFindRepository(repo_id->value());
-  if (!repo) return NULL;
+  if (!repo || name.isEmpty()) return NULL;
 
-  /* maybe we should use std::find_if */
-  for_(it, pool.byIdentBegin<zypp::Package>(name->value()), pool.byIdentEnd<zypp::Package>(name->value())) {
-    if (repo->repoInfo().alias() == (*it)->repository().alias()) {
-      return zypp::asKind<zypp::Package>((*it).resolvable());
-    }
+  zypp::Repository repository(zypp::ResPool::instance().reposFind(repo->repoInfo().alias()));
+
+  if (repository == zypp::Repository::noRepository)
+  {
+    y2error("Repository %lld not found", repo_id->value());
+    return NULL;
   }
-  return NULL;
+
+  zypp::ui::Selectable::Ptr s = zypp::ui::Selectable::get(name->value());
+  if (!s)
+  {
+    y2error("Package %s not found", name->value().c_str());
+    return NULL;
+  }
+
+  return zypp::asKind<zypp::Package>(s->candidateObjFrom(repository).resolvable());
 }
 
 /**
