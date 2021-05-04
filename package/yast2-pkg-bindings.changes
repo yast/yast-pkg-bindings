@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue May  4 11:41:46 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
+
+- Pkg.ProvidePackage() - download the latest package version from
+  the repository, this ensures that the installer is updated with
+  the latest packages from the installer updates repository
+  (bsc#1185240)
+- 3.2.6
+
+-------------------------------------------------------------------
 Thu Dec  7 12:03:48 UTC 2017 - lslezak@suse.cz
 
 - Fixed Pkg.ExpandedUrl to return also the password part
