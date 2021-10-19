@@ -27,5 +27,9 @@ if test \
 fi
 
 AX_CHECK_DOCBOOK
+
+# libzypp uses the C++17 standard
+CXXFLAGS="${CXXFLAGS} -std=c++17"
+
 ## and generate the output
 @YAST2-OUTPUT@
