@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: registry.opensuse.org/yast/head/containers/yast-cpp:latest
-      options: --privileged
 
     steps:
 
