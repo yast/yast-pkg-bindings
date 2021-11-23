@@ -424,6 +424,163 @@ namespace ZyppRecipients {
 	}
     };
 
+    struct InstallPkgReceiveSA : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::InstallResolvableReportSA>
+    {
+	zypp::Resolvable::constPtr _last;
+	PkgFunctions &_pkg_ref;
+	int last_reported;
+	time_t last_reported_time;
+
+	InstallPkgReceiveSA(RecipientCtl & construct_r, PkgFunctions &pk) : Recipient(construct_r), _last(NULL), _pkg_ref(pk)
+	{
+	}
+
+	virtual void reportbegin()
+	{
+	}
+
+	virtual void reportend()
+	{
+	}
+
+	virtual void start(zypp::Resolvable::constPtr resolvable)
+	{
+	  // initialize the counter
+	  last_reported = 0;
+	  last_reported_time = time(NULL);
+
+#warning install non-package
+	  zypp::Package::constPtr res =
+	    zypp::asKind<zypp::Package>(resolvable);
+
+	  // if we have started this resolvable already, don't do it again
+	  if( _last == resolvable )
+	    return;
+
+	  // convert the repo ID
+	  PkgFunctions::RepoId source_id = _pkg_ref.logFindAlias(res->repoInfo().alias());
+	  int media_nr = res->mediaNr();
+
+	  if( source_id != _pkg_ref.LastReportedRepo() || media_nr != _pkg_ref.LastReportedMedium())
+	  {
+	    CB callback( ycpcb( YCPCallbacks::CB_SourceChange ) );
+	    if (callback._set) {
+	        callback.addInt( source_id );
+	        callback.addInt( media_nr );
+	        callback.evaluate();
+	    }
+
+	    _pkg_ref.SetReportedSource(source_id, media_nr);
+          }
+
+	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
+	  if (callback._set) {
+	    callback.addStr(res->name());
+	    callback.addStr(res->location().filename());
+	    callback.addStr(res->summary());
+	    callback.addInt(res->installSize());
+	    callback.addBool(false);	// is_delete = false (package installation)
+	    callback.evaluate();
+	  }
+
+	  _last = resolvable;
+	}
+
+	virtual void progress(int value, zypp::Resolvable::constPtr resolvable)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
+	    // call the callback function only if the difference since the last call is at least 5%
+	    // or if 100% is reached or at least 3 seconds have elapsed
+	    time_t current_time = time(NULL);
+	    if (callback._set && (value - last_reported >= 5 || last_reported - value >= 5 || value == 100 || current_time - last_reported_time >= callback_timeout))
+	    {
+		callback.addInt( value );
+		bool res = callback.evaluateBool();
+
+		if( !res )
+		    y2milestone( "Package installation callback returned abort, but ignored in transaction" );
+
+		last_reported = value;
+		last_reported_time = current_time;
+	    }
+	}
+
+        // note: the RpmLevel argument is not used anymore, ignore it
+	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, const std::string &reason, zypp::target::rpm::InstallResolvableReport::RpmLevel /*level*/)
+	{
+            // errors are handled in the problem() callback above, here just log the message
+            if (error != zypp::target::rpm::InstallResolvableReportSA::NO_ERROR)
+            {
+                y2milestone("Error in finish callback: %s", reason.c_str());
+            }
+
+            CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
+            if (callback._set) {
+                // report no error, errors were already reported in problem() callback above,
+                // just report real "done" status
+                callback.addInt(NO_ERROR);
+                callback.addStr(std::string(""));
+
+                // return value ignored
+                callback.evaluateStr();
+            }
+	}
+    };
+
+
+    ///////////////////////////////////////////////////////////////////
+    // RemovePkgCallback for transaction
+    ///////////////////////////////////////////////////////////////////
+    struct RemovePkgReceiveSA : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::RemoveResolvableReportSA>
+    {
+	RemovePkgReceiveSA( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+	virtual void reportbegin()
+	{
+	}
+
+	virtual void reportend()
+	{
+	}
+
+	virtual void start(zypp::Resolvable::constPtr resolvable)
+	{
+	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
+	  if (callback._set) {
+	    callback.addStr(resolvable->name());
+	    callback.addStr(std::string());
+	    callback.addStr(std::string());
+	    callback.addInt(-1);
+	    callback.addBool(true);	// is_delete = true
+	    callback.evaluate();
+	  }
+	}
+
+	virtual void progress(int value, zypp::Resolvable::constPtr resolvable)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
+	    if (callback._set) {
+		callback.addInt( value );
+
+		bool res = callback.evaluateBool();
+
+		if( !res )
+		{
+		    y2milestone( "Package remove callback returned abort. Ignoring in transaction" );
+		}
+	    }
+	}
+
+	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::RemoveResolvableReport::Error error, const std::string &reason)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
+	    if (callback._set) {
+		callback.addInt( error );
+		callback.addStr( reason );
+		callback.evaluateStr(); // return value ignored by RpmDb
+	    }
+	}
+    };
 
 
     ///////////////////////////////////////////////////////////////////
@@ -886,6 +1043,79 @@ namespace ZyppRecipients {
 	    }
 	}
     };
+
+    ///////////////////////////////////////////////////////////////////
+    // CommitScriptReportPkgSA
+    ///////////////////////////////////////////////////////////////////
+    struct CommitScriptReportPkgSA : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::CommitScriptReportSA>
+    {
+	CommitScriptReportPkgSA( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+        // TODO: old YCP callback does not fit well
+	virtual void start( const std::string & scriptType, const std::string &  packageName,
+          zypp::Resolvable::constPtr resolvable )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ScriptStart) );
+	    if ( callback._set )
+	    {
+		callback.addStr(packageName);
+		callback.addStr(string(""));
+		callback.addStr(string(""));
+		callback.addStr(string(""));
+
+		callback.evaluate();
+	    }
+	}
+
+        // TODO: old YCP callback does not fit well
+	virtual void progress( int value, zypp::Resolvable::constPtr resolvable )
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ScriptProgress) );
+
+	    if ( callback._set )
+	    {
+		callback.addBool(true);
+		callback.addStr(string(""));
+
+		callback.evaluateBool();
+	    }
+	}
+
+	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::CommitScriptReportSA::Error error)
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ScriptFinish) );
+
+	    if ( callback._set )
+	    {
+		callback.evaluate();
+	    }
+	}
+    };
+
+    ///////////////////////////////////////////////////////////////////
+    // TransactionReportPkgSA - Generic transaction reports
+    ///////////////////////////////////////////////////////////////////
+    struct TransactionReportPkgSA : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::TransactionReportSA>
+    {
+	TransactionReportPkgSA( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+
+        // TODO: YCP callback missing for now
+	virtual void start( const std::string & name )
+	{
+            y2milestone("Transaction start %s", name.c_str());
+	}
+
+        // TODO: old YCP callback does not fit well
+	virtual void progress( int value )
+	{
+	}
+
+	virtual void finish(zypp::target::rpm::TransactionReportSA::Error error)
+	{
+            // TODO: create YCP callback if transaction failed, to report errors
+	}
+    };
+
 
     struct MessageReceive : public Recipient, public zypp::callback::ReceiveReport<zypp::target::PatchMessageReport>
     {
