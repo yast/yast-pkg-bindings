@@ -443,7 +443,7 @@ namespace ZyppRecipients {
 	{
 	}
 
-	virtual void start(zypp::Resolvable::constPtr resolvable) override
+	virtual void start(zypp::Resolvable::constPtr resolvable, const UserData & userdata = UserData()) override
 	{
 	  // initialize the counter
 	  last_reported = 0;
@@ -486,7 +486,7 @@ namespace ZyppRecipients {
 	  _last = resolvable;
 	}
 
-	virtual void progress(int value, zypp::Resolvable::constPtr resolvable) override
+	virtual void progress(int value, zypp::Resolvable::constPtr resolvable, const UserData & userdata = UserData()) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
 	    // call the callback function only if the difference since the last call is at least 5%
@@ -505,18 +505,20 @@ namespace ZyppRecipients {
 	    }
 	}
 
-        // note: the RpmLevel argument is not used anymore, ignore it
-	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, const std::string &reason, zypp::target::rpm::InstallResolvableReport::RpmLevel /*level*/) override
+	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, const UserData & userdata = UserData()) override
 	{
             // errors are handled in the problem() callback above, here just log the message
             if (error != zypp::target::rpm::InstallResolvableReportSA::NO_ERROR)
             {
-                y2milestone("Error in finish callback: %s", reason.c_str());
+                string output;
+                stringstream ss(output);
+                ss << userdata;
+                y2milestone("Error in finish callback: %s", ss.str().c_str());
             }
 
             CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
             if (callback._set) {
-                // report no error, errors were already reported in problem() callback above,
+                // report no error, errors will be reported at the end of transaction
                 // just report real "done" status
                 callback.addInt(NO_ERROR);
                 callback.addStr(std::string(""));
@@ -543,7 +545,7 @@ namespace ZyppRecipients {
 	{
 	}
 
-	virtual void start(zypp::Resolvable::constPtr resolvable) override
+	virtual void start(zypp::Resolvable::constPtr resolvable, const UserData & userdata = UserData()) override
 	{
 	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
 	  if (callback._set) {
@@ -556,7 +558,7 @@ namespace ZyppRecipients {
 	  }
 	}
 
-	virtual void progress(int value, zypp::Resolvable::constPtr resolvable) override
+	virtual void progress(int value, zypp::Resolvable::constPtr resolvable, const UserData & userdata = UserData()) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
 	    if (callback._set) {
@@ -571,12 +573,12 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::RemoveResolvableReport::Error error, const std::string &reason) override
+	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::RemoveResolvableReportSA::Error error, const UserData & userdata = UserData()) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
 		callback.addInt( error );
-		callback.addStr( reason );
+		callback.addStr( string("") ); // TODO: no reason, maybe extract it from user data?
 		callback.evaluateStr(); // return value ignored by RpmDb
 	    }
 	}
@@ -1053,7 +1055,7 @@ namespace ZyppRecipients {
 
         // TODO: old YCP callback does not fit well
 	virtual void start( const std::string & scriptType, const std::string &  packageName,
-          zypp::Resolvable::constPtr resolvable ) override
+          zypp::Resolvable::constPtr resolvable, const UserData & userdata = UserData() ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ScriptStart) );
 	    if ( callback._set )
@@ -1068,7 +1070,7 @@ namespace ZyppRecipients {
 	}
 
         // TODO: old YCP callback does not fit well
-	virtual void progress( int value, zypp::Resolvable::constPtr resolvable ) override
+	virtual void progress( int value, zypp::Resolvable::constPtr resolvable, const UserData & userdata = UserData() ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ScriptProgress) );
 
@@ -1081,7 +1083,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::CommitScriptReportSA::Error error) override
+	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::CommitScriptReportSA::Error error, const UserData & userdata = UserData()) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ScriptFinish) );
 
@@ -1100,17 +1102,17 @@ namespace ZyppRecipients {
 	TransactionReportPkgSA( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
         // TODO: YCP callback missing for now
-	virtual void start( const std::string & name ) override
+	virtual void start( const std::string & name , const UserData & userdata = UserData()) override
 	{
             y2milestone("Transaction start %s", name.c_str());
 	}
 
         // TODO: old YCP callback does not fit well
-	virtual void progress( int value ) override
+	virtual void progress( int value , const UserData & userdata = UserData()) override
 	{
 	}
 
-	virtual void finish(zypp::target::rpm::TransactionReportSA::Error error) override
+	virtual void finish(zypp::target::rpm::TransactionReportSA::Error error, const UserData & userdata = UserData()) override
 	{
             // TODO: create YCP callback if transaction failed, to report errors
 	}
@@ -2028,7 +2030,9 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 
     // package callbacks
     ZyppRecipients::InstallPkgReceive _installPkgReceive;
+    ZyppRecipients::InstallPkgReceiveSA _installPkgReceiveSA;
     ZyppRecipients::RemovePkgReceive  _removePkgReceive;
+    ZyppRecipients::RemovePkgReceiveSA  _removePkgReceiveSA;
     ZyppRecipients::DownloadResolvableReceive _providePkgReceive;
     ZyppRecipients::FileConflictReceive _fileConflictReceive;
 
@@ -2038,7 +2042,8 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 
     // script/messages
     ZyppRecipients::ScriptExecReceive	_scriptExecReceive;
-    ZyppRecipients::MessageReceive	_messageReceive;
+    ZyppRecipients::CommitScriptReportPkgSA	_commitScriptReportSA;
+    ZyppRecipients::MessageReceive     _messageReceive;
 
     // source manager callback
     ZyppRecipients::SourceCreateReceive _sourceCreateReceive;
@@ -2059,18 +2064,25 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
     // authentication callback
     ZyppRecipients::AuthReceive _authReceive;
 
+    // transaction callback
+    ZyppRecipients::TransactionReportPkgSA _transactionReportSA;
+
+
   public:
 
     ZyppReceive( const YCPCallbacks & ycpcb_r, PkgFunctions &pkg)
       : RecipientCtl( ycpcb_r )
       , _rebuildDbReceive( *this )
       , _installPkgReceive( *this, pkg )
+      , _installPkgReceiveSA( *this, pkg )
       , _removePkgReceive( *this )
+      , _removePkgReceiveSA( *this )
       , _providePkgReceive( *this, pkg )
       , _fileConflictReceive( *this )
       , _mediaChangeReceive( *this )
       , _downloadProgressReceive( *this )
       , _scriptExecReceive( *this )
+      , _commitScriptReportSA( *this )
       , _messageReceive( *this )
       , _sourceCreateReceive( *this )
       , _sourceReport( *this, pkg)
@@ -2080,16 +2092,20 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
       , _keyRingReceive( *this, pkg )
       , _keyRingSignal( *this )
       , _authReceive( *this )
+      , _transactionReportSA( *this )
     {
 	// connect the receivers
 	_rebuildDbReceive.connect();
 	_installPkgReceive.connect();
+	_installPkgReceiveSA.connect();
 	_removePkgReceive.connect();
+	_removePkgReceiveSA.connect();
 	_providePkgReceive.connect();
         _fileConflictReceive.connect();
 	_mediaChangeReceive.connect();
 	_downloadProgressReceive.connect();
 	_scriptExecReceive.connect();
+        _commitScriptReportSA.connect();
 	_messageReceive.connect();
 	_sourceCreateReceive.connect();
 	_sourceReport.connect();
@@ -2099,6 +2115,7 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 	_keyRingReceive.connect();
 	_keyRingSignal.connect();
 	_authReceive.connect();
+        _transactionReportSA.connect();
     }
 
     virtual ~ZyppReceive()
@@ -2106,12 +2123,15 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 	// disconnect the receivers
 	_rebuildDbReceive.disconnect();
 	_installPkgReceive.disconnect();
+	_installPkgReceiveSA.disconnect();
 	_removePkgReceive.disconnect();
+	_removePkgReceiveSA.disconnect();
 	_providePkgReceive.disconnect();
         _fileConflictReceive.disconnect();
 	_mediaChangeReceive.disconnect();
 	_downloadProgressReceive.disconnect();
 	_scriptExecReceive.disconnect();
+	_commitScriptReportSA.disconnect();
 	_messageReceive.disconnect();
 	_sourceCreateReceive.disconnect();
 	_sourceReport.disconnect();
@@ -2121,6 +2141,7 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
 	_keyRingReceive.disconnect();
 	_keyRingSignal.disconnect();
 	_authReceive.disconnect();
+        _transactionReportSA.disconnect();
     }
   public:
 
