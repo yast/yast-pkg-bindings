@@ -109,7 +109,7 @@ namespace ZyppRecipients {
 	{
 	}
 
-	virtual void start(zypp::Pathname path)
+	virtual void start(zypp::Pathname path) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_StartRebuildDb ) );
 	    if ( callback._set ) {
@@ -117,7 +117,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual bool progress(int value, zypp::Pathname pth)
+	virtual bool progress(int value, zypp::Pathname pth) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressRebuildDb ) );
 	    if ( callback._set ) {
@@ -130,7 +130,7 @@ namespace ZyppRecipients {
 	    return zypp::target::rpm::RebuildDBReport::progress(value, pth);
 	}
 
-	virtual void finish(zypp::Pathname path, zypp::target::rpm::RebuildDBReport::Error error, const std::string &reason)
+	virtual void finish(zypp::Pathname path, zypp::target::rpm::RebuildDBReport::Error error, const std::string &reason) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_StopRebuildDb ) );
 	    if (callback._set) {
@@ -164,7 +164,7 @@ namespace ZyppRecipients {
 	{
 	}
 
-	virtual void start(zypp::Resolvable::constPtr resolvable)
+	virtual void start(zypp::Resolvable::constPtr resolvable) override
 	{
 	  // initialize the counter
 	  last_reported = 0;
@@ -207,7 +207,7 @@ namespace ZyppRecipients {
 	  _last = resolvable;
 	}
 
-	virtual bool progress(int value, zypp::Resolvable::constPtr resolvable)
+	virtual bool progress(int value, zypp::Resolvable::constPtr resolvable) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
 	    // call the callback function only if the difference since the last call is at least 5%
@@ -236,7 +236,7 @@ namespace ZyppRecipients {
           , const std::string &description
           // note: the RpmLevel argument is not used anymore, ignore it
           , zypp::target::rpm::InstallResolvableReport::RpmLevel level
-        )
+        ) override
 	{
 	    _last = zypp::Resolvable::constPtr();
 
@@ -263,7 +263,7 @@ namespace ZyppRecipients {
 	}
 
         // note: the RpmLevel argument is not used anymore, ignore it
-	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, const std::string &reason, zypp::target::rpm::InstallResolvableReport::RpmLevel /*level*/)
+	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, const std::string &reason, zypp::target::rpm::InstallResolvableReport::RpmLevel /*level*/) override
 	{
             // errors are handled in the problem() callback above, here just log the message
             if (error != zypp::target::rpm::InstallResolvableReport::NO_ERROR)
@@ -300,7 +300,7 @@ namespace ZyppRecipients {
 	{
 	}
 
-	virtual void start(zypp::Resolvable::constPtr resolvable)
+	virtual void start(zypp::Resolvable::constPtr resolvable) override
 	{
 	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
 	  if (callback._set) {
@@ -313,7 +313,7 @@ namespace ZyppRecipients {
 	  }
 	}
 
-	virtual bool progress(int value, zypp::Resolvable::constPtr resolvable)
+	virtual bool progress(int value, zypp::Resolvable::constPtr resolvable) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
 	    if (callback._set) {
@@ -337,7 +337,7 @@ namespace ZyppRecipients {
           zypp::Resolvable::constPtr resolvable
           , zypp::target::rpm::RemoveResolvableReport::Error error
           , const std::string &description
-        )
+        ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
@@ -360,7 +360,7 @@ namespace ZyppRecipients {
 		(resolvable, error, description);
 	}
 
-	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::RemoveResolvableReport::Error error, const std::string &reason)
+	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::RemoveResolvableReport::Error error, const std::string &reason) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
@@ -376,7 +376,7 @@ namespace ZyppRecipients {
     {
 	ProgressReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual void start(const zypp::ProgressData &task)
+	virtual void start(const zypp::ProgressData &task) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressStart ) );
 	    y2debug("ProgressStart: id:%d, %s", task.numericId(), task.name().c_str());
@@ -395,7 +395,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual bool progress(const zypp::ProgressData &task)
+	virtual bool progress(const zypp::ProgressData &task) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressProgress ) );
 	    y2debug("ProgressProgress: id:%d, %s: %lld%%", task.numericId(), task.name().c_str(), task.reportValue());
@@ -411,7 +411,7 @@ namespace ZyppRecipients {
 	    return zypp::ProgressReport::progress(task);
 	}
 
-	virtual void finish( const zypp::ProgressData &task )
+	virtual void finish( const zypp::ProgressData &task ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDone ) );
 	    y2debug("ProgressFinish: id:%d, %s", task.numericId(), task.name().c_str());
@@ -443,7 +443,7 @@ namespace ZyppRecipients {
 	{
 	}
 
-	virtual void start(zypp::Resolvable::constPtr resolvable)
+	virtual void start(zypp::Resolvable::constPtr resolvable) override
 	{
 	  // initialize the counter
 	  last_reported = 0;
@@ -486,7 +486,7 @@ namespace ZyppRecipients {
 	  _last = resolvable;
 	}
 
-	virtual void progress(int value, zypp::Resolvable::constPtr resolvable)
+	virtual void progress(int value, zypp::Resolvable::constPtr resolvable) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
 	    // call the callback function only if the difference since the last call is at least 5%
@@ -506,7 +506,7 @@ namespace ZyppRecipients {
 	}
 
         // note: the RpmLevel argument is not used anymore, ignore it
-	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, const std::string &reason, zypp::target::rpm::InstallResolvableReport::RpmLevel /*level*/)
+	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, const std::string &reason, zypp::target::rpm::InstallResolvableReport::RpmLevel /*level*/) override
 	{
             // errors are handled in the problem() callback above, here just log the message
             if (error != zypp::target::rpm::InstallResolvableReportSA::NO_ERROR)
@@ -543,7 +543,7 @@ namespace ZyppRecipients {
 	{
 	}
 
-	virtual void start(zypp::Resolvable::constPtr resolvable)
+	virtual void start(zypp::Resolvable::constPtr resolvable) override
 	{
 	  CB callback( ycpcb( YCPCallbacks::CB_StartPackage ) );
 	  if (callback._set) {
@@ -556,7 +556,7 @@ namespace ZyppRecipients {
 	  }
 	}
 
-	virtual void progress(int value, zypp::Resolvable::constPtr resolvable)
+	virtual void progress(int value, zypp::Resolvable::constPtr resolvable) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressPackage) );
 	    if (callback._set) {
@@ -571,7 +571,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::RemoveResolvableReport::Error error, const std::string &reason)
+	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::RemoveResolvableReport::Error error, const std::string &reason) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DonePackage) );
 	    if (callback._set) {
@@ -611,7 +611,7 @@ namespace ZyppRecipients {
 	{
 	}
 
-	virtual void start( zypp::Resolvable::constPtr resolvable_ptr, const zypp::Url &url)
+	virtual void start( zypp::Resolvable::constPtr resolvable_ptr, const zypp::Url &url) override
 	{
 	  unsigned size = 0;
 	  last_reported = 0;
@@ -653,7 +653,7 @@ namespace ZyppRecipients {
 	  }
 	}
 
-	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::repo::DownloadResolvableReport::Error error, const std::string &reason)
+	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::repo::DownloadResolvableReport::Error error, const std::string &reason) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
 	    if (callback._set) {
@@ -664,7 +664,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-        virtual bool progress(int value, zypp::Resolvable::constPtr resolvable_ptr)
+        virtual bool progress(int value, zypp::Resolvable::constPtr resolvable_ptr) override
         {
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressProvide) );
 	    time_t current_time = time(NULL);
@@ -679,7 +679,7 @@ namespace ZyppRecipients {
 	    return zypp::repo::DownloadResolvableReport::progress(value, resolvable_ptr);
 	}
 
-	virtual Action problem(zypp::Resolvable::constPtr resolvable_ptr, zypp::repo::DownloadResolvableReport::Error error, const std::string &description)
+	virtual Action problem(zypp::Resolvable::constPtr resolvable_ptr, zypp::repo::DownloadResolvableReport::Error error, const std::string &description) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
 	    if (callback._set) {
@@ -709,7 +709,7 @@ namespace ZyppRecipients {
 	// - expected download size (0 if unknown)
 	// - download is interruptable
 	// - problems are just informative
-	virtual void startDeltaDownload( const zypp::Pathname & filename, const zypp::ByteCount & downloadsize )
+	virtual void startDeltaDownload( const zypp::Pathname & filename, const zypp::ByteCount & downloadsize ) override
 	{
 	    // reset the counter
 	    last_reported_delta_download = 0;
@@ -724,7 +724,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual bool progressDeltaDownload( int value )
+	virtual bool progressDeltaDownload( int value ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDeltaDownload) );
 	    time_t current_time = time(NULL);
@@ -740,7 +740,7 @@ namespace ZyppRecipients {
 	    return zypp::repo::DownloadResolvableReport::progressDeltaDownload(value);
 	}
 
-	virtual void problemDeltaDownload( const std::string &description )
+	virtual void problemDeltaDownload( const std::string &description ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProblemDeltaDownload ) );
 	    if (callback._set) {
@@ -750,7 +750,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual void finishDeltaDownload()
+	virtual void finishDeltaDownload() override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_FinishDeltaDownload ) );
 
@@ -765,7 +765,7 @@ namespace ZyppRecipients {
 	// - local path of downloaded delta
 	// - apply is not interruptable
 	// - problems are just informative
-	virtual void startDeltaApply( const zypp::Pathname & filename )
+	virtual void startDeltaApply( const zypp::Pathname & filename ) override
 	{
 	    // reset the counter
 	    last_reported_delta_apply = 0;
@@ -779,7 +779,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual void progressDeltaApply( int value )
+	virtual void progressDeltaApply( int value ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDeltaApply ) );
 	    time_t current_time = time(NULL);
@@ -793,7 +793,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual void problemDeltaApply( const std::string &description )
+	virtual void problemDeltaApply( const std::string &description ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ProblemDeltaApply ) );
 
@@ -804,7 +804,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual void finishDeltaApply()
+	virtual void finishDeltaApply() override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_FinishDeltaApply ) );
 
@@ -827,7 +827,7 @@ namespace ZyppRecipients {
     // It will set userData_r "Action" key according to value returned
     // by callback.
     ///////////////////////////////////////////////////////////////////
-    virtual void pkgGpgCheck(const UserData & userData_r = UserData() )
+    virtual void pkgGpgCheck(const UserData & userData_r = UserData() ) override
     {
       typedef zypp::target::rpm::RpmDb RpmDb;
       CB callback( ycpcb( YCPCallbacks::CB_PkgGpgCheck ) );
@@ -884,7 +884,7 @@ namespace ZyppRecipients {
 
 	DownloadProgressReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-        virtual void start( const zypp::Url &file, zypp::Pathname localfile )
+        virtual void start( const zypp::Url &file, zypp::Pathname localfile ) override
 	{
 	    last_reported = 0;
 	    last_reported_time = time(NULL);
@@ -898,7 +898,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-        virtual bool progress(int value, const zypp::Url &file, double bps_avg, double bps_current)
+        virtual bool progress(int value, const zypp::Url &file, double bps_avg, double bps_current) override
         {
 	    CB callback( ycpcb( YCPCallbacks::CB_ProgressDownload ) );
 	    // call the callback function only if the difference since the last call is at least 5%
@@ -918,7 +918,7 @@ namespace ZyppRecipients {
 	    return zypp::media::DownloadProgressReport::progress(value, file, bps_avg, bps_current);
 	}
 
-        virtual Action problem( const zypp::Url &file, zypp::media::DownloadProgressReport::Error error, const std::string &description)
+        virtual Action problem( const zypp::Url &file, zypp::media::DownloadProgressReport::Error error, const std::string &description) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneProvide) );
 
@@ -944,7 +944,7 @@ namespace ZyppRecipients {
 	    return zypp::media::DownloadProgressReport::problem(file, error, description);
 	}
 
-        virtual void finish( const zypp::Url &file, zypp::media::DownloadProgressReport::Error error, const std::string &reason)
+        virtual void finish( const zypp::Url &file, zypp::media::DownloadProgressReport::Error error, const std::string &reason) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_DoneDownload ) );
 
@@ -973,7 +973,7 @@ namespace ZyppRecipients {
     {
 	ScriptExecReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual void start( const zypp::Package::constPtr &pkg, const zypp::Pathname &path_r)
+	virtual void start( const zypp::Package::constPtr &pkg, const zypp::Pathname &path_r) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ScriptStart) );
 	    if ( callback._set )
@@ -987,7 +987,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual bool progress( zypp::target::PatchScriptReport::Notify ping, const std::string &out = std::string() )
+	virtual bool progress( zypp::target::PatchScriptReport::Notify ping, const std::string &out = std::string() ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ScriptProgress) );
 
@@ -1006,7 +1006,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual zypp::target::PatchScriptReport::Action problem( const std::string &description )
+	virtual zypp::target::PatchScriptReport::Action problem( const std::string &description ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ScriptProblem) );
 
@@ -1033,7 +1033,7 @@ namespace ZyppRecipients {
 	    return zypp::target::PatchScriptReport::problem(description);
 	}
 
-	virtual void finish()
+	virtual void finish() override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ScriptFinish) );
 
@@ -1053,7 +1053,7 @@ namespace ZyppRecipients {
 
         // TODO: old YCP callback does not fit well
 	virtual void start( const std::string & scriptType, const std::string &  packageName,
-          zypp::Resolvable::constPtr resolvable )
+          zypp::Resolvable::constPtr resolvable ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ScriptStart) );
 	    if ( callback._set )
@@ -1068,7 +1068,7 @@ namespace ZyppRecipients {
 	}
 
         // TODO: old YCP callback does not fit well
-	virtual void progress( int value, zypp::Resolvable::constPtr resolvable )
+	virtual void progress( int value, zypp::Resolvable::constPtr resolvable ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ScriptProgress) );
 
@@ -1081,7 +1081,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::CommitScriptReportSA::Error error)
+	virtual void finish(zypp::Resolvable::constPtr resolvable, zypp::target::rpm::CommitScriptReportSA::Error error) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ScriptFinish) );
 
@@ -1100,17 +1100,17 @@ namespace ZyppRecipients {
 	TransactionReportPkgSA( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
         // TODO: YCP callback missing for now
-	virtual void start( const std::string & name )
+	virtual void start( const std::string & name ) override
 	{
             y2milestone("Transaction start %s", name.c_str());
 	}
 
         // TODO: old YCP callback does not fit well
-	virtual void progress( int value )
+	virtual void progress( int value ) override
 	{
 	}
 
-	virtual void finish(zypp::target::rpm::TransactionReportSA::Error error)
+	virtual void finish(zypp::target::rpm::TransactionReportSA::Error error) override
 	{
             // TODO: create YCP callback if transaction failed, to report errors
 	}
@@ -1121,7 +1121,7 @@ namespace ZyppRecipients {
     {
 	MessageReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-        virtual bool show(zypp::Patch::constPtr &p)
+        virtual bool show(zypp::Patch::constPtr &p) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_Message) );
 
@@ -1144,7 +1144,7 @@ namespace ZyppRecipients {
     {
 	AuthReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual bool prompt(const zypp::Url& url, const std::string& msg, zypp::media::AuthData& auth_data)
+	virtual bool prompt(const zypp::Url& url, const std::string& msg, zypp::media::AuthData& auth_data) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_Authentication ) );
 
@@ -1234,7 +1234,7 @@ namespace ZyppRecipients {
                                     zypp::media::MediaChangeReport::Error error,
                                     const std::string &description,
                                     const std::vector<std::string> & devices,
-                                    unsigned int &dev_current)
+                                    unsigned int &dev_current) override
 	{
 	    if ( _silent_probing == MEDIA_CHANGE_DISABLE )
 		return zypp::media::MediaChangeReport::ABORT;
@@ -1369,7 +1369,7 @@ namespace ZyppRecipients {
     {
 	SourceCreateReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual void reportbegin()
+	virtual void reportbegin() override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateInit ) );
 	    y2debug("Repo Create begin");
@@ -1380,7 +1380,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual void reportend()
+	virtual void reportend() override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateDestroy ) );
 	    y2debug("Repo Create destroy");
@@ -1391,7 +1391,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual void start( const zypp::Url &url )
+	virtual void start( const zypp::Url &url ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateStart ) );
 
@@ -1403,7 +1403,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual bool progress( int value )
+	virtual bool progress( int value ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateProgress ) );
 
@@ -1441,7 +1441,7 @@ namespace ZyppRecipients {
 	    return error_str;
 	}
 
-	virtual Action problem( const zypp::Url &url, zypp::repo::RepoCreateReport::Error error, const std::string &description )
+	virtual Action problem( const zypp::Url &url, zypp::repo::RepoCreateReport::Error error, const std::string &description ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateError ) );
 
@@ -1466,7 +1466,7 @@ namespace ZyppRecipients {
 	    return zypp::repo::RepoCreateReport::problem(url, error, description);
 	}
 
-	virtual void finish( const zypp::Url &url, zypp::repo::RepoCreateReport::Error error, const std::string &reason )
+	virtual void finish( const zypp::Url &url, zypp::repo::RepoCreateReport::Error error, const std::string &reason ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceCreateEnd ) );
 
@@ -1488,7 +1488,7 @@ namespace ZyppRecipients {
     {
 	ProbeSourceReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual void start(const zypp::Url &url)
+	virtual void start(const zypp::Url &url) override
 	{
 	    _silent_probing = MEDIA_CHANGE_DISABLE;
 
@@ -1502,7 +1502,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual void failedProbe( const zypp::Url &url, const std::string &type )
+	virtual void failedProbe( const zypp::Url &url, const std::string &type ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceProbeFailed ) );
 
@@ -1515,7 +1515,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual void successProbe( const zypp::Url &url, const std::string &type )
+	virtual void successProbe( const zypp::Url &url, const std::string &type ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceProbeSucceeded ) );
 
@@ -1550,7 +1550,7 @@ namespace ZyppRecipients {
 	    return error_str;
 	}
 
-	virtual void finish(const zypp::Url &url, zypp::repo::ProbeRepoReport::Error error, const std::string &reason )
+	virtual void finish(const zypp::Url &url, zypp::repo::ProbeRepoReport::Error error, const std::string &reason ) override
 	{
 	    _silent_probing = MEDIA_CHANGE_FULL;
 
@@ -1566,7 +1566,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual bool progress(const zypp::Url &url, int value)
+	virtual bool progress(const zypp::Url &url, int value) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceProbeProgress ) );
 
@@ -1582,7 +1582,7 @@ namespace ZyppRecipients {
 	    return true;
 	}
 
-	virtual zypp::repo::ProbeRepoReport::Action problem( const zypp::Url &url, zypp::repo::ProbeRepoReport::Error error, const std::string &description )
+	virtual zypp::repo::ProbeRepoReport::Action problem( const zypp::Url &url, zypp::repo::ProbeRepoReport::Error error, const std::string &description ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceProbeError ) );
 
@@ -1612,7 +1612,7 @@ namespace ZyppRecipients {
     struct RepoReport : public Recipient, public zypp::callback::ReceiveReport<zypp::repo::RepoReport>
     {
 	const PkgFunctions &_pkg_ref;
-	virtual void reportbegin()
+	virtual void reportbegin() override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportInit ) );
 	    y2debug("Source Report begin");
@@ -1623,7 +1623,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-	virtual void reportend()
+	virtual void reportend() override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportDestroy ) );
 	    y2debug("Source Report end");
@@ -1636,7 +1636,7 @@ namespace ZyppRecipients {
 
 	RepoReport( RecipientCtl & construct_r, const PkgFunctions &pk ) : Recipient( construct_r ), _pkg_ref(pk) {}
 
-        virtual void start(const zypp::ProgressData &task, const zypp::RepoInfo repo)
+        virtual void start(const zypp::ProgressData &task, const zypp::RepoInfo repo) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportStart ) );
 
@@ -1650,7 +1650,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-        virtual bool progress(const zypp::ProgressData &task)
+        virtual bool progress(const zypp::ProgressData &task) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportProgress ) );
 
@@ -1685,7 +1685,7 @@ namespace ZyppRecipients {
 	}
 
 	virtual zypp::repo::RepoReport::Action problem(zypp::Repository source,
-	    zypp::repo::RepoReport::Error error, const std::string &description)
+	    zypp::repo::RepoReport::Error error, const std::string &description) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportError ) );
 
@@ -1721,7 +1721,7 @@ namespace ZyppRecipients {
 	}
 
 	virtual void finish(zypp::Repository source, const std::string &task,
-	    zypp::repo::RepoReport::Error error, const std::string &reason)
+	    zypp::repo::RepoReport::Error error, const std::string &reason) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_SourceReportEnd ) );
 
@@ -1746,7 +1746,7 @@ namespace ZyppRecipients {
     {
 	DigestReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual bool askUserToAcceptNoDigest( const zypp::Pathname &file )
+	virtual bool askUserToAcceptNoDigest( const zypp::Pathname &file ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptFileWithoutChecksum) );
 
@@ -1760,7 +1760,7 @@ namespace ZyppRecipients {
 	    return zypp::DigestReport::askUserToAcceptNoDigest(file);
 	}
 
-	virtual bool askUserToAccepUnknownDigest( const zypp::Pathname &file, const std::string &name )
+	virtual bool askUserToAccepUnknownDigest( const zypp::Pathname &file, const std::string &name ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnknownDigest) );
 
@@ -1775,7 +1775,7 @@ namespace ZyppRecipients {
 	    return zypp::DigestReport::askUserToAccepUnknownDigest(file, name);
 	}
 
-	virtual bool askUserToAcceptWrongDigest( const zypp::Pathname &file, const std::string &requested, const std::string &found )
+	virtual bool askUserToAcceptWrongDigest( const zypp::Pathname &file, const std::string &requested, const std::string &found ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptWrongDigest) );
 
@@ -1802,7 +1802,7 @@ namespace ZyppRecipients {
 	const PkgFunctions &_pkg_ref;
 	KeyRingReceive( RecipientCtl & construct_r, const PkgFunctions &pk) : Recipient( construct_r ), _pkg_ref(pk) {}
 
-	virtual zypp::KeyRingReport::KeyTrust askUserToAcceptKey( const zypp::PublicKey &key, const zypp::KeyContext &context)
+	virtual zypp::KeyRingReport::KeyTrust askUserToAcceptKey( const zypp::PublicKey &key, const zypp::KeyContext &context) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_ImportGpgKey) );
 
@@ -1825,7 +1825,7 @@ namespace ZyppRecipients {
 	    return zypp::KeyRingReport::askUserToAcceptKey(key, context);
 	}
 
-	virtual bool askUserToAcceptUnsignedFile(const std::string &file, const zypp::KeyContext &context)
+	virtual bool askUserToAcceptUnsignedFile(const std::string &file, const zypp::KeyContext &context) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnsignedFile) );
 
@@ -1841,7 +1841,7 @@ namespace ZyppRecipients {
 	    return zypp::KeyRingReport::askUserToAcceptUnsignedFile(file);
 	}
 
-	virtual bool askUserToAcceptUnknownKey(const std::string &file, const std::string &id, const zypp::KeyContext &context)
+	virtual bool askUserToAcceptUnknownKey(const std::string &file, const std::string &id, const zypp::KeyContext &context) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptUnknownGpgKey) );
 
@@ -1863,7 +1863,7 @@ namespace ZyppRecipients {
 	    return zypp::KeyRingReport::askUserToAcceptUnknownKey(file,id);
 	}
 
-	virtual bool askUserToAcceptVerificationFailed(const std::string &file, const zypp::PublicKey &key, const zypp::KeyContext &context)
+	virtual bool askUserToAcceptVerificationFailed(const std::string &file, const zypp::PublicKey &key, const zypp::KeyContext &context) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_AcceptVerificationFailed) );
 
@@ -1890,7 +1890,7 @@ namespace ZyppRecipients {
     {
 	KeyRingSignal ( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-	virtual void trustedKeyAdded( const zypp::PublicKey &key )
+	virtual void trustedKeyAdded( const zypp::PublicKey &key ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_TrustedKeyAdded) );
 
@@ -1903,7 +1903,7 @@ namespace ZyppRecipients {
 	    }
 	}
 
-        virtual void trustedKeyRemoved( const zypp::PublicKey &key )
+        virtual void trustedKeyRemoved( const zypp::PublicKey &key ) override
 	{
 	    CB callback( ycpcb( YCPCallbacks::CB_TrustedKeyRemoved) );
 
@@ -1925,7 +1925,7 @@ namespace ZyppRecipients {
     {
         FileConflictReceive( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-        virtual void reportbegin()
+        virtual void reportbegin() override
         {
             CB callback( ycpcb( YCPCallbacks::CB_FileConflictStart) );
 
@@ -1935,20 +1935,20 @@ namespace ZyppRecipients {
             }
         }
 
-        virtual bool start( const zypp::ProgressData & progress_r )
+        virtual bool start( const zypp::ProgressData & progress_r ) override
         {
             return report_progress(progress_r);
         }
 
         virtual bool progress( const zypp::ProgressData & progress_r,
-            const zypp::sat::Queue & noFilelist_r )
+            const zypp::sat::Queue & noFilelist_r ) override
         {
             return report_progress(progress_r);
         }
 
         virtual bool result( const zypp::ProgressData & progress_r,
             const zypp::sat::Queue & noFilelist_r,
-            const zypp::sat::FileConflicts & conflicts_r )
+            const zypp::sat::FileConflicts & conflicts_r ) override
         {
             CB callback( ycpcb( YCPCallbacks::CB_FileConflictReport) );
 
@@ -1981,7 +1981,7 @@ namespace ZyppRecipients {
             return callback.evaluateBool();
         }
 
-        virtual void reportend()
+        virtual void reportend() override
         {
             CB callback( ycpcb( YCPCallbacks::CB_FileConflictFinish) );
 
