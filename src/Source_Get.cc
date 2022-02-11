@@ -113,6 +113,7 @@ PkgFunctions::SourceGetCurrent (const YCPBoolean& enabled)
  * "alias"	: YCPString,
  * "name"	: YCPString,
  * "raw_name"	: YCPString (raw name without variable replacement),
+ * "file"       : YCPString (source *.repo file when loaded from disk or empty string when created in memory)
  * "service"	: YCPString, (service to which the repo belongs, empty if there is no service assigned)
  * "keeppackages" : YCPBoolean,
  * "is_update_repo" : YCPBoolean, (true if this is an update repo - this requires loaded objects in pool otherwise the flag is not returned! The value is stored in repo metadata, not in .repo file!)
@@ -151,6 +152,8 @@ PkgFunctions::SourceGeneralData (const YCPInteger& id)
 
     data->add( YCPString("name"),		YCPString(repo->repoInfo().name()));
     data->add( YCPString("raw_name"),		YCPString(repo->repoInfo().rawName()));
+
+    data->add(YCPString("file"), YCPString(repo->repoInfo().filepath().asString()));
 
     YCPList base_urls;
     for( zypp::RepoInfo::urls_const_iterator it = repo->repoInfo().baseUrlsBegin(); it != repo->repoInfo().baseUrlsEnd(); ++it)
