@@ -72,6 +72,13 @@ raise "Pkg.SourceGetCurrent failed!" unless repos
 raise "No repository found!" if repos.empty?
 puts "OK (found #{repos.size} repositories)"
 
+# Check the repository properties
+puts "Checking Pkg.SourceGeneralData..."
+repo_data = Yast::Pkg.SourceGeneralData(repos.first)
+repo_path = repo_data["file"]
+raise "Unexpected repository location: #{repo_path.inspect}" unless repo_path&.start_with?("/etc/zypp/repos.d/")
+puts "OK (the first repository was read from #{repo_path})"
+
 # Check all packages - this expects at least one package is available/installed
 puts "Checking Pkg.ResolvableProperties..."
 packages = Yast::Pkg.ResolvableProperties("", :package, "")
