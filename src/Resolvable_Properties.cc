@@ -82,6 +82,7 @@
 
    @return list<map<string,any>> list of $[ "name":string, "version":string,
    "version_epoch":integer (nil if not defined), "version_version":string, "version_release":string,
+   "recommended":boolean, "suggested":boolean, "orphaned":boolean, "unneeded":boolean,
    "arch":string, "source":integer, "status":symbol, "locked":boolean, "on_system_by_user":boolean ] maps
    status is `installed, `removed, `selected or `available, source is source ID or -1 if the resolvable is installed in the target
    if status is `available and locked is true then the object is set to taboo,
@@ -280,6 +281,13 @@ YCPMap PkgFunctions::Resolvable2YCPMap(const zypp::PoolItem &item, bool all, boo
 	ADD_BOOLEAN("on_system_by_user", item.satSolvable().onSystemByUser());
     // is the resolvable locked? (Locked or Taboo in the UI)
 	ADD_BOOLEAN("locked", status.isLocked());
+
+	// additional status flags
+	ADD_BOOLEAN("recommended", status.isRecommended());
+	ADD_BOOLEAN("suggested", status.isSuggested());
+	ADD_BOOLEAN("orphaned", status.isOrphaned());
+	ADD_BOOLEAN("unneeded", status.isUnneeded());
+
     // source
 	ADD_INTEGER("source", logFindAlias(item->repoInfo().alias()));
 
@@ -839,8 +847,9 @@ struct ResolvableFilter
 	// structure to make the filtering process faster and simpler.
 	ResolvableFilter(const YCPMap &attributes, const PkgFunctions &pf)
 		: pkg(pf), check_repo(false), check_transact_by(false), check_vendor(false),
-		check_locked(false), check_on_system(false), check_license_confirmed(false),
-		medium_nr(-1),
+		check_locked(false), check_recommended(false), check_suggested(false),
+		check_orphaned(false), check_unneeded(false),
+		check_on_system(false), check_license_confirmed(false),	medium_nr(-1),
 		check_provides(false), check_regexp_provides(false),
 		check_obsoletes(false), check_regexp_obsoletes(false),
 		check_conflicts(false), check_regexp_conflicts(false),
@@ -915,6 +924,34 @@ struct ResolvableFilter
 		{
 			check_locked = true;
 			locked = vendor_value->asBoolean()->value();
+		}
+
+		YCPValue recommended_value = attributes->value(YCPSymbol("recommended"));
+		if (!recommended_value.isNull() && recommended_value->isBoolean())
+		{
+			check_recommended = true;
+			recommended = recommended_value->asBoolean()->value();
+		}
+
+		YCPValue suggested_value = attributes->value(YCPSymbol("suggested"));
+		if (!suggested_value.isNull() && suggested_value->isBoolean())
+		{
+			check_suggested = true;
+			suggested = suggested_value->asBoolean()->value();
+		}
+
+		YCPValue orphaned_value = attributes->value(YCPSymbol("orphaned"));
+		if (!orphaned_value.isNull() && orphaned_value->isBoolean())
+		{
+			check_orphaned = true;
+			orphaned = orphaned_value->asBoolean()->value();
+		}
+
+		YCPValue unneeded_value = attributes->value(YCPSymbol("unneeded"));
+		if (!unneeded_value.isNull() && unneeded_value->isBoolean())
+		{
+			check_unneeded = true;
+			unneeded = unneeded_value->asBoolean()->value();
 		}
 
 		YCPValue on_system_value = attributes->value(YCPSymbol("on_system_by_user"));
@@ -1013,6 +1050,18 @@ struct ResolvableFilter
 		if (check_locked && locked != r.status().isLocked())
 			return false;
 
+		if (check_recommended && recommended != r.status().isRecommended())
+			return false;
+
+		if (check_suggested && suggested != r.status().isSuggested())
+			return false;
+
+		if (check_orphaned && orphaned != r.status().isOrphaned())
+			return false;
+
+		if (check_unneeded && unneeded != r.status().isUnneeded())
+			return false;
+
 		// check the license status
 		if (check_license_confirmed && license_confirmed != r.status().isLicenceConfirmed())
 			return false;
@@ -1096,6 +1145,10 @@ struct ResolvableFilter
 	std::string vendor;
 
 	bool check_locked, locked;
+	bool check_recommended, recommended;
+	bool check_suggested, suggested;
+	bool check_orphaned, orphaned;
+	bool check_unneeded, unneeded;
 	bool check_on_system, on_system;
 	bool check_license_confirmed, license_confirmed;
 	long long medium_nr;
