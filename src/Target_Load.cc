@@ -143,9 +143,10 @@ PkgFunctions::TargetInitialize (const YCPString& root)
  * @short Initialize Target, read the keys, set the repomanager options
  * @param string root Root Directory
  * @param map options for RepoManager
- *   supproted keys:
+ *   supported keys:
  *   "target_distro": <string> - override the target distribution autodetection,
  *     example values: "sle-11-x86_84", "sle-12-x86_84"
+ *   "rebuild_db": <boolean> - rebuild the RPM DB if set to `true`
  * @return boolean
  */
 YCPValue
@@ -155,7 +156,21 @@ PkgFunctions::TargetInitializeOptions (const YCPString& root, const YCPMap& opti
 
     try
     {
-        zypp_ptr()->initializeTarget(r);
+        // do not rebuild the RPM DB by default
+        bool rebuild_db = false;
+
+        YCPString rebuild_db_key("rebuild_db");
+        YCPValue rebuild_db_value = options->value(rebuild_db_key);
+        if (!rebuild_db_value.isNull() && rebuild_db_value->isBoolean())
+        {
+            rebuild_db = rebuild_db_value->asBoolean()->value();
+        }
+
+        if (rebuild_db) {
+            y2milestone("RPM DB rebuild is enabled");
+        }
+
+        zypp_ptr()->initializeTarget(r, rebuild_db);
         SetTarget(r, options);
     }
     catch (zypp::Exception & excpt)
