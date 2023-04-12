@@ -159,15 +159,12 @@ PkgFunctions::TargetInitializeOptions (const YCPString& root, const YCPMap& opti
         // do not rebuild the RPM DB by default
         bool rebuild_db = false;
 
-        YCPString rebuild_db_key("rebuild_db");
+        const YCPString rebuild_db_key("rebuild_db");
         YCPValue rebuild_db_value = options->value(rebuild_db_key);
         if (!rebuild_db_value.isNull() && rebuild_db_value->isBoolean())
         {
             rebuild_db = rebuild_db_value->asBoolean()->value();
-        }
-
-        if (rebuild_db) {
-            y2milestone("RPM DB rebuild is enabled");
+            y2milestone("RPM DB rebuild is %s", rebuild_db ? "enabled" : "disabled");
         }
 
         zypp_ptr()->initializeTarget(r, rebuild_db);
