@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Apr 13 08:15:43 UTC 2023 - Ladislav Slezák <lslezak@suse.com>
+
+- Pkg.TargetInitializeOptions() - added a new option for
+  rebuilding the RPM database (--rebuilddb) (bsc#1209565)
+- 4.4.6
+
+-------------------------------------------------------------------
 Mon Nov 14 17:41:14 UTC 2022 - Ladislav Slezák <lslezak@suse.cz>
 
 - Allow querying orphaned packages (related to bsc#1202007)
