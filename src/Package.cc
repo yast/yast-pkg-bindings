@@ -2500,12 +2500,12 @@ YCPValue PkgFunctions::Commit (const YCPMap& config)
                 bool exclude_docs = config->value(key)->asBoolean()->value();
                 commit_policy->rpmExcludeDocs(exclude_docs);
 
-                y2milestone("Excluding documentation: %s", config->value(key)->asString()->value().c_str());
+                y2milestone("Excluding documentation: %s", config->value(key)->toString().c_str());
             }
             else
             {
-                y2error("Exclude documentation option: boolean is required, got: %s", config->value(key)->asString()->value().c_str());
-                _last_error.setLastError(std::string("Invalid exclude documentation option: ") + config->value(key)->asString()->value());
+                y2error("Exclude documentation option: boolean is required, got: %s", config->value(key)->toString().c_str());
+                _last_error.setLastError(std::string("Invalid exclude documentation option: ") + config->value(key)->toString());
 
 		delete commit_policy;
 		commit_policy = NULL;
@@ -2523,12 +2523,12 @@ YCPValue PkgFunctions::Commit (const YCPMap& config)
                 bool no_signature = config->value(key)->asBoolean()->value();
                 commit_policy->rpmNoSignature(no_signature);
 
-                y2milestone("Don't check RPM signature: %s", config->value(key)->asString()->value().c_str());
+                y2milestone("Don't check RPM signature: %s", config->value(key)->toString().c_str());
             }
             else
             {
-                y2error("No signature option: boolean is required, got: %s", config->value(key)->asString()->value().c_str());
-                _last_error.setLastError(std::string("Invalid no signature option: ") + config->value(key)->asString()->value());
+                y2error("No signature option: boolean is required, got: %s", config->value(key)->toString().c_str());
+                _last_error.setLastError(std::string("Invalid no signature option: ") + config->value(key)->toString());
 
 		delete commit_policy;
 		commit_policy = NULL;
