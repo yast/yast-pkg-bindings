@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Sep 13 16:36:53 UTC 2023 - Ladislav Slezák <lslezak@suse.com>
+
+- Fixed crash in the Pkg.Commit() function when passing
+  "exclude_docs" or "no_signature" options (bsc#1215238)
+- 5.0.1
+
+-------------------------------------------------------------------
 Wed Aug 30 20:16:10 UTC 2023 - Josef Reidinger <jreidinger@suse.cz>
 
 - 5.0.0 (#bsc1185510)
