@@ -259,7 +259,7 @@ PkgFunctions::SourceEditSet (const YCPList& states)
     if( !descr->value(YCPString("service")).isNull() && descr->value(YCPString("service"))->isString())
     {
         string service = descr->value(YCPString("service"))->asString()->value();
-	    y2debug("set service: %s", service.c_str());
+        y2debug("set service: %s", service.c_str());
         repo->repoInfo().setService(service);
     }
   }
