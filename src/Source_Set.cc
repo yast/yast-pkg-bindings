@@ -255,6 +255,13 @@ PkgFunctions::SourceEditSet (const YCPList& states)
         y2debug("set keeppackages: %d", keeppackages);
 	repo->repoInfo().setKeepPackages( keeppackages );
     }
+
+    if( !descr->value(YCPString("service")).isNull() && descr->value(YCPString("service"))->isString())
+    {
+        string service = descr->value(YCPString("service"))->asString()->value();
+	    y2debug("set service: %s", service.c_str());
+        repo->repoInfo().setService(service);
+    }
   }
 
   return YCPBoolean( !error );
