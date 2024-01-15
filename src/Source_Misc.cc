@@ -119,6 +119,8 @@ std::string PkgFunctions::zypp2yastType(const std::string &type)
       type_conversion_table["yast2"] = "YaST";
       type_conversion_table["plaindir"] = "Plaindir";
       type_conversion_table["NONE"] = "NONE";
+      // since libzypp-17.31.26
+      type_conversion_table["N/A"] = "NONE";
     }
 
     std::map<std::string,std::string>::const_iterator it = type_conversion_table.find(type);

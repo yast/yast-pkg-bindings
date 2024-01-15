@@ -2112,6 +2112,242 @@ PkgFunctions::PkgSolveErrors()
     return YCPVoid();
 }
 
+/**
+   @builtin PkgSolveProblems
+   @short Returns details about the solver problems
+
+   Only valid after a call of PkgSolve/PkgSolveCheckTargetOnly that returned false,
+   otherwise the result might not correspond to the current state.
+
+   @note The texts in the result are translated and respect the current locale.
+
+   @return list of solver problems with suggested solutions
+
+   @example Returned data structure
+    [
+        {
+            # description of the problem
+            "description" => <string>,
+            # details of the problem, can be a multiline text, can an empty string
+            "details" => <string>,
+            # list of proposed solutions, only one of then can be applied
+            "solutions" =>
+            [
+                {
+                    # description of the solution
+                    "description" => <string>,
+                    # details of the solution, can be a multiline text, can an empty string
+                    "details" => <string>
+                }
+            ]
+        }
+    ]
+
+   @example Example data
+    [
+        {
+            "description" => "the to be installed yast2-theme-SLE-4.5.0-lp154.2.1.noarch " \
+                "conflicts with 'namespace:otherproviders(yast2-branding)' provided by the " \
+                "installed yast2-theme-5.0.1-lp154.2.1.noarch",
+            "details" => "",
+            "solutions" =>
+            [
+                {
+                    "description" => "Following actions will be done:",
+                    "details" =>
+                        "deinstallation of yast2-theme-5.0.1-lp154.2.1.noarch\n" +
+                        "deinstallation of yast2-theme-oxygen-5.0.1-lp154.2.1.noarch\n" +
+                        "deinstallation of yast2-theme-breeze-5.0.1-lp154.2.1.noarch"
+                },
+                {
+                    "description" => "do not install yast2-theme-SLE-4.5.0-lp154.2.1.noarch",
+                    "details" => ""
+                }
+            ]
+        }
+    ]
+*/
+YCPValue
+PkgFunctions::PkgSolveProblems()
+{
+    YCPList ret;
+    auto problems = zypp_ptr()->resolver()->problems();
+    for_( problem, problems.begin(), problems.end() )
+    {
+        YCPMap problem_item;
+        // details about the problem
+        problem_item->add(YCPString("description"), YCPString((*problem)->description()));
+        problem_item->add(YCPString("details"), YCPString((*problem)->details()));
+
+        YCPList solutions;
+        for_( solution, (*problem)->solutions().begin(), (*problem)->solutions().end() )
+        {
+            YCPMap solution_item;
+            // details about the solution
+            solution_item->add(YCPString("description"), YCPString((*solution)->description()));
+            solution_item->add(YCPString("details"), YCPString((*solution)->details()));
+
+            solutions->add(solution_item);
+        }
+        problem_item->add(YCPString("solutions"), solutions);
+
+        ret->add(problem_item);
+    }
+    return ret;
+}
+
+/**
+ * @builtin PkgSetSolveSolutions
+ *
+ * Apply the proposed solver solutions. The input data is similar to the
+ * PkgSolveProblems() return value, just the solution data is a simple map,
+ * see the example.
+ *
+ * @see PkgSolveProblems
+ *
+ * @note When there are too many conflicts it might be better to apply the
+ * solutions iteratively in small batches instead of solving all problems at once.
+ * Some solutions might actually fix multiple problems.
+ *
+ * @note You need to run the solver after applying the solutions.
+ *
+ * @example Input data structure
+ *  [
+ *      {
+ *          # description of the problem (from the PkgSolveProblems() data)
+ *          "description" => <string>,
+ *          # details of the problem (from the PkgSolveProblems() data)
+ *          "details" => <string>,
+ *          # description of the solution (from the PkgSolveProblems() data)
+ *          "solution_description" => <string>,
+ *          # details of the solution (from the PkgSolveProblems() data)
+ *          "solution_details" => <string>
+ *      }
+ * ]
+ *
+ * @example Example call
+ * # see the PkgSolveProblems() example
+ * PkgSetSolveSolutions([
+ *  {
+ *      "description" => "the to be installed yast2-theme-SLE-4.5.0-lp154.2.1.noarch " \
+ *          "a word with 'namespace:otherproviders(yast2-branding)' provided by " \
+ *          "the installed yast2-theme-5.0.1-lp154.2.1.noarch",
+ *      "details" => "",
+ *      "solution_description" => "Following actions will be done:",
+ *      "solution_details" => "deinstallation of yast2-theme-5.0.1-lp154.2.1.noarch\n" \
+ *          "deinstallation of yast2-theme-oxygen-5.0.1-lp154.2.1.noarch\n" \
+ *          "deinstallation of yast2-theme-breeze-5.0.1-lp154.2.1.noarch"
+ *  }
+ * ])
+ *
+ * @param solutions List of requested solutions
+ * @return YCPValue
+ */
+YCPValue
+PkgFunctions::PkgSetSolveSolutions(const YCPList& solutions)
+{
+    y2milestone("Requested %d solutions", solutions->size());
+
+    zypp::ProblemSolutionList user_solutions;
+    bool error = false;
+    for (int index = 0; index < solutions->size(); index++ )
+    {
+        if (solutions->value(index).isNull() || !solutions->value(index)->isMap())
+        {
+	        y2error("Pkg::PkgSetSolveSolutions: entry not a map at index %d", index);
+	        error = true;
+	        continue;
+        }
+
+        YCPMap solution = solutions->value(index)->asMap();
+
+        // check missing keys
+        if (solution->value(YCPString("description")).isNull()
+            || solution->value(YCPString("details")).isNull()
+            || solution->value(YCPString("solution_description")).isNull()
+            || solution->value(YCPString("solution_details")).isNull())
+        {
+	        y2error("Pkg::PkgSetSolveSolutions: missing required map key at index %d", index);
+	        error = true;
+	        continue;
+        }
+
+        // check string keys
+        if (!solution->value(YCPString("description"))->isString()
+            || !solution->value(YCPString("details"))->isString()
+            || !solution->value(YCPString("solution_description"))->isString()
+            || !solution->value(YCPString("solution_details"))->isString())
+        {
+	        y2error("Pkg::PkgSetSolveSolutions: non-string map value at index %d", index);
+	        error = true;
+	        continue;
+        }
+
+        // get the keys
+        std::string problem_description = solution->value(YCPString("description"))->asString()->value();
+        std::string problem_details = solution->value(YCPString("details"))->asString()->value();
+        std::string solution_description = solution->value(YCPString("solution_description"))->asString()->value();
+        std::string solution_details = solution->value(YCPString("solution_details"))->asString()->value();
+
+        auto problems = zypp_ptr()->resolver()->problems();
+        bool found = false;
+        for_( problem, problems.begin(), problems.end() )
+        {
+            // find the problem
+            if ((*problem)->description() == problem_description && (*problem)->details() == problem_details)
+            {
+                for_( solution, (*problem)->solutions().begin(), (*problem)->solutions().end() )
+                {
+                    // find the solution
+                    if ((*solution)->description() == solution_description && (*solution)->details() == solution_details)
+                    {
+                        // remember the found solution
+                        user_solutions.push_back(*solution);
+                        found = true;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        // the specified solution was not found
+        if (!found) error = true;
+    }
+
+    y2milestone("Applying %ld solutions", user_solutions.size());
+    zypp::getZYpp()->resolver()->applySolutions(user_solutions);
+
+    return YCPBoolean(!error);
+}
+
+/**
+ * @builtin PkgResetSolveSolutions
+ *
+ * Resets all applied solver solutions.
+ *
+ * @note You need to run the solver after applying the solutions.
+ *
+ * @note The changes done by the previous solutions are kept. It only resets
+ * the internal libzypp lists so the solutions are not applied again, but the
+ * already done changes are not reverted. E.g. when a solution was to uninstall
+ * a package then the packages is still selected to uninstall even after resetting
+ * the applied solutions.
+ *
+ * @note The applied solutions are done on the user level, technically it is
+ * possible to revert them manually if there are no other user changes.
+ *
+ * @param solutions List of applied solutions
+ *
+ * @return YCPVoid
+ */
+YCPValue
+PkgFunctions::PkgResetSolveSolutions()
+{
+    zypp::getZYpp()->resolver()->undo();
+    return YCPVoid();
+}
+
 namespace
 {
   ///////////////////////////////////////////////////////////////////
