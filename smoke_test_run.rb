@@ -32,6 +32,10 @@ def check_y2log
   # no idea why that happens at Travis, let's ignore that...
   y2log.reject! { |l| l =~ /error: Interrupted system call/ }
 
+  # ignore solver errors, we create them deliberately
+  y2log.reject! { |l| l =~ /Solverrun finished with an ERROR/ }
+  y2log.reject! { |l| l =~ /PkgSolve: [0-9]+ packages failed/ }
+
   if !y2log.empty?
     puts "Found errors in #{log_file}:"
     puts y2log
@@ -150,7 +154,7 @@ puts "OK (found #{provide_packages.size} packages providing y2c_online_update)"
 
 removed = Yast::Pkg.ResolvableRemove("yast2-core", :package)
 raise "Cannot select yast2-core to uninstall" unless removed
-puts "OK (yast2-core selected to uninstall"
+puts "OK (yast2-core selected to uninstall)"
 
 selected_packages = Yast::Pkg.Resolvables({kind: :package, status: :selected}, [:name])
 raise "A package is selected to install (???)" unless selected_packages.empty?
@@ -160,6 +164,11 @@ removed_packages = Yast::Pkg.Resolvables({kind: :package, status: :removed}, [:n
 raise "No package to uninstall" if removed_packages.empty?
 raise "yast2-core not selected to uninstall" unless removed_packages.include?({"name" => "yast2-core"})
 puts "OK (yast2-core selected to uninstall)"
+
+Yast::Pkg.ResolvableNeutral("yast2-core", :package, false) # false = no force
+removed_packages = Yast::Pkg.Resolvables({kind: :package, status: :removed}, [:name])
+raise "A package still selected to uninstall" if !removed_packages.empty?
+puts "OK (yast2-core not selected to uninstall)"
 
 installed_products = Yast::Pkg.Resolvables({kind: :product, status: :installed}, [:name, :display_name])
 available_products = Yast::Pkg.Resolvables({kind: :product, status: :available}, [:name, :display_name])
@@ -171,6 +180,43 @@ raise "A selected product found, nothing should be selected now!" unless selecte
 puts "Found #{installed_products.size} installed products: #{installed_products.map{|p| p["display_name"]}}"
 puts "Found #{available_products.size} available products: #{available_products.map{|p| p["display_name"]}}"
 puts "OK"
+
+puts "Selecting opera package to install"
+Yast::Pkg.ResolvableInstall("opera", :package)
+solved = Yast::Pkg.PkgSolve(false)
+# the OSS repository providing the X11 dependencies is disabled, the package
+# cannot be installed without them
+raise "A solver problem is expected" if solved
+
+errors = Yast::Pkg.PkgSolveErrors
+raise "One solver error is expected" if errors != 1
+puts "OK (found one dependency error)"
+
+problems = Yast::Pkg.PkgSolveProblems
+raise "One solver problem is expected" if problems.size != 1
+puts "OK (found one dependency problem)"
+
+problem = problems.first
+# select the "do not install" solution
+solution = problem["solutions"].find{|s| s["description"].match(/do not install/i)}
+
+puts "Selecting a conflict solution"
+# set the selected solution
+Yast::Pkg.PkgSetSolveSolutions(
+  [
+    {
+      "description" => problem["description"],
+      "details" => problem["details"],
+      "solution_description" => solution["description"],
+      "solution_details" => solution["details"]
+    }
+  ]
+)
+
+# run the solver again
+solved = Yast::Pkg.PkgSolve(false)
+raise "A solver problem still exists" if !solved
+puts "OK (no dependency error anymore)"
 
 # scan y2log for errors
 check_y2log

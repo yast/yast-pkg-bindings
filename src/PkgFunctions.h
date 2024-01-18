@@ -695,6 +695,12 @@ class PkgFunctions
 	YCPBoolean PkgSolveCheckTargetOnly ();
 	/* TYPEINFO: integer()*/
 	YCPValue PkgSolveErrors ();
+	/* TYPEINFO: list<map<string,any>>()*/
+	YCPValue PkgSolveProblems ();
+	/* TYPEINFO: boolean(list<map<string,any>>)*/
+	YCPValue PkgSetSolveSolutions (const YCPList& solutions);
+	/* TYPEINFO: void()*/
+	YCPValue PkgResetSolveSolutions ();
         YCPValue CommitHelper(const zypp::ZYppCommitPolicy *policy);
 	/* TYPEINFO: list<any>(integer)*/
 	YCPValue PkgCommit (const YCPInteger& medianr);
