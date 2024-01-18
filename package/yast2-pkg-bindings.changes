@@ -2,7 +2,7 @@
 Tue Jan 16 14:32:15 UTC 2024 - Ladislav Slezák <lslezak@suse.com>
 
 - Added new pkg calls for managing and resolving the solver
-  conflits. Added PkgSolveProblems(), PkgSetSolveSolutions()
+  conflicts. Added PkgSolveProblems(), PkgSetSolveSolutions()
   and PkgResetSolveSolutions() calls. (gh#openSUSE/agama#944)
 - Libzypp 17.31.26+ uses "N/A" for unknown repository types
   instead of "NONE", support both cases (bsc#1218859)

@@ -2344,6 +2344,8 @@ PkgFunctions::PkgSetSolveSolutions(const YCPList& solutions)
 YCPValue
 PkgFunctions::PkgResetSolveSolutions()
 {
+    // the name is a bit confusing, it does not revert just the last change
+    // but resets everything
     zypp::getZYpp()->resolver()->undo();
     return YCPVoid();
 }
