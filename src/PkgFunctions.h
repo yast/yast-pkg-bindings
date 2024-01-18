@@ -149,7 +149,7 @@ class PkgFunctions
       bool remoteRepo(const zypp::Url &url);
 
       // conversion methods for type string between Yast and libzypp (for backward compatibility)
-      std::string zypp2yastType(const std::string &type);
+      std::string zypp2yastType(const zypp::repo::RepoType &type);
       std::string yast2zyppType(const std::string &type);
 
       // helper - create a directory if it doesn't exist
