@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Jan 19 14:23:03 UTC 2024 - Ladislav Slezák <lslezak@suse.com>
+
+- Fixed repository and service probing with libzypp 7.31.26
+  and newer, fixes broken repository handling (bsc#1218977,
+  bsc#1218399)
+- 4.6.5
+
+-------------------------------------------------------------------
 Wed Sep 20 08:57:18 UTC 2023 - Ladislav Slezák <lslezak@suse.com>
 
 - Pkg.SourceEditSet() - Allow setting the repository service name
