@@ -108,34 +108,18 @@ bool PkgFunctions::aliasExists(const std::string &alias, const std::list<zypp::R
 }
 
 // convert libzypp type to yast strings ("YaST", "YUM" or "Plaindir")
-std::string PkgFunctions::zypp2yastType(const std::string &type)
+std::string PkgFunctions::zypp2yastType(const zypp::repo::RepoType &type)
 {
-    std::string ret(type);
-
-    if (type_conversion_table.empty())
+    switch (type.toEnum())
     {
-      // initialize the conversion map
-      type_conversion_table["rpm-md"] = "YUM";
-      type_conversion_table["yast2"] = "YaST";
-      type_conversion_table["plaindir"] = "Plaindir";
-      type_conversion_table["NONE"] = "NONE";
-      // since libzypp-17.31.26
-      type_conversion_table["N/A"] = "NONE";
+      case zypp::repo::RepoType::NONE_e:        return "NONE";
+      case zypp::repo::RepoType::RPMMD_e:       return "YUM";
+      case zypp::repo::RepoType::YAST2_e:       return "YaST";
+      case zypp::repo::RepoType::RPMPLAINDIR_e: return "Plaindir";
     }
 
-    std::map<std::string,std::string>::const_iterator it = type_conversion_table.find(type);
-
-    // found in the conversion table
-    if (it != type_conversion_table.end())
-    {
-	ret = it->second;
-    }
-    else
-    {
-	y2error("Cannot convert type '%s'", type.c_str());
-    }
-
-    return ret;
+    // never reached, unhandled enums are treated as errors via the -Werror option
+    return "";
 }
 
 std::string PkgFunctions::yast2zyppType(const std::string &type)
@@ -161,7 +145,7 @@ std::string PkgFunctions::UniqueAlias(const std::string &alias)
     {
 	y2milestone("Alias %s already found: %lld", ret.c_str(), logFindAlias(ret));
 
-	// the alias already exists - add a counter 
+	// the alias already exists - add a counter
 	std::ostringstream ostr;
 	ostr << alias << "_" << id;
 
