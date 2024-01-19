@@ -29,7 +29,8 @@ fi
 AX_CHECK_DOCBOOK
 
 # libzypp uses the C++17 standard
-CXXFLAGS="${CXXFLAGS} -std=c++17"
+# treat missing values in switch statements as errors
+CXXFLAGS="${CXXFLAGS} -std=c++17 -Werror=switch"
 
 ## and generate the output
 @YAST2-OUTPUT@
