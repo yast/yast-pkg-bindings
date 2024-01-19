@@ -134,7 +134,7 @@ PkgFunctions::SourceGeneralData (const YCPInteger& id)
 	return YCPVoid ();
 
     // convert type to the old strings ("YaST", "YUM" or "Plaindir")
-    std::string srctype = zypp2yastType(repo->repoInfo().type().asString());
+    std::string srctype = zypp2yastType(repo->repoInfo().type());
 
     data->add( YCPString("enabled"),		YCPBoolean(repo->repoInfo().enabled()));
     data->add( YCPString("autorefresh"),	YCPBoolean(repo->repoInfo().autorefresh()));

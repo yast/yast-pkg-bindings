@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Jan 19 16:17:54 UTC 2024 - Ladislav Slezák <lslezak@suse.com>
+
+- Fixed repository and service probing with libzypp 7.31.26
+  and newer, fixes broken repository handling (bsc#1218977,
+  bsc#1218399)
+- 4.4.7
+
+-------------------------------------------------------------------
 Thu Apr 13 08:15:43 UTC 2023 - Ladislav Slezák <lslezak@suse.com>
 
 - Pkg.TargetInitializeOptions() - added a new option for
