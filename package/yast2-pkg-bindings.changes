@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Jan 22 15:45:05 UTC 2024 - Ladislav Slezák <lslezak@suse.com>
+
+- Fixed repository and service probing with libzypp 7.31.26
+  and newer, fixes broken repository handling (bsc#1218977,
+  bsc#1218399)
+- 4.2.17
+
+-------------------------------------------------------------------
 Tue Apr 27 08:23:29 UTC 2021 - Ladislav Slezák <lslezak@suse.cz>
 
 - Pkg.ProvidePackage() - download the latest package version from
