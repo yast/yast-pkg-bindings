@@ -299,7 +299,17 @@ bool ServiceManager::SetService(const std::string &old_alias, const zypp::Servic
 std::string ServiceManager::Probe(const zypp::Url &url, const zypp::RepoManager &repomgr) const
 {
     y2milestone("Probing service at %s...", url.asString().c_str());
-    std::string ret(repomgr.probeService(url).asString());
+
+    std::string ret;
+
+    zypp::repo::ServiceType type(repomgr.probeService(url));
+    switch (type.toEnum())
+    {
+      case zypp::repo::ServiceType::NONE_e:        ret = "NONE";    break;
+      case zypp::repo::ServiceType::PLUGIN_e:      ret = "plugin";  break;
+      case zypp::repo::ServiceType::RIS_e:         ret = "ris";     break;
+    }
+
     y2milestone("Detected service type: %s", ret.c_str());
 
     return ret;

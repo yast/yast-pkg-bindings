@@ -808,7 +808,7 @@ YCPValue PkgFunctions::RepositoryProbe(const YCPString& url, const YCPString& pr
 	// autoprobe type of the repository 
 	zypp::repo::RepoType repotype = ProbeWithCallbacks(probe_url);
 
-	ret = zypp2yastType(repotype.asString());
+	ret = zypp2yastType(repotype);
 	y2milestone("Detected type: '%s'...", ret.c_str());
     }
     catch (const zypp::Exception& excpt)
