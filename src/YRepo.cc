@@ -31,20 +31,59 @@
 
 IMPL_PTR_TYPE(YRepo);
 
+static int yrepo_no = 0;
+
 YRepo::YRepo(zypp::RepoInfo & repo)
     : _repo(repo), _deleted(false), _loaded(false)
-{}
+{
+    _url = _repo.url().asString();
+    _repo_no = ++yrepo_no;
+
+    if ( _url.empty() )
+        _url = "<empty>";
+
+    y2milestone("Creating YRepo #%d for %s", _repo_no, _url.c_str());
+}
+
+YRepo::YRepo()
+{
+    _url = "<default CTOR>";
+    _repo_no = ++yrepo_no;
+
+    y2milestone("YRepo #%d default CTOR ", _repo_no);
+}
+
+
+YRepo::YRepo(const YRepo &other)
+{
+    _repo_no = ++yrepo_no;
+    _url = other.debugUrl();
+
+    y2milestone("Copying YRepo #%d from #%d for %s", _repo_no, other.debugNo(), _url.c_str());
+}
+
 
 YRepo::~YRepo()
 {
+    y2milestone("Deleting YRepo #%d for %s", _repo_no, _url.c_str());
+
     if (_maccess)
     {
-        try { _maccess->release(); }
+        y2milestone("Releasing MediaAccess for YRepo #%d for %s", _repo_no, _url.c_str());
+
+        try
+        {
+            y2milestone("Before _maccess->release()");
+            _maccess->release();
+            y2milestone("After_maccess->release()");
+        }
         catch (const zypp::media::MediaException & ex)
 	{
 	    y2error("Error in ~Yrepo(): %s", ex.asString().c_str());
 	}
     }
+
+    y2milestone("DONE ~YRepo #%d for %s", _repo_no, _url.c_str());
 }
 
 zypp::MediaSetAccess_Ptr & YRepo::mediaAccess()

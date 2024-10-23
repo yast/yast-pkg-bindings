@@ -32,7 +32,7 @@ struct YaSTZyppLogger : public zypp::base::LogControl::LineWriter
 {
   virtual void writeOut( const std::string & formated_r )
   {
-    // don't log empty (debug) messages  
+    // don't log empty (debug) messages
     if (!formated_r.empty())
     {
 	y2lograw((formated_r+"\n").c_str());
@@ -65,17 +65,10 @@ PkgModule* PkgModule::instance ()
 {
     if (current_pkg == NULL)
     {
-	y2milestone("Redirecting ZYPP log to y2log");
-
-        boost::shared_ptr<YaSTZyppLogger> myLogger( new YaSTZyppLogger );
-        zypp::base::LogControl::instance().setLineWriter( myLogger );
-
-        boost::shared_ptr<YaSTZyppFormatter> myFormatter( new YaSTZyppFormatter );
-        zypp::base::LogControl::instance().setLineFormater( myFormatter );
-
+        registerZyppLogger();
 	current_pkg = new PkgModule ();
     }
-    
+
     return current_pkg;
 }
 
@@ -98,8 +91,34 @@ void PkgModule::destroy()
 {
     if (current_pkg != NULL)
     {
+        unregisterZyppLogger();
+
 	y2debug("Deleting PkgModule object...");
 	delete current_pkg;
 	current_pkg = NULL;
     }
 }
+
+
+void PkgModule::registerZyppLogger()
+{
+    y2milestone("Redirecting ZYPP log to y2log");
+
+    boost::shared_ptr<YaSTZyppLogger> myLogger( new YaSTZyppLogger );
+    zypp::base::LogControl::instance().setLineWriter( myLogger );
+
+    boost::shared_ptr<YaSTZyppFormatter> myFormatter( new YaSTZyppFormatter );
+    zypp::base::LogControl::instance().setLineFormater( myFormatter );
+}
+
+
+void PkgModule::unregisterZyppLogger()
+{
+    y2milestone("Closing down ZYPP logger");
+
+    zypp::base::LogControl::instance().setLineWriter( NULL );
+    zypp::base::LogControl::instance().setLineFormater( NULL );
+
+    y2milestone("ZYPP logger closed down.");
+}
+

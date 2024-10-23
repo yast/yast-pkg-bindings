@@ -40,8 +40,11 @@ private:
     zypp::MediaSetAccess_Ptr _maccess;
     bool _deleted;
     bool _loaded;
+    std::string _url;
+    int  _repo_no;
 
-    YRepo() {}
+    YRepo();
+    YRepo(const YRepo &other);
 
 public:
     YRepo(zypp::RepoInfo & repo);
@@ -57,6 +60,8 @@ public:
     bool isLoaded() {return _loaded;}
     void setLoaded() {_loaded = true;}
     void resetLoaded() {_loaded = false;}
+    std::string debugUrl() const { return _url; }
+    int debugNo() const { return _repo_no; }
 
 public:
     static const YRepo NOREPO;

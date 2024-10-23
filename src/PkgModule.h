@@ -47,6 +47,10 @@ class PkgModule : public PkgModuleFunctions
     static void destroy();
 
   private:
+
+    static void registerZyppLogger();
+    static void unregisterZyppLogger();
+
     static PkgModule* current_pkg;
 
 };

@@ -147,6 +147,13 @@ PkgFunctions::~PkgFunctions ()
 	base_product = NULL;
     }
 
+#if 1
+    y2milestone("Clearing repos...");
+    repos.clear();
+    y2milestone("...done.");
+    y2milestone("repos.size(): %d", (int) repos.size());
+#endif
+
     if (repo_manager)
     {
       y2milestone("Releasing the repo manager...");
@@ -158,7 +165,7 @@ PkgFunctions::~PkgFunctions ()
     {
 	y2milestone("Releasing the zypp pointer...");
 	zypp_pointer = NULL;
-	y2milestone("Zypp pointer released");
+	y2milestone("Zypp pointer released.");
     }
 }
 
