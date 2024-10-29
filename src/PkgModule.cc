@@ -93,9 +93,11 @@ void PkgModule::destroy()
     {
         unregisterZyppLogger();
 
-	y2debug("Deleting PkgModule object...");
+	y2milestone("NOT deleting PkgModule object...");
+#if 0
 	delete current_pkg;
 	current_pkg = NULL;
+#endif
     }
 }
 
