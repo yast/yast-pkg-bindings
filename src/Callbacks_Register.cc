@@ -29,6 +29,7 @@
 #include "Callbacks.h"
 #include "Callbacks.YCP.h" // PkgFunctions::CallbackHandler::YCPCallbacks
 #include "log.h"
+#include <ycp/y2log.h>
 
 
 ///////////////////////////////////////////////////////////////////
@@ -346,6 +347,7 @@ YCPValue PkgFunctions::CallbackPkgGpgCheck( const YCPValue& args)
  */
 YCPValue PkgFunctions::CallbackSourceCreateStart( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceCreateStart is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
@@ -359,6 +361,7 @@ YCPValue PkgFunctions::CallbackSourceCreateStart( const YCPValue& args)
  */
 YCPValue PkgFunctions::CallbackSourceCreateProgress( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceCreateProgress is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
@@ -371,6 +374,7 @@ YCPValue PkgFunctions::CallbackSourceCreateProgress( const YCPValue& args)
  */
 YCPValue PkgFunctions::CallbackSourceCreateError( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceCreateError is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
@@ -383,6 +387,7 @@ YCPValue PkgFunctions::CallbackSourceCreateError( const YCPValue& args)
  */
 YCPValue PkgFunctions::CallbackSourceCreateEnd( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceCreateEnd is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
@@ -395,6 +400,7 @@ YCPValue PkgFunctions::CallbackSourceCreateEnd( const YCPValue& args)
  */
 YCPValue PkgFunctions::CallbackSourceProbeStart( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceProbeStart is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
@@ -407,6 +413,7 @@ YCPValue PkgFunctions::CallbackSourceProbeStart( const YCPValue& args)
  */
 YCPValue PkgFunctions::CallbackSourceProbeFailed( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceProbeFailed is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
@@ -419,6 +426,7 @@ YCPValue PkgFunctions::CallbackSourceProbeFailed( const YCPValue& args)
  */
 YCPValue PkgFunctions::CallbackSourceProbeSucceeded( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceProbeSucceeded is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
@@ -431,6 +439,7 @@ YCPValue PkgFunctions::CallbackSourceProbeSucceeded( const YCPValue& args)
  */
 YCPValue PkgFunctions::CallbackSourceProbeEnd( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceProbeEnd is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
@@ -443,6 +452,7 @@ YCPValue PkgFunctions::CallbackSourceProbeEnd( const YCPValue& args)
  */
 YCPValue PkgFunctions::CallbackSourceProbeProgress( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceProbeProgress is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
@@ -455,26 +465,31 @@ YCPValue PkgFunctions::CallbackSourceProbeProgress( const YCPValue& args)
  */
 YCPValue PkgFunctions::CallbackSourceProbeError( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceProbeError is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
 YCPValue PkgFunctions::CallbackSourceReportInit( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceReportInit is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
 YCPValue PkgFunctions::CallbackSourceReportDestroy( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceReportDestroy is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
 YCPValue PkgFunctions::CallbackSourceCreateInit( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceCreateInit is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
 YCPValue PkgFunctions::CallbackSourceCreateDestroy( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceCreateDestroy is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
@@ -487,6 +502,7 @@ YCPValue PkgFunctions::CallbackSourceCreateDestroy( const YCPValue& args)
  */
 YCPValue PkgFunctions::CallbackSourceReportStart( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceReportStart is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
@@ -499,6 +515,7 @@ YCPValue PkgFunctions::CallbackSourceReportStart( const YCPValue& args)
  */
 YCPValue PkgFunctions::CallbackSourceReportProgress( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceReportProgress is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
@@ -511,6 +528,7 @@ YCPValue PkgFunctions::CallbackSourceReportProgress( const YCPValue& args)
  */
 YCPValue PkgFunctions::CallbackSourceReportError( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceReportError is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
@@ -523,6 +541,7 @@ YCPValue PkgFunctions::CallbackSourceReportError( const YCPValue& args)
  */
 YCPValue PkgFunctions::CallbackSourceReportEnd( const YCPValue& args)
 {
+    ycpmilestone("Pkg::CallbackSourceReportEnd is obsolete and does nothing, remove it");
     return YCPVoid();
 }
 
