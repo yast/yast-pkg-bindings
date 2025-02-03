@@ -29,6 +29,7 @@
 #include "Callbacks.h"
 #include "Callbacks.YCP.h" // PkgFunctions::CallbackHandler::YCPCallbacks
 #include "log.h"
+#include <ycp/y2log.h>
 
 
 ///////////////////////////////////////////////////////////////////
@@ -340,182 +341,209 @@ YCPValue PkgFunctions::CallbackPkgGpgCheck( const YCPValue& args)
 /**
  * @builtin CallbackSourceCreateStart
  * @short Register callback function
+ * @deprecated libzypp never emit it
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string url)</code>. The callback is evaluated when a source creation has been started.
  * @return void
  */
 YCPValue PkgFunctions::CallbackSourceCreateStart( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceCreateStart, args);
+    ycpmilestone("Pkg::CallbackSourceCreateStart is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 
 /**
  * @builtin CallbackSourceProgressData
+ * @deprecated libzypp never emit it
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(integer value)</code>. The callback function is evaluated when more than 5% of the data has been processed since the last evaluation. If the handler returns false the download is aborted.
  * @return void
  */
 YCPValue PkgFunctions::CallbackSourceCreateProgress( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceCreateProgress, args);
+    ycpmilestone("Pkg::CallbackSourceCreateProgress is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 /**
  * @builtin CallbackSourceCreateError
+ * @deprecated libzypp never emit it
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>string(string url, string err_code, string description)</code>. err_code is "NO_ERROR", "NOT_FOUND" (the URL was not found), "IO" (I/O error) or "INVALID" (the source is not valid). The callback function must return "ABORT" or "RETRY". The callback function is evaluated when an error occurrs during creation of the source.
  * @return void
  */
 YCPValue PkgFunctions::CallbackSourceCreateError( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceCreateError, args);
+    ycpmilestone("Pkg::CallbackSourceCreateError is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 /**
  * @builtin CallbackSourceCreateEnd
+ * @deprecated libzypp never emit it
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string url, string err_code, string description)</code>. err_code is "NO_ERROR", "NOT_FOUND" (the URL was not found), "IO" (I/O error) or "INVALID" (the source is not valid). The callback function is evaluated when creation of the source has been finished.
  * @return void
  */
 YCPValue PkgFunctions::CallbackSourceCreateEnd( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceCreateEnd, args);
+    ycpmilestone("Pkg::CallbackSourceCreateEnd is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
-
-
-
 
 /**
  * @builtin CallbackSourceProbeStart
+ * @deprecated libzypp never emit it
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string url)</code>. The callback function is evaluated when source probing has been started.
  * @return void
  */
 YCPValue PkgFunctions::CallbackSourceProbeStart( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceProbeStart, args);
+    ycpmilestone("Pkg::CallbackSourceProbeStart is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 /**
  * @builtin CallbackSourceProbeFailed
+ * @deprecated libzypp never emit it
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string url, string type)</code>. The callback function is evaluated when the probed source has different type.
  * @return void
  */
 YCPValue PkgFunctions::CallbackSourceProbeFailed( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceProbeFailed, args);
+    ycpmilestone("Pkg::CallbackSourceProbeFailed is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 /**
  * @builtin CallbackSourceProbeSucceeded
+ * @deprecated libzypp never emit it
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string url, string type)</code>. The callback function is evaluated when the probed source has type <code>type</code>.
  * @return void
  */
 YCPValue PkgFunctions::CallbackSourceProbeSucceeded( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceProbeSucceeded, args);
+    ycpmilestone("Pkg::CallbackSourceProbeSucceeded is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 /**
  * @builtin CallbackSourceProbeEnd
+ * @deprecated libzypp never emit it
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(string url, string error, string reason)</code>. The callback function is evaluated when source probing has been finished.
  * @return void
  */
 YCPValue PkgFunctions::CallbackSourceProbeEnd( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceProbeEnd, args);
+    ycpmilestone("Pkg::CallbackSourceProbeEnd is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 /**
  * @builtin CallbackSourceProbeProgress
+ * @deprecated libzypp never emit it
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(integer value)</code>. If the handler returns false the refresh is aborted.
  * @return void
  */
 YCPValue PkgFunctions::CallbackSourceProbeProgress( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceProbeProgress, args);
+    ycpmilestone("Pkg::CallbackSourceProbeProgress is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 /**
  * @builtin CallbackSourceProbeError
+ * @deprecated libzypp never emit it
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>string(string url, string error, string reason)</code>. The callback function is evaluated when an error occurrs. The callback function must return string "ABORT" or "RETRY".
  * @return void
  */
 YCPValue PkgFunctions::CallbackSourceProbeError( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceProbeError, args);
+    ycpmilestone("Pkg::CallbackSourceProbeError is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
-
 
 YCPValue PkgFunctions::CallbackSourceReportInit( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceReportInit, args);
+    ycpmilestone("Pkg::CallbackSourceReportInit is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 YCPValue PkgFunctions::CallbackSourceReportDestroy( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceReportDestroy, args);
+    ycpmilestone("Pkg::CallbackSourceReportDestroy is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 YCPValue PkgFunctions::CallbackSourceCreateInit( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceCreateInit, args);
+    ycpmilestone("Pkg::CallbackSourceCreateInit is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 YCPValue PkgFunctions::CallbackSourceCreateDestroy( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceCreateDestroy, args);
+    ycpmilestone("Pkg::CallbackSourceCreateDestroy is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 /**
  * @builtin CallbackSourceReportStart
+ * @deprecated libzypp never emit it
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(integer source_id, string url, string task)</code>.
  * @return void
  */
 YCPValue PkgFunctions::CallbackSourceReportStart( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceReportStart, args);
+    ycpmilestone("Pkg::CallbackSourceReportStart is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 /**
  * @builtin CallbackSourceReportProgress
+ * @deprecated libzypp never emit it
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(integer value)</code>. If the handler returns false the task is aborted.
  * @return void
  */
 YCPValue PkgFunctions::CallbackSourceReportProgress( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceReportProgress, args);
+    ycpmilestone("Pkg::CallbackSourceReportProgress is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 /**
  * @builtin CallbackSourceReportError
+ * @deprecated libzypp never emit it
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>string(integer numeric_id, string url, string error, string reason)</code>. Parameter error is "NO_ERROR", "NOT_FOUND", "IO" or "INVALID". The callback function is evaluated when an error occurrs. The callback function must return string "ABORT", "IGNORE" or "RETRY".
  * @return void
  */
 YCPValue PkgFunctions::CallbackSourceReportError( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceReportError, args);
+    ycpmilestone("Pkg::CallbackSourceReportError is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
 
 /**
  * @builtin CallbackSourceReportEnd
+ * @deprecated libzypp never emit it
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>void(integer numeric_id, string url, string task, string error, string reason)</code>. Parameter error is "NO_ERROR", "NOT_FOUND", "IO" or "INVALID". The callback function is evaluated when an error occurrs. The callback function must return string "ABORT", "IGNORE" or "RETRY".
  * @return void
  */
 YCPValue PkgFunctions::CallbackSourceReportEnd( const YCPValue& args)
 {
-    return SET_YCP_CB( CB_SourceReportEnd, args);
+    ycpmilestone("Pkg::CallbackSourceReportEnd is obsolete and does nothing, remove it");
+    return YCPVoid();
 }
-
 
 YCPValue PkgFunctions::CallbackStartDownload( const YCPValue& args ) {
     return SET_YCP_CB( CB_StartDownload, args );
