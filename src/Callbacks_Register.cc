@@ -66,6 +66,17 @@ YCPValue PkgFunctions::CallbackResolvableReport( const YCPValue& args ) {
   return SET_YCP_CB( CB_ResolvableReport, args );
 }
 
+YCPValue PkgFunctions::CallbackStartInstallResolvableSA( const YCPValue& args ) {
+  return SET_YCP_CB( CB_StartInstallResolvableSA, args );
+}
+YCPValue PkgFunctions::CallbackProgressInstallResolvableSA( const YCPValue& args ) {
+  return SET_YCP_CB( CB_ProgressInstallResolvableSA, args );
+}
+YCPValue PkgFunctions::CallbackFinishInstallResolvableSA( const YCPValue& args ) {
+  return SET_YCP_CB( CB_FinishInstallResolvableSA, args );
+}
+
+
 /**
  * @builtin CallbackImportGpgKey
  * @short Register callback function

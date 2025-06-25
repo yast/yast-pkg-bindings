@@ -69,6 +69,7 @@ class PkgFunctions::CallbackHandler::YCPCallbacks
       CB_StartScanDb, CB_ProgressScanDb, CB_ErrorScanDb, CB_DoneScanDb,
       CB_StartProvide, CB_ProgressProvide, CB_DoneProvide,
       CB_StartPackage, CB_ProgressPackage, CB_DonePackage,
+      CB_StartInstallResolvableSA, CB_ProgressInstallResolvableSA, CB_FinishInstallResolvableSA,
 
       CB_SourceCreateStart, CB_SourceCreateProgress, CB_SourceCreateError, CB_SourceCreateEnd,
       CB_SourceCreateInit, CB_SourceCreateDestroy,
