@@ -153,10 +153,7 @@ namespace ZyppRecipients {
 		    CB callback( ycpcb( YCPCallbacks::CB_StartInstallResolvableSA ) );
 
 				if (callback._set) {
-					YCPMap data;
-					data->add(YCPString("name"), YCPString(resolvable->name()));
-
-					callback.addMap(data);
+					callback.addMap(resolvable2map(resolvable));
 					callback.evaluate();
 				}
 			}
@@ -166,10 +163,7 @@ namespace ZyppRecipients {
 		    CB callback( ycpcb( YCPCallbacks::CB_ProgressInstallResolvableSA ) );
 
 				if (callback._set) {
-					YCPMap data;
-					data->add(YCPString("name"), YCPString(resolvable->name()));
-
-					callback.addMap(data);
+					callback.addMap(resolvable2map(resolvable));
 					callback.addInt(value);
 					callback.evaluate();
 				}
@@ -180,12 +174,37 @@ namespace ZyppRecipients {
 		    CB callback( ycpcb( YCPCallbacks::CB_FinishInstallResolvableSA ) );
 
 				if (callback._set) {
-					YCPMap data;
-					data->add(YCPString("name"), YCPString(resolvable->name()));
-
-					callback.addMap(data);
+					callback.addMap(resolvable2map(resolvable));
 					callback.evaluate();
 				}
+			}
+
+			private:
+
+			YCPMap resolvable2map(zypp::Resolvable::constPtr resolvable) {
+				YCPMap map;
+				map->add(YCPString("name"), YCPString(resolvable->name()));
+				map->add(YCPString("version"), YCPString(resolvable->edition().asString()));
+				map->add(YCPString("arch"), YCPString(resolvable->arch().asString()));
+				map->add(YCPString("repo_alias"), YCPString(resolvable->repoInfo().alias()));
+
+				string kind;
+				if (resolvable->isKind<zypp::Package>()) {
+					kind = "package";
+				} else if (resolvable->isKind<zypp::Patch>()) {
+					kind = "patch";
+				} else if (resolvable->isKind<zypp::Pattern>()) {
+					kind = "pattern";
+				} else if (resolvable->isKind<zypp::SrcPackage>()) {
+					kind = "srcpackage";
+				} else if (resolvable->isKind<zypp::Product>()) {
+					kind = "product";
+				} else {
+					y2error("Unknown resolvable kind");
+				}
+				map->add(YCPString("kind"), YCPString(kind));
+
+				return map;
 			}
 		};
 
