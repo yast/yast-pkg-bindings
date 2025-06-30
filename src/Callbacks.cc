@@ -146,67 +146,67 @@ namespace ZyppRecipients {
     ///////////////////////////////////////////////////////////////////
     struct InstallResolvableReportSA : public Recipient, public zypp::callback::ReceiveReport<zypp::target::rpm::InstallResolvableReportSA>
     {
-			InstallResolvableReportSA( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
+	InstallResolvableReportSA( RecipientCtl & construct_r ) : Recipient( construct_r ) {}
 
-			virtual void start(zypp::Resolvable::constPtr resolvable, const UserData &userdata = UserData())
-      {
-		    CB callback( ycpcb( YCPCallbacks::CB_StartInstallResolvableSA ) );
+        virtual void start(zypp::Resolvable::constPtr resolvable, const UserData &userdata = UserData())
+        {
+	    CB callback( ycpcb( YCPCallbacks::CB_StartInstallResolvableSA ) );
 
-				if (callback._set) {
-					callback.addMap(resolvable2map(resolvable));
-					callback.evaluate();
-				}
-			}
+	    if (callback._set) {
+		callback.addMap(resolvable2map(resolvable));
+		callback.evaluate();
+	    }
+	}
 
-      virtual void progress(int value, zypp::Resolvable::constPtr resolvable, const UserData &userdata = UserData())
-      {
-		    CB callback( ycpcb( YCPCallbacks::CB_ProgressInstallResolvableSA ) );
+	virtual void progress(int value, zypp::Resolvable::constPtr resolvable, const UserData &userdata = UserData())
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_ProgressInstallResolvableSA ) );
 
-				if (callback._set) {
-					callback.addMap(resolvable2map(resolvable));
-					callback.addInt(value);
-					callback.evaluate();
-				}
-			}
+	    if (callback._set) {
+		callback.addMap(resolvable2map(resolvable));
+		callback.addInt(value);
+		callback.evaluate();
+		}
+	}
 
-      virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, const UserData &userdata = UserData())
-			{
-		    CB callback( ycpcb( YCPCallbacks::CB_FinishInstallResolvableSA ) );
+	virtual void finish(zypp::Resolvable::constPtr resolvable, Error error, const UserData &userdata = UserData())
+	{
+	    CB callback( ycpcb( YCPCallbacks::CB_FinishInstallResolvableSA ) );
 
-				if (callback._set) {
-					callback.addMap(resolvable2map(resolvable));
-					callback.evaluate();
-				}
-			}
+	    if (callback._set) {
+		callback.addMap(resolvable2map(resolvable));
+		callback.evaluate();
+	    }
+	}
 
-			private:
+    private:
 
-			YCPMap resolvable2map(zypp::Resolvable::constPtr resolvable) {
-				YCPMap map;
-				map->add(YCPString("name"), YCPString(resolvable->name()));
-				map->add(YCPString("version"), YCPString(resolvable->edition().asString()));
-				map->add(YCPString("arch"), YCPString(resolvable->arch().asString()));
-				map->add(YCPString("repo_alias"), YCPString(resolvable->repoInfo().alias()));
+	YCPMap resolvable2map(zypp::Resolvable::constPtr resolvable) {
+	    YCPMap map;
+	    map->add(YCPString("name"), YCPString(resolvable->name()));
+	    map->add(YCPString("version"), YCPString(resolvable->edition().asString()));
+	    map->add(YCPString("arch"), YCPString(resolvable->arch().asString()));
+	    map->add(YCPString("repo_alias"), YCPString(resolvable->repoInfo().alias()));
 
-				string kind;
-				if (resolvable->isKind<zypp::Package>()) {
-					kind = "package";
-				} else if (resolvable->isKind<zypp::Patch>()) {
-					kind = "patch";
-				} else if (resolvable->isKind<zypp::Pattern>()) {
-					kind = "pattern";
-				} else if (resolvable->isKind<zypp::SrcPackage>()) {
-					kind = "srcpackage";
-				} else if (resolvable->isKind<zypp::Product>()) {
-					kind = "product";
-				} else {
-					y2error("Unknown resolvable kind");
-				}
-				map->add(YCPString("kind"), YCPString(kind));
+	    string kind;
+	    if (resolvable->isKind<zypp::Package>()) {
+		kind = "package";
+	    } else if (resolvable->isKind<zypp::Patch>()) {
+		kind = "patch";
+	    } else if (resolvable->isKind<zypp::Pattern>()) {
+		kind = "pattern";
+	    } else if (resolvable->isKind<zypp::SrcPackage>()) {
+		kind = "srcpackage";
+	    } else if (resolvable->isKind<zypp::Product>()) {
+		kind = "product";
+	    } else {
+		y2error("Unknown resolvable kind");
+	    }
+	    map->add(YCPString("kind"), YCPString(kind));
 
-				return map;
-			}
-		};
+	    return map;
+	}
+    };
 
     ///////////////////////////////////////////////////////////////////
     // InstallPkgCallback
@@ -1493,7 +1493,7 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
     ZyppRecipients::RemovePkgReceive  _removePkgReceive;
     ZyppRecipients::DownloadResolvableReceive _providePkgReceive;
     ZyppRecipients::FileConflictReceive _fileConflictReceive;
-		ZyppRecipients::InstallResolvableReportSA _installResolvableReportSA;
+    ZyppRecipients::InstallResolvableReportSA _installResolvableReportSA;
 
     // media callback
     ZyppRecipients::MediaChangeReceive   _mediaChangeReceive;
@@ -1526,7 +1526,7 @@ class PkgFunctions::CallbackHandler::ZyppReceive : public ZyppRecipients::Recipi
       , _removePkgReceive( *this )
       , _providePkgReceive( *this, pkg )
       , _fileConflictReceive( *this )
-			, _installResolvableReportSA( *this )
+      , _installResolvableReportSA( *this )
       , _mediaChangeReceive( *this )
       , _downloadProgressReceive( *this )
       , _scriptExecReceive( *this )
