@@ -321,6 +321,13 @@ class PkgFunctions
 	/* TYPEINFO: void(string(integer,string)) */
 	YCPValue CallbackDonePackage (const YCPValue& /*nil*/ args);
 
+	/* TYPEINFO: void(void(map<string,any>)) */
+	YCPValue CallbackStartInstallResolvableSA( const YCPValue& args );
+	/* TYPEINFO: void(void(map<string,any>,integer)) */
+	YCPValue CallbackProgressInstallResolvableSA( const YCPValue& args );
+	/* TYPEINFO: void(void(map<string,any>)) */
+	YCPValue CallbackFinishInstallResolvableSA( const YCPValue& args );
+
 	/* TYPEINFO: void(void(string,integer)) */
 	YCPValue CallbackStartDeltaDownload( const YCPValue& /*nil*/ args);
 	/* TYPEINFO: void(boolean(integer)) */

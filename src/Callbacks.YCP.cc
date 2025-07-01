@@ -58,6 +58,9 @@
 	ENUM_OUT( DoneDownload );
 	ENUM_OUT( InitDownload );
 	ENUM_OUT( DestDownload );
+	ENUM_OUT( StartInstallResolvableSA );
+	ENUM_OUT( ProgressInstallResolvableSA );
+	ENUM_OUT( FinishInstallResolvableSA );
 
 	ENUM_OUT( ScriptStart );
 	ENUM_OUT( ScriptProgress );

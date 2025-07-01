@@ -29,6 +29,9 @@ def check_y2log
   # (when running as non-root)
   y2log.reject! { |l| l =~ /\/var\/lib\/zypp\/LastDistributionFlavor/ }
 
+  # ignore repository mirror errors
+  y2log.reject! { |l| l =~ /Failed to read RepoMirrorList file/ }
+
   # no idea why that happens at Travis, let's ignore that...
   y2log.reject! { |l| l =~ /error: Interrupted system call/ }
 

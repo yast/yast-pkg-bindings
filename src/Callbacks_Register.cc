@@ -67,6 +67,36 @@ YCPValue PkgFunctions::CallbackResolvableReport( const YCPValue& args ) {
 }
 
 /**
+ * @builtin CallbackStartInstallResolvableSA
+ * @short Register callback for: Resolvable installation start
+ * @param funref cb Callback with prototype <code>void(map<string,any> resolvable)</code>. The map has string values for these string keys: kind, name, version, arch, repo_alias.
+ * @return void
+ */
+YCPValue PkgFunctions::CallbackStartInstallResolvableSA( const YCPValue& args ) {
+  return SET_YCP_CB( CB_StartInstallResolvableSA, args );
+}
+/**
+ * @builtin CallbackProgressInstallResolvableSA
+ * @short Register callback for: Resolvable installation progress
+ * @param funref cb Callback with prototype <code>void(map<string,any> resolvable, integer value)</code>. The map has string values for these string keys: kind, name, version, arch, repo_alias.
+ * @return void
+ */
+
+YCPValue PkgFunctions::CallbackProgressInstallResolvableSA( const YCPValue& args ) {
+  return SET_YCP_CB( CB_ProgressInstallResolvableSA, args );
+}
+/**
+ * @builtin CallbackFinishInstallResolvableSA
+ * @short Register callback for: Resolvable installation finish
+ * @param funref cb Callback with prototype <code>void(map<string,any> resolvable)</code>. The map has string values for these string keys: kind, name, version, arch, repo_alias.
+ * @return void
+ */
+YCPValue PkgFunctions::CallbackFinishInstallResolvableSA( const YCPValue& args ) {
+  return SET_YCP_CB( CB_FinishInstallResolvableSA, args );
+}
+
+
+/**
  * @builtin CallbackImportGpgKey
  * @short Register callback function
  * @param string args Name of the callback handler function. Required callback prototype is <code>boolean(map<string,any> key, integer repo_id)</code>. The callback function should ask user whether the key is trusted and can be imported, returned 'true' value means to import the trusted key
