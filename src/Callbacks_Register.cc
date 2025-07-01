@@ -66,12 +66,31 @@ YCPValue PkgFunctions::CallbackResolvableReport( const YCPValue& args ) {
   return SET_YCP_CB( CB_ResolvableReport, args );
 }
 
+/**
+ * @builtin CallbackStartInstallResolvableSA
+ * @short Register callback for: Resolvable installation start
+ * @param funref cb Callback with prototype <code>void(map<string,any> resolvable)</code>. The map has string values for these string keys: kind, name, version, arch, repo_alias.
+ * @return void
+ */
 YCPValue PkgFunctions::CallbackStartInstallResolvableSA( const YCPValue& args ) {
   return SET_YCP_CB( CB_StartInstallResolvableSA, args );
 }
+/**
+ * @builtin CallbackProgressInstallResolvableSA
+ * @short Register callback for: Resolvable installation progress
+ * @param funref cb Callback with prototype <code>void(map<string,any> resolvable, integer value)</code>. The map has string values for these string keys: kind, name, version, arch, repo_alias.
+ * @return void
+ */
+
 YCPValue PkgFunctions::CallbackProgressInstallResolvableSA( const YCPValue& args ) {
   return SET_YCP_CB( CB_ProgressInstallResolvableSA, args );
 }
+/**
+ * @builtin CallbackFinishInstallResolvableSA
+ * @short Register callback for: Resolvable installation finish
+ * @param funref cb Callback with prototype <code>void(map<string,any> resolvable)</code>. The map has string values for these string keys: kind, name, version, arch, repo_alias.
+ * @return void
+ */
 YCPValue PkgFunctions::CallbackFinishInstallResolvableSA( const YCPValue& args ) {
   return SET_YCP_CB( CB_FinishInstallResolvableSA, args );
 }
